@@ -107,7 +107,7 @@ export default function QuickValuation({ compact = false }: { compact?: boolean 
             {result.hint} Diese Indikation ist <strong>kein Verkehrswertgutachten</strong> — sie basiert auf öffentlichen Bodenrichtwerten und tatsächlich gezahlten Kaufpreisen 2024 im Kreis Lippe und ist als Orientierung zu verstehen.
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
-            <Link href="/kontakt" className="btn-on-dark">
+            <Link href="/kontakt#formular" className="btn-on-dark">
               Genaue Bewertung anfragen
             </Link>
           </div>

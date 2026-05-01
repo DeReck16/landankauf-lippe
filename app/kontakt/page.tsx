@@ -22,7 +22,7 @@ export default function Page() {
 
       <section className="section">
         <div className="container-page grid gap-10 lg:grid-cols-[1fr_1.2fr]">
-          <div>
+          <div className="order-2 lg:order-1">
             <span className="eyebrow">Direkt erreichbar</span>
             <hr className="divider mt-3" />
             <h2 className="text-3xl font-serif">So erreichen Sie uns</h2>
@@ -98,7 +98,7 @@ export default function Page() {
               </p>
             </div>
           </div>
-          <div>
+          <div id="formular" className="order-1 lg:order-2 scroll-mt-24">
             <LeadForm source="kontakt" defaultIntent="Allgemein" title="Schreiben Sie uns" subtitle="Wir melden uns innerhalb von 24 Stunden persönlich." />
           </div>
         </div>

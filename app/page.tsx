@@ -262,7 +262,7 @@ export default function Home() {
               Bauland ist nicht unser Schwerpunkt — aber wir beraten und kaufen auch hier. Erschlossene Grundstücke, Hofstellen mit Bauerwartungsland, Innenbereichsflächen nach § 34 BauGB oder Außenbereichsflächen mit Aussicht auf Bebauungsplan: sprechen Sie uns an, wir verschaffen Ihnen einen Überblick.
             </p>
           </div>
-          <Link href="/kontakt" className="btn-primary whitespace-nowrap self-start md:self-center">Bauland anfragen</Link>
+          <Link href="/kontakt#formular" className="btn-primary whitespace-nowrap self-start md:self-center">Bauland anfragen</Link>
         </div>
       </section>
 
@@ -353,7 +353,7 @@ export default function Home() {
             Rufen Sie uns an oder schreiben Sie uns eine Nachricht — wir melden uns innerhalb von 24 Stunden.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Link href="/kontakt" className="btn-primary">Anfrage starten</Link>
+            <Link href="/kontakt#formular" className="btn-primary">Anfrage starten</Link>
             <ClickToReveal
               encoded={site.contact.phoneEncoded}
               type="tel"

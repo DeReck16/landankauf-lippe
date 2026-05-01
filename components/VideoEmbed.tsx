@@ -20,7 +20,7 @@ export default function VideoEmbed() {
             <Link href="/flaeche-bewerten" className="btn-on-dark">
               Jetzt bewerten
             </Link>
-            <Link href="/kontakt" className="btn-secondary border-white/40 text-white hover:bg-white/10">
+            <Link href="/kontakt#formular" className="btn-secondary border-white/40 text-white hover:bg-white/10">
               Direkt anfragen
             </Link>
           </div>

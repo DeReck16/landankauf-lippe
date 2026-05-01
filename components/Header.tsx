@@ -43,7 +43,7 @@ export default function Header() {
             revealedClassName="hidden md:inline-flex items-center text-sm text-[color:var(--color-brand-dark)] hover:text-[color:var(--color-brand)] font-medium"
           />
           <Link
-            href="/kontakt"
+            href="/kontakt#formular"
             className="btn-primary text-sm h-10 px-5"
             aria-label="Anfrage senden"
           >
