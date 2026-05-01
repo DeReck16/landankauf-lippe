@@ -60,7 +60,7 @@ export default function Home() {
           fill
           priority
           sizes="100vw"
-          className="object-cover opacity-40"
+          className="object-cover opacity-40 pointer-events-none"
         />
         <div
           aria-hidden
@@ -70,7 +70,7 @@ export default function Home() {
               "linear-gradient(180deg, rgba(28,37,25,0.55) 0%, rgba(28,37,25,0.85) 100%), radial-gradient(60% 60% at 70% 20%, rgba(200,155,60,0.18), transparent 70%), radial-gradient(50% 50% at 10% 90%, rgba(47,93,58,0.45), transparent 70%)",
           }}
         />
-        <div className="container-page relative px-5 pt-20 pb-24 md:pt-28 md:pb-32 grid gap-12 lg:grid-cols-[1.1fr_1fr] items-center">
+        <div className="container-page relative z-10 px-5 pt-20 pb-24 md:pt-28 md:pb-32 grid gap-12 lg:grid-cols-[1.1fr_1fr] items-center">
           <div>
             <span className="eyebrow text-[color:var(--color-accent)]">Kreis Lippe · Ostwestfalen</span>
             <h1 className="mt-3 text-4xl md:text-6xl leading-[1.05] font-serif">

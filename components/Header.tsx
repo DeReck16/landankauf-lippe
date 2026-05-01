@@ -42,7 +42,11 @@ export default function Header() {
             className="hidden md:inline-flex items-center text-sm text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-brand-dark)] cursor-pointer"
             revealedClassName="hidden md:inline-flex items-center text-sm text-[color:var(--color-brand-dark)] hover:text-[color:var(--color-brand)] font-medium"
           />
-          <Link href="/kontakt" className="btn-primary text-sm py-2 px-4">
+          <Link
+            href="/kontakt"
+            className="btn-primary text-sm h-10 px-5"
+            aria-label="Anfrage senden"
+          >
             Anfrage
           </Link>
         </div>
