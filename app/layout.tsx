@@ -47,16 +47,13 @@ export const metadata: Metadata = {
     siteName: site.name,
     title: `${site.name} – Ackerland, Wiesen & Wald im Kreis Lippe verkaufen`,
     description: site.shortDescription,
-    images: [{ url: "/hero.jpg", width: 1920, height: 1080 }],
   },
   twitter: {
     card: "summary_large_image",
     title: `${site.name} – Fläche verkaufen, verpachten oder bewerten`,
     description: site.shortDescription,
-    images: ["/hero.jpg"],
   },
   robots: { index: true, follow: true },
-  icons: { icon: "/favicon.ico" },
   verification: {
     google: "8FwDnnfsaIHjbfoNkJFXY6jqqdz2AwZ0oOIlfEovp0Q",
   },
