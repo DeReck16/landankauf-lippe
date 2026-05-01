@@ -2,6 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import LeadForm from "@/components/LeadForm";
 import ClickToReveal from "@/components/ClickToReveal";
+import QuickValuation from "@/components/QuickValuation";
+import Testimonials from "@/components/Testimonials";
+import Partners from "@/components/Partners";
 import { site, services, flaechenTypen } from "@/lib/site";
 
 const faq = [
@@ -73,8 +76,12 @@ export default function Home() {
               Ihre Fläche verdient<br />einen guten Nachfolger.
             </h1>
             <p className="mt-6 text-lg md:text-xl text-white/85 max-w-xl leading-relaxed">
-              Wir kaufen, pachten und bewerten Ackerland, Wiesen und Wald im Kreis Lippe — fair, regional, persönlich. Ohne Makler, ohne Provision, ohne Druck.
+              Wir kaufen, pachten und bewerten Ackerland, Wiesen und Wald im Kreis Lippe — fair, regional, persönlich. Ohne Makler, ohne Provision, ohne Druck. <strong className="text-white">Diskretion ist Standard, nicht Aufpreis.</strong>
             </p>
+            <div className="mt-5 inline-flex items-center gap-2 text-xs uppercase tracking-wider text-[color:var(--color-accent)] border border-white/15 rounded-full px-3 py-1.5">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-[color:var(--color-accent)]" />
+              Keine Aushängung · keine Inserate · keine Weitergabe
+            </div>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/flaeche-bewerten" className="btn-on-dark">Kostenlose Wertindikation</Link>
               <ClickToReveal
@@ -115,6 +122,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <Partners />
 
       {/* WAS WIR ANBIETEN */}
       <section className="section bg-grain">
@@ -190,6 +199,55 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* DISKRETION */}
+      <section className="py-14 px-5 bg-[color:var(--color-ink)] text-white">
+        <div className="container-page grid gap-10 md:grid-cols-2 items-center">
+          <div>
+            <span className="eyebrow text-[color:var(--color-accent)]">Diskretion</span>
+            <hr className="divider mt-3 bg-[color:var(--color-accent)]" />
+            <h2 className="text-3xl md:text-4xl text-white">Was Sie uns sagen, bleibt zwischen uns.</h2>
+            <p className="mt-4 text-white/80 leading-relaxed">
+              Verkauf, Erbauseinandersetzung, Pachtwechsel — das sind sensible Themen. Bei uns gibt es keine Aushängung, kein Inserat, kein „Schaufenster". Nachbarn, Pächter, andere Landwirte erfahren nichts, ohne Ihre ausdrückliche Zustimmung.
+            </p>
+          </div>
+          <ul className="space-y-3 text-white/85">
+            {[
+              "Keine Vermarktung Ihrer Fläche im Internet oder vor Ort",
+              "Keine Weitergabe Ihrer Daten an Dritte ohne ausdrückliche Zustimmung",
+              "Anfragen werden anonym verarbeitet — auch unsere Wert-Indikation findet ohne Servereingabe statt",
+              "Vor-Ort-Termine in Zivil, ohne Beschriftung, ohne Aufmerksamkeit",
+              "Pächter, Erben, Miteigentümer werden nur nach Ihrer Freigabe einbezogen",
+              "Auf Wunsch Treuhand-Abwicklung über den Notar Ihres Vertrauens",
+            ].map((item, i) => (
+              <li key={i} className="flex items-start gap-3">
+                <span className="mt-1 inline-block h-1.5 w-1.5 rounded-full bg-[color:var(--color-accent)] flex-shrink-0" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* QUICK VALUATION */}
+      <section className="section">
+        <div className="container-page grid gap-10 lg:grid-cols-[1fr_1.2fr] items-start">
+          <div>
+            <span className="eyebrow">Sofort &amp; anonym</span>
+            <hr className="divider mt-3" />
+            <h2 className="text-3xl md:text-4xl">In 30 Sekunden zur Wert-Indikation.</h2>
+            <p className="mt-4 text-[color:var(--color-ink-soft)] text-lg leading-relaxed">
+              Geben Sie Flächentyp, Größe, Gemeinde und Qualität an — Sie sehen sofort eine realistische Bandbreite. Eingaben werden nur in Ihrem Browser verarbeitet und nicht an uns übermittelt. Volle Diskretion.
+            </p>
+            <p className="mt-4 text-sm text-[color:var(--color-ink-soft)]">
+              Datenbasis: Grundstücksmarktbericht Kreis Lippe 2025, BORIS NRW. Eine Wertindikation ersetzt kein Verkehrswertgutachten — wir liefern auf Wunsch eine ausführliche, schriftliche Einschätzung kostenlos.
+            </p>
+          </div>
+          <QuickValuation />
+        </div>
+      </section>
+
+      <Testimonials />
 
       {/* BAULAND */}
       <section className="py-16 px-5 bg-[color:var(--color-accent-soft)]">

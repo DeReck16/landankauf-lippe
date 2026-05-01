@@ -132,10 +132,13 @@ export default function LeadForm({
         <button type="submit" className="btn-primary" disabled={isPending}>
           {isPending ? "Wird gesendet…" : "Anfrage absenden"}
         </button>
-        <p className="text-xs text-[color:var(--color-muted)]">
-          Antwort innerhalb von 24 Stunden · keine Provision · Diskretion garantiert
+        <p className="text-xs text-[color:var(--color-muted)] leading-relaxed">
+          Antwort innerhalb 24 h · keine Provision · keine Weitergabe Ihrer Daten
         </p>
       </div>
+      <p className="mt-3 text-[11px] text-[color:var(--color-muted)] leading-relaxed">
+        Ihre Anfrage geht ausschließlich an die TR Vertriebs GmbH. Sie wird nicht in CRM- oder Marketing-Systeme eingespielt, nicht an Pächter, Nachbarn oder Behörden weitergeleitet. Auf Wunsch löschen wir Ihre Daten nach Abschluss der Beratung.
+      </p>
     </form>
   );
 }

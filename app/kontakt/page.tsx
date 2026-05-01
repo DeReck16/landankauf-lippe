@@ -84,6 +84,19 @@ export default function Page() {
                 <strong>Diskretionshinweis:</strong> Alle Anfragen werden vertraulich behandelt. Wir geben Ihre Daten nicht weiter, auch nicht an Pächter, Nachbarn oder andere Landwirte. Über das Ergebnis entscheiden ausschließlich Sie.
               </p>
             </div>
+
+            <div className="mt-6 text-sm text-[color:var(--color-ink-soft)] leading-relaxed">
+              <p className="font-semibold text-[color:var(--color-ink)] mb-2">Was passiert nach Ihrer Anfrage?</p>
+              <ol className="list-decimal pl-5 space-y-1">
+                <li>Anfrage geht direkt an <span className="font-mono text-xs">{site.contact.email}</span> — kein Tool, kein Drittanbieter dazwischen.</li>
+                <li>Wir bestätigen Eingang innerhalb weniger Stunden, in der Regel persönlich per Mail oder Anruf.</li>
+                <li>Innerhalb von 24 Stunden bekommen Sie eine erste Wert- oder Beratungsindikation.</li>
+                <li>Bei Interesse vereinbaren wir einen unverbindlichen Vor-Ort-Termin oder ein Telefonat.</li>
+              </ol>
+              <p className="mt-2 text-xs text-[color:var(--color-muted)]">
+                Datenfluss: Formular → verschlüsselt an unseren Server → Mail an {site.contact.email}. Backup in privatem Vercel Blob Storage. Keine Übermittlung an Marketing- oder CRM-Systeme.
+              </p>
+            </div>
           </div>
           <div>
             <LeadForm source="kontakt" defaultIntent="Allgemein" title="Schreiben Sie uns" subtitle="Wir melden uns innerhalb von 24 Stunden persönlich." />

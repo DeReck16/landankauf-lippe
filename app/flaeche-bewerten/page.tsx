@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
+import QuickValuation from "@/components/QuickValuation";
 
 export const metadata: Metadata = {
   title: "Fläche bewerten lassen — kostenlose Wertindikation für den Kreis Lippe",
@@ -14,11 +15,28 @@ export default function Page() {
   return (
     <>
       <PageHero
-        eyebrow="Wertindikation"
+        eyebrow="Wertindikation · Anonym &amp; sofort"
         title="Was ist meine Fläche wirklich wert?"
-        subtitle="Bodenrichtwert, Lage, Bodenqualität, Pachtstatus, rechtliche Lasten — eine ehrliche Wertindikation berücksichtigt all das. Wir liefern sie für Ihre Fläche im Kreis Lippe kostenlos und unverbindlich."
-        primaryCta={{ href: "#anfrage", label: "Jetzt kostenlos bewerten" }}
+        subtitle="Sofortige anonyme Bandbreite über das Tool unten — und auf Wunsch eine ausführliche, schriftliche Wertindikation mit Bodenrichtwert, Vergleichsverkäufen und Förderpotenzial. Kostenlos, unverbindlich, diskret."
+        primaryCta={{ href: "#sofort", label: "Sofort-Indikation (anonym)" }}
+        secondaryCta={{ href: "#anfrage", label: "Schriftliche Bewertung anfragen" }}
       />
+
+      <section id="sofort" className="section bg-grain">
+        <div className="container-page">
+          <div className="max-w-2xl">
+            <span className="eyebrow">Sofort &amp; anonym · keine Daten an uns</span>
+            <hr className="divider mt-3" />
+            <h2 className="text-3xl md:text-4xl">In 30 Sekunden zur Bandbreite.</h2>
+            <p className="mt-4 text-[color:var(--color-ink-soft)]">
+              Eingaben werden ausschließlich in Ihrem Browser verarbeitet — wir sehen nichts. Datengrundlage: Grundstücksmarktbericht 2025 für den Kreis Lippe und tatsächlich gezahlte Kaufpreise 2024.
+            </p>
+          </div>
+          <div className="mt-8 max-w-3xl">
+            <QuickValuation />
+          </div>
+        </div>
+      </section>
 
       <section className="section">
         <div className="container-page grid gap-12 lg:grid-cols-[1.2fr_1fr]">

@@ -1,5 +1,6 @@
 "use server";
 
+import { put } from "@vercel/blob";
 import { site } from "@/lib/site";
 
 export type LeadInput = {
@@ -73,9 +74,34 @@ export async function submitLead(formData: FormData): Promise<LeadResult> {
   const subject = `Anfrage [${input.intent} · ${input.flaechentyp}] – ${input.name}`;
 
   const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.LEAD_TO_EMAIL || site.contact.emailFallback;
+  const to = process.env.LEAD_TO_EMAIL || site.contact.email || site.contact.emailFallback;
   const from = process.env.LEAD_FROM_EMAIL || `Lippe Forst <onboarding@resend.dev>`;
 
+  // 1. Durable storage: Vercel Blob (Backup, falls E-Mail fehlschlägt)
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    try {
+      const date = new Date().toISOString().slice(0, 10);
+      const filename = `leads/${date}/${id}.json`;
+      const payload = {
+        id,
+        receivedAt: new Date().toISOString(),
+        source: input.source,
+        ...input,
+      };
+      await put(filename, JSON.stringify(payload, null, 2), {
+        access: "public",
+        contentType: "application/json",
+        addRandomSuffix: false,
+      });
+    } catch (err) {
+      console.error("[lead] blob storage exception", err);
+    }
+  } else {
+    console.log("[lead] BLOB_READ_WRITE_TOKEN not set — backup skipped");
+  }
+
+  // 2. E-Mail-Notification via Resend
+  let emailSent = false;
   if (apiKey) {
     try {
       const res = await fetch("https://api.resend.com/emails", {
@@ -92,15 +118,19 @@ export async function submitLead(formData: FormData): Promise<LeadResult> {
           text,
         }),
       });
-      if (!res.ok) {
+      if (res.ok) {
+        emailSent = true;
+      } else {
         const body = await res.text();
         console.error("[lead] resend error", res.status, body);
       }
     } catch (err) {
       console.error("[lead] resend exception", err);
     }
-  } else {
-    console.log("[lead] RESEND_API_KEY not set — logging only");
+  }
+
+  if (!emailSent) {
+    console.log(`[lead] ${id} — Email konnte nicht versendet werden, siehe Vercel Blob /leads`);
     console.log(text);
   }
 

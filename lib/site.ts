@@ -20,8 +20,8 @@ export const site = {
     whatsapp: "+4917638803064",
     phoneEncoded: "KzQ5MTc2Mzg4MDMwNjQ=",
     whatsappEncoded: "KzQ5MTc2Mzg4MDMwNjQ=",
-    email: "",
-    emailFallback: "dennisreckling@t-online.de",
+    email: "info@tr-immobilien.com",
+    emailFallback: "info@tr-immobilien.com",
   },
   legal: {
     registerCourt: "Amtsgericht Lemgo",
