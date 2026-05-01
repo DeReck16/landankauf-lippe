@@ -4,7 +4,7 @@ import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Datenschutzerklärung",
-  description: "Wie wir Ihre Daten bei einer Anfrage über Landankauf Lippe verarbeiten — DSGVO-konform.",
+  description: "Wie wir Ihre Daten bei einer Anfrage über Lippe Forst verarbeiten — DSGVO-konform.",
   alternates: { canonical: "/datenschutz" },
   robots: { index: true, follow: false },
 };

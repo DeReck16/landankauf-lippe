@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ClickToReveal from "@/components/ClickToReveal";
 import { site, services } from "@/lib/site";
 
 export default function Footer() {
@@ -20,21 +21,31 @@ export default function Footer() {
             {site.contact.company}<br />
             {site.contact.street}, {site.contact.zip} {site.contact.city}
           </p>
-          {(site.contact.phone || site.contact.email) && (
-            <p className="mt-2 text-sm text-white/60">
-              {site.contact.phone && (
-                <a href={`tel:${site.contact.phone.replace(/\s/g, "")}`} className="hover:text-white">
-                  {site.contact.phoneDisplay}
-                </a>
-              )}
-              {site.contact.phone && site.contact.email && " · "}
-              {site.contact.email && (
+          <p className="mt-2 text-sm text-white/60 flex flex-wrap gap-x-3 gap-y-1 items-center">
+            <ClickToReveal
+              encoded={site.contact.phoneEncoded}
+              type="tel"
+              label="Telefon anzeigen"
+              className="hover:text-white"
+              revealedClassName="hover:text-white"
+            />
+            <span className="opacity-50">·</span>
+            <ClickToReveal
+              encoded={site.contact.whatsappEncoded}
+              type="whatsapp"
+              label="WhatsApp anzeigen"
+              className="hover:text-white"
+              revealedClassName="hover:text-white"
+            />
+            {site.contact.email && (
+              <>
+                <span className="opacity-50">·</span>
                 <a href={`mailto:${site.contact.email}`} className="hover:text-white">
                   {site.contact.email}
                 </a>
-              )}
-            </p>
-          )}
+              </>
+            )}
+          </p>
         </div>
         <div>
           <h4 className="text-white text-sm font-semibold mb-3 uppercase tracking-wider">Leistungen</h4>

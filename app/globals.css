@@ -34,7 +34,7 @@ body {
 h1, h2, h3, h4 {
   font-family: var(--font-serif), Georgia, "Times New Roman", serif;
   letter-spacing: -0.01em;
-  color: var(--color-ink);
+  color: inherit;
 }
 
 h1 { font-weight: 600; }

@@ -1,11 +1,11 @@
 export const site = {
-  name: "Landankauf Lippe",
-  domain: "landankauf-lippe.de",
-  url: "https://landankauf-lippe.de",
+  name: "Lippe Forst",
+  domain: "lippeforst.de",
+  url: "https://lippeforst.de",
   shortDescription:
-    "Fairer Ankauf von Ackerland, Wiesen und Wald im Kreis Lippe. Persönlich, regional, ohne Maklergebühren.",
+    "Lippe Forst — fairer Ankauf von Ackerland, Wiesen und Wald im Kreis Lippe. Persönlich, regional, ohne Maklergebühren.",
   longDescription:
-    "Wir kaufen, pachten und bewerten landwirtschaftliche Flächen im Kreis Lippe. Zusätzlich beraten wir bei Vertragsnaturschutz und Ökopunkten und vermitteln Lohnunternehmer für Mahd, Pflege und Forstarbeiten.",
+    "Lippe Forst kauft, pachtet und bewertet Ackerland, Wiesen und Wald im Kreis Lippe und im Umland. Zusätzlich beraten wir bei Vertragsnaturschutz und Ökopunkten und vermitteln Lohnunternehmer für Mahd, Pflege und Forstarbeiten.",
   contact: {
     company: "TR Vertriebs GmbH",
     contactPerson: "Dennis Reckling",
@@ -18,6 +18,8 @@ export const site = {
     phone: "+49 176 38803064",
     phoneDisplay: "0176 38803064",
     whatsapp: "+4917638803064",
+    phoneEncoded: "KzQ5MTc2Mzg4MDMwNjQ=",
+    whatsappEncoded: "KzQ5MTc2Mzg4MDMwNjQ=",
     email: "",
     emailFallback: "dennisreckling@t-online.de",
   },

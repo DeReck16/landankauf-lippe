@@ -75,7 +75,7 @@ export default function Home() {
               Wir kaufen, pachten und bewerten Ackerland, Wiesen und Wald im Kreis Lippe — fair, regional, persönlich. Ohne Makler, ohne Provision, ohne Druck.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="#anfrage" className="btn-on-dark">Kostenlose Wertindikation</Link>
+              <Link href="/flaeche-bewerten" className="btn-on-dark">Kostenlose Wertindikation</Link>
               {site.contact.phone && (
                 <a href={`tel:${site.contact.phone.replace(/\s/g, "")}`} className="btn-secondary border-white/40 text-white hover:bg-white/10">
                   {site.contact.phoneDisplay}
@@ -185,6 +185,20 @@ export default function Home() {
               </Link>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* BAULAND */}
+      <section className="py-16 px-5 bg-[color:var(--color-accent-soft)]">
+        <div className="container-page grid gap-8 md:grid-cols-[1fr_auto] items-center">
+          <div>
+            <span className="eyebrow">Auch außerhalb des Kerngebiets</span>
+            <h2 className="mt-2 font-serif text-2xl md:text-3xl">Sie haben Bauland — oder potenzielles Bauland?</h2>
+            <p className="mt-3 text-[color:var(--color-ink-soft)] leading-relaxed max-w-2xl">
+              Bauland ist nicht unser Schwerpunkt — aber wir beraten und kaufen auch hier. Erschlossene Grundstücke, Hofstellen mit Bauerwartungsland, Innenbereichsflächen nach § 34 BauGB oder Außenbereichsflächen mit Aussicht auf Bebauungsplan: sprechen Sie uns an, wir verschaffen Ihnen einen Überblick.
+            </p>
+          </div>
+          <Link href="/kontakt" className="btn-primary whitespace-nowrap self-start md:self-center">Bauland anfragen</Link>
         </div>
       </section>
 

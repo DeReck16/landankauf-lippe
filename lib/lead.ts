@@ -74,7 +74,7 @@ export async function submitLead(formData: FormData): Promise<LeadResult> {
 
   const apiKey = process.env.RESEND_API_KEY;
   const to = process.env.LEAD_TO_EMAIL || site.contact.emailFallback;
-  const from = process.env.LEAD_FROM_EMAIL || `Landankauf Lippe <onboarding@resend.dev>`;
+  const from = process.env.LEAD_FROM_EMAIL || `Lippe Forst <onboarding@resend.dev>`;
 
   if (apiKey) {
     try {

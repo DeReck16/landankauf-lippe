@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
+import ClickToReveal from "@/components/ClickToReveal";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Kontakt — Landankauf Lippe",
+  title: "Kontakt — Lippe Forst",
   description:
     "Telefon, WhatsApp oder Formular: Sprechen Sie uns an, wenn Sie Ackerland, Wiese oder Wald im Kreis Lippe verkaufen, verpachten oder bewerten lassen möchten.",
   alternates: { canonical: "/kontakt" },
@@ -26,27 +27,40 @@ export default function Page() {
             <hr className="divider mt-3" />
             <h2 className="text-3xl font-serif">So erreichen Sie uns</h2>
 
-            {site.contact.phone && (
+            <div className="mt-6">
+              <p className="text-sm text-[color:var(--color-muted)]">Telefon</p>
+              <ClickToReveal
+                encoded={site.contact.phoneEncoded}
+                type="tel"
+                label="Telefonnummer anzeigen"
+                className="font-serif text-2xl text-[color:var(--color-brand-dark)] hover:text-[color:var(--color-brand)] cursor-pointer"
+                revealedClassName="font-serif text-2xl text-[color:var(--color-brand-dark)] hover:text-[color:var(--color-brand)]"
+              />
+              <p className="mt-1 text-xs text-[color:var(--color-muted)]">
+                Aus Schutz vor automatischen Bots erst nach Klick sichtbar.
+              </p>
+            </div>
+
+            <div className="mt-6">
+              <p className="text-sm text-[color:var(--color-muted)]">WhatsApp</p>
+              <ClickToReveal
+                encoded={site.contact.whatsappEncoded}
+                type="whatsapp"
+                label="WhatsApp-Chat starten"
+                className="text-base font-medium text-[color:var(--color-brand)] underline cursor-pointer"
+                revealedClassName="text-base font-medium text-[color:var(--color-brand)] underline"
+              />
+            </div>
+
+            {site.contact.email && (
               <div className="mt-6">
-                <p className="text-sm text-[color:var(--color-muted)]">Telefon &amp; WhatsApp</p>
+                <p className="text-sm text-[color:var(--color-muted)]">E-Mail</p>
                 <a
-                  href={`tel:${site.contact.phone.replace(/\s/g, "")}`}
-                  className="font-serif text-2xl text-[color:var(--color-brand-dark)] hover:text-[color:var(--color-brand)]"
+                  href={`mailto:${site.contact.email}`}
+                  className="text-base font-medium text-[color:var(--color-brand-dark)] hover:text-[color:var(--color-brand)]"
                 >
-                  {site.contact.phoneDisplay}
+                  {site.contact.email}
                 </a>
-                {site.contact.whatsapp && (
-                  <p className="mt-1 text-sm">
-                    <a
-                      href={`https://wa.me/${site.contact.whatsapp.replace(/[^0-9]/g, "")}`}
-                      target="_blank"
-                      rel="noopener"
-                      className="text-[color:var(--color-brand)] underline"
-                    >
-                      Per WhatsApp schreiben
-                    </a>
-                  </p>
-                )}
               </div>
             )}
 

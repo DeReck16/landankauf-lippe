@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
+import ClickToReveal from "@/components/ClickToReveal";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -25,7 +26,15 @@ export default function Page() {
 
           <h2>Kontakt</h2>
           <p>
-            {site.contact.phone && <>Telefon: <a href={`tel:${site.contact.phone.replace(/\s/g, "")}`}>{site.contact.phoneDisplay}</a><br /></>}
+            Telefon:{" "}
+            <ClickToReveal
+              encoded={site.contact.phoneEncoded}
+              type="tel"
+              label="Anzeigen"
+              className="text-[color:var(--color-brand)] underline cursor-pointer"
+              revealedClassName="text-[color:var(--color-brand)] underline"
+            />
+            <br />
             {site.contact.email
               ? <>E-Mail: <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a></>
               : <>E-Mail: <a href={`mailto:${site.contact.emailFallback}`}>{site.contact.emailFallback}</a></>}

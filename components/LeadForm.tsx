@@ -4,8 +4,8 @@ import { useState, useTransition } from "react";
 import { submitLead } from "@/lib/lead";
 
 type Props = {
-  defaultIntent?: "Verkaufen" | "Verpachten" | "Bewertung" | "VNS / Ökopunkte" | "Lohnunternehmer" | "Allgemein";
-  defaultFlaechentyp?: "Ackerland" | "Wiese / Grünland" | "Wald / Forst" | "Sonstiges";
+  defaultIntent?: "Verkaufen" | "Verpachten" | "Bewertung" | "VNS / Ökopunkte" | "Lohnunternehmer" | "Bauland-Beratung" | "Allgemein";
+  defaultFlaechentyp?: "Ackerland" | "Wiese / Grünland" | "Wald / Forst" | "Bauland" | "Sonstiges";
   source?: string;
   variant?: "embedded" | "card";
   title?: string;
@@ -18,10 +18,11 @@ const intents = [
   "Bewertung",
   "VNS / Ökopunkte",
   "Lohnunternehmer",
+  "Bauland-Beratung",
   "Allgemein",
 ];
 
-const flaechentypen = ["Ackerland", "Wiese / Grünland", "Wald / Forst", "Sonstiges"];
+const flaechentypen = ["Ackerland", "Wiese / Grünland", "Wald / Forst", "Bauland", "Sonstiges"];
 
 export default function LeadForm({
   defaultIntent = "Verkaufen",

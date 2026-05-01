@@ -4,9 +4,9 @@ import PageHero from "@/components/PageHero";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Über uns — Landankauf Lippe aus dem Lipper Land",
+  title: "Über uns — Lippe Forst aus dem Lipper Land",
   description:
-    "Hinter Landankauf Lippe steht die TR Vertriebs GmbH aus Horn-Bad Meinberg. Lokal verwurzelt, persönlich erreichbar, mit eigenem Bezug zu Wald und Wiese im Kreis Lippe.",
+    "Hinter Lippe Forst steht die TR Vertriebs GmbH aus Horn-Bad Meinberg. Lokal verwurzelt, persönlich erreichbar, mit eigenem Bezug zu Wald und Wiese im Kreis Lippe.",
   alternates: { canonical: "/ueber-uns" },
 };
 
@@ -22,9 +22,9 @@ export default function Page() {
 
       <section className="section">
         <div className="container-narrow prose-lippe">
-          <h2>Wer hinter Landankauf Lippe steht</h2>
+          <h2>Wer hinter Lippe Forst steht</h2>
           <p>
-            Hinter Landankauf Lippe steht die <strong>{site.contact.company}</strong> mit Sitz in {site.contact.city}, geführt von {site.contact.contactPerson}. Wir sind kein bundesweit tätiger Makler, kein Investmentfonds und keine anonyme Plattform. Wir sind das Unternehmen aus dem Lipper Land, das Sie auch im Dorf treffen können.
+            Hinter Lippe Forst steht die <strong>{site.contact.company}</strong> mit Sitz in {site.contact.city}, geführt von {site.contact.contactPerson}. Wir sind kein bundesweit tätiger Makler, kein Investmentfonds und keine anonyme Plattform. Wir sind das Unternehmen aus dem Lipper Land, das Sie auch im Dorf treffen können.
           </p>
 
           <h2>Warum wir das machen</h2>
