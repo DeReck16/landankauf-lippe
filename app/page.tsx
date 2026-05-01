@@ -5,6 +5,7 @@ import ClickToReveal from "@/components/ClickToReveal";
 import QuickValuation from "@/components/QuickValuation";
 import Testimonials from "@/components/Testimonials";
 import Partners from "@/components/Partners";
+import VideoEmbed from "@/components/VideoEmbed";
 import { site, services, flaechenTypen } from "@/lib/site";
 
 const faq = [
@@ -124,6 +125,8 @@ export default function Home() {
       </section>
 
       <Partners />
+
+      <VideoEmbed />
 
       {/* WAS WIR ANBIETEN */}
       <section className="section bg-grain">
