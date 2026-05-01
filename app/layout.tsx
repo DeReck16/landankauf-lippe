@@ -68,8 +68,6 @@ export default function RootLayout({
     name: site.name,
     image: `${site.url}/og.jpg`,
     url: site.url,
-    telephone: site.contact.phone,
-    email: site.contact.email,
     address: {
       "@type": "PostalAddress",
       streetAddress: site.contact.street,
@@ -80,6 +78,13 @@ export default function RootLayout({
     },
     areaServed: [site.primaryArea.title, ...site.extendedArea.counties],
     description: site.longDescription,
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer service",
+      url: `${site.url}/kontakt`,
+      areaServed: "DE",
+      availableLanguage: "de",
+    },
   };
 
   return (
