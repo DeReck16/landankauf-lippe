@@ -413,13 +413,20 @@ function Stage({
         setTime(t => clamp(t + (e.shiftKey ? 1 : 0.1), 0, duration));
       } else if (e.key === '0' || e.code === 'Home') {
         setTime(0);
+      } else if (e.key === 'f' || e.key === 'F') {
+        if (document.fullscreenElement) {
+          document.exitFullscreen?.();
+        } else {
+          document.documentElement.requestFullscreen?.();
+        }
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [duration]);
 
-  const displayTime = hoverTime != null ? hoverTime : time;
+  // Canvas always shows actual time; hoverTime is only a visual marker on the bar
+  const displayTime = time;
 
   const ctxValue = React.useMemo(
     () => ({ time: displayTime, duration, playing, setTime, setPlaying }),
@@ -633,6 +640,19 @@ function PlaybackBar({ time, duration, playing, onPlayPause, onReset, onSeek, on
       }}>
         {fmt(duration)}
       </div>
+
+      <IconButton onClick={() => {
+        const el = document.documentElement;
+        if (document.fullscreenElement) {
+          document.exitFullscreen?.();
+        } else {
+          el.requestFullscreen?.();
+        }
+      }} title="Vollbild (F)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2 5V2h3M9 2h3v3M2 9v3h3M9 12h3V9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </IconButton>
     </div>
   );
 }

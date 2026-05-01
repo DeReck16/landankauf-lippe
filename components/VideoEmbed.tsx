@@ -59,7 +59,8 @@ export default function VideoEmbed() {
               title="Lippe Forst Erklärfilm"
               className="absolute inset-0 w-full h-full border-0"
               loading="lazy"
-              allow="autoplay"
+              allow="autoplay; fullscreen"
+              allowFullScreen
             />
           )}
         </div>
