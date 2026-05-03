@@ -55,7 +55,7 @@ export default function Home() {
       {/* HERO */}
       <section className="relative overflow-hidden bg-[color:var(--color-ink)] text-white">
         <Image
-          src="/hero.jpg"
+          src="/hero.webp"
           alt="Felder, Wiesen und Wald im Kreis Lippe — Teutoburger Wald in der Abenddämmerung"
           fill
           priority

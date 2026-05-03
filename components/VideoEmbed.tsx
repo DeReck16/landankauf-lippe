@@ -40,7 +40,7 @@ export default function VideoEmbed() {
               <div
                 aria-hidden
                 className="absolute inset-0 opacity-30 pointer-events-none bg-cover bg-center"
-                style={{ backgroundImage: "url('/wald.jpg')" }}
+                style={{ backgroundImage: "url('/wald.webp')" }}
               />
               <div className="absolute inset-0 bg-[#050807]/40" />
               <div className="relative flex flex-col items-center gap-4 z-10">

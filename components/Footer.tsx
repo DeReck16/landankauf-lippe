@@ -1,11 +1,75 @@
 import Link from "next/link";
 import ClickToReveal from "@/components/ClickToReveal";
 import { site, services } from "@/lib/site";
+import { CITIES, FLAECHENTYPEN } from "@/lib/cities";
 
 export default function Footer() {
   const year = new Date().getFullYear();
+
+  // Top-Cities für SEO-Footer (volle Liste auf der Sitemap)
+  const featuredCities = [
+    "detmold",
+    "lemgo",
+    "bad-salzuflen",
+    "horn-bad-meinberg",
+    "blomberg",
+    "lage",
+    "oerlinghausen",
+    "schieder-schwalenberg",
+  ];
+
   return (
     <footer className="bg-[color:var(--color-ink)] text-[#dcdfd8] mt-24">
+      {/* Keyword-Cluster Sektion: Wir helfen Eigentümern in ... */}
+      <div className="border-b border-white/10">
+        <div className="container-page px-5 py-12">
+          <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--color-accent)] mb-5">
+            Lokal aktiv im Kreis Lippe
+          </p>
+          <div className="grid gap-8 md:grid-cols-3">
+            {FLAECHENTYPEN.map((t) => (
+              <div key={t.slug}>
+                <h4 className="font-serif text-lg text-white mb-3">{t.label} verkaufen</h4>
+                <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm text-white/65">
+                  {featuredCities.map((cs) => {
+                    const c = CITIES.find((x) => x.slug === cs);
+                    if (!c) return null;
+                    return (
+                      <li key={cs}>
+                        <Link
+                          href={`/${t.slug}-verkaufen-${c.slug}`}
+                          className="hover:text-white"
+                        >
+                          {t.label} {c.name}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <p className="mt-3 text-xs text-white/45">
+                  Auch in:{" "}
+                  {CITIES.filter((c) => !featuredCities.includes(c.slug))
+                    .map((c) => (
+                      <Link
+                        key={c.slug}
+                        href={`/${t.slug}-verkaufen-${c.slug}`}
+                        className="hover:text-white"
+                      >
+                        {c.name}
+                      </Link>
+                    ))
+                    .reduce<React.ReactNode[]>((acc, el, i, arr) => {
+                      acc.push(el);
+                      if (i < arr.length - 1) acc.push(<span key={`sep-${i}`}>, </span>);
+                      return acc;
+                    }, [])}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div className="container-page px-5 py-16 grid gap-10 md:grid-cols-4">
         <div className="md:col-span-2">
           <div className="flex items-center gap-2 mb-4">
@@ -58,13 +122,12 @@ export default function Footer() {
           </ul>
         </div>
         <div>
-          <h4 className="text-white text-sm font-semibold mb-3 uppercase tracking-wider">Region</h4>
+          <h4 className="text-white text-sm font-semibold mb-3 uppercase tracking-wider">Mehr</h4>
           <ul className="space-y-2 text-sm text-white/70">
-            <li><Link href="/ackerland-verkaufen" className="hover:text-white">Ackerland verkaufen Lippe</Link></li>
-            <li><Link href="/wiese-verkaufen" className="hover:text-white">Wiese verkaufen Lippe</Link></li>
-            <li><Link href="/wald-verkaufen" className="hover:text-white">Wald verkaufen Lippe</Link></li>
+            <li><Link href="/flaeche-bewerten" className="hover:text-white">Sofort-Wertindikation</Link></li>
             <li><Link href="/ratgeber/bodenrichtwerte-lippe" className="hover:text-white">Bodenrichtwerte Lippe</Link></li>
             <li><Link href="/ratgeber/grundstuecksverkehrsgesetz" className="hover:text-white">Grundstücksverkehrsgesetz</Link></li>
+            <li><Link href="/ueber-uns" className="hover:text-white">Über uns</Link></li>
             <li><Link href="/kontakt" className="hover:text-white">Kontakt</Link></li>
           </ul>
         </div>

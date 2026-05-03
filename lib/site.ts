@@ -108,7 +108,7 @@ export const services = [
 ] as const;
 
 export const flaechenTypen = [
-  { slug: "ackerland-verkaufen", label: "Ackerland", description: "Hofnah, hofentfernt, mit oder ohne Pächter", image: "/acker.jpg" },
-  { slug: "wiese-verkaufen", label: "Wiese / Grünland", description: "Inkl. extensiver Mähwiesen und Streuobstwiesen", image: "/wiese.jpg" },
-  { slug: "wald-verkaufen", label: "Wald / Forst", description: "Privatwald, Mischbestand, Nadelholz, Laubholz", image: "/wald.jpg" },
+  { slug: "ackerland-verkaufen", label: "Ackerland", description: "Hofnah, hofentfernt, mit oder ohne Pächter", image: "/acker.webp" },
+  { slug: "wiese-verkaufen", label: "Wiese / Grünland", description: "Inkl. extensiver Mähwiesen und Streuobstwiesen", image: "/wiese.webp" },
+  { slug: "wald-verkaufen", label: "Wald / Forst", description: "Privatwald, Mischbestand, Nadelholz, Laubholz", image: "/wald.webp" },
 ] as const;
