@@ -9,7 +9,7 @@ export const site = {
   contact: {
     company: "TR Vertriebs GmbH",
     contactPerson: "Dennis Reckling",
-    street: "Bahnhofstr. 70 b",
+    street: "Bahnhofstraße 70b",
     zip: "32805",
     city: "Horn-Bad Meinberg",
     region: "Kreis Lippe",
@@ -26,7 +26,8 @@ export const site = {
   legal: {
     registerCourt: "Amtsgericht Lemgo",
     registerNumber: "HRB 11734",
-    managingDirector: "Dennis Reckling",
+    managingDirector: "Dennis Reckling, Martin Thomann",
+    managingDirectors: ["Dennis Reckling", "Martin Thomann"],
     vatId: "",
   },
   hours: "Mo–Fr 9:00–18:00, Sa nach Vereinbarung",
