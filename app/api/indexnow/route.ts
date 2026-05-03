@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { site } from "@/lib/site";
+import { cityTypeRoutes } from "@/lib/cities";
 
 const KEY = "54906b8ca0d49faffac7059dec0de837";
 
-const ROUTES = [
+const CORE_ROUTES = [
   "",
   "flaeche-verkaufen",
   "flaeche-verpachten",
@@ -17,6 +18,11 @@ const ROUTES = [
   "ratgeber/grundstuecksverkehrsgesetz",
   "ueber-uns",
   "kontakt",
+];
+
+const ROUTES = [
+  ...CORE_ROUTES,
+  ...cityTypeRoutes().map((r) => `${r.type}-verkaufen-${r.city}`),
 ];
 
 export async function POST(req: Request) {
