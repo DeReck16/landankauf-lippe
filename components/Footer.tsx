@@ -46,27 +46,16 @@ export default function Footer() {
                     );
                   })}
                 </ul>
-                <p className="mt-3 text-xs text-white/45">
-                  Auch in:{" "}
-                  {CITIES.filter((c) => !featuredCities.includes(c.slug))
-                    .map((c) => (
-                      <Link
-                        key={c.slug}
-                        href={`/${t.slug}-verkaufen-${c.slug}`}
-                        className="hover:text-white"
-                      >
-                        {c.name}
-                      </Link>
-                    ))
-                    .reduce<React.ReactNode[]>((acc, el, i, arr) => {
-                      acc.push(el);
-                      if (i < arr.length - 1) acc.push(<span key={`sep-${i}`}>, </span>);
-                      return acc;
-                    }, [])}
-                </p>
               </div>
             ))}
           </div>
+          <p className="mt-6 text-xs text-white/45">
+            Weitere Gemeinden im Kreis Lippe:{" "}
+            {CITIES.filter((c) => !featuredCities.includes(c.slug))
+              .map((c) => c.name)
+              .join(", ")}
+            . Sprechen Sie uns an, wir kaufen auch dort.
+          </p>
         </div>
       </div>
 

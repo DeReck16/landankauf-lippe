@@ -50,6 +50,19 @@ export default function Home() {
     })),
   };
 
+  const offerCatalogLd = {
+    "@context": "https://schema.org",
+    "@type": "OfferCatalog",
+    name: "Leistungen Lippe Forst",
+    itemListElement: [
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Fläche verkaufen", url: `${site.url}/flaeche-verkaufen` } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Fläche verpachten", url: `${site.url}/flaeche-verpachten` } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Fläche bewerten", url: `${site.url}/flaeche-bewerten` } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "VNS und Ökopunkte Beratung", url: `${site.url}/services/vns-oekopunkte` } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Lohnunternehmer-Vermittlung", url: `${site.url}/services/lohnunternehmer` } },
+    ],
+  };
+
   return (
     <>
       {/* HERO */}
@@ -368,6 +381,10 @@ export default function Home() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(offerCatalogLd) }}
       />
     </>
   );

@@ -26,18 +26,6 @@ export const metadata: Metadata = {
     template: `%s | ${site.name}`,
   },
   description: site.shortDescription,
-  keywords: [
-    "Ackerland verkaufen Lippe",
-    "Wiese verkaufen Kreis Lippe",
-    "Wald verkaufen NRW",
-    "Grünland verkaufen Detmold",
-    "Landwirtschaftliche Fläche verkaufen",
-    "Fläche verpachten Lippe",
-    "Bodenrichtwert Kreis Lippe",
-    "Vertragsnaturschutz NRW",
-    "Ökopunkte Ostwestfalen",
-    "Lohnunternehmer Lippe Mahd",
-  ],
   authors: [{ name: site.contact.company }],
   creator: site.contact.company,
   alternates: { canonical: "/" },
@@ -80,10 +68,7 @@ export default function RootLayout({
       addressRegion: site.contact.state,
       addressCountry: "DE",
     },
-    areaServed: [
-      { "@type": "AdministrativeArea", name: site.primaryArea.title },
-      ...site.extendedArea.counties.map((n) => ({ "@type": "AdministrativeArea", name: n })),
-    ],
+    areaServed: { "@type": "AdministrativeArea", name: site.primaryArea.title },
     description: site.longDescription,
     contactPoint: {
       "@type": "ContactPoint",
@@ -91,75 +76,6 @@ export default function RootLayout({
       url: `${site.url}/kontakt`,
       areaServed: "DE",
       availableLanguage: "de",
-    },
-    knowsLanguage: "de",
-    knowsAbout: [
-      "Direktankauf landwirtschaftlicher Flächen",
-      "Ackerland Verkauf",
-      "Grünland Verkauf",
-      "Privatwald Verkauf",
-      "Flächenverpachtung",
-      "Vertragsnaturschutz NRW",
-      "Ökopunkte Ausgleichsflächen",
-      "Forstwirtschaftliche Beratung",
-      "Erbengemeinschaften Grundstück",
-      "Bauland Beratung Kreis Lippe",
-    ],
-    hasOfferCatalog: {
-      "@type": "OfferCatalog",
-      name: "Leistungen Lippe Forst",
-      itemListElement: [
-        {
-          "@type": "Offer",
-          itemOffered: {
-            "@type": "Service",
-            name: "Fläche verkaufen",
-            description: "Direktankauf von Ackerland, Grünland und Wald im Kreis Lippe — ohne Maklerprovision.",
-            url: `${site.url}/flaeche-verkaufen`,
-            areaServed: { "@type": "AdministrativeArea", name: site.primaryArea.title },
-          },
-        },
-        {
-          "@type": "Offer",
-          itemOffered: {
-            "@type": "Service",
-            name: "Fläche verpachten",
-            description: "Pachtübernahme oder Pächtervermittlung für landwirtschaftliche Flächen im Kreis Lippe.",
-            url: `${site.url}/flaeche-verpachten`,
-            areaServed: { "@type": "AdministrativeArea", name: site.primaryArea.title },
-          },
-        },
-        {
-          "@type": "Offer",
-          itemOffered: {
-            "@type": "Service",
-            name: "Fläche bewerten",
-            description: "Kostenlose Wertindikation auf Basis von Bodenrichtwerten und Vergleichsverkäufen.",
-            url: `${site.url}/flaeche-bewerten`,
-            areaServed: { "@type": "AdministrativeArea", name: site.primaryArea.title },
-          },
-        },
-        {
-          "@type": "Offer",
-          itemOffered: {
-            "@type": "Service",
-            name: "VNS und Ökopunkte Beratung",
-            description: "Vertragsnaturschutz NRW, Ökokonto und Ausgleichsflächen — Antrag und Vermarktung.",
-            url: `${site.url}/services/vns-oekopunkte`,
-            areaServed: { "@type": "AdministrativeArea", name: site.primaryArea.title },
-          },
-        },
-        {
-          "@type": "Offer",
-          itemOffered: {
-            "@type": "Service",
-            name: "Lohnunternehmer-Vermittlung",
-            description: "Mahd, Heuwerbung, Heckenpflege, Forstarbeit — regionale Lohnunternehmer aus dem Kreis Lippe.",
-            url: `${site.url}/services/lohnunternehmer`,
-            areaServed: { "@type": "AdministrativeArea", name: site.primaryArea.title },
-          },
-        },
-      ],
     },
   };
 
