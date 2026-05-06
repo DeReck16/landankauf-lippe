@@ -50,6 +50,15 @@ a { color: inherit; }
 .prose-lippe h2 { margin-top: 2.25rem; margin-bottom: 0.75rem; font-size: 1.55rem; }
 .prose-lippe h3 { margin-top: 1.6rem; margin-bottom: 0.5rem; font-size: 1.2rem; }
 .prose-lippe a { color: var(--color-brand); text-decoration: underline; text-underline-offset: 3px; }
+.prose-lippe ol { margin-top: 0.6rem; padding-left: 1.4rem; list-style: decimal; }
+.prose-lippe .lead {
+  font-size: 1.15rem;
+  line-height: 1.65;
+  color: var(--color-ink);
+  margin-bottom: 1.25rem;
+  padding-left: 0.9rem;
+  border-left: 3px solid var(--color-accent);
+}
 
 a.btn-primary, button.btn-primary, .btn-primary {
   background: var(--color-brand) !important;

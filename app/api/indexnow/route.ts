@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { site } from "@/lib/site";
 import { cityTypeRoutes } from "@/lib/cities";
+import { ARTICLES } from "@/lib/blog";
 
 const KEY = "54906b8ca0d49faffac7059dec0de837";
 
@@ -16,6 +17,7 @@ const CORE_ROUTES = [
   "services/lohnunternehmer",
   "ratgeber/bodenrichtwerte-lippe",
   "ratgeber/grundstuecksverkehrsgesetz",
+  "blog",
   "ueber-uns",
   "kontakt",
 ];
@@ -23,6 +25,7 @@ const CORE_ROUTES = [
 const ROUTES = [
   ...CORE_ROUTES,
   ...cityTypeRoutes().map((r) => `${r.type}-verkaufen-${r.city}`),
+  ...ARTICLES.map((a) => `blog/${a.slug}`),
 ];
 
 export async function POST(req: Request) {

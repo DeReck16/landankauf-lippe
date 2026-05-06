@@ -114,6 +114,7 @@ export default function Footer() {
           <h4 className="text-white text-sm font-semibold mb-3 uppercase tracking-wider">Mehr</h4>
           <ul className="space-y-2 text-sm text-white/70">
             <li><Link href="/flaeche-bewerten" className="hover:text-white">Sofort-Wertindikation</Link></li>
+            <li><Link href="/blog" className="hover:text-white">Blog &amp; Aktuelles</Link></li>
             <li><Link href="/ratgeber/bodenrichtwerte-lippe" className="hover:text-white">Bodenrichtwerte Lippe</Link></li>
             <li><Link href="/ratgeber/grundstuecksverkehrsgesetz" className="hover:text-white">Grundstücksverkehrsgesetz</Link></li>
             <li><Link href="/ueber-uns" className="hover:text-white">Über uns</Link></li>

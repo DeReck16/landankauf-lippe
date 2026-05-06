@@ -8,6 +8,7 @@ const nav = [
   { href: "/flaeche-bewerten", label: "Bewerten" },
   { href: "/services/vns-oekopunkte", label: "VNS & Ökopunkte" },
   { href: "/services/lohnunternehmer", label: "Lohnunternehmer" },
+  { href: "/blog", label: "Blog" },
   { href: "/ueber-uns", label: "Über uns" },
 ];
 
