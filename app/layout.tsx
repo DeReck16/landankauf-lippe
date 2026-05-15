@@ -22,7 +22,7 @@ const lora = Lora({
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: `${site.name} – Ackerland, Wiesen & Wald im Kreis Lippe verkaufen`,
+    default: `${site.name} – Ackerland, Wald & Wiesen im Kreis Lippe`,
     template: `%s | ${site.name}`,
   },
   description: site.shortDescription,
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     locale: "de_DE",
     url: site.url,
     siteName: site.name,
-    title: `${site.name} – Ackerland, Wiesen & Wald im Kreis Lippe verkaufen`,
+    title: `${site.name} – Ackerland, Wald & Wiesen im Kreis Lippe`,
     description: site.shortDescription,
   },
   twitter: {
