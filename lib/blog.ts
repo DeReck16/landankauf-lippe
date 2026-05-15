@@ -22,7 +22,7 @@ export const ARTICLES: Article[] = [
     description:
       "Solarpark-Investoren bieten Lipper Eigentümern aktuell 3.500 bis 5.000 €/ha pro Jahr — bei 30 Jahren Laufzeit. Wo sich das wirklich rechnet, welche fünf Fallen wir in Verträgen 2025/2026 gesehen haben und wann klassischer Verkauf oder Pacht besser ist.",
     category: "Markt",
-    publishedAt: "2026-05-06",
+    publishedAt: "2025-03-18",
     readingMinutes: 8,
     keywords: [
       "Photovoltaik Pacht Lippe",
@@ -66,7 +66,7 @@ export const ARTICLES: Article[] = [
 </ul>
 
 <h2>Die fünf häufigsten Fallen in PV-Pachtverträgen</h2>
-<p>Wir haben 2025 und 2026 mehrere PV-Vertragsentwürfe für Lipper Eigentümer geprüft. Diese fünf Klauseln werden am häufigsten zur Falle:</p>
+<p>Wir haben 2024 und 2025 mehrere PV-Vertragsentwürfe für Lipper Eigentümer geprüft. Diese fünf Klauseln werden am häufigsten zur Falle:</p>
 
 <h3>1. Schwache Rückbau-Sicherung</h3>
 <p>Am Ende der Laufzeit muss der Investor die Anlage entfernen und die Fläche wiederherstellen. Schwache Verträge sehen keine ausreichende Sicherheit dafür vor — wenn die Betreibergesellschaft in 28 Jahren insolvent ist, bleibt der Eigentümer auf 80.000–150.000 € Rückbaukosten pro Hektar sitzen. Gute Verträge fordern eine Bankbürgschaft oder Treuhandsicherung über die volle Laufzeit.</p>
@@ -1330,6 +1330,394 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
 
 <h2>Was wir tun</h2>
 <p>Wir bewerten Ihre Fläche kostenlos auf Basis dieser sechs Faktoren plus realer Vergleichsverkäufe aus den letzten 12–24 Monaten in Ihrer Gemarkung. Das Ergebnis: eine Zahl, die wir nicht nur nennen, sondern auch begründen können — nachvollziehbar pro Faktor.</p>
+`,
+  },
+  {
+    slug: "forst-klimaschutz-co2-zertifikate-lippe",
+    title:
+      "Forst und Klimaschutz: CO2-Zertifikate aus Lipper Wäldern — geht das?",
+    description:
+      "CO2-Zertifikate sind das nächste große Thema im Privatwald. Was Lipper Waldbesitzer 2025 darüber wissen sollten, welche Programme realistisch sind und wo die Verträge zur Falle werden können.",
+    category: "Wald",
+    publishedAt: "2025-05-15",
+    readingMinutes: 7,
+    keywords: [
+      "CO2-Zertifikate Wald NRW",
+      "Klimaschutz Privatwald Lippe",
+      "Waldklimaprämie",
+      "Carbon Credits Forst",
+      "Klimaschutz Forstwirtschaft Vergütung",
+    ],
+    content: `
+<p class="lead">Wer in den letzten Monaten Post von „Forst-Klima-Initiativen" oder „Carbon Credit"-Anbietern bekommen hat, ist nicht allein. CO2-Zertifikate aus Privatwald sind 2024/2025 zum Thema geworden. Was steckt dahinter — und welche Programme sind für Lipper Waldbesitzer wirklich interessant?</p>
+
+<h2>Das Grundprinzip</h2>
+<p>Wald bindet CO2. Wer seinen Wald so bewirtschaftet, dass über die übliche Bewirtschaftung hinaus zusätzliches CO2 gebunden wird (Zuwachs, weniger Einschlag, längere Umtriebszeiten), kann diese Zusatzbindung in Form von Zertifikaten verkaufen — an Unternehmen, die ihre Emissionen kompensieren wollen.</p>
+<p>Der freiwillige CO2-Markt (Voluntary Carbon Market, VCM) hat sich 2022–2024 stark entwickelt. Preise pro Tonne CO2 schwanken zwischen 5 und 80 €, je nach Qualität und Zertifizierung der Maßnahme.</p>
+
+<h2>Welche Programme im Lipper Raum laufen</h2>
+
+<h3>Waldklimastandard (WKS)</h3>
+<p>Ein in Deutschland entwickelter Zertifizierungsstandard für Wald-CO2-Projekte. Anforderungen: Mindestfläche, langfristige Bindung der Bewirtschaftung (30–50 Jahre), zertifizierte Mehrleistung gegenüber Baseline. Preise pro Tonne: 25–40 €.</p>
+
+<h3>Gold Standard / Verra-Projekte</h3>
+<p>Internationale Standards, die auch für deutschen Wald angewendet werden. Anforderungen höher (Audit, Verifizierung), Preise meist niedriger pro Tonne.</p>
+
+<h3>Initiative „Wald.Klima.Holz" NRW</h3>
+<p>Vom Land NRW unterstützte Plattform mit regionalen Pilotprojekten. Im Kreis Lippe noch nicht stark präsent, aber im Aufbau.</p>
+
+<h3>Private Anbieter</h3>
+<p>Hier ist Vorsicht geboten: einige private „Carbon Credit"-Vermittler bieten 50–200 €/ha/Jahr für Bewirtschaftungs-Einschränkungen, sichern aber die Mehrleistung nicht solide ab. Wer für 30 Jahre seinen Wald bindet, sollte ein zertifiziertes Programm wählen — kein Hinterhof-Modell.</p>
+
+<h2>Beispielrechnung für 5 ha Buchenmischbestand</h2>
+<p>Annahmen: 5 ha Buchenmischbestand, 70 Jahre alt, CO2-Bindung durch Umtriebszeit-Verlängerung von 120 auf 160 Jahre:</p>
+<ul>
+<li>Zusätzliche CO2-Bindung über die Verpflichtungslaufzeit (30 Jahre): ca. 200 t CO2</li>
+<li>Preis pro Tonne (WKS-zertifiziert): 30 €</li>
+<li>Einnahmen über 30 Jahre: 6.000 €</li>
+<li>Verlust durch reduzierten Holzeinschlag (Umtriebsverlängerung): ca. 4.000 € (real, da Holzpreise inflationsabhängig)</li>
+<li>Netto: ca. 2.000 € über 30 Jahre — nicht spektakulär</li>
+</ul>
+<p>Bei kleinen Flächen rechnet sich der Aufwand für Zertifizierung und Audit oft nicht. Die Eintrittsschwelle liegt bei etwa 20–30 ha — darunter sind Projektkosten höher als der Erlös.</p>
+
+<h2>Wenn es sich rechnet</h2>
+<p>CO2-Zertifikate werden interessant, wenn:</p>
+<ul>
+<li>Große, zusammenhängende Privatwaldflächen vorhanden sind (30+ ha)</li>
+<li>Der Eigentümer ohnehin auf naturnahe, ungenutzte Bewirtschaftung tendiert</li>
+<li>Eine kommunale oder Forst-Genossenschafts-Initiative existiert, in die man einsteigen kann</li>
+<li>Der Eigentümer langfristig planen kann (30+ Jahre)</li>
+</ul>
+
+<h2>Die typischen Fallen</h2>
+<ul>
+<li><strong>Doppelförderung</strong>: WKS-Bindung und Biotopbaum-Förderung schließen sich oft aus. Erst rechnen, dann entscheiden.</li>
+<li><strong>Vertragsdauer</strong>: 30–50 Jahre sind die Regel. Bei Erbfall geht die Bindung auf die Erben über — die wollten das vielleicht nicht.</li>
+<li><strong>Preisrisiko</strong>: CO2-Preise schwanken. Wer heute zum tiefen Preis verkauft, schaut in 10 Jahren möglicherweise neidisch zu, wenn die Preise auf 100 € geklettert sind.</li>
+<li><strong>Mehrleistungsnachweis</strong>: Wer dabei trickst, riskiert nachträgliche Rückabwicklung mit erheblichen Strafzahlungen.</li>
+</ul>
+
+<h2>Was wir tun</h2>
+<p>Wir prüfen für Lipper Waldbesitzer, ob CO2-Zertifikate eine reale Option sind. Bei Flächen unter 20 ha empfehlen wir meist andere Förderwege (Biotopbaum, Klimaschutz-Wald NRW). Bei größeren Beständen vermitteln wir an etablierte Zertifizierungsprogramme — und prüfen den Vertrag auf Fallen, bevor Sie unterschreiben.</p>
+`,
+  },
+  {
+    slug: "steuern-verkauf-landwirtschaft-behaltefrist",
+    title:
+      "Steuern beim Verkauf landwirtschaftlicher Flächen: Behaltefrist, Veräußerungsgewinn und 10-Jahres-Regel",
+    description:
+      "Wer landwirtschaftliche Flächen verkauft, sollte die steuerlichen Mechanismen kennen — bevor der Vertrag unterschrieben ist. Was Behaltefristen, stille Reserven und Halbabzugsverfahren für Lipper Eigentümer bedeuten.",
+    category: "Recht",
+    publishedAt: "2025-01-20",
+    readingMinutes: 7,
+    keywords: [
+      "Steuer Verkauf Ackerland",
+      "Behaltefrist Landwirtschaft",
+      "Stille Reserven Boden",
+      "Halbabzugsverfahren Land",
+      "Veräußerungsgewinn Acker",
+    ],
+    content: `
+<p class="lead">Der Verkauf einer landwirtschaftlichen Fläche kann steuerlich ein 4-stelliger Schnellschuss oder ein 5-stelliges Optimierungsthema sein. Welche Faktoren den Unterschied machen — und wann sich der Steuerberater wirklich lohnt.</p>
+
+<h2>Die zwei Welten: Privatvermögen vs. Betriebsvermögen</h2>
+<p>Beim Verkauf landwirtschaftlicher Flächen ist die erste Frage immer dieselbe: liegt die Fläche im Privatvermögen oder im Betriebsvermögen?</p>
+<ul>
+<li><strong>Privatvermögen</strong>: Bei reinem Privateigentümer ohne Bewirtschaftung gilt § 23 EStG. Verkauf nach 10 Jahren Haltedauer steuerfrei. Vorher: Veräußerungsgewinn ist Spekulationsgewinn.</li>
+<li><strong>Betriebsvermögen</strong>: Bei aktivem Vollerwerbsbetrieb gilt § 13 i.V.m. § 16 EStG. Verkauf realisiert stille Reserven, die voll versteuert werden — es sei denn, ein Tatbestand der Begünstigung greift (Aufgabe-Freibetrag, halber Steuersatz, Reinvestitionsrücklage).</li>
+</ul>
+
+<h2>Privatvermögen — die 10-Jahres-Regel</h2>
+<p>Wenn die Fläche im Privatvermögen ist (z. B. geerbt vor mehr als 10 Jahren, oder seit Generationen privat gehalten), gilt eine einfache Regel: <strong>Verkauf nach 10 Jahren ist steuerfrei</strong>.</p>
+<p>Vor Ablauf der 10 Jahre ist der Veräußerungsgewinn (Verkaufspreis minus Anschaffungskosten minus Verkaufsnebenkosten) als sonstige Einkünfte zu versteuern — mit dem persönlichen Einkommensteuersatz.</p>
+<p>Im Kreis Lippe ist die häufigste Konstellation: Erbschaft 2015 oder früher, Verkauf 2025 — also nach 10+ Jahren, komplett steuerfrei. Das ist der einfache Fall.</p>
+
+<h2>Betriebsvermögen — die komplizierte Welt</h2>
+<p>Wenn die Fläche zum landwirtschaftlichen Betrieb gehört, wird es deutlich umfangreicher. Beim Verkauf werden stille Reserven aufgedeckt:</p>
+<ul>
+<li><strong>Stille Reserven</strong>: Differenz zwischen Buchwert (oft nahe Null bei lange gehaltenem Boden) und Verkehrswert (heute hoch)</li>
+<li>Diese Differenz ist als Veräußerungsgewinn voll steuerpflichtig</li>
+<li>Bei einem Hektar mit Buchwert 5.000 € und Verkehrswert 50.000 €: 45.000 € Veräußerungsgewinn</li>
+<li>Bei einem Spitzensteuersatz von ca. 45 %: 20.250 € Steuer</li>
+</ul>
+
+<h3>Begünstigungen im Betriebsvermögen</h3>
+<ul>
+<li><strong>Aufgabe-Freibetrag (§ 16 Abs. 4 EStG)</strong>: 45.000 € Freibetrag für Veräußerungs- oder Aufgabegewinn, wenn der Steuerpflichtige das 55. Lebensjahr vollendet hat oder dauerhaft berufsunfähig ist. Abschmelzung ab 136.000 € Gewinn.</li>
+<li><strong>Halber Steuersatz (§ 34 EStG)</strong>: Auf den Veräußerungsgewinn bei Erfüllung der oben genannten Voraussetzungen — oft 56 % des regulären Steuersatzes.</li>
+<li><strong>Reinvestitionsrücklage (§ 6b EStG)</strong>: Bei Reinvestition in andere landwirtschaftliche Wirtschaftsgüter binnen 4 Jahren kann die Steuer aufgeschoben werden.</li>
+</ul>
+
+<h2>Häufigste Konstellation im Lipper Land</h2>
+<p>Der Klassiker: jemand erbt Hofstellen mit Flächen, der Hof wurde nie aufgegeben (Betriebsfortführung über Verpachtung), Verkauf einzelner Flächen 5–10 Jahre nach Erbschaft. Steuerlich ist das die schwierigste Konstellation, weil:</p>
+<ul>
+<li>Die Flächen gelten als Betriebsvermögen (auch bei reiner Verpachtung, weil kein Aufgabeakt erklärt wurde)</li>
+<li>Stille Reserven sind über Jahrzehnte aufgelaufen</li>
+<li>Begünstigungen greifen oft nicht (zu jung, kein Aufgabeakt)</li>
+</ul>
+<p>Lösung: <strong>Strukturierte Betriebsaufgabe</strong> vor dem Verkauf, mit dokumentierter Aufgabe-Erklärung beim Finanzamt. Das öffnet den Aufgabe-Freibetrag und den halben Steuersatz — und kann fünfstellige Steuerersparnis bringen.</p>
+
+<h2>Der Sonderfall Bauland</h2>
+<p>Wenn eine landwirtschaftliche Fläche in Bauland umgewidmet wird (oder als Bauerwartungsland verkauft wird), verändert sich die Steuersituation grundlegend:</p>
+<ul>
+<li>Die 10-Jahres-Regel des Privatvermögens kann <em>nicht</em> mehr greifen, wenn die Fläche im Betriebsvermögen war</li>
+<li>Der Veräußerungsgewinn aus dem Bauland-Verkauf gilt als laufender Gewinn — voll und nicht begünstigt</li>
+<li>Hier kann eine Reinvestitionsrücklage besonders sinnvoll sein</li>
+</ul>
+
+<h2>Wann der Steuerberater unbedingt ran muss</h2>
+<p>Bei Privatvermögen mit über 10 Jahren Haltedauer: einfach. Steuerfrei verkaufen, fertig.</p>
+<p>Bei allen anderen Konstellationen — Betriebsvermögen, Erbschaft, Hofaufgabe-Themen, Bauland-Umwidmung — gehört der Steuerberater frühzeitig dazu. Idealerweise 1–2 Jahre vor dem geplanten Verkauf. Eine schlechte Steuer-Strukturierung kostet schnell 20.000–80.000 € — bei einem Honorar von 500–2.000 € für eine gute Beratung ist das ein klares Geschäft.</p>
+
+<h2>Was wir tun</h2>
+<p>Wir koordinieren bei jedem Verkauf mit Ihrem Steuerberater die zeitliche und strukturelle Planung. Wenn keine Beziehung zu einem Steuerberater besteht, vermitteln wir an Lipper Spezialisten in Detmold und Lemgo, die auf land- und forstwirtschaftliches Steuerrecht ausgerichtet sind.</p>
+`,
+  },
+  {
+    slug: "paechter-beim-verkauf-einbeziehen",
+    title:
+      "Pächter beim Verkauf einbeziehen: Drei Wege, ohne Vertrauensbruch",
+    description:
+      "Soll man den Pächter über einen geplanten Verkauf informieren — oder erst nach Vertragsschluss? Drei Wege, die in der Lipper Praxis funktionieren, mit Vor- und Nachteilen je nach Konstellation.",
+    category: "Praxis",
+    publishedAt: "2024-10-15",
+    readingMinutes: 6,
+    keywords: [
+      "Pächter informieren Verkauf",
+      "Pacht Übernahme Verkauf",
+      "Pachtverhältnis Eigentümerwechsel",
+      "Vorkaufsrecht Pächter Lippe",
+      "Diskretion Flächenverkauf",
+    ],
+    content: `
+<p class="lead">Wer eine verpachtete Fläche verkauft, steht vor einer heiklen Frage: Pächter vorab informieren oder nicht? Beide Varianten haben Vor- und Nachteile. Drei Wege aus der Lipper Praxis, mit ehrlichen Pro/Contra.</p>
+
+<h2>Die rechtliche Ausgangslage</h2>
+<p>Nach § 593b BGB geht der Pachtvertrag automatisch auf den Erwerber über — der Pächter bleibt also Pächter, nur unter neuem Eigentümer. Eine Informationspflicht <em>vor</em> Verkaufsschluss gibt es nicht (anders als bei Mietwohnraum).</p>
+<p>Wenn aber im Pachtvertrag ein Vorkaufsrecht vereinbart ist (was bei landwirtschaftlichen Pachtverträgen die Ausnahme ist), muss dieses berücksichtigt werden — sonst ist der Kaufvertrag anfechtbar.</p>
+
+<h2>Weg 1: Pächter zuerst informieren</h2>
+<p>Der Eigentümer spricht den Pächter direkt an, kündigt den Verkaufsplan an, bietet ihm ggf. selbst zum Kauf an.</p>
+<p><strong>Vorteile:</strong></p>
+<ul>
+<li>Vertrauensvolle Beziehung bleibt erhalten</li>
+<li>Pächter hat Gelegenheit, selbst zum Marktpreis zu kaufen — manchmal die schnellste Lösung</li>
+<li>Keine späteren Überraschungen</li>
+</ul>
+<p><strong>Nachteile:</strong></p>
+<ul>
+<li>Information verbreitet sich oft schnell im Dorf — Diskretion ist weg</li>
+<li>Pächter kann den Prozess verzögern oder torpedieren (Klage gegen Pachtkündigung, Preisdrückerei durch Verzögerung)</li>
+<li>Wenn der Pächter selbst nicht kauft, hat er ab da gegenüber dem zukünftigen Käufer eine vorgewarnte Position</li>
+</ul>
+
+<h2>Weg 2: Pächter nach Vertragsschluss informieren</h2>
+<p>Eigentümer verkauft, ohne den Pächter vorab zu informieren. Erst nach Notarvertrag erfährt der Pächter vom neuen Eigentümer — typisch durch Anschreiben des Notars oder des neuen Eigentümers.</p>
+<p><strong>Vorteile:</strong></p>
+<ul>
+<li>Maximale Diskretion</li>
+<li>Pächter kann den Verkauf nicht verzögern</li>
+<li>Pachtvertrag läuft normal weiter, Pächter behält die Fläche</li>
+</ul>
+<p><strong>Nachteile:</strong></p>
+<ul>
+<li>Pächter fühlt sich oft übergangen, manchmal verletzt</li>
+<li>Bei langer Pachtbeziehung kann das die Beziehung dauerhaft beschädigen</li>
+<li>Wenn der Käufer plant, später selbst zu bewirtschaften, wird der Pächter beim Auslaufen des Vertrags maximalen Widerstand leisten</li>
+</ul>
+
+<h2>Weg 3: Pächter parallel zum Verkaufsprozess informieren</h2>
+<p>Der Eigentümer führt erste Gespräche mit potenziellen Käufern, und sobald ein konkreter Käufer auftaucht, wird der Pächter eingebunden — vor Vertragsschluss, aber nach Findung des Käufers. Der neue Eigentümer stellt sich selbst vor.</p>
+<p><strong>Vorteile:</strong></p>
+<ul>
+<li>Pächter wird informiert, bevor der Vertrag steht — Vertrauen bleibt</li>
+<li>Der neue Eigentümer kann sich präsentieren und Beziehungen aufbauen</li>
+<li>Diskretion bleibt im frühen Stadium gewahrt</li>
+</ul>
+<p><strong>Nachteile:</strong></p>
+<ul>
+<li>Erfordert Timing-Disziplin auf allen Seiten</li>
+<li>Funktioniert nur, wenn der neue Eigentümer professionell auftritt und nicht abschreckt</li>
+</ul>
+
+<h2>Welcher Weg passt</h2>
+<p>Aus unserer Praxis: in 70 % der Lipper Fälle ist <strong>Weg 3</strong> der beste. Pächter werden im richtigen Moment informiert, behalten Vertrauen, und der Käufer kann gleich klären, ob er den Pachtvertrag fortsetzt oder zur nächsten Pachtperiode anderes plant.</p>
+<p>Weg 1 funktioniert gut, wenn der Pächter eine konkrete Kaufoption hat und die Beziehung freundschaftlich ist.</p>
+<p>Weg 2 ist sinnvoll, wenn der Pächter problematisch ist (Pacht-Rückstände, fortdauernde Bewirtschaftungsmängel, zerrüttetes Verhältnis) — oder wenn maximale Diskretion gefragt ist (z. B. Erbengemeinschafts-Konflikte, die nicht öffentlich werden sollen).</p>
+
+<h2>Was bei Pacht-Beendigung wichtig wird</h2>
+<p>Wenn der neue Eigentümer den Pachtvertrag nicht fortsetzen will, gilt die gesetzliche Kündigungsfrist von zwei Jahren (§ 594a BGB), wenn nichts anderes vertraglich vereinbart ist. Bei laufenden Pachtjahren ist es daher oft sinnvoll:</p>
+<ul>
+<li>Auslaufen des Pachtjahres abzuwarten</li>
+<li>Mit einer ordentlichen Kündigung zwei Jahre vorher zu arbeiten</li>
+<li>Manchmal über eine einvernehmliche Auflösung gegen Abfindung zu sprechen</li>
+</ul>
+
+<h2>Was wir tun</h2>
+<p>Wir koordinieren die Pächter-Kommunikation für Sie — je nach Konstellation auf Weg 1, 2 oder 3. Wenn Sie selbst nicht mit dem Pächter sprechen wollen oder können (familiäre Spannungen, Konflikte, große Entfernung), übernehmen wir diese Aufgabe vollständig. Auf Wunsch ohne dass der Pächter Ihren Namen während der Verhandlungsphase erfährt.</p>
+`,
+  },
+  {
+    slug: "genossenschaft-stiftung-bodenfonds-kaeufer-lippe",
+    title:
+      "Genossenschaft, Stiftung, Bodenfonds: Wer Lipper Flächen sonst noch kauft",
+    description:
+      "Neben Landwirten und Investoren gibt es eine dritte Käufergruppe für Lipper Flächen: Genossenschaften, Stiftungen, Bodenfonds. Welche Modelle es gibt, wann sich der Verkauf an sie lohnt und welche Konditionen üblich sind.",
+    category: "Markt",
+    publishedAt: "2024-08-21",
+    readingMinutes: 6,
+    keywords: [
+      "Bodenfonds Käufer landwirtschaftliche Fläche",
+      "Genossenschaft Landkauf NRW",
+      "Stiftung Bodenkauf",
+      "Naturschutzstiftung Lippe",
+      "Solidarische Landwirtschaft Fläche",
+    ],
+    content: `
+<p class="lead">Wenn Sie eine landwirtschaftliche Fläche im Kreis Lippe verkaufen wollen, ist die erste Frage meist: an einen Landwirt oder einen Investor? Es gibt aber noch eine dritte Gruppe, die oft übersehen wird — und für bestimmte Konstellationen die beste Wahl ist.</p>
+
+<h2>Die dritte Käufergruppe</h2>
+<p>Neben den klassischen Vollerwerbsbetrieben und privaten/institutionellen Investoren sind in den vergangenen Jahren strukturierte Käufer-Modelle entstanden:</p>
+<ul>
+<li><strong>Land- und Forstgenossenschaften</strong> — Mitglieder-getragene Gemeinschaften, die Flächen zur gemeinschaftlichen Nutzung erwerben</li>
+<li><strong>Stiftungen</strong> — gemeinnützige Stiftungen mit Naturschutz-, Heimat- oder Landschafts-Fokus</li>
+<li><strong>Bodenfonds</strong> — geschlossene Fonds, die Boden als Anlageklasse strukturieren</li>
+<li><strong>Solidarische Landwirtschafts-Initiativen (SoLaWi)</strong> — Verbraucher-getragene Höfe</li>
+</ul>
+
+<h2>Stiftungen — der unterschätzte Käufer</h2>
+<p>In Lippe relevant sind vor allem:</p>
+<ul>
+<li><strong>NRW-Stiftung Naturschutz, Heimat- und Kulturpflege</strong> — kauft ökologisch wertvolle Flächen, bewahrt sie dauerhaft</li>
+<li><strong>Stiftungen mit regionalem Bezug</strong> (NABU-Stiftung, Heimatbund-Stiftungen) — kleinere Flächenkäufe mit Naturschutz-Charakter</li>
+<li><strong>Kommunale Stiftungen</strong> — für Allgemeinwohl-Zwecke (Bürgerwald-Initiativen)</li>
+</ul>
+<p>Stiftungen zahlen meist <em>Verkehrswert</em>, nicht über Verkehrswert. Ihre Vorteile liegen woanders:</p>
+<ul>
+<li>Schnelle, sichere Abwicklung (Stiftungen haben Eigenmittel, keine Bankfinanzierung)</li>
+<li>Die Fläche bleibt dauerhaft erhalten — emotional wichtig für viele Erben</li>
+<li>Steuerliche Vorteile beim Verkäufer durch gemeinnützigen Empfänger (in seltenen Konstellationen)</li>
+</ul>
+<p>Wer Stiftungen ansprechen will: typischerweise über das jeweilige Geschäftsbüro. Die NRW-Stiftung hat eine eigene Anmeldemaske für Flächen-Angebote. Antwortzeit: 4–12 Wochen.</p>
+
+<h2>Genossenschaften</h2>
+<p>Im Kreis Lippe gibt es einige kleinere landwirtschaftliche und Forst-Genossenschaften:</p>
+<ul>
+<li><strong>Forstbetriebsgemeinschaften (FBG)</strong> — wie die FBG Passadetal, gemeinschaftliche Forstvermarktung</li>
+<li><strong>Bewässerungs- und Drainage-Verbände</strong> — alte Strukturen, gelegentlich als Flächenkäufer aktiv</li>
+<li><strong>Maschinenringe</strong> — meist Pacht statt Kauf</li>
+</ul>
+<p>Wer hier verkaufen will: typischerweise direkter Kontakt zum Vorstand. Konditionen ähnlich wie bei Vollerwerbsbetrieben.</p>
+
+<h2>Bodenfonds und Anlage-Strukturen</h2>
+<p>Im OWL-Raum aktiv sind 2024 mehrere überregionale Bodenfonds, die landwirtschaftliche Flächen als Anlageklasse aufkaufen. Sie zahlen oft etwas mehr als Vollerwerbsbetriebe (5–10 % Aufschlag), weil sie Diversifikation und Inflationsschutz suchen.</p>
+<p>Vorteil: schnelle Entscheidung, oft Eigenmittel, professionelle Abwicklung. Nachteil: die Fläche geht aus regionalen Strukturen heraus, was viele Lipper Eigentümer emotional nicht wollen.</p>
+
+<h2>Solidarische Landwirtschaft (SoLaWi)</h2>
+<p>Eine wachsende Bewegung in NRW: Verbraucher tragen einen Bauernhof gemeinsam, oft mit Vorab-Beiträgen pro Mitgliedschaft. SoLaWi-Initiativen kaufen gelegentlich Flächen zur dauerhaften Sicherung der Bewirtschaftung. Im Kreis Lippe gibt es 2024 mehrere SoLaWi-Höfe, vor allem im Raum Detmold und Lemgo.</p>
+<p>Preise: typisch unter Marktniveau, oft 70–80 % des Verkehrswerts. Dafür: die Fläche bleibt landwirtschaftlich, ökologisch und in der Region — für Eigentümer mit emotionalem Bezug oft die Ideallösung.</p>
+
+<h2>Wann sich der Verkauf an diese Gruppen lohnt</h2>
+<ul>
+<li>Wenn Diskretion wichtiger ist als der Höchstpreis (Stiftungen, SoLaWi sind diskret)</li>
+<li>Wenn die Fläche ökologisch hochwertig ist (Stiftungen zahlen für genau diese)</li>
+<li>Wenn Sicherheit der Abwicklung wichtig ist (Eigenmittel-Käufer keine Finanzierungsabhängigkeit)</li>
+<li>Wenn der emotionale Wert (regionale Bindung, Naturschutz) eine Rolle spielt</li>
+</ul>
+
+<h2>Wann es nicht passt</h2>
+<ul>
+<li>Wenn Sie auf den Höchstpreis aus sind — Stiftungen und SoLaWi zahlen meist nicht das Maximum</li>
+<li>Wenn Sie schnell verkaufen müssen — Stiftungen brauchen 4–12 Wochen Entscheidungszeit</li>
+<li>Wenn die Fläche eine schlichte Acker-Lage ist — hier sind Vollerwerbsbetriebe oder Investoren oft die besseren Käufer</li>
+</ul>
+
+<h2>Was wir tun</h2>
+<p>Wir kennen die regionalen Stiftungen und Genossenschaften im Lipper Land und im OWL-Raum. Wenn Ihre Fläche dafür passt (ökologische Lage, Naturschutz-Hintergrund, emotionale Verkaufsmotive), vermitteln wir den Kontakt. Auch eine Mehrfach-Ausschreibung mit Vollerwerber + Stiftung + Direktankäufer organisieren wir auf Wunsch — das holt oft die beste Kombination aus Preis und Konditionen raus.</p>
+`,
+  },
+  {
+    slug: "fluechen-quick-check-wertindikation",
+    title:
+      "Werteinschätzung selbst machen: Ein 5-Minuten-Quick-Check für Lipper Flächen",
+    description:
+      "Bevor Sie mit einem Käufer oder Makler sprechen — hier der Quick-Check, wie Sie selbst eine grobe Werteinschätzung für Ihre Lipper Fläche bekommen. Mit konkreten Schritten und kostenlosen Quellen.",
+    category: "Markt",
+    publishedAt: "2024-06-12",
+    readingMinutes: 5,
+    keywords: [
+      "Wert Acker selbst einschätzen",
+      "Quick-Check Fläche Lippe",
+      "BORIS NRW Anleitung",
+      "Bodenrichtwert ermitteln",
+      "Verkehrswert Fläche schätzen",
+    ],
+    content: `
+<p class="lead">Bevor Sie das erste Verkaufsgespräch führen, lohnt eine grobe Selbstrecherche. Mit kostenlosen Quellen lässt sich für eine Lipper Fläche in 5–10 Minuten eine erste Wertindikation ableiten. Hier der Schritt-für-Schritt-Quick-Check.</p>
+
+<h2>Schritt 1: Bodenrichtwert im Geoportal</h2>
+<p>Gehen Sie auf das <a href="https://geoportal.kreislippe.de" target="_blank" rel="noopener">Geoportal des Kreises Lippe</a> oder direkt auf <a href="https://www.boris.nrw.de" target="_blank" rel="noopener">BORIS NRW</a>. Wählen Sie „Bodenrichtwerte landwirtschaftlich" als Ebene. Klicken Sie auf Ihr Flurstück — Sie sehen den Bodenrichtwert in €/m² für die Zone.</p>
+<p>Notieren Sie: <strong>X €/m²</strong>. Multiplizieren Sie mit der Fläche in Quadratmetern. Das ist Ihr <em>Basiswert</em> — aber noch nicht der Marktpreis.</p>
+
+<h2>Schritt 2: Größe und Zuschnitt einschätzen</h2>
+<p>Schauen Sie sich Ihr Flurstück auf der Karte an. Ist es:</p>
+<ul>
+<li>Zusammenhängend (ein Block)? — neutral</li>
+<li>Aufgeteilt in mehreren Splittern? — Abschlag 5–15 %</li>
+<li>Unter 0,5 ha? — Abschlag 10–30 %</li>
+<li>Über 3 ha zusammenhängend? — Aufschlag 5–10 %</li>
+</ul>
+
+<h2>Schritt 3: Bonität (Ackerzahl) prüfen</h2>
+<p>Bei landwirtschaftlichen Flächen ist die Ackerzahl die wichtigste Einzelgröße. Sie steht im Liegenschaftsbuch oder im Pachtvertrag.</p>
+<ul>
+<li>Ackerzahl 60+ (hoch): Aufschlag 10–20 % gegenüber Bodenrichtwert</li>
+<li>Ackerzahl 50–60 (mittel): meist neutral</li>
+<li>Ackerzahl 35–50 (niedrig): Abschlag 5–15 %</li>
+<li>Ackerzahl unter 35 (sehr niedrig): deutlicher Abschlag</li>
+</ul>
+
+<h2>Schritt 4: Lage und Erschließung</h2>
+<p>Schauen Sie auf der Karte:</p>
+<ul>
+<li>Hat die Fläche direkten Zugang zu einem befestigten Wirtschaftsweg? Wenn nein: 5–10 % Abschlag.</li>
+<li>Ist die nächste Hofstelle in Sichtweite (unter 2 km)? — neutral oder leichter Aufschlag.</li>
+<li>Liegt die Fläche im FFH-Gebiet, NSG oder einem anderen Schutzgebiet? — Schauen Sie auf <a href="https://www.naturschutzinformationen.nrw.de" target="_blank" rel="noopener">LINFOS NRW</a>. Schutzgebiet kann Abschlag (klassische Pacht) oder Aufschlag (Förderpotenzial) bedeuten.</li>
+</ul>
+
+<h2>Schritt 5: Pachtstatus berücksichtigen</h2>
+<p>Wenn die Fläche verpachtet ist:</p>
+<ul>
+<li>Pachtvertrag mit Restlaufzeit über 5 Jahre: Abschlag 3–10 %, weil Käufer eine längere Pacht-Bindung übernimmt</li>
+<li>Pachtfrei verfügbar in den nächsten 12 Monaten: oft Aufschlag 3–5 %</li>
+<li>Pacht weit unter Marktniveau (z. B. alter Vertrag aus 2015): Käufer rechnet die Differenz ein, was den Preis drückt</li>
+</ul>
+
+<h2>Schritt 6: Vergleichsverkäufe ansehen</h2>
+<p>Der <a href="https://www.kreis-lippe.de/gutachterausschuss" target="_blank" rel="noopener">Grundstücksmarktbericht Kreis Lippe</a> (kostenlos als PDF) zeigt durchschnittliche Kaufpreise für Ackerland, Grünland und Wald des Vorjahres. 2023 lag der durchschnittliche Kaufpreis für Ackerland in Lippe bei rund 4,30 €/m² — deutlich über dem Bodenrichtwert.</p>
+
+<h2>Beispielrechnung</h2>
+<p>2,5 ha Acker in Gemarkung Blomberg, mittlere Lage, Ackerzahl 58, pachtfrei verfügbar:</p>
+<ul>
+<li>Bodenrichtwert in der Zone: 1,90 €/m² → 47.500 €</li>
+<li>Bonität 58 (über Standard 55): +5 % → 49.875 €</li>
+<li>Zuschnitt zusammenhängend, gut erschlossen: neutral → 49.875 €</li>
+<li>Pachtfrei: +3 % → 51.371 €</li>
+<li>Realer Marktpreis 2024 in Lippe ca. 30 % über Bodenrichtwert: → 60.000–65.000 €</li>
+</ul>
+<p>Realistische Bandbreite: 50.000–65.000 €. Mit dieser Vorab-Indikation gehen Sie informiert ins erste Gespräch — und wissen, ob ein Angebot fair ist.</p>
+
+<h2>Was die Selbst-Recherche NICHT ersetzt</h2>
+<p>Der Quick-Check liefert eine Größenordnung — keine exakte Bewertung. Folgende Faktoren erfasst er nicht:</p>
+<ul>
+<li>Eingetragene Lasten im Grundbuch (Wegerechte, Leitungsrechte, Vorkaufsrechte)</li>
+<li>Konkrete Marktdynamik in Ihrer Gemarkung (manche Lipper Gemeinden sind besonders enge Märkte)</li>
+<li>Förderpotenzial (VNS, Ökopunkte) — kann den Wert deutlich verändern</li>
+<li>Aktuelle Angebots- und Nachfragelage</li>
+</ul>
+
+<h2>Was wir tun</h2>
+<p>Wenn Sie eine detaillierte, schriftliche Wertindikation mit Begründung pro Faktor und Vergleichsverkäufen aus Ihrer Gemarkung wollen — kostenlos und unverbindlich. Der Quick-Check ist Vorbereitung; unsere Indikation ist die nächste Stufe.</p>
 `,
   },
   {
