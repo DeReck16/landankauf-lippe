@@ -4,15 +4,57 @@ import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
 
 export const metadata: Metadata = {
-  title: "Vertragsnaturschutz NRW & Ökopunkte — Beratung im Kreis Lippe",
+  title: "Ökopunkte verkaufen NRW & Vertragsnaturschutz — Kreis Lippe",
   description:
-    "Wir beraten Lipper Flächeneigentümer zu Vertragsnaturschutz NRW (VNS), Ökokonto und Ausgleichsflächen. Mehr Ertrag aus extensiv nutzbaren Flächen — mit Antrag, Bewertung und Vermarktung.",
+    "Ökopunkte in NRW verkaufen? Wir prüfen Ihre Fläche kostenlos, stellen Ökokonto-Anträge und vermarkten Ihre Ausgleichspunkte im Kreis Lippe. VNS-Antragsfrist 30.06.2026.",
   alternates: { canonical: "/services/vns-oekopunkte" },
+  openGraph: {
+    title: "Ökopunkte verkaufen NRW & Vertragsnaturschutz — Kreis Lippe",
+    description:
+      "Ökopunkte in NRW verkaufen? Wir prüfen Ihre Fläche kostenlos, stellen Ökokonto-Anträge und vermarkten Ihre Ausgleichspunkte im Kreis Lippe.",
+  },
 };
 
+const faq = [
+  {
+    q: "Wie viel sind Ökopunkte in NRW wert?",
+    a: "Je nach Maßnahme und Gebietskulisse zwischen ca. 0,80 und 3,50 € pro Ökopunkt. Eine Hektar Aufwertung (z. B. Acker zu Wiese) erzeugt häufig 50.000 bis 200.000 Punkte. Im Kreis Lippe und Umfeld liegt der erzielbare Verkaufspreis je nach Nachfragelage bei 1,20 bis 2,50 € pro Punkt — das entspricht einem Erlös von mehreren Zehntausend Euro pro Hektar bei Eigentumserhalt.",
+  },
+  {
+    q: "Wann lohnt sich Vertragsnaturschutz NRW für mich?",
+    a: "VNS lohnt sich vor allem für extensiv nutzbare Flächen: Steillagen, feuchte Grünlandparzellen, Streuobstwiesen, Bachauen und Flächen in FFH-Kulissen. Der Förderertrag liegt oft zwischen 345 und über 2.000 €/ha/Jahr — deutlich über dem erzielbaren Pachtpreis für schwer bewirtschaftbare Böden. Wir prüfen das kostenlos für Ihre konkrete Fläche.",
+  },
+  {
+    q: "Ist Ökokonto und Ökopunkte dasselbe?",
+    a: "Nicht ganz: Das Ökokonto ist das Instrument bei der UNB, in das Aufwertungsmaßnahmen eingebucht werden. Ökopunkte sind die darin gebuchte Einheit. Wer sein Ökokonto befüllt, kann die Punkte dann an Eingriffspflichtige (Bauträger, Infrastrukturprojekte, Kommunen) verkaufen.",
+  },
+  {
+    q: "Kann ich Ökopunkte verkaufen, ohne Eigentümer zu sein?",
+    a: "Grundsätzlich können auch Pächter Aufwertungsmaßnahmen im Ökokonto veranlassen, wenn der Eigentümer zustimmt. Die Punkte werden auf die Person oder Organisation gebucht, die die Maßnahme beauftragt. Wir klären das gemeinsam mit der UNB Kreis Lippe.",
+  },
+  {
+    q: "Wie lange dauert ein VNS-Antrag im Kreis Lippe?",
+    a: "Die Bearbeitung durch die UNB dauert in der Regel wenige Wochen. Die Verpflichtung startet immer zum 1. Januar des Folgejahres — deswegen ist die Antragsfrist 30.06. entscheidend. Für 2027 läuft die Frist am 30.06.2026 ab. Wir bereiten alles vor, Sie müssen den Antrag nur final elektronisch über ELAN einreichen.",
+  },
+];
+
 export default function Page() {
+  const faqLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faq.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+      />
       <PageHero
         eyebrow="VNS · Ökokonto · Ausgleichsflächen"
         title="Vertragsnaturschutz und Ökopunkte — Förderung statt Stilllegung."
@@ -68,6 +110,16 @@ export default function Page() {
               <li>Bei Ökopunkten: Vermarktung und Vermittlung an Bedarfsträger</li>
               <li>Bei Bedarf: Vermittlung von Lohnunternehmern für die Umsetzung der Maßnahmen</li>
             </ul>
+
+            <h2>Häufige Fragen zu Ökopunkten & Vertragsnaturschutz NRW</h2>
+            <dl>
+              {faq.map((item) => (
+                <div key={item.q} className="mb-6">
+                  <dt className="font-semibold">{item.q}</dt>
+                  <dd className="mt-1">{item.a}</dd>
+                </div>
+              ))}
+            </dl>
           </article>
           <aside id="anfrage" className="lg:sticky lg:top-24 self-start">
             <LeadForm
