@@ -16,6 +16,99 @@ export type Article = {
 
 export const ARTICLES: Article[] = [
   {
+    slug: "jagdpacht-lippe-2026-pachterneuerung-wildschaden-eigenjagd",
+    title:
+      "Jagdpacht in Lippe 2026: Pachterneuerung, Wildschaden und Eigenjagd — was Verpächter wissen müssen",
+    description:
+      "Jagdpacht im Kreis Lippe 2026: aktuelle Pachtpreise, Wildschadenregulierung, ASP-Risiko, Bleimunition-Stichtag NRW, Eigenjagdbezirk ab 75 ha. Was Jagdgenossenschaften und Privatwaldeigentümer in der laufenden Pachtperiode konkret beachten müssen.",
+    category: "Recht",
+    publishedAt: "2026-05-26",
+    readingMinutes: 8,
+    keywords: [
+      "Jagdpacht Lippe 2026",
+      "Jagdpachtvertrag NRW",
+      "Wildschaden Landwirt",
+      "Eigenjagdbezirk Privatwald",
+      "Bleimunition NRW Verbot",
+      "ASP Schwarzwild OWL",
+      "Jagdgenossenschaft Pachterneuerung",
+    ],
+    content: `
+<p class="lead">Im Kreis Lippe laufen 2026 und 2027 dutzende Jagdpachtverträge aus — die meisten wurden zwischen 2017 und 2019 geschlossen, mit Pachtdauern von acht oder neun Jahren. Wer Mitglied einer Jagdgenossenschaft ist, Privatwald ab 75 Hektar besitzt oder einfach nur Eigentümer einer Fläche im gemeinschaftlichen Jagdbezirk, sollte vor der Erneuerung wissen: Der Markt für Jagdpachten hat sich 2024/2025 spürbar verändert. Eine ehrliche Bestandsaufnahme.</p>
+
+<h2>Wer in Lippe verpachtet — und wer nicht</h2>
+<p>Das Bundesjagdgesetz unterscheidet zwei Welten:</p>
+<ul>
+<li><strong>Eigenjagdbezirk</strong> — geschlossene Fläche eines Eigentümers ab 75 Hektar (in NRW). Im Kreis Lippe trifft das fast nur größere Forstbetriebe, einige Adelsgüter und vereinzelt landwirtschaftliche Großbetriebe.</li>
+<li><strong>Gemeinschaftlicher Jagdbezirk</strong> — alle übrigen bejagbaren Flächen sind in einer Jagdgenossenschaft zusammengefasst. Der Vorstand verpachtet die Jagd, der Erlös wird unter den Eigentümern nach Flächenanteil verteilt.</li>
+</ul>
+<p>Für die allermeisten Lipper Flächeneigentümer ist die Jagdgenossenschaft die relevante Konstellation. Wer 1,5 Hektar Acker bei Detmold-Pivitsheide hat, bekommt jedes Jahr eine kleine Auszahlung — und entscheidet bei Pachterneuerung über die Versammlung mit.</p>
+
+<h2>Jagdpachtpreise im Kreis Lippe 2026</h2>
+<p>Die Bandbreiten aus laufenden Verhandlungen 2025 und ersten 2026er Abschlüssen — sowohl Jagdgenossenschaften als auch Privatwald-Verpachtungen:</p>
+<ul>
+<li><strong>Feldreviere mit hohem Reh- und Schwarzwild-Vorkommen</strong> (westliches Lippe, Werretal): 25–45 €/ha/Jahr</li>
+<li><strong>Misch-Reviere (Feld + Wald, mittlere Wilddichte)</strong>: 18–30 €/ha/Jahr</li>
+<li><strong>Reine Wald-Reviere mit Rotwild-Vorkommen</strong> (Senne-Übergang, Egge, Teutoburger Wald): 30–55 €/ha/Jahr — Spitzen-Reviere mit Rotwild und Auerhuhn-freier Bejagbarkeit darüber</li>
+<li><strong>Schwierige Reviere mit hohem ASP-Restrisiko oder Verkehrslärm</strong>: 8–18 €/ha/Jahr</li>
+<li><strong>Drückjagd-Pauschalen für überregionale Gastpächter</strong>: zusätzlich 600–1.500 € pro Tag (kein Pachtbestandteil, sondern Zubrot)</li>
+</ul>
+<p>Im Vergleich zu 2017/2018 sind die Pachten je nach Lage zwischen <strong>20 % und 40 % gestiegen</strong>. Das liegt vor allem an drei Faktoren: höhere Wilddichte (Reh, Schwarzwild), steigende Zahl zahlungskräftiger Hobbypächter aus dem Bielefelder Raum und Druck der Versicherer auf saubere Wildschadensbilanz.</p>
+
+<h2>Pachtdauer: warum 12 Jahre der neue Standard ist</h2>
+<p>Das BJagdG schreibt eine Mindestpachtdauer von <strong>neun Jahren</strong> vor (§ 11 Abs. 4). Bis vor wenigen Jahren war das auch die übliche Vertragsdauer in Lippe. Seit 2023 sehen wir vermehrt <strong>12-Jahres-Verträge</strong>, gelegentlich sogar Optionen auf weitere drei Jahre. Hintergrund:</p>
+<ul>
+<li>Pächter wollen Investitionen in Hochsitze, Wildkammer, Reviereinrichtung über längere Zeit abschreiben</li>
+<li>Genossenschaften wollen Planungs­sicherheit, weil regelmäßige Pächtersuche aufwendig ist</li>
+<li>Die ASP-Lage und Schwarzwild-Bestände machen kurzfristige Bewirtschaftung schwierig</li>
+</ul>
+<p>Für Verpächter bedeutet das: Wer 2026 für 12 Jahre abschließt, sollte eine <strong>Wertanpassungsklausel</strong> (VPI-Indexierung oder zumindest eine Anpassung alle vier Jahre) einbauen. Sonst läuft der Pachtzins bis 2038 ungedeckt durch Inflation.</p>
+
+<h2>Wildschadensregelung — wer zahlt was</h2>
+<p>Im gemeinschaftlichen Jagdbezirk gilt seit jeher: Die Jagdgenossenschaft haftet, kann den Ersatz aber per Pachtvertrag auf den Pächter abwälzen. In Lippe ist das fast immer der Fall — der Standard-Vertrag der Vereinigung der Jäger Westfalen sieht die Abwälzung als Regelfall vor.</p>
+<p>Worauf 2026 zu achten ist:</p>
+<ul>
+<li><strong>Schwarzwildschäden</strong> in Mais und Kartoffeln haben sich im Kreis Lippe in den letzten drei Jahren etwa verdoppelt. Wer Pacht abwälzt, ohne den Pächter mit Saukoffer, Bewegungsjagd-Möglichkeit und realistischem Abschuss­plan auszustatten, riskiert nach drei Jahren einen frustrierten Pächter und Vertragsauflösung.</li>
+<li><strong>Selbstbeteiligung Landwirt</strong>: § 32 BJagdG sieht eine Selbstbeteiligung von 1/4, mindestens aber dem Wert eines Doppelzentners Roggen vor. In NRW liegt das aktuell bei rund 21 €/Schadensfall. Manche Verträge schließen das vertraglich aus — was die Pacht drückt, aber für die Landwirte vor Ort fair ist.</li>
+<li><strong>Schadensanzeige­frist</strong>: 7 Tage ab Kenntnis (§ 34 BJagdG). Wer die Frist verpasst, hat keinen Anspruch. Diese Frist wird im Kreis Lippe regelmäßig missachtet — gerade kleinere Eigentümer wissen das nicht.</li>
+</ul>
+
+<h2>ASP — was 2026 in Lippe aktuell gilt</h2>
+<p>Die Afrikanische Schweinepest ist 2024/2025 in Westfalen nicht aufgetreten, aber das Risiko bleibt. Der Kreis Lippe gilt nicht als Restriktions­gebiet, die Pflichten für Jagdpächter sind aber:</p>
+<ul>
+<li>Verstärkte Bejagung von Schwarzwild — Streckenziele werden von der UJB Kreis Lippe vorgegeben</li>
+<li>Tupferproben-Pflicht bei jedem Stück Schwarzwild im Rahmen der Monitoring-Programme</li>
+<li>Kadaver-Suchpflicht im eigenen Revier bei Fund verendeter Tiere</li>
+</ul>
+<p>Für Verpächter: Im neuen Pachtvertrag sollte stehen, dass der Pächter die ASP-Monitoring-Pflichten erfüllt und Wildkammer mit Kühlung vorhält. Wer das nicht regelt, hat im Ernstfall ein Haftungsproblem.</p>
+
+<h2>Bleimunition-Verbot — Stand 2026</h2>
+<p>Bleimunition ist in NRW <strong>seit dem 1. April 2024</strong> in Wasservogel-Lebensräumen und Feuchtgebieten verboten (EU-Verordnung 2021/57, REACH-Anhang XVII). Für reine Büchsenmunition (Hochwild, Rehe, Sauen) ist bundesweit kein flächendeckendes Verbot in Kraft — die einzelnen Landesjagdgesetze regeln Übergangsfristen.</p>
+<p>In NRW ist <strong>bleifreie Büchsenmunition</strong> bei Drückjagden im Staatswald seit 2014 verpflichtend. Im Privatwald und auf landwirtschaftlichen Flächen ist sie noch nicht durchgängig vorgeschrieben — aber die Diskussion läuft. Vorausschauende Pachtverträge 2026 enthalten bereits eine Klausel, die den Pächter zur Verwendung bleifreier Munition verpflichtet, sobald gesetzlich vorgeschrieben.</p>
+
+<h2>Fünf Klauseln, die in keinen Pachtvertrag 2026 mehr fehlen sollten</h2>
+<ol>
+<li><strong>Wertanpassung</strong> — Indexierung an VPI oder Anpassung alle vier Jahre, sonst frisst die Inflation den Pachtzins über 12 Jahre real um 15–20 %.</li>
+<li><strong>ASP- und Wildschadens-Mindestabschuss</strong> — konkrete Stückzahlen Schwarzwild und Rehwild pro Jahr, nicht nur ein vager Hinweis auf den Abschussplan.</li>
+<li><strong>Kündigungsrecht bei nicht erreichtem Abschuss</strong> — gibt der Genossenschaft Druckmittel, wenn Wildschäden eskalieren.</li>
+<li><strong>Solvenzanforderung Pächter</strong> — Nachweis Jagdhaftpflicht über mindestens 5 Mio. € Sach- und Personenschaden, idealerweise eigenständige Wildschadens­versicherung. Hat sich seit 2023 als Standard etabliert.</li>
+<li><strong>Übergabe-Protokoll Reviereinrichtung</strong> — Hochsitze, Kirrungen, Wildkammer mit Foto-Dokumentation. Spart bei Vertragsende Diskussion und Schiedsverfahren.</li>
+</ol>
+
+<h2>Eigenjagdbezirk: lohnt sich das?</h2>
+<p>Für Privatwaldeigentümer mit Beständen ab 75 Hektar (zusammenhängend) ist Eigenjagd eine Alternative zur Mitgliedschaft im gemeinschaftlichen Bezirk. Die Vor- und Nachteile:</p>
+<ul>
+<li><strong>Pro Eigenjagd</strong>: volle Pachterlöse, Mitspracherecht beim Pächter, eigene Hege- und Abschussplanung, oft höhere Pacht­erträge pro Hektar</li>
+<li><strong>Contra Eigenjagd</strong>: volle Wildschadenshaftung (nicht über Genossenschaft verteilt), eigene Abschussplan-Pflicht gegenüber UJB, organisatorischer Aufwand, höheres Risiko bei Pächter-Insolvenz</li>
+</ul>
+<p>In Lippe nutzen das vor allem die Forstbetriebe rund um Schieder-Schwalenberg, Lügde und Extertal sowie die größeren landwirtschaftlichen Höfe im Werretal. Bei knapp über 75 Hektar lohnt sich der Aufwand selten; ab 200 Hektar wird es interessant.</p>
+
+<h2>Was wir konkret tun</h2>
+<p>Wir verpachten selbst keine Jagd — aber wir beraten Eigentümer, Jagdgenossenschafts­vorstände und Forstbetriebe bei der Vertragsgestaltung 2026. Konkret: Prüfung des aktuellen Pachtvertrags auf Marktgerechtigkeit und Risiko­klauseln, Marktrecherche realer Vergleichs­abschlüsse im Kreis, Vermittlung an seriöse Pachtinteressenten aus dem regionalen Jägernetzwerk. Falls Sie als Pächter ein Revier suchen oder als Verpächter Unterstützung brauchen — sprechen Sie uns kurz an.</p>
+<p>Für angrenzende Themen rund um Privatwald: <a href="/blog/privatwald-lippe-halten-foerdern-verkaufen">Privatwald halten, fördern oder verkaufen</a>, <a href="/blog/kaeferholz-sturmwurf-lippe-privatwald">Käferholz und Sturmwurf in Lippe</a> sowie unsere <a href="/wald-verkaufen">Wald-Direktankauf-Seite</a>.</p>
+`,
+  },
+  {
     slug: "photovoltaik-pacht-kreis-lippe",
     title:
       "Photovoltaik-Pacht im Kreis Lippe: Wann sich 3.500 €/ha lohnen — und wann sie zur Falle werden",
