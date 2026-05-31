@@ -1,5 +1,6 @@
 import Link from "next/link";
 import ClickToReveal from "@/components/ClickToReveal";
+import SisterSites from "@/components/SisterSites";
 import { site, services } from "@/lib/site";
 import { CITIES, FLAECHENTYPEN } from "@/lib/cities";
 
@@ -122,6 +123,8 @@ export default function Footer() {
           </ul>
         </div>
       </div>
+      <SisterSites currentDomain="lippeforst.de" />
+
       <div className="border-t border-white/10">
         <div className="container-page px-5 py-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-white/50">
           <p>© {year} {site.contact.company}. Alle Rechte vorbehalten.</p>
