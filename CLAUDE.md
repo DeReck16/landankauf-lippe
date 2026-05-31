@@ -8,7 +8,7 @@
 - Next.js 16, TypeScript, Tailwind v4 | Lokal: `/Users/de/landankauf-lippe`
 - GitHub: https://github.com/DeReck16/landankauf-lippe
 - Vercel: `tr-72439f7a/landankauf-lippe` → `landankauf-lippe.vercel.app`
-- Deploy: `VERCEL_TOKEN=<REDACTED> npx vercel deploy --prod --yes`
+- Deploy: `VERCEL_TOKEN=<aus 1Password> npx vercel deploy --prod --yes`
 
 ## Domain
 - **In site.ts konfiguriert:** `lippeforst.de`
