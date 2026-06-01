@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Lora } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { site } from "@/lib/site";
@@ -46,6 +46,10 @@ export const metadata: Metadata = {
   verification: {
     google: "8FwDnnfsaIHjbfoNkJFXY6jqqdz2AwZ0oOIlfEovp0Q",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#1c2519",
 };
 
 export default function RootLayout({
