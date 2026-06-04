@@ -5,6 +5,7 @@ import { site } from "@/lib/site";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
+import AdsConversions from "@/components/AdsConversions";
 import "./globals.css";
 
 const inter = Inter({
@@ -94,6 +95,10 @@ export default function RootLayout({
         <Footer />
         <WhatsAppFloat />
         <GoogleAnalytics gaId="G-0Y4K8M7RJS" />
+        <AdsConversions
+          whatsappLabel="enWZCPGV-7gcELqDkIdD"
+          phoneLabel="V0goCPSV-7gcELqDkIdD"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(ldOrg) }}
