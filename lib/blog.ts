@@ -16,6 +16,66 @@ export type Article = {
 
 export const ARTICLES: Article[] = [
   {
+    slug: "wohnungsbau-tiefstand-2026-bauerwartungsland-ackerland-lippe",
+    title:
+      "Wohnungsbau am Tiefpunkt: Was der Neubau-Einbruch 2025 für Ackerland und Bauerwartungsland im Kreis Lippe bedeutet",
+    description:
+      "2025 wurden nur 206.600 Wohnungen fertiggestellt — 18 % weniger und der niedrigste Stand seit 2012. Gleichzeitig steigen die Baugenehmigungen. Was diese Schere für Lipper Flächeneigentümer bedeutet: vom Acker (8–18 €/m²) zum Bauerwartungsland (80–150 €/m²), wann sich der Verkauf lohnt und welche Flächen wirklich profitieren.",
+    category: "Markt",
+    publishedAt: "2026-06-04",
+    readingMinutes: 9,
+    keywords: [
+      "Bauerwartungsland Lippe verkaufen",
+      "Ackerland Bauland Kreis Lippe",
+      "Wohnungsbau Tiefstand 2025",
+      "Baulandpreise Lippe 2026",
+      "Bauerwartungsland Preis pro m²",
+      "Ackerland verkaufen Detmold",
+      "Flächennachfrage Wohnungsmangel NRW",
+    ],
+    content: `
+<p class="lead">2025 wurden in Deutschland nur noch <strong>206.600 Wohnungen</strong> fertiggestellt — 18 Prozent weniger als im Vorjahr und der niedrigste Stand seit 2012. Gleichzeitig sind die Baugenehmigungen erstmals seit Jahren wieder gestiegen. Diese Schere sagt Lipper Flächeneigentümern mehr über den künftigen Wert ihres Ackers, als die meisten denken. Eine nüchterne Einordnung — ohne Schönfärberei.</p>
+
+<figure>
+<img src="/blog-bauland-tiefstand.jpg" alt="Neubaugebiet am Ortsrand — aus ehemaligem Ackerland entstandenes Bauland im Kreis Lippe" style="width:100%;height:auto;border-radius:14px" loading="lazy" />
+<figcaption>Wo Acker zu Bauland wird, vervielfacht sich der Quadratmeterpreis. Der Neubau-Stau verschärft die Flächennachfrage am Siedlungsrand.</figcaption>
+</figure>
+
+<h2>Die Zahlen: Neubau im freien Fall, Nachfrage ungebrochen</h2>
+<p>Das Statistische Bundesamt hat im Mai 2026 Bilanz gezogen. Mit 206.600 fertiggestellten Wohnungen lag der Neubau <strong>18,0 Prozent unter dem Vorjahr</strong> — 45.400 Wohnungen weniger. Es ist bereits das zweite Rückgangsjahr in Folge (2024: −14,4 Prozent). So wenig wie 2025 wurde zuletzt 2012 gebaut.</p>
+<p>Bemerkenswert ist die Gegenbewegung bei den Genehmigungen: Sie stiegen 2025 um <strong>10,6 Prozent auf 238.100</strong> — der erste Anstieg seit 2021. Gebaut wird also weniger, geplant wieder mehr. Der Bauüberhang — genehmigte, aber noch nicht fertiggestellte Wohnungen — liegt bei 760.700 Einheiten, von denen sich erst 307.200 wirklich im Bau befinden. 35.700 Baugenehmigungen sind 2025 schlicht <strong>erloschen</strong>, der höchste Wert seit 2002.</p>
+<p>Übersetzt heißt das: Der Wohnungsmangel löst sich nicht auf — er wird vertagt. Hohe Baukosten und Zinsen halten die genehmigten Projekte zurück. Doch jede vertagte Wohnung ist aufgestaute Flächennachfrage, die sich entlädt, sobald Finanzierung und Baukosten wieder zusammenpassen.</p>
+
+<h2>Warum das den Bodenwert treibt — nicht den Baupreis</h2>
+<p>Ein Detail aus der amtlichen Statistik wird oft überlesen: Die <strong>Baulandpreise sind stärker gestiegen als die Preise für Neubauwohnungen selbst</strong>. Der Boden ist der größte Einzel-Preistreiber beim Wohnungsbau geworden — im Bundesdurchschnitt kostet baureifes Land inzwischen rund 273 €/m², gegenüber etwa 144 €/m² vor zehn Jahren.</p>
+<p>Für Flächeneigentümer im Kreis Lippe liegt der eigentliche Hebel im Sprung vom Acker zum Bauerwartungsland. Reiner Ackerboden bewegt sich hier je nach Lage und Bonität zwischen <strong>8 und 18 €/m²</strong>. Sobald eine Fläche als Bauerwartungsland eingestuft wird — also eine realistische Aussicht auf künftiges Baurecht besteht — springt der Wert auf <strong>80 bis 150 €/m²</strong> und mehr. Das ist kein Aufschlag, das ist eine Verzehnfachung. Genau diese Schwelle entscheidet über sechsstellige Unterschiede beim Verkaufserlös.</p>
+
+<h2>Welche Lipper Flächen profitieren — und welche nicht</h2>
+<p>Ehrlich bleiben: Nicht jeder Acker wird Bauland. Entscheidend sind drei Faktoren, die alle erfüllt sein müssen:</p>
+<ul>
+<li><strong>Lage am Siedlungsrand wachsender Kommunen</strong> — die Pendlergemeinden Richtung Bielefeld (Oerlinghausen, Lage, Bad Salzuflen) sowie die Ränder von Detmold und Lemgo haben den größten Entwicklungsdruck.</li>
+<li><strong>Kommunale Entwicklungsabsicht</strong> — Aufnahme in den Flächennutzungsplan, ein Baulückenkataster oder konkrete Siedlungserweiterungs-Pläne. Ohne politischen Willen der Gemeinde bleibt der schönste Acker Acker.</li>
+<li><strong>Erschließbarkeit</strong> — Anschluss an Straße, Kanal und Versorgung muss technisch und wirtschaftlich machbar sein. Hanglagen, Überschwemmungsgebiete und FFH-Flächen fallen meist raus.</li>
+</ul>
+<p>Wer eine randständische Fläche in einer dieser Wachstumslagen hält, sitzt 2026 auf einer deutlich besseren Verhandlungsposition als noch vor drei Jahren — weil die Kommunen unter Druck stehen, Wohnbauland auszuweisen, und Investoren nach entwicklungsfähigen Grundstücken suchen.</p>
+
+<h2>Halten oder verkaufen — die ehrliche Abwägung</h2>
+<p>Die Verlockung ist, auf das volle Baurecht zu warten und dann zum Bauland-Preis zu verkaufen. Das kann aufgehen — birgt aber reale Risiken: Eine Baulandentwicklung dauert im Kreis Lippe oft 5 bis 10 Jahre, die Gemeinde kann das Verfahren jederzeit stoppen, im Umlegungsverfahren gehen 25–30 Prozent der Fläche für Erschließung und öffentliche Zwecke verloren, und die Erschließungskosten trägt am Ende der Eigentümer.</p>
+<p>Der pragmatische Mittelweg ist häufig der Verkauf als <strong>Bauerwartungsland</strong>: Man realisiert den größten Wertsprung (Acker → Bauerwartung), gibt aber das jahrelange Entwicklungsrisiko an einen Projektentwickler oder Bauträger ab. Wann welcher Weg sinnvoll ist, hängt vom konkreten Verfahrensstand ab — das beleuchten wir im Detail unter <a href="/blog/bauerwartungsland-warten-oder-verkaufen">Bauerwartungsland: warten oder verkaufen?</a></p>
+
+<h2>Steuern und Recht — die zwei Stolpersteine</h2>
+<p>Zwei Punkte werden regelmäßig unterschätzt:</p>
+<ul>
+<li><strong>Grundstücksverkehrsgesetz (GrdstVG):</strong> Der Verkauf landwirtschaftlicher Flächen ist genehmigungspflichtig, und Landwirte haben unter Umständen ein Vorkaufsrecht. Sobald eine Fläche aber als Bauerwartungs- oder Bauland gilt, greift das GrdstVG nicht mehr — der Übergang ist fließend und streitanfällig. Mehr dazu: <a href="/blog/grundstuecksverkehrsgesetz-praxis-nrw">Grundstücksverkehrsgesetz in der Praxis</a>.</li>
+<li><strong>Besteuerung des Gewinns:</strong> Bei Betriebsvermögen ist der Veräußerungsgewinn grundsätzlich steuerpflichtig — eine Reinvestitionsrücklage nach § 6b EStG oder die Behaltefristen können die Last erheblich senken. Den Überblick gibt unser Beitrag zu <a href="/blog/steuern-verkauf-landwirtschaft-behaltefrist">Steuern und Behaltefristen beim Flächenverkauf</a>.</li>
+</ul>
+
+<h2>Was wir konkret tun</h2>
+<p>Wir kaufen und vermitteln land- und forstwirtschaftliche Flächen im Kreis Lippe — und ordnen vorab ehrlich ein, ob Ihre Fläche reines Ackerland, echtes Bauerwartungsland oder etwas dazwischen ist. Keine geschönten Versprechen, sondern eine realistische Wertindikation auf Basis von Bodenrichtwert, Marktvergleich und kommunaler Planungslage. Welche Faktoren dabei wirklich zählen, lesen Sie unter <a href="/blog/hektar-ackerland-lippe-wertbestimmende-faktoren">Wertbestimmende Faktoren beim Ackerland</a>.</p>
+<p>Wenn Sie wissen wollen, was Ihre Fläche heute wert ist — und was sie als Bauerwartungsland wert wäre — sprechen Sie uns an: <a href="/ackerland-verkaufen">Ackerland verkaufen im Kreis Lippe</a> oder direkt über unser <a href="/kontakt">Kontaktformular</a>. Eine erste Einschätzung ist kostenlos und unverbindlich.</p>
+`,
+  },
+  {
     slug: "jagdpacht-lippe-2026-pachterneuerung-wildschaden-eigenjagd",
     title:
       "Jagdpacht in Lippe 2026: Pachterneuerung, Wildschaden und Eigenjagd — was Verpächter wissen müssen",
