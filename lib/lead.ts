@@ -1,138 +1,25 @@
-"use server";
-
-import { put } from "@vercel/blob";
-import { site } from "@/lib/site";
-
-export type LeadInput = {
-  intent: string;
-  flaechentyp: string;
-  groesse: string;
-  ort: string;
-  flurstueck?: string;
-  message?: string;
-  name: string;
-  phone?: string;
-  email: string;
-  source?: string;
-  consent?: string;
-};
+// Client-Helper: schickt das Formular an die /api/lead-Route.
+// Serverseitig läuft dort die Mehrkanal-Zustellung (Resend + Formspree + Blob).
+// Signatur bleibt (FormData rein) — LeadForm muss nicht angepasst werden.
 
 export type LeadResult =
-  | { ok: true; id: string }
+  | { ok: true; id: string; delivered?: { resend: boolean; formspree: boolean; blob: boolean } }
   | { ok: false; error: string };
 
-function fmt(v?: string | null) {
-  return (v ?? "—").toString().trim() || "—";
-}
-
 export async function submitLead(formData: FormData): Promise<LeadResult> {
-  const input: LeadInput = {
-    intent: fmt(formData.get("intent") as string),
-    flaechentyp: fmt(formData.get("flaechentyp") as string),
-    groesse: fmt(formData.get("groesse") as string),
-    ort: fmt(formData.get("ort") as string),
-    flurstueck: fmt(formData.get("flurstueck") as string),
-    message: fmt(formData.get("message") as string),
-    name: fmt(formData.get("name") as string),
-    phone: fmt(formData.get("phone") as string),
-    email: fmt(formData.get("email") as string),
-    source: fmt(formData.get("source") as string),
-    consent: fmt(formData.get("consent") as string),
-  };
+  const payload: Record<string, string> = {};
+  formData.forEach((value, key) => {
+    payload[key] = typeof value === "string" ? value : "";
+  });
 
-  if (!input.email || input.email === "—") {
-    return { ok: false, error: "Bitte geben Sie eine E-Mail-Adresse an." };
+  try {
+    const res = await fetch("/api/lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    return (await res.json()) as LeadResult;
+  } catch {
+    return { ok: false, error: "Netzwerkfehler — bitte versuchen Sie es später erneut." };
   }
-  if (!input.name || input.name === "—") {
-    return { ok: false, error: "Bitte geben Sie Ihren Namen an." };
-  }
-  if (input.consent !== "on") {
-    return { ok: false, error: "Bitte stimmen Sie der Datenschutzerklärung zu." };
-  }
-
-  const id = `LL-${Date.now().toString(36).toUpperCase()}`;
-  const lines = [
-    `Neue Anfrage über ${site.url}`,
-    "",
-    `Anliegen:    ${input.intent}`,
-    `Flächentyp:  ${input.flaechentyp}`,
-    `Größe:       ${input.groesse}`,
-    `Ort/Gemarkung: ${input.ort}`,
-    `Flurstück:   ${input.flurstueck}`,
-    "",
-    `Name:    ${input.name}`,
-    `E-Mail:  ${input.email}`,
-    `Telefon: ${input.phone}`,
-    "",
-    `Nachricht:`,
-    input.message ?? "—",
-    "",
-    `Quelle: ${input.source}`,
-    `ID: ${id}`,
-  ];
-  const text = lines.join("\n");
-  const subject = `Anfrage [${input.intent} · ${input.flaechentyp}] – ${input.name}`;
-
-  const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.LEAD_TO_EMAIL || site.contact.email || site.contact.emailFallback;
-  const from = process.env.LEAD_FROM_EMAIL || `Lippe Forst <onboarding@resend.dev>`;
-
-  // 1. Durable storage: Vercel Blob (Backup, falls E-Mail fehlschlägt)
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
-    try {
-      const date = new Date().toISOString().slice(0, 10);
-      const filename = `leads/${date}/${id}.json`;
-      const payload = {
-        id,
-        receivedAt: new Date().toISOString(),
-        source: input.source,
-        ...input,
-      };
-      await put(filename, JSON.stringify(payload, null, 2), {
-        access: "public",
-        contentType: "application/json",
-        addRandomSuffix: false,
-      });
-    } catch (err) {
-      console.error("[lead] blob storage exception", err);
-    }
-  } else {
-    console.log("[lead] BLOB_READ_WRITE_TOKEN not set — backup skipped");
-  }
-
-  // 2. E-Mail-Notification via Resend
-  let emailSent = false;
-  if (apiKey) {
-    try {
-      const res = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from,
-          to: [to],
-          reply_to: input.email,
-          subject,
-          text,
-        }),
-      });
-      if (res.ok) {
-        emailSent = true;
-      } else {
-        const body = await res.text();
-        console.error("[lead] resend error", res.status, body);
-      }
-    } catch (err) {
-      console.error("[lead] resend exception", err);
-    }
-  }
-
-  if (!emailSent) {
-    console.log(`[lead] ${id} — Email konnte nicht versendet werden, siehe Vercel Blob /leads`);
-    console.log(text);
-  }
-
-  return { ok: true, id };
 }

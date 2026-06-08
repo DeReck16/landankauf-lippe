@@ -3,6 +3,30 @@
 import { useState, useTransition } from "react";
 import { submitLead } from "@/lib/lead";
 
+// Google-Ads-Conversion "LIPPEFORST Form Lead" (Label ist öffentlich/safe)
+const FORM_CONVERSION = "AW-18000118202/kDUqCKC7u7ocELqDkIdD";
+
+function fireFormConversion() {
+  try {
+    const w = window as unknown as {
+      dataLayer?: unknown[];
+      gtag?: (...args: unknown[]) => void;
+    };
+    w.dataLayer = w.dataLayer || [];
+    if (typeof w.gtag !== "function") {
+      w.gtag = (...args: unknown[]) => {
+        w.dataLayer!.push(args);
+      };
+    }
+    w.gtag("event", "conversion", {
+      send_to: FORM_CONVERSION,
+      transport_type: "beacon",
+    });
+  } catch {
+    /* noop */
+  }
+}
+
 type Props = {
   defaultIntent?: "Verkaufen" | "Verpachten" | "Bewertung" | "VNS / Ökopunkte" | "Lohnunternehmer" | "Bauland-Beratung" | "Allgemein";
   defaultFlaechentyp?: "Ackerland" | "Wiese / Grünland" | "Wald / Forst" | "Bauland" | "Sonstiges";
@@ -44,6 +68,7 @@ export default function LeadForm({
     startTransition(async () => {
       const res = await submitLead(fd);
       if (res.ok) {
+        fireFormConversion();
         setSuccess(res.id);
         formEl.reset();
       } else {
