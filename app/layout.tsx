@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Lora } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import Script from "next/script";
 import { site } from "@/lib/site";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -95,6 +96,13 @@ export default function RootLayout({
         <Footer />
         <WhatsAppFloat />
         <GoogleAnalytics gaId="G-0Y4K8M7RJS" />
+        <Script id="google-ads-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('config', 'AW-18000118202');
+          `}
+        </Script>
         <AdsConversions
           whatsappLabel="enWZCPGV-7gcELqDkIdD"
           phoneLabel="V0goCPSV-7gcELqDkIdD"

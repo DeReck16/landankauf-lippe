@@ -6,7 +6,35 @@ import { submitLead } from "@/lib/lead";
 // Google-Ads-Conversion "LIPPEFORST Form Lead" (Label ist öffentlich/safe)
 const FORM_CONVERSION = "AW-18000118202/kDUqCKC7u7ocELqDkIdD";
 
-function fireFormConversion() {
+/** Telefonnummer auf E.164 normalisieren (DE-Default). */
+function normalisePhone(raw?: string | null): string | undefined {
+  if (!raw) return undefined;
+  let d = String(raw).replace(/[^\d+]/g, "");
+  if (!d) return undefined;
+  if (d.startsWith("00")) d = "+" + d.slice(2);
+  if (d.startsWith("+")) return d;
+  if (d.startsWith("0")) return "+49" + d.slice(1);
+  return "+" + d;
+}
+
+/** Enhanced-Conversions user_data aus dem Formular (gtag hasht client-seitig per SHA-256). */
+function buildUserData(fd: FormData): Record<string, unknown> | undefined {
+  const data: Record<string, unknown> = {};
+  const email = String(fd.get("email") || "").trim().toLowerCase();
+  if (email) data.email = email;
+  const phone = normalisePhone(fd.get("phone") as string);
+  if (phone) data.phone_number = phone;
+  const name = String(fd.get("name") || "").trim();
+  if (name) {
+    const parts = name.split(/\s+/);
+    const address: Record<string, string> = { first_name: parts[0].toLowerCase() };
+    if (parts.length > 1) address.last_name = parts.slice(1).join(" ").toLowerCase();
+    data.address = address;
+  }
+  return Object.keys(data).length ? data : undefined;
+}
+
+function fireFormConversion(userData?: Record<string, unknown>) {
   try {
     const w = window as unknown as {
       dataLayer?: unknown[];
@@ -14,13 +42,14 @@ function fireFormConversion() {
     };
     w.dataLayer = w.dataLayer || [];
     if (typeof w.gtag !== "function") {
-      w.gtag = (...args: unknown[]) => {
+      w.gtag = function (...args: unknown[]) {
         w.dataLayer!.push(args);
       };
     }
     w.gtag("event", "conversion", {
       send_to: FORM_CONVERSION,
       transport_type: "beacon",
+      ...(userData ? { user_data: userData } : {}),
     });
   } catch {
     /* noop */
@@ -64,11 +93,12 @@ export default function LeadForm({
     e.preventDefault();
     setError(null);
     const fd = new FormData(e.currentTarget);
+    const userData = buildUserData(fd);
     const formEl = e.currentTarget;
     startTransition(async () => {
       const res = await submitLead(fd);
       if (res.ok) {
-        fireFormConversion();
+        fireFormConversion(userData);
         setSuccess(res.id);
         formEl.reset();
       } else {
