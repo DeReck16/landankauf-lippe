@@ -1,5 +1,4 @@
 import Link from "next/link";
-import ClickToReveal from "@/components/ClickToReveal";
 import { site } from "@/lib/site";
 
 const nav = [
@@ -36,13 +35,12 @@ export default function Header() {
           ))}
         </nav>
         <div className="flex items-center gap-3">
-          <ClickToReveal
-            encoded={site.contact.phoneEncoded}
-            type="tel"
-            label="Telefon anzeigen"
-            className="hidden md:inline-flex items-center text-sm text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-brand-dark)] cursor-pointer"
-            revealedClassName="hidden md:inline-flex items-center text-sm text-[color:var(--color-brand-dark)] hover:text-[color:var(--color-brand)] font-medium"
-          />
+          <a
+            href={`tel:${site.contact.phone.replace(/\s/g, "")}`}
+            className="hidden md:inline-flex items-center text-sm text-[color:var(--color-brand-dark)] hover:text-[color:var(--color-brand)] font-medium"
+          >
+            {site.contact.phoneDisplay}
+          </a>
           <Link
             href="/kontakt#formular"
             className="btn-primary text-sm h-10 px-5"

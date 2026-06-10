@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
-import ClickToReveal from "@/components/ClickToReveal";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -29,27 +28,24 @@ export default function Page() {
 
             <div className="mt-6">
               <p className="text-sm text-[color:var(--color-muted)]">Telefon</p>
-              <ClickToReveal
-                encoded={site.contact.phoneEncoded}
-                type="tel"
-                label="Telefonnummer anzeigen"
-                className="font-serif text-2xl text-[color:var(--color-brand-dark)] hover:text-[color:var(--color-brand)] cursor-pointer"
-                revealedClassName="font-serif text-2xl text-[color:var(--color-brand-dark)] hover:text-[color:var(--color-brand)]"
-              />
-              <p className="mt-1 text-xs text-[color:var(--color-muted)]">
-                Aus Schutz vor automatischen Bots erst nach Klick sichtbar.
-              </p>
+              <a
+                href={`tel:${site.contact.phone.replace(/\s/g, "")}`}
+                className="font-serif text-2xl text-[color:var(--color-brand-dark)] hover:text-[color:var(--color-brand)]"
+              >
+                {site.contact.phoneDisplay}
+              </a>
             </div>
 
             <div className="mt-6">
               <p className="text-sm text-[color:var(--color-muted)]">WhatsApp</p>
-              <ClickToReveal
-                encoded={site.contact.whatsappEncoded}
-                type="whatsapp"
-                label="WhatsApp-Chat starten"
-                className="text-base font-medium text-[color:var(--color-brand)] underline cursor-pointer"
-                revealedClassName="text-base font-medium text-[color:var(--color-brand)] underline"
-              />
+              <a
+                href={`https://wa.me/${site.contact.whatsapp.replace(/[^0-9]/g, "")}`}
+                target="_blank"
+                rel="noopener"
+                className="text-base font-medium text-[color:var(--color-brand)] underline"
+              >
+                WhatsApp-Chat starten ({site.contact.phoneDisplay})
+              </a>
             </div>
 
             {site.contact.email && (
