@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: "Blog — Aktuelles aus Lippe zu Flächen, Förderung & Markt",
   description:
     "Aktuelle Beiträge zu Bodenrichtwerten, Vertragsnaturschutz, Förderprogrammen und Praxistipps für Eigentümer landwirtschaftlicher Flächen im Kreis Lippe.",
-  alternates: { canonical: "/blog" },
+  alternates: { canonical: "/blog", types: { "application/rss+xml": "/feed.xml" } },
   openGraph: {
     title: "Blog Lippe Forst — Aktuelles zu Flächen, Förderung & Markt",
     description:

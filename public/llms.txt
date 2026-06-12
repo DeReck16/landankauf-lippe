@@ -24,7 +24,8 @@ Betreiber: TR Vertriebs GmbH, Bahnhofstraße 70b, 32805 Horn-Bad Meinberg. HRB 1
 ## Ratgeber und Blog
 
 - [Ratgeber](https://lippeforst.de/ratgeber)
-- [Blog](https://lippeforst.de/blog)
+- [Blog](https://lippeforst.de/blog): Holzpreise 2026, Bauerwartungsland, Jagdpacht, Pachtspiegel, VNS-Fristen, Käferholz, Hofnachfolge.
+- [RSS-Feed](https://lippeforst.de/feed.xml)
 
 ## Über
 

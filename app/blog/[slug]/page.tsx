@@ -15,6 +15,20 @@ type Params = { slug: string };
 
 export const dynamicParams = false;
 
+// Fallback-Hero pro Kategorie für Artikel ohne eigenes heroImage (OG/Schema).
+const CATEGORY_HERO: Record<string, string> = {
+  Wald: "/wald.jpg",
+  Markt: "/acker.jpg",
+  VNS: "/wiese.jpg",
+  Recht: "/hero.jpg",
+  Praxis: "/acker.jpg",
+  Förderung: "/wiese.jpg",
+};
+
+function heroFor(a: { heroImage?: string; category: string }): string {
+  return a.heroImage ?? CATEGORY_HERO[a.category] ?? "/hero.jpg";
+}
+
 export function generateStaticParams() {
   return ARTICLES.map((a) => ({ slug: a.slug }));
 }
@@ -27,10 +41,14 @@ export async function generateMetadata({
   const { slug } = await params;
   const a = getArticle(slug);
   if (!a) return {};
+  const hero = heroFor(a);
   return {
     title: a.title,
     description: a.description,
-    alternates: { canonical: `/blog/${a.slug}` },
+    alternates: {
+      canonical: `/blog/${a.slug}`,
+      types: { "application/rss+xml": "/feed.xml" },
+    },
     openGraph: {
       type: "article",
       title: a.title,
@@ -39,6 +57,13 @@ export async function generateMetadata({
       modifiedTime: a.updatedAt ?? a.publishedAt,
       authors: [site.name],
       tags: a.keywords,
+      images: [{ url: hero, width: 1600, height: 1066, alt: a.title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: a.title,
+      description: a.description,
+      images: [hero],
     },
   };
 }
@@ -73,7 +98,7 @@ export default async function ArticlePage({
     keywords: a.keywords.join(", "),
     articleSection: CATEGORY_LABEL[a.category],
     wordCount: a.content.split(/\s+/).length,
-    image: `${site.url}/opengraph-image`,
+    image: `${site.url}${heroFor(a)}`,
     mainEntityOfPage: { "@type": "WebPage", "@id": `${site.url}/blog/${a.slug}` },
     author: {
       "@type": "Organization",
@@ -86,6 +111,28 @@ export default async function ArticlePage({
       logo: { "@type": "ImageObject", url: `${site.url}/icon` },
     },
   };
+
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Start", item: site.url },
+      { "@type": "ListItem", position: 2, name: "Blog", item: `${site.url}/blog` },
+      { "@type": "ListItem", position: 3, name: a.title, item: `${site.url}/blog/${a.slug}` },
+    ],
+  };
+
+  const faqLd = a.faq?.length
+    ? {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: a.faq.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      }
+    : null;
 
   return (
     <>
@@ -101,6 +148,24 @@ export default async function ArticlePage({
             <div
               dangerouslySetInnerHTML={{ __html: a.content }}
             />
+
+            {a.faq && a.faq.length > 0 && (
+              <div className="mt-12">
+                <h2>Häufige Fragen</h2>
+                {a.faq.map((f) => (
+                  <details
+                    key={f.q}
+                    className="group border-b border-[color:var(--color-line)] py-3"
+                  >
+                    <summary className="cursor-pointer font-medium list-none flex items-start justify-between gap-4">
+                      {f.q}
+                      <span aria-hidden className="text-[color:var(--color-muted)] transition-transform group-open:rotate-45">+</span>
+                    </summary>
+                    <p className="mt-2 text-[color:var(--color-ink-soft)]">{f.a}</p>
+                  </details>
+                ))}
+              </div>
+            )}
 
             <div className="mt-12 border-t border-[color:var(--color-line)] pt-6">
               <p className="text-xs uppercase tracking-wider text-[color:var(--color-muted)] mb-2">
@@ -156,6 +221,16 @@ export default async function ArticlePage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
+      {faqLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+        />
+      )}
     </>
   );
 }

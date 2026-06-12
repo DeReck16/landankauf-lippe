@@ -10,6 +10,10 @@ export type Article = {
   updatedAt?: string;
   readingMinutes: number;
   keywords: string[];
+  /** Optionales Hero-/OG-Bild (Pfad unter /public). Fallback: Kategorie-Bild in page.tsx. */
+  heroImage?: string;
+  /** Optionale FAQ — rendert sichtbaren Block + FAQPage-Schema in page.tsx. */
+  faq?: { q: string; a: string }[];
   /** HTML body (between hero and CTA). Use semantic markup, no <h1>. */
   content: string;
 };
@@ -33,11 +37,34 @@ export const ARTICLES: Article[] = [
       "Privatwald Lippe Holzvermarktung",
       "Waldwert Holzpreis",
     ],
+    heroImage: "/blog-holzpreise-2026.jpg",
+    faq: [
+      {
+        q: "Wie hoch sind die Holzpreise für Fichte im Sommer 2026?",
+        a: "Das Leitsortiment Fichte BC 2b+ liegt je nach Region zwischen 125 und über 145 €/Festmeter. Nordrhein-Westfalen gehört zu den stärksten Regionen und nähert sich der 150-€-Marke. Käferholz (2b+) bringt rund 112 €/Fm, Kiefer überschreitet vielerorts erstmals die 100-€-Schwelle.",
+      },
+      {
+        q: "Warum sind die Holzpreise 2026 so stark gestiegen?",
+        a: "Nicht wegen der Nachfrage — die Baukonjunktur bleibt schwach. Die Preise steigen, weil das Angebot eingebrochen ist: Der Borkenkäfer fiel 2025 weitgehend aus, viele Waldbesitzer halten nach den Zwangsnutzungen der Käferjahre freiwillig zurück, und Sägewerke kämpfen um Rundholz bis hin zu drohenden Produktionsstopps.",
+      },
+      {
+        q: "Wie lange bleiben die Holzpreise auf diesem Niveau?",
+        a: "Das entscheidet vor allem der Käfersommer 2026. Bleibt eine neue Kalamität aus, stützt das knappe Angebot die Preise weiter. Kommt ein starkes Käferjahr, flutet Zwangseinschlag den Markt und die Preise fallen schnell — wie 2019 bis 2021. Vom Rekordniveau aus ist das Abwärtsrisiko größer als das verbleibende Aufwärtspotenzial.",
+      },
+      {
+        q: "Lohnt es sich 2026, den Wald als Ganzes zu verkaufen?",
+        a: "Die Rekord-Holzpreise heben nicht nur den Erlös aus dem Einschlag, sondern auch den Verkehrswert des stehenden Bestandes — und damit den erzielbaren Preis für die gesamte Fläche. Wer ohnehin über einen Ausstieg nachdenkt (Alter, Entfernung, Erbengemeinschaft), verkauft 2026 in eine deutlich bessere Bewertungslage als noch vor zwei Jahren.",
+      },
+      {
+        q: "Was bekomme ich aktuell für Käferholz?",
+        a: "Rund 112 €/Fm im Sortiment 2b+ — ein Wert, für den man in den Kalamitätsjahren nicht einmal bestes Frischholz losbekam. Wichtig bleibt schnelles Handeln: Befallene Stämme zügig aufarbeiten und abfahren, bevor Bläue und Qualitätsverlust den Preis drücken.",
+      },
+    ],
     content: `
 <p class="lead">Wer Fichte im Kreis Lippe stehen hat, erlebt gerade einen Markt, den es so seit Jahren nicht gab: Das Leitsortiment BC 2b+ notiert im Frühsommer 2026 je nach Region zwischen <strong>125 und über 145 €/Festmeter</strong> — in Nordrhein-Westfalen nähern sich die Abschlüsse der <strong>150-€-Marke</strong>. Zur Einordnung: In den Kalamitätsjahren lagen die Erlöse zeitweise bei 35–55 €/Fm. Eine nüchterne Analyse, woher die Rekordpreise kommen, wie stabil sie sind — und welche Entscheidung für Lipper Waldbesitzer jetzt ansteht.</p>
 
 <figure>
-<img src="/blog-holzpreise-2026.jpg" alt="Holzpolter mit frisch eingeschlagenen Fichtenstämmen — Rundholz ist 2026 knapp und teuer" style="width:100%;height:auto;border-radius:14px" loading="lazy" />
+<img src="/blog-holzpreise-2026.jpg" alt="Holzpolter mit frisch eingeschlagenen Fichtenstämmen — Rundholz ist 2026 knapp und teuer" width="1600" height="1066" style="width:100%;height:auto;border-radius:14px" loading="lazy" />
 <figcaption>Rundholz ist 2026 das knappste Gut der Branche: Sägewerke warnen vor Produktionsstopps, weil zu wenig eingeschlagen wird.</figcaption>
 </figure>
 
@@ -97,11 +124,34 @@ export const ARTICLES: Article[] = [
       "Ackerland verkaufen Detmold",
       "Flächennachfrage Wohnungsmangel NRW",
     ],
+    heroImage: "/blog-bauland-tiefstand.jpg",
+    faq: [
+      {
+        q: "Was ist der Preisunterschied zwischen Ackerland und Bauerwartungsland?",
+        a: "Reiner Ackerboden bewegt sich im Kreis Lippe je nach Lage und Bonität zwischen 8 und 18 €/m². Sobald eine Fläche als Bauerwartungsland eingestuft wird, springt der Wert auf 80 bis 150 €/m² und mehr — eine Verzehnfachung, die über sechsstellige Unterschiede beim Verkaufserlös entscheidet.",
+      },
+      {
+        q: "Wird mein Acker automatisch Bauland, weil Wohnraum fehlt?",
+        a: "Nein. Drei Faktoren müssen zusammenkommen: Lage am Siedlungsrand einer wachsenden Kommune, eine erkennbare kommunale Entwicklungsabsicht (etwa Aufnahme in den Flächennutzungsplan) und technische Erschließbarkeit. Ohne politischen Willen der Gemeinde bleibt der schönste Acker Acker.",
+      },
+      {
+        q: "Sollte ich auf volles Baurecht warten oder als Bauerwartungsland verkaufen?",
+        a: "Eine Baulandentwicklung dauert im Kreis Lippe oft 5 bis 10 Jahre, die Gemeinde kann das Verfahren jederzeit stoppen, und im Umlegungsverfahren gehen 25 bis 30 Prozent der Fläche verloren. Der pragmatische Mittelweg ist häufig der Verkauf als Bauerwartungsland: Der größte Wertsprung ist realisiert, das jahrelange Entwicklungsrisiko übernimmt der Käufer.",
+      },
+      {
+        q: "Was bedeutet der Wohnungsbau-Tiefstand für Flächeneigentümer?",
+        a: "2025 wurden nur 206.600 Wohnungen fertiggestellt (−18 %), gleichzeitig stiegen die Baugenehmigungen um 10,6 %. Der Wohnungsmangel wird also vertagt, nicht gelöst — jede vertagte Wohnung ist aufgestaute Flächennachfrage am Siedlungsrand, die sich entlädt, sobald Baukosten und Finanzierung wieder zusammenpassen.",
+      },
+      {
+        q: "Gilt das Grundstücksverkehrsgesetz auch für Bauerwartungsland?",
+        a: "Für landwirtschaftliche Flächen ist der Verkauf genehmigungspflichtig und Landwirte können ein Vorkaufsrecht haben. Sobald eine Fläche als Bauerwartungs- oder Bauland gilt, greift das Grundstücksverkehrsgesetz nicht mehr — der Übergang ist allerdings fließend und in der Praxis streitanfällig.",
+      },
+    ],
     content: `
 <p class="lead">2025 wurden in Deutschland nur noch <strong>206.600 Wohnungen</strong> fertiggestellt — 18 Prozent weniger als im Vorjahr und der niedrigste Stand seit 2012. Gleichzeitig sind die Baugenehmigungen erstmals seit Jahren wieder gestiegen. Diese Schere sagt Lipper Flächeneigentümern mehr über den künftigen Wert ihres Ackers, als die meisten denken. Eine nüchterne Einordnung — ohne Schönfärberei.</p>
 
 <figure>
-<img src="/blog-bauland-tiefstand.jpg" alt="Neubaugebiet am Ortsrand — aus ehemaligem Ackerland entstandenes Bauland im Kreis Lippe" style="width:100%;height:auto;border-radius:14px" loading="lazy" />
+<img src="/blog-bauland-tiefstand.jpg" alt="Neubaugebiet am Ortsrand — aus ehemaligem Ackerland entstandenes Bauland im Kreis Lippe" width="1600" height="1199" style="width:100%;height:auto;border-radius:14px" loading="lazy" />
 <figcaption>Wo Acker zu Bauland wird, vervielfacht sich der Quadratmeterpreis. Der Neubau-Stau verschärft die Flächennachfrage am Siedlungsrand.</figcaption>
 </figure>
 

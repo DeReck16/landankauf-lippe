@@ -1,32 +1,15 @@
 import { NextResponse } from "next/server";
 import { site } from "@/lib/site";
-import { cityTypeRoutes } from "@/lib/cities";
-import { ARTICLES } from "@/lib/blog";
+import sitemap from "@/app/sitemap";
 
+// IndexNow-Key für lippeforst.de — Verifizierungsdatei liegt in /public/<KEY>.txt
 const KEY = "54906b8ca0d49faffac7059dec0de837";
 
-const CORE_ROUTES = [
-  "",
-  "flaeche-verkaufen",
-  "flaeche-verpachten",
-  "flaeche-bewerten",
-  "ackerland-verkaufen",
-  "wiese-verkaufen",
-  "wald-verkaufen",
-  "services/vns-oekopunkte",
-  "services/lohnunternehmer",
-  "ratgeber/bodenrichtwerte-lippe",
-  "ratgeber/grundstuecksverkehrsgesetz",
-  "blog",
-  "ueber-uns",
-  "kontakt",
-];
-
-const ROUTES = [
-  ...CORE_ROUTES,
-  ...cityTypeRoutes().map((r) => `${r.type}-verkaufen-${r.city}`),
-  ...ARTICLES.map((a) => `blog/${a.slug}`),
-];
+// Single Source of Truth: exakt dieselben URLs wie die Sitemap (inkl. Blog).
+// Keine zweite Routen-Liste pflegen — neue Inhalte laufen automatisch mit.
+function indexNowUrls(): string[] {
+  return sitemap().map((entry) => entry.url);
+}
 
 export async function POST(req: Request) {
   const auth = req.headers.get("authorization");
@@ -34,7 +17,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  const urls = ROUTES.map((r) => `${site.url}${r ? `/${r}` : ""}`);
+  const urls = indexNowUrls();
 
   const body = {
     host: new URL(site.url).host,
@@ -58,8 +41,8 @@ export async function POST(req: Request) {
 
 export async function GET() {
   return NextResponse.json({
-    info: "POST mit Bearer-Auth, um Sitemap-URLs an IndexNow (Bing/Yandex) zu pingen.",
+    info: "POST mit Bearer-Auth, um alle Sitemap-URLs an IndexNow (Bing/Yandex) zu pingen.",
     keyFile: `${site.url}/${KEY}.txt`,
-    routes: ROUTES.length,
+    routes: indexNowUrls().length,
   });
 }

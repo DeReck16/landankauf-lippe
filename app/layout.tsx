@@ -30,7 +30,10 @@ export const metadata: Metadata = {
   description: site.shortDescription,
   authors: [{ name: site.contact.company }],
   creator: site.contact.company,
-  alternates: { canonical: "/" },
+  alternates: {
+    canonical: "/",
+    types: { "application/rss+xml": "/feed.xml" },
+  },
   openGraph: {
     type: "website",
     locale: "de_DE",
