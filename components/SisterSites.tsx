@@ -19,6 +19,12 @@ const SITES = [
     tagline: "Gewerbehallen, Büros, Gewerbegrundstücke — Kreis Lippe & OWL.",
   },
   {
+    domain: "gewerbeimmobilien-horn.de",
+    url: "https://gewerbeimmobilien-horn.de",
+    name: "Gewerbeimmobilien Horn",
+    tagline: "Stadtteilscharf in Horn-Bad Meinberg — Holzhausen, Belle, Horn, Bad Meinberg.",
+  },
+  {
     domain: "lippeforst.de",
     url: "https://lippeforst.de",
     name: "Lippe Forst",
@@ -36,7 +42,7 @@ export default function SisterSites({ currentDomain }: { currentDomain: string }
         <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--color-accent,#a4d65e)] mb-5">
           Mehr aus dem TR-Verbund
         </p>
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-3">
           {others.map((s) => (
             <Link
               key={s.domain}
