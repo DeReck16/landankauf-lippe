@@ -16,6 +16,70 @@ export type Article = {
 
 export const ARTICLES: Article[] = [
   {
+    slug: "holzpreise-2026-rekord-fichte-lippe-einschlagen-oder-warten",
+    title:
+      "Holzpreise auf Rekordniveau: Fichte in NRW nahe 150 €/Fm — einschlagen, warten oder gleich den Wald verkaufen?",
+    description:
+      "Sommer 2026: Das Fichten-Leitsortiment BC 2b+ liegt je nach Region bei 125–145 €/Fm, NRW nähert sich der 150-€-Marke — fast das Dreifache der Kalamitätsjahre. Warum die Preise steigen (Angebotsverknappung, nicht Nachfrage), was das Käferrisiko 2026 bedeutet und wie Lipper Waldbesitzer das Preisfenster nutzen: Einschlag, Halten oder Flächenverkauf.",
+    category: "Wald",
+    publishedAt: "2026-06-11",
+    readingMinutes: 9,
+    keywords: [
+      "Holzpreise 2026",
+      "Fichte Preis Festmeter NRW",
+      "Holzpreis Rekord BC 2b+",
+      "Wald verkaufen Kreis Lippe",
+      "Käferholz Preis 2026",
+      "Privatwald Lippe Holzvermarktung",
+      "Waldwert Holzpreis",
+    ],
+    content: `
+<p class="lead">Wer Fichte im Kreis Lippe stehen hat, erlebt gerade einen Markt, den es so seit Jahren nicht gab: Das Leitsortiment BC 2b+ notiert im Frühsommer 2026 je nach Region zwischen <strong>125 und über 145 €/Festmeter</strong> — in Nordrhein-Westfalen nähern sich die Abschlüsse der <strong>150-€-Marke</strong>. Zur Einordnung: In den Kalamitätsjahren lagen die Erlöse zeitweise bei 35–55 €/Fm. Eine nüchterne Analyse, woher die Rekordpreise kommen, wie stabil sie sind — und welche Entscheidung für Lipper Waldbesitzer jetzt ansteht.</p>
+
+<figure>
+<img src="/blog-holzpreise-2026.jpg" alt="Holzpolter mit frisch eingeschlagenen Fichtenstämmen — Rundholz ist 2026 knapp und teuer" style="width:100%;height:auto;border-radius:14px" loading="lazy" />
+<figcaption>Rundholz ist 2026 das knappste Gut der Branche: Sägewerke warnen vor Produktionsstopps, weil zu wenig eingeschlagen wird.</figcaption>
+</figure>
+
+<h2>Die Zahlen: Wo der Holzmarkt im Sommer 2026 steht</h2>
+<p>Die Eckwerte aus den laufenden Verhandlungen und Submissionen, Stand Juni 2026:</p>
+<ul>
+<li><strong>Fichte BC 2b+ (Leitsortiment):</strong> 125 bis über 145 €/Fm mit deutlichem Nord-Süd-Gefälle — NRW gehört zu den stärksten Regionen und nähert sich 150 €/Fm, während Norddeutschland die 130 €/Fm meist nicht erreicht.</li>
+<li><strong>Käferholz (2b+):</strong> rund 112 €/Fm — ein Wert, für den man vor drei Jahren noch bestes Frischholz nicht losbekam.</li>
+<li><strong>Kiefer:</strong> überschreitet vielerorts erstmals die 100-€/Fm-Schwelle.</li>
+</ul>
+<p>Für Lipper Verhältnisse heißt das: Die verbliebenen Fichten-Restbestände in den höheren Lagen um Horn-Bad Meinberg, Schieder-Schwalenberg und am Teutoburger Wald sind heute pro Festmeter fast dreimal so viel wert wie auf dem Tiefpunkt der Käferkrise. Was damals galt, haben wir im Beitrag <a href="/blog/kaeferholz-sturmwurf-lippe-privatwald">Käferholz und Sturmwurf im Lipper Privatwald</a> dokumentiert.</p>
+
+<h2>Warum die Preise steigen — und warum das kein Nachfrage-Boom ist</h2>
+<p>Der ehrliche Blick auf die Ursachen ist wichtig, denn er entscheidet über die Stabilität der Preise. Die Rally kommt <strong>nicht</strong> von der Nachfrage: Die Baukonjunktur bleibt schwach, die Baugenehmigungen steigen nur leicht, und auch die Exportmärkte Nordamerika und China stagnieren. Die Preise steigen, weil das <strong>Angebot eingebrochen</strong> ist:</p>
+<ul>
+<li><strong>Der Borkenkäfer ist 2025 weitgehend ausgefallen.</strong> Nach Jahren der Zwangsnutzung gab es kaum Kalamitätsholz — der Markt, der jahrelang mit Käferholz geflutet war, ist leergefegt.</li>
+<li><strong>Waldbesitzer halten zurück.</strong> Wer in den Käferjahren zu Tiefstpreisen räumen musste, schlägt heute freiwillig wenig ein — viele warten auf weiter steigende Preise, manche aus steuerlichen Überlegungen.</li>
+<li><strong>Sägewerke kämpfen um Rundholz.</strong> Branchenvertreter warnen bereits vor Produktionsstopps; viele Betriebe weichen mangels Fichte verstärkt auf Kiefer aus.</li>
+</ul>
+<p>Eine angebotsgetriebene Rally ist real verdientes Geld für Verkäufer — aber sie steht auf schmalerem Fundament als ein Nachfrage-Boom. Kommt kurzfristig viel Holz an den Markt, kippt sie.</p>
+
+<h2>Das Risiko 2026: Der Käfer entscheidet mit</h2>
+<p>Genau hier liegt der Haken: Das Frühjahr 2026 war warm und trocken, und das Borkenkäfer-Monitoring meldet für Ostwestfalen-Lippe wieder spürbare Flugaktivität. Die Lage kann zwei Wege nehmen:</p>
+<ul>
+<li><strong>Bleibt die Kalamität aus,</strong> dürfte das knappe Angebot die Preise weiter stützen — das Fenster bleibt offen.</li>
+<li><strong>Kommt ein neues Käferjahr,</strong> wiederholt sich das Muster von 2019–2021: Zwangseinschlag flutet den Markt, die Preise fallen schnell und tief — und wer dann verkaufen muss, verkauft schlecht.</li>
+</ul>
+<p>Niemand kann den Sommer vorhersagen. Aber die Asymmetrie sollte jedem Eigentümer klar sein: Vom heutigen Rekordniveau aus ist das Abwärtsrisiko größer als das verbleibende Aufwärtspotenzial. Wer hiebsreife oder käfergefährdete Fichte hat, verkauft in einen historisch starken Markt — wer wartet, wettet auf einen kühlen, nassen Sommer.</p>
+
+<h2>Drei Wege für Lipper Waldbesitzer</h2>
+<p><strong>1. Einschlagen und vermarkten.</strong> Für hiebsreife Fichte ist das Preisfenster so gut wie seit Jahren nicht. Wichtig: Mengen bündeln (Forstbetriebsgemeinschaft oder Lohnunternehmer), Sortimente sauber aushalten lassen und Angebote vergleichen — bei 145 €/Fm machen 5 € Unterschied pro Festmeter auf 500 Fm bereits 2.500 € aus. Bei der Vermittlung von Lohnunternehmern und Abnehmern unterstützen wir: <a href="/services">unsere Services</a>.</p>
+<p><strong>2. Halten und pflegen.</strong> Wer stabile, gemischte oder junge Bestände hat, muss nicht in den Markt hinein verkaufen. Dann gilt: Käferkontrolle ab jetzt alle zwei Wochen, befallene Stämme schnell raus — bei 112 €/Fm für Käferholz ist selbst die Zwangsnutzung derzeit kein Verlustgeschäft. Welche Förderkulisse parallel läuft, zeigt der Beitrag <a href="/blog/privatwald-lippe-halten-foerdern-verkaufen">Privatwald halten, fördern oder verkaufen</a>.</p>
+<p><strong>3. Die Fläche als Ganzes verkaufen.</strong> Oft übersehen: Rekord-Holzpreise heben nicht nur den Erlös aus dem Einschlag, sondern den <strong>Verkehrswert des stehenden Bestandes</strong> — und damit den Preis, den ein Käufer für die gesamte Waldfläche zahlt. Wer ohnehin über einen Ausstieg nachdenkt (Alter, Entfernung zur Fläche, Erbengemeinschaft, kein Interesse an der Bewirtschaftung), verkauft 2026 in eine deutlich bessere Bewertungslage als noch vor zwei Jahren. Wie Waldwerte zustande kommen, erklärt <a href="/blog/wald-als-vermoegensanlage-lippe">Wald als Vermögensanlage</a>.</p>
+
+<h2>Steuern nicht vergessen</h2>
+<p>Außerordentliche Holznutzungen können steuerlich begünstigt sein (§ 34b EStG, bei Kalamität ermäßigte Steuersätze) — und beim Verkauf der gesamten Fläche gelten andere Regeln als beim laufenden Holzverkauf, Stichwort Behaltefristen und Betriebsvermögen. Einen Überblick gibt unser Beitrag zu <a href="/blog/steuern-verkauf-landwirtschaft-behaltefrist">Steuern und Behaltefristen beim Flächenverkauf</a>; die konkrete Gestaltung gehört zum Steuerberater, idealerweise <em>vor</em> dem Einschlag oder Verkauf.</p>
+
+<h2>Was wir konkret tun</h2>
+<p>Wir kaufen und vermitteln Waldflächen im Kreis Lippe und Umland — und sagen Ihnen vorab ehrlich, was Ihr Bestand im aktuellen Markt wert ist: nach Baumart, Alter, Erschließung und eben dem Holzpreis-Niveau 2026. Eine erste Wertindikation ist kostenlos und unverbindlich: <a href="/wald-verkaufen">Wald verkaufen im Kreis Lippe</a> oder direkt über das <a href="/kontakt">Kontaktformular</a>.</p>
+`,
+  },
+  {
     slug: "wohnungsbau-tiefstand-2026-bauerwartungsland-ackerland-lippe",
     title:
       "Wohnungsbau am Tiefpunkt: Was der Neubau-Einbruch 2025 für Ackerland und Bauerwartungsland im Kreis Lippe bedeutet",
