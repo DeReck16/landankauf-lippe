@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
+import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Wald verkaufen Kreis Lippe & Teutoburger Wald — Privatwald-Ankauf",
@@ -17,12 +18,16 @@ export default function Page() {
         eyebrow="Privatwald · Forst"
         title="Wald verkaufen im Kreis Lippe — vom Teutoburger Wald bis zur Egge."
         subtitle="Misch- oder Nadelholzbestände, Käferflächen, Sturmwurfflächen, alte Eichenbestände — wir kaufen Privatwald in allen Größen ab ca. 0,5 Hektar im Teutoburger Wald, in der Egge, im Sauerländer Vorland und in den angrenzenden Kreisen."
-        primaryCta={{ href: "#anfrage", label: "Wald-Anfrage" }}
+        primaryCta={{ href: "#anfrage", label: "Unverbindlich bewerten" }}
+        whatsappCta={{
+          href: `https://wa.me/${site.contact.whatsapp.replace(/[^0-9]/g, "")}?text=${encodeURIComponent("Guten Tag, ich möchte meinen Wald im Kreis Lippe verkaufen — bitte um eine diskrete Erstbewertung.")}`,
+          label: "WhatsApp",
+        }}
       />
 
       <section className="section">
         <div className="container-page grid gap-12 lg:grid-cols-[1.2fr_1fr]">
-          <article className="prose-lippe">
+          <article className="prose-lippe order-2 lg:order-1">
             <h2>Welchen Wald wir ankaufen</h2>
             <ul>
               <li>Privatwald jeglicher Bestockung — Buche, Eiche, Esche, Birke, Kiefer, Fichte, Douglasie</li>
@@ -59,7 +64,7 @@ export default function Page() {
               <li>Keine Kahlschlag-Strategien — wir bewirtschaften nachhaltig</li>
             </ul>
           </article>
-          <aside id="anfrage" className="lg:sticky lg:top-24 self-start">
+          <aside id="anfrage" className="order-1 lg:order-2 lg:sticky lg:top-24 self-start">
             <LeadForm
               source="wald-verkaufen"
               defaultIntent="Verkaufen"

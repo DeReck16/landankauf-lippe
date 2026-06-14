@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
+import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Wiese & Grünland verkaufen Kreis Lippe — fairer Direktankauf",
@@ -17,12 +18,16 @@ export default function Page() {
         eyebrow="Wiese · Grünland · Streuobst"
         title="Wiese verkaufen im Kreis Lippe — auch wenn niemand sie pachten will."
         subtitle="Extensive Mähwiesen, Streuobstwiesen, Hangflächen und Talauen sind oft schwer zu verpachten — aber für uns interessant. Wir kaufen Grünland in allen Lipper Gemeinden zum fairen Marktpreis."
-        primaryCta={{ href: "#anfrage", label: "Wiesen-Anfrage" }}
+        primaryCta={{ href: "#anfrage", label: "Unverbindlich bewerten" }}
+        whatsappCta={{
+          href: `https://wa.me/${site.contact.whatsapp.replace(/[^0-9]/g, "")}?text=${encodeURIComponent("Guten Tag, ich möchte meine Wiese / mein Grünland im Kreis Lippe verkaufen — bitte um eine diskrete Erstbewertung.")}`,
+          label: "WhatsApp",
+        }}
       />
 
       <section className="section">
         <div className="container-page grid gap-12 lg:grid-cols-[1.2fr_1fr]">
-          <article className="prose-lippe">
+          <article className="prose-lippe order-2 lg:order-1">
             <h2>Welche Wiesen wir ankaufen</h2>
             <ul>
               <li>Klassisches Wirtschaftsgrünland — Mahd, Standweide, Mähweide</li>
@@ -56,7 +61,7 @@ export default function Page() {
               Nichts. Wir machen Ihnen ein konkretes Kaufangebot, sobald wir die Eckdaten Ihrer Wiese kennen. Sie entscheiden, ob Sie verkaufen möchten — kein Druck, keine Provision, keine versteckten Kosten.
             </p>
           </article>
-          <aside id="anfrage" className="lg:sticky lg:top-24 self-start">
+          <aside id="anfrage" className="order-1 lg:order-2 lg:sticky lg:top-24 self-start">
             <LeadForm
               source="wiese-verkaufen"
               defaultIntent="Verkaufen"
