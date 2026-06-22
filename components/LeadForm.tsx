@@ -124,6 +124,15 @@ export default function LeadForm({
   return (
     <form onSubmit={onSubmit} className={wrapper}>
       <input type="hidden" name="source" value={source} />
+      {/* Honeypot — für Menschen unsichtbar, Bots füllen es aus → serverseitig verworfen */}
+      <input
+        type="text"
+        name="_hp"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="absolute left-[-9999px] top-[-9999px] h-0 w-0 opacity-0"
+      />
       {(title || subtitle) && (
         <div className="mb-5">
           {title && <h3 className="font-serif text-2xl">{title}</h3>}

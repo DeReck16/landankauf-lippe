@@ -32,6 +32,7 @@ type Input = {
   email: string;
   source: string;
   consent: string;
+  gclid: string;
 };
 
 async function sendResend(
@@ -76,6 +77,7 @@ async function sendFormspree(input: Input, subject: string, id: string): Promise
         flurstueck: input.flurstueck,
         nachricht: input.message,
         quelle: input.source,
+        gclid: input.gclid,
         site: site.url,
         id,
       }),
@@ -112,7 +114,13 @@ export async function POST(req: NextRequest) {
     email: fmt(body.email),
     source: fmt(body.source),
     consent: fmt(body.consent),
+    gclid: fmt(body.gclid),
   };
+
+  // Leichter Spam-Filter: Links im Namen sind ein sehr starkes Bot-Signal.
+  if (/https?:\/\/|\[url=|<a\s/i.test(input.name)) {
+    return NextResponse.json({ ok: true, id: "SPAM" });
+  }
 
   if (!input.email || input.email === "—") {
     return NextResponse.json({ ok: false, error: "Bitte geben Sie eine E-Mail-Adresse an." }, { status: 400 });
@@ -142,6 +150,9 @@ export async function POST(req: NextRequest) {
     input.message ?? "—",
     "",
     `Quelle: ${input.source}`,
+    input.gclid && input.gclid !== "—"
+      ? `🎯 Aus Google-Anzeige (gclid): ${input.gclid}`
+      : `Kanal: organisch / direkt (keine gclid)`,
     `ID: ${id}`,
   ].join("\n");
   const subject = `Anfrage [${input.intent} · ${input.flaechentyp}] – ${input.name}`;

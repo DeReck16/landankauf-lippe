@@ -21,6 +21,18 @@ export default function AdsConversions({
   phoneLabel: string;
 }) {
   useEffect(() => {
+    // gclid/gbraid/wbraid aus der Landing-URL in ein 90-Tage-Cookie sichern,
+    // damit jeder Lead (auch nach Seitenwechsel) der Anzeige zugeordnet werden kann.
+    try {
+      const p = new URLSearchParams(window.location.search);
+      const g = p.get("gclid") || p.get("gbraid") || p.get("wbraid");
+      if (g) {
+        document.cookie = `tr_gclid=${encodeURIComponent(g)}; path=/; max-age=${60 * 60 * 24 * 90}; SameSite=Lax`;
+      }
+    } catch {
+      /* noop */
+    }
+
     const w = window as unknown as {
       dataLayer?: unknown[];
       gtag?: (...args: unknown[]) => void;
