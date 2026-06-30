@@ -20,6 +20,106 @@ export type Article = {
 
 export const ARTICLES: Article[] = [
   {
+    slug: "agri-photovoltaik-ackerland-pacht-kreis-lippe",
+    title:
+      "Agri-Photovoltaik im Kreis Lippe: Strom ernten und Acker behalten — was die Doppelnutzung 2026 für Flächeneigentümer bringt",
+    description:
+      "Agri-PV erzeugt Solarstrom und bewirtschaftet dieselbe Fläche weiter — der Acker bleibt Acker, die GAP-Prämie meist erhalten, und obendrauf kommt eine deutlich höhere Pacht. Wie sich Agri-PV von klassischer Freiflächen-PV unterscheidet, was DIN SPEC 91434 und das Solarpaket I regeln, welche Flächen im Kreis Lippe in Frage kommen und worauf Eigentümer beim Pachtvertrag achten müssen.",
+    category: "Markt",
+    publishedAt: "2026-06-30",
+    readingMinutes: 10,
+    keywords: [
+      "Agri-Photovoltaik Kreis Lippe",
+      "Agri-PV Ackerland verpachten",
+      "Pacht Photovoltaik Landwirtschaft",
+      "Agri-PV vs Freiflächen-PV",
+      "DIN SPEC 91434 Agri-PV",
+      "Solarpaket I Agri-PV EEG",
+      "Solarpacht Ackerland NRW",
+    ],
+    heroImage: "/blog-agri-pv.jpg",
+    faq: [
+      {
+        q: "Was ist der Unterschied zwischen Agri-PV und normaler Freiflächen-Photovoltaik?",
+        a: "Bei klassischer Freiflächen-PV wird die ganze Fläche mit Modulen belegt und der landwirtschaftliche Status geht verloren — die Fläche zählt nicht mehr als Acker. Agri-PV ist auf Doppelnutzung ausgelegt: Module stehen hoch aufgeständert über der Kultur oder in weiten Reihen, der überwiegende Teil der Fläche wird weiter bewirtschaftet, und die Fläche bleibt grundsätzlich landwirtschaftliche Fläche.",
+      },
+      {
+        q: "Bleibt bei Agri-PV die GAP-Direktzahlung erhalten?",
+        a: "In der Regel ja. Weil die Fläche unter Agri-PV landwirtschaftliche Fläche bleibt, kann der Bewirtschafter grundsätzlich weiter GAP-Direktzahlungen beziehen — meist mit einem Abschlag für den überbauten Flächenanteil. Genau das ist der zentrale Unterschied zur Freiflächen-PV, bei der die Förderfähigkeit komplett entfällt. Die konkrete Anrechnung sollte vor Vertragsschluss mit der Landwirtschaftskammer geklärt werden.",
+      },
+      {
+        q: "Wie viel Pacht bringt eine Agri-PV-Fläche?",
+        a: "Deutlich mehr als die rein landwirtschaftliche Pacht — Projektierer zahlen für geeignete Flächen ein Vielfaches der ortsüblichen Acker- oder Grünlandpacht. Die genaue Höhe hängt stark vom Anlagentyp, der Nähe zum Einspeisepunkt, der Laufzeit und dem Strompreisniveau ab und lässt sich nur projektbezogen seriös beziffern. Wichtig: Bei Agri-PV kommt zur Pacht oft noch der fortlaufende Ertrag aus der Bewirtschaftung hinzu.",
+      },
+      {
+        q: "Welche Flächen im Kreis Lippe eignen sich für Agri-PV?",
+        a: "Entscheidend sind ein nicht zu kleiner, gut zugeschnittener Schlag, die Entfernung zum nächsten Netzeinspeisepunkt (Umspannwerk/Mittelspannung), die Hangneigung und Verschattung sowie die planungsrechtliche Lage. Da Agri-PV im Außenbereich meist eine Bauleitplanung erfordert, ist die Haltung der Gemeinde ein wichtiger Faktor. Eine erste Eignungsprüfung können wir kostenlos vornehmen.",
+      },
+      {
+        q: "Muss ich meine Fläche für Agri-PV verkaufen oder kann ich sie behalten?",
+        a: "Sie können sie behalten. Der übliche Weg ist die langfristige Verpachtung an einen Projektierer (oft 25 bis 40 Jahre) — Eigentum und Fläche bleiben bei Ihnen, Sie erhalten eine gesicherte Pacht und bewirtschaften den Boden je nach System weiter. Wer sich nicht binden will, kann die Fläche auch verkaufen; beide Wege prüfen wir mit Ihnen ergebnisoffen.",
+      },
+    ],
+    content: `
+<p class="lead">Steigende Strompreise, der Druck zur Energiewende und ein zweiter trockener Sommer in Folge bringen ein Thema zurück auf die Höfe im Kreis Lippe, das lange als Nische galt: <strong>Agri-Photovoltaik</strong> — Solarstrom und Landwirtschaft auf <em>derselben</em> Fläche. Anders als beim klassischen Solarpark muss man dafür den Acker nicht aufgeben. Was die Doppelnutzung 2026 wirklich bringt, wo die Fallstricke liegen und für welche Lipper Flächen sie sich rechnet.</p>
+
+<figure>
+<img src="/blog-agri-pv.jpg" alt="Luftaufnahme einer Agri-Photovoltaik-Anlage: Solarmodule in weiten Reihen über begrünter landwirtschaftlicher Fläche im Kreis Lippe" width="1600" height="1066" style="width:100%;height:auto;border-radius:14px" loading="lazy" />
+<figcaption>Doppelnutzung statt Entweder-oder: Bei Agri-PV bleibt die Fläche zwischen und unter den Modulreihen landwirtschaftlich nutzbar.</figcaption>
+</figure>
+
+<h2>Agri-PV ist nicht das Gleiche wie ein Solarpark</h2>
+<p>Der wichtigste Punkt vorweg, weil hier die meisten Missverständnisse entstehen: <strong>Agri-PV und Freiflächen-Photovoltaik sind zwei verschiedene Dinge.</strong></p>
+<ul>
+<li><strong>Freiflächen-PV</strong> belegt die gesamte Fläche mit Modulen. Der Acker wird zum Solarpark — die Fläche verliert ihren landwirtschaftlichen Status und damit die GAP-Förderfähigkeit. Wie das funktioniert und was es bringt, haben wir im Beitrag <a href="/blog/photovoltaik-pacht-kreis-lippe">Photovoltaik-Pacht im Kreis Lippe</a> beschrieben.</li>
+<li><strong>Agri-PV</strong> ist auf Doppelnutzung ausgelegt. Die Module stehen entweder hoch aufgeständert über der Kultur oder in weiten, senkrechten Reihen mit breiten Gassen dazwischen — so, dass darunter oder dazwischen weiter Ackerbau, Grünland oder Sonderkulturen möglich sind. Die Fläche bleibt <strong>landwirtschaftliche Fläche.</strong></li>
+</ul>
+<p>Aus dieser Unterscheidung folgt fast alles Weitere — von der Förderung über das Baurecht bis zur Frage, ob Sie überhaupt aufgeben müssen, was Generationen vor Ihnen bewirtschaftet haben.</p>
+
+<h2>Die zwei Bauarten — was die DIN SPEC 91434 vorgibt</h2>
+<p>Seit 2021 definiert die <strong>DIN SPEC 91434</strong>, wann eine Anlage überhaupt als Agri-PV gilt — und damit die Vorteile genießt. Die Norm unterscheidet zwei Kategorien:</p>
+<ul>
+<li><strong>Kategorie I — hoch aufgeständert:</strong> Die Module stehen mehrere Meter über dem Boden, darunter fährt der Schlepper durch. Geeignet für Ackerbau und vor allem für empfindliche Sonderkulturen (Obst, Beeren, Hopfen), die von der Teilverschattung sogar profitieren.</li>
+<li><strong>Kategorie II — bodennah:</strong> Senkrecht oder schräg aufgestellte Modulreihen mit breiten Bewirtschaftungsgassen dazwischen. Günstiger in der Errichtung, typisch für Grünland und Ackerbau zwischen den Reihen.</li>
+</ul>
+<p>Gemeinsamer Nenner beider Kategorien: Der <strong>überwiegende Teil der Fläche muss landwirtschaftlich nutzbar bleiben</strong>, der Flächenverlust durch Stützen und Technik ist eng begrenzt. Genau diese Vorgabe ist es, die Agri-PV den Sonderstatus sichert — und sie unterscheidet eine echte Agri-PV-Anlage von einem Solarpark, auf dem zur Tarnung ein paar Schafe grasen.</p>
+
+<h2>Der entscheidende Vorteil: Der Acker bleibt Acker</h2>
+<p>Weil die Fläche unter Agri-PV landwirtschaftliche Fläche bleibt, kann der Bewirtschafter <strong>grundsätzlich weiter GAP-Direktzahlungen beziehen</strong> — in der Regel mit einem Abschlag für den überbauten Anteil. Bei der Freiflächen-PV fällt diese Förderfähigkeit komplett weg. Für viele Betriebe ist das der Knackpunkt: Sie müssen sich nicht zwischen Prämie und Solarpacht entscheiden, sondern bekommen — anteilig — beides, plus den Ertrag aus der weiterlaufenden Bewirtschaftung.</p>
+<p>Rückenwind kommt von der Förderseite. Das <strong>Solarpaket I</strong> hat Agri-PV als „besondere Solaranlage“ in den EEG-Ausschreibungen mit einem Bonus gestärkt und die Flächenkulisse ausgeweitet — der Gesetzgeber will die Doppelnutzung ausdrücklich aus der Nische holen. 2026 ist das in den Projektpipelines deutlich spürbar.</p>
+
+<h2>Schatten als Schutz: warum gerade Trockenjahre für Agri-PV sprechen</h2>
+<p>Es gibt einen agronomischen Grund, der in Lippe nach den letzten Sommern an Gewicht gewinnt: Die Teilverschattung durch die Module <strong>schützt die Kultur</strong>. Sie senkt die Verdunstung, reduziert Hitze- und Trockenstress, dämpft Sonnenbrand bei Obst und schirmt teils gegen Hagel und Starkregen ab. In nassen, kühlen Jahren kann der Schatten Ertrag kosten — in heißen, trockenen Jahren wirkt er wie eine Versicherung. Wer die Klimaentwicklung der letzten Jahre im Kreis Lippe beobachtet hat, sieht hier mehr als einen Randeffekt. Wie sehr Witterung und Standort den Flächenwert bewegen, zeigt auch unser <a href="/blog/pachtspiegel-lippe-2026">Pachtspiegel Lippe 2026</a>.</p>
+
+<h2>Was Agri-PV im Kreis Lippe einbringt — und was es kostet</h2>
+<p>Ehrlich bleiben heißt auch: Agri-PV ist <strong>kein Selbstläufer</strong>. Die hoch aufgeständerte Bauweise ist deutlich teurer als ein normaler Solarpark, die Erträge je Hektar liegen wegen der weiteren Modulabstände niedriger, und die Bewirtschaftung zwischen Stützen verlangt passende Maschinen und Sorgfalt. Diese Mehrkosten trägt im Pachtmodell der Projektierer — für Sie als Eigentümer zählt die andere Seite:</p>
+<ul>
+<li><strong>Die Pacht liegt um ein Vielfaches über der landwirtschaftlichen Pacht.</strong> Wie hoch genau, hängt vom Anlagentyp, der Nähe zum Einspeisepunkt, der Laufzeit und dem Strompreis ab — seriös beziffern lässt sich das nur projektbezogen. Vergleichsgrößen zur reinen Solarpacht finden Sie im <a href="/blog/photovoltaik-pacht-kreis-lippe">PV-Pacht-Beitrag</a>.</li>
+<li><strong>Lange Laufzeiten</strong> von typischerweise 25 bis 40 Jahren sichern den Cashflow über eine Generation — binden die Fläche aber auch entsprechend lange.</li>
+<li><strong>Der Boden bleibt im Eigentum und in Nutzung</strong> — anders als beim Verkauf geben Sie die Substanz nicht aus der Hand.</li>
+</ul>
+<p>Die ehrliche Faustregel: Agri-PV rechnet sich dort am besten, wo eine starke Pacht auf eine Fläche trifft, die man ohnehin behalten und weiter bewirtschaften will.</p>
+
+<h2>Welche Flächen überhaupt in Frage kommen</h2>
+<p>Nicht jeder Schlag eignet sich. Vier Faktoren entscheiden, ob ein Projektierer anbeißt:</p>
+<ul>
+<li><strong>Netzanschluss:</strong> Die Entfernung zum nächsten Umspannwerk bzw. zur aufnahmefähigen Mittelspannungsleitung ist oft das K.-o.-Kriterium. Jeder Kilometer Kabeltrasse kostet und kann ein Projekt kippen.</li>
+<li><strong>Zuschnitt und Größe:</strong> Zu kleine oder verwinkelte Flächen lohnen den Planungsaufwand selten. Zusammenhängende Schläge sind klar im Vorteil.</li>
+<li><strong>Topografie:</strong> Geringe Hangneigung und keine störende Verschattung durch Wald oder Gebäude.</li>
+<li><strong>Planungsrecht:</strong> Im Außenbereich ist Agri-PV in aller Regel <strong>nicht ohne Weiteres privilegiert</strong> — es braucht meist einen Bebauungsplan und damit die Mitwirkung der Gemeinde. Die Haltung des Rathauses ist deshalb ein echter Standortfaktor.</li>
+</ul>
+<p>Ob Ihre Fläche diese Hürden nimmt, lässt sich vorab einschätzen — ohne dass Sie sich zu irgendetwas verpflichten. Eine erste Eignungs- und Wertindikation gibt es bei uns kostenlos: <a href="/flaeche-bewerten">Fläche bewerten</a>.</p>
+
+<h2>Drei Wege für Lipper Flächeneigentümer</h2>
+<p><strong>1. Verpachten an einen Projektierer.</strong> Der klassische Weg: Sie verpachten die Fläche langfristig, der Projektierer plant, baut und betreibt, Sie erhalten eine gesicherte Pacht und behalten Eigentum und — je nach System — die Bewirtschaftung. Entscheidend ist ein sauberer Vertrag: Rückbauverpflichtung und Rückbaubürgschaft, Wertsicherung der Pacht, klare Regelung der weiterlaufenden Bewirtschaftung und der GAP-Anrechnung. Hier lohnt sich, dieselbe Sorgfalt wie bei jedem <a href="/blog/landpachtvertrag-klauseln-formulieren">Landpachtvertrag</a> walten zu lassen — nur mit deutlich längerer Bindung.</p>
+<p><strong>2. Fläche verkaufen.</strong> Wer sich nicht über Jahrzehnte binden will oder ohnehin über einen Ausstieg nachdenkt (Alter, Entfernung, Erbengemeinschaft), kann die Fläche verkaufen — an uns oder über uns. Eine PV-Eignung kann den erzielbaren Preis spürbar heben.</p>
+<p><strong>3. Erst prüfen, dann entscheiden.</strong> Der häufigste und meist klügste Weg: Bevor Sie einen der Verträge unterschreiben, die Projektierer derzeit aktiv in die Höfe tragen, lassen Sie unabhängig prüfen, was Ihre Fläche im aktuellen Markt wert ist und welche Konditionen realistisch sind. Andere Wege der Flächen-Monetarisierung — etwa <a href="/blog/oekopunkte-oekokonto-lippe">Ökopunkte und Ökokonto</a> — gehören in dieselbe Abwägung.</p>
+
+<h2>Was wir konkret tun</h2>
+<p>Wir kennen die Flächen, die Netzsituation und die Gemeinden im Kreis Lippe — und wir sitzen nicht auf der Seite des Projektierers, sondern auf Ihrer. Wir prüfen kostenlos, ob Ihre Fläche für Agri-PV taugt, ordnen die Ihnen vorgelegten Pachtangebote ein und vermitteln bei Bedarf seriöse Partner — oder kaufen die Fläche, wenn Sie lieber verkaufen. Den Anfang macht eine unverbindliche Einschätzung: <a href="/flaeche-verpachten">Fläche verpachten</a>, <a href="/flaeche-bewerten">Fläche bewerten</a> oder direkt über das <a href="/kontakt">Kontaktformular</a>.</p>
+`,
+  },
+  {
     slug: "holzpreise-2026-rekord-fichte-lippe-einschlagen-oder-warten",
     title:
       "Holzpreise auf Rekordniveau: Fichte in NRW nahe 150 €/Fm — einschlagen, warten oder gleich den Wald verkaufen?",
