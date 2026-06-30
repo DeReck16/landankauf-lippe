@@ -30,6 +30,12 @@ const SITES = [
     name: "Lippe Forst",
     tagline: "Wald, Acker, Forstdienstleistungen, VNS-Ökopunkte — Lipper Land.",
   },
+  {
+    domain: "imei-safe.de",
+    url: "https://imei-safe.de",
+    name: "IMEI Safe",
+    tagline: "Kostenloser IMEI-Check: Blacklist, SIM-Lock & iCloud-Sperre prüfen — Service der TR Vertriebs GmbH.",
+  },
 ];
 
 export default function SisterSites({ currentDomain }: { currentDomain: string }) {
