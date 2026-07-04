@@ -114,6 +114,9 @@ export default function Footer() {
             <li><Link href="/blog" className="hover:text-white">Blog &amp; Aktuelles</Link></li>
             <li><Link href="/ratgeber/bodenrichtwerte-lippe" className="hover:text-white">Bodenrichtwerte Lippe</Link></li>
             <li><Link href="/ratgeber/grundstuecksverkehrsgesetz" className="hover:text-white">Grundstücksverkehrsgesetz</Link></li>
+            <li><Link href="/ratgeber/ackerland-preis-nrw" className="hover:text-white">Ackerland-Preise NRW</Link></li>
+            <li><Link href="/ratgeber/pachtpreise-ackerland-nrw" className="hover:text-white">Pachtpreise NRW</Link></li>
+            <li><Link href="/ratgeber/wald-preis-nrw" className="hover:text-white">Waldpreise NRW</Link></li>
             <li><Link href="/ueber-uns" className="hover:text-white">Über uns</Link></li>
             <li><Link href="/kontakt" className="hover:text-white">Kontakt</Link></li>
           </ul>
