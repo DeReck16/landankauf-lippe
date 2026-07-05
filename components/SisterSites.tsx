@@ -7,6 +7,12 @@ import Link from "next/link";
  */
 const SITES = [
   {
+    domain: "tr-vertrieb.de",
+    url: "https://www.tr-vertrieb.de",
+    name: "TR Vertriebs GmbH",
+    tagline: "Geprüfter iPhone-Großhandel B2B — Ankauf & Verkauf, deutschlandweit.",
+  },
+  {
     domain: "tr-immobilien.com",
     url: "https://www.tr-immobilien.com",
     name: "TR Immobilien GmbH",

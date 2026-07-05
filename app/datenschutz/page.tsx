@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
+import ClickToReveal from "@/components/ClickToReveal";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -20,7 +21,17 @@ export default function Page() {
             Verantwortlicher im Sinne der DSGVO ist:<br />
             {site.contact.company}<br />
             {site.contact.street}, {site.contact.zip} {site.contact.city}<br />
-            {site.contact.phone && <>Telefon: {site.contact.phoneDisplay}<br /></>}
+            {site.contact.phoneEncoded && (
+              <>
+                Telefon: <ClickToReveal
+                  encoded={site.contact.phoneEncoded}
+                  type="tel"
+                  label="Anzeigen"
+                  className="text-[color:var(--color-brand)] underline cursor-pointer"
+                  revealedClassName="text-[color:var(--color-brand)] underline"
+                /><br />
+              </>
+            )}
             E-Mail: {site.contact.email || site.contact.emailFallback}
           </p>
 

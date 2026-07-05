@@ -79,12 +79,10 @@ export default function RootLayout({
     },
     areaServed: { "@type": "AdministrativeArea", name: site.primaryArea.title },
     description: site.longDescription,
-    telephone: site.contact.phone,
     email: site.contact.email,
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "customer service",
-      telephone: site.contact.phone,
       url: `${site.url}/kontakt`,
       areaServed: "DE",
       availableLanguage: "de",

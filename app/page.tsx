@@ -20,6 +20,7 @@ import QuickValuation from "@/components/QuickValuation";
 import Testimonials from "@/components/Testimonials";
 import Partners from "@/components/Partners";
 import VideoEmbed from "@/components/VideoEmbed";
+import ClickToReveal from "@/components/ClickToReveal";
 import { site, services, flaechenTypen } from "@/lib/site";
 
 const faq = [
@@ -123,12 +124,13 @@ export default function Home() {
                 </svg>
                 WhatsApp
               </a>
-              <a
-                href={`tel:${site.contact.phone.replace(/\s/g, "")}`}
-                className="btn-secondary border-white/40 text-white hover:bg-white/10"
-              >
-                {site.contact.phoneDisplay} anrufen
-              </a>
+              <ClickToReveal
+                encoded={site.contact.phoneEncoded}
+                type="tel"
+                label="Telefon anzeigen"
+                className="btn-secondary border-white/40 text-white hover:bg-white/10 cursor-pointer"
+                revealedClassName="btn-secondary border-white/40 text-white hover:bg-white/10"
+              />
             </div>
             <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-6 text-sm text-white/70 max-w-xl">
               <div>
@@ -391,9 +393,13 @@ export default function Home() {
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Link href="/kontakt#formular" className="btn-primary">Anfrage starten</Link>
-            <a href={`tel:${site.contact.phone.replace(/\s/g, "")}`} className="btn-secondary">
-              {site.contact.phoneDisplay} anrufen
-            </a>
+            <ClickToReveal
+              encoded={site.contact.phoneEncoded}
+              type="tel"
+              label="Telefon anzeigen"
+              className="btn-secondary cursor-pointer"
+              revealedClassName="btn-secondary"
+            />
           </div>
         </div>
       </section>

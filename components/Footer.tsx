@@ -1,5 +1,6 @@
 import Link from "next/link";
 import SisterSites from "@/components/SisterSites";
+import ClickToReveal from "@/components/ClickToReveal";
 import { site, services } from "@/lib/site";
 import { CITIES, FLAECHENTYPEN } from "@/lib/cities";
 
@@ -75,9 +76,13 @@ export default function Footer() {
             {site.contact.street}, {site.contact.zip} {site.contact.city}
           </p>
           <p className="mt-2 text-sm text-white/60 flex flex-wrap gap-x-3 gap-y-1 items-center">
-            <a href={`tel:${site.contact.phone.replace(/\s/g, "")}`} className="hover:text-white">
-              {site.contact.phoneDisplay}
-            </a>
+            <ClickToReveal
+              encoded={site.contact.phoneEncoded}
+              type="tel"
+              label="Telefon anzeigen"
+              className="hover:text-white cursor-pointer"
+              revealedClassName="hover:text-white"
+            />
             <span className="opacity-50">·</span>
             <a
               href={`https://wa.me/${site.contact.whatsapp.replace(/[^0-9]/g, "")}`}
