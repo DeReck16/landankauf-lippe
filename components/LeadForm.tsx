@@ -51,6 +51,14 @@ function fireFormConversion(userData?: Record<string, unknown>) {
       transport_type: "beacon",
       ...(userData ? { user_data: userData } : {}),
     });
+
+    // No send_to → goes to every configured target on the page (GA4
+    // G-0Y4K8M7RJS included), so leads from organic/direct traffic become
+    // visible as a GA4 key event, not just Ads-attributed ones.
+    w.gtag("event", "generate_lead", {
+      transport_type: "beacon",
+      ...(userData ? { user_data: userData } : {}),
+    });
   } catch {
     /* noop */
   }
