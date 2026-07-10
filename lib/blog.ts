@@ -20,6 +20,69 @@ export type Article = {
 
 export const ARTICLES: Article[] = [
   {
+    slug: "laubholzmarkt-2026-eiche-buche-nettoerloes-lippe",
+    title:
+      "Laubholzmarkt 2026: Warum Eiche Rekordpreise bringt, Buche aber zum Sorgenkind wird",
+    description:
+      "Während Fichte 2026 Rekordpreise erzielt, zeigt sich beim Laubholz ein zweigeteiltes Bild: Eiche bleibt Goldstandard, Buchen-Industrieholz kämpft mit schwachen Preisen. Und: Warum der Preis „frei Waldstraße\" fast nie dem entspricht, was Waldbesitzer am Ende erhalten — Erntekosten, Aushaltung und Nettoerlös erklärt.",
+    category: "Wald",
+    publishedAt: "2026-07-10",
+    readingMinutes: 8,
+    keywords: [
+      "Laubholzpreise 2026",
+      "Eiche Holzpreis Submission",
+      "Buche Industrieholz Preis",
+      "Waldwert Lippe berechnen",
+      "Holzverkauf Nettoerlös",
+      "Preis auf dem Stock Wald",
+    ],
+    heroImage: "/blog-laubholz-2026.jpg",
+    faq: [
+      {
+        q: "Warum ist Buche aktuell so viel weniger wert als Eiche?",
+        a: "Eiche profitiert von weltweit ungebrochener Nachfrage für Möbel, Parkett und Fassbau bei knappem Angebot — die Vermarktung läuft oft über Submissionen mit entsprechend hohen Preisen. Buchen-Industrieholz konkurriert dagegen mit preiswerteren Alternativen und einer schwankenden Nachfrage aus der Möbelindustrie, was die Preise für Durchschnittsqualitäten niedrig hält.",
+      },
+      {
+        q: "Was ist der Unterschied zwischen dem Preis „frei Waldstraße\" und „auf dem Stock\"?",
+        a: "„Frei Waldstraße\" ist der Preis, den der Käufer für bereits eingeschlagenes und an den Weg gerücktes Holz zahlt. „Auf dem Stock\" ist das, was dem Waldbesitzer davon nach Abzug der Erntekosten (Einschlag, Rückung) tatsächlich bleibt — bei Buche kann das je nach Gelände nur ein Bruchteil des Ausgangspreises sein.",
+      },
+      {
+        q: "Lohnt sich der Verkauf von Buchen-Industrieholz überhaupt?",
+        a: "Das hängt stark von Erschließung und Erntekosten ab. Bei gut zugänglichen Beständen kann sich auch die energetische Verwertung lohnen, die aktuell etwas bessere Preise erzielt als klassisches Industrieholz. Bei schwer zugänglichen Steillagen mit hohen Erntekosten bleibt oft wenig bis nichts übrig — hier lohnt sich vorab eine realistische Einschätzung.",
+      },
+    ],
+    content: `
+<p class="lead">Während die Preise für Fichte im Kreis Lippe gerade Rekordniveau erreichen — wir haben das im Beitrag <a href="/blog/holzpreise-2026-rekord-fichte-lippe-einschlagen-oder-warten">Holzpreise auf Rekordniveau</a> im Juni eingeordnet — zeigt sich beim Laubholz ein deutlich zweigeteiltes Bild. Für Waldbesitzer in Ostwestfalen-Lippe mit Buchen- oder Eichenanteil lohnt sich ein genauerer Blick, denn zwischen beiden Baumarten liegen aktuell Welten. Wir ordnen die Marktbeobachtungen aus Frühjahr und Sommer 2026 ein — und erklären, warum der veröffentlichte Holzpreis fast nie dem entspricht, was am Ende bei Ihnen als Waldbesitzer ankommt.</p>
+
+<figure>
+<img src="/blog-laubholz-2026.jpg" alt="Eichenstämme und Buchenholz im Wald bei Lippe — Laubholzmarkt 2026" width="1600" height="900" style="width:100%;height:auto;border-radius:14px" loading="lazy" />
+<figcaption>Eiche und Buche entwickeln sich 2026 preislich in völlig unterschiedliche Richtungen.</figcaption>
+</figure>
+
+<h2>Laubholzmarkt 2026: Eine zweigeteilte Welt</h2>
+<p>Der Laubholzmarkt präsentiert sich deutlich heterogener als der Nadelholzmarkt. Hier entscheiden Baumart, Qualität und Dimension über den Preis — die Spannen sind enorm. Die Vermarktung erfolgt oft über Submissionen (Auktionen für Wertholz) oder über Verträge für Industrie- und Brennholz.</p>
+<ul>
+<li><strong>Buche (Industrieholz B/C):</strong> Die Buche bleibt das Sorgenkind vieler Forstbetriebe in OWL, da sie einen großen Flächenanteil ausmacht. Der Markt für durchschnittliche Qualitäten ist schwierig: Für Industrieholz der Güteklassen B/C liegen die am Markt beobachteten Preise aktuell bei nur rund <strong>39 bis 40 €/Fm</strong>. Die Konkurrenz durch preiswertere Alternativen und eine schwankende Nachfrage aus der Möbelindustrie drücken auf den Preis. Ein Teil der Buche fließt in die energetische Verwertung, wo mit rund <strong>45 bis 55 €/Fm</strong> aktuell sogar etwas bessere Preise erzielt werden als im klassischen Industrieholz-Segment.</li>
+<li><strong>Eiche (hochwertiges Stammholz):</strong> Die Eiche bleibt der unangefochtene Star im Laubholz. Die Nachfrage nach hochwertigem Eichenholz für Möbel, Parkett und den Fassbau ist weltweit ungebrochen hoch, während das Angebot knapp ist. Die Preisspanne ist außergewöhnlich groß, weil ein erheblicher Teil der Vermarktung über Submissionen — also Auktionen für Wertholz — läuft: Gutes Stammholz (B-Qualität, ab Stärkeklasse 3b) startet am Markt bei rund <strong>250 €/Fm</strong>, bei den Frühjahrssubmissionen 2026 erzielten einzelne Spitzenstämme erneut deutlich vierstellige Festmeterpreise. Selbst durchschnittliche Qualitäten erzielen noch Preise, von denen Buchenbesitzer nur träumen können.</li>
+</ul>
+<p>Für Waldbesitzer in Lippe und OWL bedeutet das: Ein Eichenbestand ist eine sichere Wertanlage. Bei der Buche kommt es dagegen stark auf die Qualität an — nur wirklich gute Stämme erzielen passable Preise, für den Großteil des Bestandes braucht es eine clevere Vermarktungsstrategie, die auch energetische und industrielle Verwertung einschließt.</p>
+
+<h2>Warum der veröffentlichte Preis selten Ihr Preis ist</h2>
+<p>Es ist ein häufiger Trugschluss zu glauben, man könne Marktpreise 1:1 auf den eigenen Wald übertragen. Diese Preise sind Benchmarks — der Nettoerlös für den Waldbesitzer, der sogenannte <strong>„Preis auf dem Stock"</strong>, ergibt sich erst nach Abzug aller Kosten vom „Frei-Waldstraße-Preis". Die entscheidenden Faktoren:</p>
+<ol>
+<li><strong>Menge und Logistik:</strong> Große, gebündelte Lose sind für Käufer logistisch attraktiv. Ein kleiner Privatwald mit wenigen Festmetern hat höhere relative Erntekosten pro Festmeter.</li>
+<li><strong>Erntekosten:</strong> Die Kosten für Holzeinschlag und Rückung müssen vom „Frei-Waldstraße-Preis" abgezogen werden. Je nach Gelände, Bestandsdichte und eingesetzter Technik liegen diese aktuell zwischen <strong>25 und 40 €/Fm</strong>.</li>
+<li><strong>Sortierung (Aushaltung):</strong> Eine professionelle, an den Wünschen der Sägewerke orientierte Aushaltung kann den Wert eines Stammes signifikant steigern. Hierfür ist Fachwissen unerlässlich — gerade bei Eiche entscheidet die richtige Einteilung über mehrere hundert Euro pro Festmeter.</li>
+<li><strong>Qualität und Lage:</strong> Ein schlecht erschlossener Bestand am Steilhang mit mittelmäßiger Holzqualität erzielt logischerweise einen geringeren Nettoerlös als ein gut zugänglicher Bestand mit geraden, astfreien Stämmen.</li>
+</ol>
+<p>Ein Beispiel: Notiert Buchen-Industrieholz frei Waldstraße bei 40 €/Fm und Ihre Erntekosten betragen 30 €/Fm, bleiben „auf dem Stock" gerade einmal 10 €/Fm — bei schwierigem Gelände kann das schnell ins Minus kippen. Bei Eiche mit guter Aushaltung kehrt sich diese Rechnung um: Hier lohnt sich der Aufwand fast immer.</p>
+
+<h2>Fazit: Wissen ist Ihr wertvollster Rohstoff</h2>
+<p>Die aktuellen Marktbeobachtungen aus Sommer 2026 bestätigen den Goldstandard der Eiche — für Besitzer von Buchenwäldern bleibt die Lage dagegen anspruchsvoll. Die entscheidende Lektion: Ein einzelner Marktpreis ist nur die halbe Wahrheit. Der wahre Wert Ihres Waldes in Lippe oder OWL offenbart sich erst durch eine professionelle Analyse vor Ort, die Baumart, Qualität, Erschließung und Erntekosten gemeinsam betrachtet.</p>
+<p>Die Zusammenarbeit mit einem erfahrenen Partner im Waldankauf, der den regionalen Markt genau kennt, stellt sicher, dass Sie nicht nur einen guten, sondern den bestmöglichen Preis für Ihr Eigentum erzielen — inklusive einer realistischen Einschätzung, was bei Buche noch drin ist und wo sich Eiche besonders auszahlt. Eine erste Einschätzung ist kostenlos: <a href="/wald-verkaufen">Wald verkaufen im Kreis Lippe</a> oder direkt über das <a href="/kontakt">Kontaktformular</a>.</p>
+`,
+  },
+  {
     slug: "agri-photovoltaik-ackerland-pacht-kreis-lippe",
     title:
       "Agri-Photovoltaik im Kreis Lippe: Strom ernten und Acker behalten — was die Doppelnutzung 2026 für Flächeneigentümer bringt",
