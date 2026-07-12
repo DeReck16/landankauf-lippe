@@ -65,7 +65,7 @@ function fireFormConversion(userData?: Record<string, unknown>) {
 }
 
 type Props = {
-  defaultIntent?: "Verkaufen" | "Verpachten" | "Bewertung" | "VNS / Ökopunkte" | "Lohnunternehmer" | "Bauland-Beratung" | "Allgemein";
+  defaultIntent?: "Verkaufen" | "Verpachten" | "Energiepacht (Solar/Wind)" | "Bewertung" | "VNS / Ökopunkte" | "Lohnunternehmer" | "Bauland-Beratung" | "Allgemein";
   defaultFlaechentyp?: "Ackerland" | "Wiese / Grünland" | "Wald / Forst" | "Bauland" | "Sonstiges";
   source?: string;
   variant?: "embedded" | "card";
@@ -76,6 +76,7 @@ type Props = {
 const intents = [
   "Verkaufen",
   "Verpachten",
+  "Energiepacht (Solar/Wind)",
   "Bewertung",
   "VNS / Ökopunkte",
   "Lohnunternehmer",
@@ -193,7 +194,7 @@ export default function LeadForm({
         <label className="checkbox-row sm:col-span-2">
           <input type="checkbox" name="consent" required />
           <span>
-            Ich stimme der Verarbeitung meiner Daten gemäß <a href="/datenschutz" className="underline">Datenschutzerklärung</a> zur Kontaktaufnahme zu. Keine Weitergabe an Dritte.
+            Ich stimme der Verarbeitung meiner Daten gemäß <a href="/datenschutz" className="underline">Datenschutzerklärung</a> zur Kontaktaufnahme zu. Keine Weitergabe an Dritte ohne Ihre ausdrückliche Freigabe.
           </span>
         </label>
       </div>
@@ -211,7 +212,7 @@ export default function LeadForm({
         </ul>
       </div>
       <p className="mt-3 text-[11px] text-[color:var(--color-muted)] leading-relaxed">
-        Ihre Anfrage geht ausschließlich an die TR Vertriebs GmbH. Sie wird nicht in CRM- oder Marketing-Systeme eingespielt, nicht an Pächter, Nachbarn oder Behörden weitergeleitet. Auf Wunsch löschen wir Ihre Daten nach Abschluss der Beratung.
+        Ihre Anfrage geht ausschließlich an die TR Vertriebs GmbH und wird nicht an Pächter, Nachbarn oder Behörden weitergeleitet. Bei Energiepacht-Anfragen geben wir Ihre Flächendaten erst nach Ihrer ausdrücklichen Freigabe an ausgewählte Projektentwickler weiter. Zur Erfolgsmessung übermitteln wir gehashte Kontaktdaten an Google (Enhanced Conversions) — Details in der Datenschutzerklärung. Auf Wunsch löschen wir Ihre Daten nach Abschluss der Beratung.
       </p>
     </form>
   );

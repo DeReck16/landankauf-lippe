@@ -450,7 +450,7 @@ export const ARTICLES: Article[] = [
     title:
       "Photovoltaik-Pacht im Kreis Lippe: Wann sich 3.500 €/ha lohnen — und wann sie zur Falle werden",
     description:
-      "Solarpark-Investoren bieten Lipper Eigentümern aktuell 3.500 bis 5.000 €/ha pro Jahr — bei 30 Jahren Laufzeit. Wo sich das wirklich rechnet, welche fünf Fallen wir in Verträgen 2025/2026 gesehen haben und wann klassischer Verkauf oder Pacht besser ist.",
+      "Solarpark-Investoren bieten Lipper Eigentümern aktuell 2.500 bis 5.000 €/ha pro Jahr — bei 30 Jahren Laufzeit. Wo sich das wirklich rechnet, welche fünf Fallen wir in Verträgen 2025/2026 gesehen haben und wann klassischer Verkauf oder Pacht besser ist.",
     category: "Markt",
     publishedAt: "2025-03-18",
     readingMinutes: 8,
@@ -463,7 +463,7 @@ export const ARTICLES: Article[] = [
       "Rückbau Solarpark Pacht",
     ],
     content: `
-<p class="lead">Seit 2023 bekommen Lipper Flächeneigentümer regelmäßig Briefe von Solarpark-Investoren: 3.500 bis 5.000 Euro pro Hektar und Jahr, 25 bis 30 Jahre Laufzeit, klingt unwiderstehlich. Doch wer nur die Jahreszahl rechnet, übersieht oft genau die Klauseln, die später teuer werden. Hier eine ehrliche Einordnung — was sich lohnt, was zur Falle wird, und wann Verkauf oder klassische Pacht die bessere Wahl bleibt.</p>
+<p class="lead">Seit 2023 bekommen Lipper Flächeneigentümer regelmäßig Briefe von Solarpark-Investoren: 2.500 bis 5.000 Euro pro Hektar und Jahr, 25 bis 30 Jahre Laufzeit, klingt unwiderstehlich. Doch wer nur die Jahreszahl rechnet, übersieht oft genau die Klauseln, die später teuer werden. Hier eine ehrliche Einordnung — was sich lohnt, was zur Falle wird, und wann Verkauf oder klassische Pacht die bessere Wahl bleibt.</p>
 
 <h2>Wer aktuell anbietet — und wofür</h2>
 <p>Aktiv im Kreis Lippe sind seit 2024 mehrere Investorengruppen: regionale Stadtwerke (auch aus Bielefeld und Paderborn), spezialisierte Projektentwickler aus dem OWL-Raum und überregionale Solarpark-Fonds. Die Anfragen kommen meist über drei Wege:</p>
@@ -487,7 +487,7 @@ export const ARTICLES: Article[] = [
 <h2>Pacht-Konditionen 2026</h2>
 <p>Die Spanne ist breit, aber die Eckwerte aus aktuell laufenden Verhandlungen im Kreis Lippe und in den angrenzenden Kreisen Höxter, Paderborn und Gütersloh:</p>
 <ul>
-<li><strong>Jahrespacht</strong>: 3.500–5.000 €/ha bei Standardflächen. Premium-Lagen mit perfekter Netzanbindung gehen bis 6.000 €/ha. Schwierige Lagen mit hohem Investitionsaufwand: 2.800–3.500 €/ha.</li>
+<li><strong>Jahrespacht</strong>: 2.500–4.500 €/ha bei Standardflächen. Premium-Lagen mit perfekter Netzanbindung erreichen rund 5.000 €/ha. Schwierige Lagen mit hohem Investitionsaufwand liegen darunter.</li>
 <li><strong>Indexierung</strong>: Üblich ist eine Anpassung an den Verbraucherpreisindex (VPI), oft mit Kappung bei 2–3 % pro Jahr.</li>
 <li><strong>Umsatzbeteiligung</strong>: Manche Verträge bieten zusätzlich 0,3–0,5 % Beteiligung am Stromumsatz — kann sich bei steigenden Strompreisen lohnen.</li>
 <li><strong>Vorlauf-Pacht</strong>: 50–100 % der vollen Pacht ab Vertragsschluss, auch während der 12–24 Monate Genehmigungsphase.</li>
@@ -702,7 +702,7 @@ export const ARTICLES: Article[] = [
 <li><strong>Grünland, extensiv (Hang, FFH-Umfeld)</strong>: 120–250 €/ha/Jahr — oft nur Pflegeentgelt</li>
 <li><strong>Grünland mit VNS-Modul</strong>: Pachtzins + Förderanteil oft 800–1.400 €/ha/Jahr</li>
 <li><strong>Streuobstwiesen</strong>: meist Pflegevereinbarung, kein klassischer Pachtzins</li>
-<li><strong>Photovoltaik-Pacht (Freiflächen)</strong>: 3.500–5.000 €/ha/Jahr — sehr lange Laufzeiten (25–30 Jahre)</li>
+<li><strong>Photovoltaik-Pacht (Freiflächen)</strong>: 2.500–5.000 €/ha/Jahr — sehr lange Laufzeiten (25–30 Jahre)</li>
 </ul>
 <p>Die Spannen sind real und keine Modellrechnung. Lokale Bonitätsunterschiede zwischen Bad Salzuflen, Detmold-Werretal, Lemgo und den höheren Lagen rund um Schieder-Schwalenberg machen schnell 100–200 €/ha aus.</p>
 
@@ -734,7 +734,7 @@ export const ARTICLES: Article[] = [
 </ul>
 
 <h2>Sonderfall Photovoltaik-Pacht</h2>
-<p>Für Eigentümer ebener, sonnenexponierter Flächen ab 2 ha im Kreis Lippe ist Photovoltaik-Pacht 2024/2025 ein heißes Thema. Investoren bieten 3.500 €/ha aufwärts, gestaffelt über 25–30 Jahre. Vorteile: hoher Pachtzins, langer Vertrag. Nachteile: lange Bindung, Genehmigungsphase 12–18 Monate, Wiederherstellung der Fläche nach Vertragsende oft komplex.</p>
+<p>Für Eigentümer ebener, sonnenexponierter Flächen ab 2 ha im Kreis Lippe ist Photovoltaik-Pacht 2024/2025 ein heißes Thema. Investoren bieten je nach Standort 2.500 €/ha aufwärts, gestaffelt über 25–30 Jahre. Vorteile: hoher Pachtzins, langer Vertrag. Nachteile: lange Bindung, Genehmigungsphase 12–18 Monate, Wiederherstellung der Fläche nach Vertragsende oft komplex.</p>
 <p>Im Kreis Lippe sind besonders Lagen rund um Schlangen, Augustdorf und Teile des Kalletals interessant. Wir vermitteln solche Anfragen an seriöse Investoren — und prüfen vorab, ob die Fläche geeignet und das Angebot fair ist.</p>
 
 <h2>Was wir konkret tun</h2>

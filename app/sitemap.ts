@@ -9,6 +9,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "",
     "flaeche-verkaufen",
     "flaeche-verpachten",
+    "solarpark-verpachten",
+    "windkraft-verpachten",
     "flaeche-bewerten",
     "ackerland-verkaufen",
     "wiese-verkaufen",

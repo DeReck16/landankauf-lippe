@@ -72,6 +72,7 @@ export default function Home() {
     itemListElement: [
       { "@type": "Offer", itemOffered: { "@type": "Service", name: "Fläche verkaufen", url: `${site.url}/flaeche-verkaufen` } },
       { "@type": "Offer", itemOffered: { "@type": "Service", name: "Fläche verpachten", url: `${site.url}/flaeche-verpachten` } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Energiepacht Solar und Wind", url: `${site.url}/solarpark-verpachten` } },
       { "@type": "Offer", itemOffered: { "@type": "Service", name: "Fläche bewerten", url: `${site.url}/flaeche-bewerten` } },
       { "@type": "Offer", itemOffered: { "@type": "Service", name: "VNS und Ökopunkte Beratung", url: `${site.url}/services/vns-oekopunkte` } },
       { "@type": "Offer", itemOffered: { "@type": "Service", name: "Lohnunternehmer-Vermittlung", url: `${site.url}/services/lohnunternehmer` } },
@@ -173,9 +174,9 @@ export default function Home() {
           <div className="max-w-2xl">
             <span className="eyebrow">Was wir anbieten</span>
             <hr className="divider mt-3" />
-            <h2 className="text-3xl md:text-4xl">Fünf Wege, mit Ihrer Fläche das Richtige zu tun.</h2>
+            <h2 className="text-3xl md:text-4xl">Sechs Wege, mit Ihrer Fläche das Richtige zu tun.</h2>
             <p className="mt-4 text-[color:var(--color-ink-soft)] text-lg">
-              Verkauf, Pacht, faire Bewertung, Naturschutz-Förderung oder einfach jemand, der mäht — wir sind Ihr Ansprechpartner für alles, was rund um Ihre Fläche im Kreis Lippe ansteht.
+              Verkauf, Pacht, Energiepacht für Solar und Wind, faire Bewertung, Naturschutz-Förderung oder einfach jemand, der mäht — wir sind Ihr Ansprechpartner für alles, was rund um Ihre Fläche im Kreis Lippe ansteht.
             </p>
           </div>
           <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">

@@ -85,6 +85,13 @@ export const services = [
       "Sichere Pachteinnahmen ohne eigenen Aufwand. Wir bewirtschaften Ihre Fläche selbst oder vermitteln zuverlässige Pächter aus der Region.",
   },
   {
+    slug: "solarpark-verpachten",
+    title: "Solar & Wind",
+    short: "Energiepacht für Ihre Fläche",
+    description:
+      "Solarpark-Pachten liegen bei 2.500–4.500 €/ha/Jahr, Windstandorte zahlen fünf- bis sechsstellige Jahrespachten. Wir prüfen kostenlos, ob Ihre Fläche in Frage kommt — und holen mehrere Angebote ein.",
+  },
+  {
     slug: "flaeche-bewerten",
     title: "Fläche bewerten",
     short: "Kostenlose Wertindikation",

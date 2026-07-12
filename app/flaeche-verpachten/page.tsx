@@ -44,7 +44,7 @@ export default function Page() {
               <li><strong>Ackerland:</strong> 350 – 750 €/ha/Jahr (Schwerpunkt Lippe)</li>
               <li><strong>Grünland:</strong> 180 – 380 €/ha/Jahr</li>
               <li><strong>Hangflächen / extensiv:</strong> oft nur Pflegeentgelt — hier lohnt sich ein Blick auf <Link href="/services/vns-oekopunkte">Vertragsnaturschutz</Link></li>
-              <li><strong>Sondernutzung (z. B. Photovoltaik):</strong> 3.500 – 5.000 €/ha/Jahr, langfristige Verträge nötig</li>
+              <li><strong>Sondernutzung Photovoltaik:</strong> 2.500 – 5.000 €/ha/Jahr, langfristige Verträge — Details auf <Link href="/solarpark-verpachten">Solarpark verpachten</Link></li>
             </ul>
             <p>
               Den exakten Wert Ihrer Fläche besprechen wir gerne im Detail — kostenlos und unverbindlich.

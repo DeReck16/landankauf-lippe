@@ -45,7 +45,7 @@ export default function Page() {
             Wenn Sie uns über das Formular oder per E-Mail kontaktieren, verarbeiten wir die von Ihnen angegebenen Daten (Name, E-Mail, Telefon, Angaben zu Ihrer Fläche und Ihre Nachricht) ausschließlich zur Bearbeitung Ihrer Anfrage. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Vertragsanbahnung) bzw. Art. 6 Abs. 1 lit. a DSGVO (Einwilligung).
           </p>
           <p>
-            Wir geben Ihre Daten nicht an Dritte weiter — auch nicht an Pächter, Nachbarn, andere Landwirte oder Behörden. Eine Übermittlung erfolgt nur dann, wenn dies für die Bearbeitung Ihres Anliegens unerlässlich ist (z. B. an Notar, Lohnunternehmer oder Behörde) und nur mit Ihrer ausdrücklichen Zustimmung.
+            Wir geben Ihre Daten nicht an Dritte weiter — auch nicht an Pächter, Nachbarn, andere Landwirte oder Behörden. Eine Übermittlung erfolgt nur dann, wenn dies für die Bearbeitung Ihres Anliegens unerlässlich ist (z. B. an Notar, Lohnunternehmer oder Behörde), und nur mit Ihrer ausdrücklichen Zustimmung. Bei Anfragen zur Energiepacht (Solar/Wind) geben wir Ihre Kontakt- und Flächendaten erst nach Ihrer ausdrücklichen Freigabe an ausgewählte Projektentwickler weiter, damit diese Ihnen Angebote unterbreiten können.
           </p>
           <p>
             Zur Zustellung Ihrer Anfrage nutzen wir den E-Mail-Versanddienst Resend (Resend, Inc., USA). Mit Resend besteht ein Auftragsverarbeitungsvertrag.
@@ -58,10 +58,18 @@ export default function Page() {
 
           <h2>5. Cookies</h2>
           <p>
-            Diese Website verwendet keine Tracking-Cookies und keine Werbe-Cookies. Es werden ausschließlich technisch notwendige Cookies gesetzt (z. B. zur Speicherung Ihrer Einstellungen während eines Besuchs). Eine Einwilligung ist hierfür nach § 25 Abs. 2 TDDDG nicht erforderlich.
+            Neben technisch notwendigen Cookies setzt diese Website Cookies zur Reichweiten- und Conversion-Messung ein (siehe Abschnitt 6). Dazu gehört ein Erstanbieter-Cookie („tr_gclid", Speicherdauer 90 Tage), das bei einem Klick auf eine Google-Anzeige die Klick-Kennung speichert, sowie die von Google gesetzten Mess-Cookies.
           </p>
 
-          <h2>6. Ihre Rechte</h2>
+          <h2>6. Google Analytics und Google Ads Conversion-Messung</h2>
+          <p>
+            Diese Website nutzt Google Analytics 4 und das Conversion-Tracking von Google Ads (Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland). Damit messen wir, wie Besucher die Website nutzen und ob Anzeigen zu Anfragen führen. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der Messung und Verbesserung unseres Angebots).
+          </p>
+          <p>
+            Wenn Sie unser Anfrageformular absenden, übermitteln wir zur Zuordnung der Anfrage zu einer Anzeige zusätzlich Ihre E-Mail-Adresse, Telefonnummer und Ihren Namen in gehashter (nicht im Klartext lesbarer) Form an Google („Enhanced Conversions"). Google ist nach dem EU-US Data Privacy Framework zertifiziert. Sie können dieser Verarbeitung jederzeit widersprechen (Art. 21 DSGVO) — kontaktieren Sie uns dazu formlos.
+          </p>
+
+          <h2>7. Ihre Rechte</h2>
           <p>Sie haben das Recht:</p>
           <ul>
             <li>auf Auskunft über Ihre verarbeiteten Daten (Art. 15 DSGVO)</li>
@@ -74,7 +82,7 @@ export default function Page() {
             <li>auf Beschwerde bei einer Aufsichtsbehörde (Art. 77 DSGVO)</li>
           </ul>
 
-          <h2>7. Aufsichtsbehörde</h2>
+          <h2>8. Aufsichtsbehörde</h2>
           <p>
             Zuständige Aufsichtsbehörde ist die Landesbeauftragte für Datenschutz und Informationsfreiheit Nordrhein-Westfalen, Postfach 20 04 44, 40102 Düsseldorf.
           </p>

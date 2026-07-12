@@ -5,6 +5,7 @@ import { site } from "@/lib/site";
 const nav = [
   { href: "/flaeche-verkaufen", label: "Verkaufen" },
   { href: "/flaeche-verpachten", label: "Verpachten" },
+  { href: "/solarpark-verpachten", label: "Solar & Wind" },
   { href: "/flaeche-bewerten", label: "Bewerten" },
   { href: "/services/vns-oekopunkte", label: "VNS & Ökopunkte" },
   { href: "/services/lohnunternehmer", label: "Lohnunternehmer" },
