@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import LeadForm from "@/components/LeadForm";
@@ -23,7 +24,7 @@ import VideoEmbed from "@/components/VideoEmbed";
 import ClickToReveal from "@/components/ClickToReveal";
 import { site, services, flaechenTypen } from "@/lib/site";
 
-const faq = [
+const faq: { q: string; a: string; aJsx?: ReactNode }[] = [
   {
     q: "Wie schnell bekomme ich eine Preisindikation?",
     a: "Nach Eingang Ihrer Anfrage melden wir uns innerhalb von 24 Stunden mit einer ersten Wertindikation. Diese basiert auf den aktuellen Bodenrichtwerten des Gutachterausschusses Kreis Lippe sowie auf realen Vergleichsverkäufen, die wir aus der Region kennen.",
@@ -51,6 +52,22 @@ const faq = [
   {
     q: "Gilt das Grundstücksverkehrsgesetz für meinen Verkauf?",
     a: "Bei landwirtschaftlichen Flächen ab 1 ha greift in NRW grundsätzlich das Grundstücksverkehrsgesetz (GrdstVG) inklusive Genehmigungspflicht und siedlungsrechtlichem Vorkaufsrecht. Wir kennen den Ablauf und kümmern uns mit Ihrem Notar darum, dass alles glatt läuft.",
+  },
+  {
+    q: "Kaufen Sie auch Wohnimmobilien — etwa das Wohnhaus zur Hofstelle?",
+    a: "Ja, über unsere Schwestergesellschaft: Wohnimmobilien (Haus, Wohnung, Mehrfamilienhaus) kauft im Kreis Lippe die TR Immobilien GmbH direkt an — Kaufangebot in 24 Stunden, keine Provision, auch vermietet oder renovierungsbedürftig. So bleibt bei Hofstellen oder geerbten Objekten mit Wohnhaus alles in einer Hand. Alle Infos unter www.tr-immobilien.com.",
+    aJsx: (
+      <>
+        Ja, über unsere Schwestergesellschaft: Wohnimmobilien (Haus, Wohnung, Mehrfamilienhaus) kauft
+        im Kreis Lippe die TR Immobilien GmbH direkt an — Kaufangebot in 24 Stunden, keine Provision,
+        auch vermietet oder renovierungsbedürftig. So bleibt bei Hofstellen oder geerbten Objekten mit
+        Wohnhaus alles in einer Hand. Alle Infos unter{" "}
+        <a href="https://www.tr-immobilien.com" rel="noopener" className="underline">
+          www.tr-immobilien.com
+        </a>
+        .
+      </>
+    ),
   },
 ];
 
@@ -378,7 +395,7 @@ export default function Home() {
                   {q.q}
                   <span className="ml-4 text-[color:var(--color-brand)] group-open:rotate-45 transition-transform text-2xl leading-none">+</span>
                 </summary>
-                <p className="mt-3 text-[color:var(--color-ink-soft)] leading-relaxed">{q.a}</p>
+                <p className="mt-3 text-[color:var(--color-ink-soft)] leading-relaxed">{q.aJsx ?? q.a}</p>
               </details>
             ))}
           </div>
