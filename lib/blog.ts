@@ -20,6 +20,67 @@ export type Article = {
 
 export const ARTICLES: Article[] = [
   {
+    slug: "waldfoerderung-nrw-2026-antragstopp-wiederbewaldungspraemie",
+    title:
+      "Waldförderung 2026 in der Krise: Antragstopp beim Klimaangepassten Waldmanagement — was Lipper Waldbesitzer jetzt noch bekommen",
+    description:
+      "Das Bundesprogramm Klimaangepasstes Waldmanagement nimmt keine Erstanträge mehr an, die überarbeitete Richtlinie kommt frühestens Ende 2026. Was Waldbesitzer im Kreis Lippe stattdessen nutzen können — allen voran die NRW-Wiederbewaldungsprämie mit 800 € pro Hektar für 400 klimastabile Bäume.",
+    category: "Förderung",
+    publishedAt: "2026-07-18",
+    readingMinutes: 8,
+    keywords: [
+      "Waldförderung NRW 2026",
+      "Klimaangepasstes Waldmanagement Antragstopp",
+      "Wiederbewaldungsprämie NRW",
+      "800 Euro pro Hektar Wald",
+      "Waldförderung Kreis Lippe",
+      "Wiederbewaldung Förderung beantragen",
+    ],
+    heroImage: "/blog-waldfoerderung-2026.jpg",
+    faq: [
+      {
+        q: "Kann ich das Klimaangepasste Waldmanagement noch beantragen?",
+        a: "Für Erstantragsteller ist das Bundesprogramm Klimaangepasstes Waldmanagement (KWM) aktuell geschlossen — es werden keine neuen Anträge mehr angenommen. Wer bereits im Programm ist, bleibt an die Bindefristen der Richtlinie gebunden. Eine überarbeitete Nachfolge-Richtlinie ist angekündigt, wird nach dem derzeitigen Stand aber frühestens Ende 2026 bzw. Anfang 2027 veröffentlicht. Verlassen sollten Sie sich für 2026 also nicht darauf.",
+      },
+      {
+        q: "Wie viel bringt die NRW-Wiederbewaldungsprämie?",
+        a: "Die Wiederbewaldungsprämie des Landes NRW zahlt 800 € pro Hektar für die Pflanzung von 400 Bäumen. Gefördert werden nur Baumarten, die nach dem Waldbaukonzept Nordrhein-Westfalens als klimastabil gelten. Sie ist bewusst schlank gehalten und ergänzt die bestehende Förderrichtlinie „Extremwetterfolgen“. Beantragt wird sie beim Landesbetrieb Wald und Holz NRW.",
+      },
+      {
+        q: "Lohnt es sich, den Wald jetzt aufzuforsten oder lieber zu verkaufen?",
+        a: "Das hängt von Ihrer Fläche, Ihrer Zeit und Ihrer Bereitschaft ab, die mehrjährige Kulturpflege zu leisten. Wer die Wiederbewaldung selbst stemmen will, sollte die Landesförderung mitnehmen, solange sie offen ist. Wer die Fläche nach Kalamität nicht selbst wieder in Bestand bringen möchte, für den kann der Verkauf die klarere Lösung sein. Wir schätzen beides ein und sagen ehrlich, was für Ihre Fläche sinnvoller ist.",
+      },
+    ],
+    content: `
+<p class="lead">Für Waldbesitzer im Kreis Lippe ist die Förderlandschaft 2026 unübersichtlich geworden. Das wichtigste Bundesprogramm zur klimagerechten Waldbewirtschaftung nimmt keine neuen Anträge mehr an, und die angekündigte Nachfolge lässt auf sich warten. Gleichzeitig ist der Handlungsdruck hoch: Nach Jahren mit Trockenheit, Borkenkäfer und Sturmwurf müssen viele Kahlflächen wieder in Bestand gebracht werden. Wir ordnen ein, was aktuell noch geht — und wo für Lipper Waldbesitzer 2026 realistisch Geld zu holen ist.</p>
+
+<figure>
+<img src="/blog-waldfoerderung-2026.jpg" alt="Junge Wiederbewaldungsfläche mit klimastabilen Mischbaumarten im Wald bei Lippe" width="1600" height="900" style="width:100%;height:auto;border-radius:14px" loading="lazy" />
+<figcaption>Wiederbewaldung nach Kalamität: klimastabile Mischbestände statt reiner Fichte — dafür gibt es in NRW eine eigene Prämie.</figcaption>
+</figure>
+
+<h2>Das Bundesprogramm Klimaangepasstes Waldmanagement ist für Neuanträge zu</h2>
+<p>Das Förderprogramm <strong>Klimaangepasstes Waldmanagement (KWM)</strong> des Bundes war jahrelang das zentrale Instrument, mit dem Waldbesitzer eine klimagerechte Bewirtschaftung honoriert bekamen — gegen die Einhaltung definierter Kriterien und mit entsprechend langen Bindefristen. Für <strong>Erstantragsteller ist das Programm inzwischen geschlossen</strong>: Neue Anträge werden nicht mehr angenommen, die Mittel sind ausgeschöpft.</p>
+<p>Eine überarbeitete Nachfolge ist angekündigt, aber noch nicht in Kraft. Nach dem derzeitigen Stand ist mit der Veröffentlichung der neuen Richtlinie erst <strong>Ende 2026 oder Anfang 2027</strong> zu rechnen. Für die anstehende Pflanzsaison 2026 bedeutet das: Wer auf das KWM setzt, plant auf einer Grundlage, die es aktuell nicht gibt. Die realistische Planung muss ohne dieses Bundesprogramm auskommen.</p>
+
+<h2>Was in NRW stattdessen offen ist: die Wiederbewaldungsprämie</h2>
+<p>Das Land Nordrhein-Westfalen hat hier ein eigenes, unabhängiges Angebot geschaffen, das genau an der Kahlfläche ansetzt: die <strong>Wiederbewaldungsprämie</strong>. Sie zahlt <strong>800 € pro Hektar</strong> für die Pflanzung von <strong>400 Bäumen</strong> — und ist bewusst schlank gehalten, damit auch kleinere Privatwaldbesitzer sie ohne großen Aufwand nutzen können.</p>
+<p>Die zentrale Bedingung: Gefördert werden ausschließlich <strong>Baumarten, die nach dem Waldbaukonzept Nordrhein-Westfalens als klimastabil gelten</strong>. Damit steuert das Land bewusst weg vom reinen Fichten-Reinbestand und hin zu gesünderen, klimastabileren Mischwäldern. Die Prämie ergänzt die bereits bestehende Förderrichtlinie „Extremwetterfolgen“ und wird beim <strong>Landesbetrieb Wald und Holz NRW</strong> beantragt.</p>
+
+<h2>Was das für Lipper Waldbesitzer konkret heißt</h2>
+<p>Für den typischen Privatwald im Kreis Lippe — oft eine Mischung aus Kalamitätsflächen und noch stehendem Bestand — ergibt sich daraus eine klare Reihenfolge:</p>
+<ul>
+<li><strong>Kahlflächen zuerst:</strong> Wo nach Käfer oder Sturm wieder aufgeforstet werden soll, ist die Landes-Wiederbewaldungsprämie derzeit der verlässlichste Zuschuss. Baumartenwahl nach dem Waldbaukonzept ist dabei Fördervoraussetzung — und forstlich ohnehin der sinnvollere Weg.</li>
+<li><strong>Nicht auf das Bundesprogramm warten:</strong> Solange die KWM-Nachfolge nicht veröffentlicht ist, sollte sie in keiner Kalkulation für 2026 als sichere Einnahme stehen.</li>
+<li><strong>Beratung vor Antrag:</strong> Welche Flächen förderfähig sind und welche Baumarten am jeweiligen Standort passen, klärt am besten die forstliche Beratung — Ausgangspunkt ist der Landesbetrieb Wald und Holz NRW.</li>
+</ul>
+<p>Wie sich die Frage „halten und fördern oder verkaufen“ grundsätzlich stellt, haben wir im Beitrag <a href="/blog/privatwald-lippe-halten-foerdern-verkaufen">Privatwald in Lippe: halten, fördern oder verkaufen</a> ausführlich beschrieben. Und wer noch mit den Folgen von Käfer und Sturmwurf kämpft, findet in <a href="/blog/kaeferholz-sturmwurf-lippe-privatwald">Käferholz und Sturmwurf im Lipper Privatwald</a> die Einordnung zur Aufarbeitung.</p>
+
+<h2>Förderung nutzen — oder Fläche abgeben?</h2>
+<p>Die Wiederbewaldung ist kein einmaliger Akt: Nach der Pflanzung folgen mehrere Jahre Kulturpflege, bis der junge Bestand gesichert ist. Wer diese Arbeit leisten kann und will, für den ist die Landesförderung ein gutes Argument, die Fläche zu halten und selbst wieder in Bestand zu bringen. Wer die Kahlfläche dagegen nicht selbst aufforsten möchte, für den ist der <a href="/wald-verkaufen">Verkauf des Waldstücks</a> oft die ehrlichere Lösung, als eine ungepflegte Fläche über Jahre liegen zu lassen. Zur Orientierung, was Waldflächen in NRW aktuell wert sind, hilft unser Ratgeber <a href="/ratgeber/wald-preis-nrw">1 Hektar Wald in NRW: Preise 2026</a>.</p>
+`,
+  },
+  {
     slug: "laubholzmarkt-2026-eiche-buche-nettoerloes-lippe",
     title:
       "Laubholzmarkt 2026: Warum Eiche Rekordpreise bringt, Buche aber zum Sorgenkind wird",
