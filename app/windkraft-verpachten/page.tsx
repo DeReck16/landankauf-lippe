@@ -4,9 +4,9 @@ import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
 
 export const metadata: Metadata = {
-  title: "Windkraftfläche verpachten — Vorranggebiete im Kreis Lippe prüfen",
+  title: "Windkraft verpachten — Vorranggebiete Kreis Lippe",
   description:
-    "Liegt Ihre Fläche in einem Windenergiegebiet? Standortpachten moderner Anlagen erreichen fünf- bis sechsstellige Beträge pro Jahr — auch Nachbarflächen verdienen über Poolmodelle mit. Kostenloser Flächen-Check für Lippe & Umland.",
+    "Liegt Ihre Fläche in einem Windenergiegebiet? Standortpachten erreichen fünf- bis sechsstellige Beträge pro Jahr, auch per Poolmodell. Kostenloser Flächen-Check.",
   alternates: { canonical: "/windkraft-verpachten" },
   openGraph: {
     title: "Windkraftfläche verpachten — Kreis Lippe & Umland",

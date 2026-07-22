@@ -28,7 +28,7 @@ export const site = {
     registerNumber: "HRB 11734",
     managingDirector: "Dennis Reckling, Martin Thomann",
     managingDirectors: ["Dennis Reckling", "Martin Thomann"],
-    vatId: "",
+    vatId: "DE315563148",
   },
   hours: "Mo–Fr 9:00–18:00, Sa nach Vereinbarung",
   primaryArea: {

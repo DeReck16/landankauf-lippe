@@ -4,9 +4,9 @@ import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
 
 export const metadata: Metadata = {
-  title: "Fläche für Solarpark verpachten — 2.500–4.500 €/ha im Kreis Lippe",
+  title: "Solarpark verpachten — Pacht 2.500–4.500 €/ha",
   description:
-    "Acker oder Grünland für Photovoltaik verpachten? Solarpark-Pachten liegen bei 2.500–4.500 €/ha/Jahr — ein Vielfaches der Ackerpacht. Kostenloser Flächen-Check für den Kreis Lippe und Umland: Eignung, Netznähe, Pachtpotenzial.",
+    "Acker oder Grünland für Photovoltaik verpachten? Solarpark-Pacht 2.500–4.500 €/ha/Jahr. Kostenloser Flächen-Check im Kreis Lippe: Eignung, Netznähe, Potenzial.",
   alternates: { canonical: "/solarpark-verpachten" },
   openGraph: {
     title: "Fläche für Solarpark verpachten — Kreis Lippe & Umland",

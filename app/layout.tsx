@@ -77,15 +77,57 @@ export default function RootLayout({
       addressRegion: site.contact.state,
       addressCountry: "DE",
     },
-    areaServed: { "@type": "AdministrativeArea", name: site.primaryArea.title },
+    areaServed: [
+      { "@type": "AdministrativeArea", name: "Kreis Lippe" },
+      { "@type": "AdministrativeArea", name: "Ostwestfalen-Lippe" },
+      ...site.extendedArea.counties.map((c) => ({
+        "@type": "AdministrativeArea",
+        name: c,
+      })),
+    ],
     description: site.longDescription,
+    telephone: site.contact.phone,
     email: site.contact.email,
+    vatID: site.legal.vatId,
+    knowsAbout: [
+      "Ankauf von Ackerland",
+      "Ankauf von Wald- und Forstflächen",
+      "Ankauf von Grünland und Wiesen",
+      "Flächenbewertung nach Bodenrichtwert (BORIS NRW)",
+      "Verpachtung landwirtschaftlicher Flächen",
+      "Solarpark-Verpachtung und Freiflächen-Photovoltaik",
+      "Windkraft-Flächen und Energiepacht",
+      "Vertragsnaturschutz NRW und Ökopunkte",
+      "Kalamitätsflächen und Käferholz",
+      "Vermittlung von Lohnunternehmern",
+      "Grundstücksverkehrsgesetz",
+      "Kreis Lippe und Ostwestfalen-Lippe",
+    ],
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "customer service",
+      telephone: site.contact.phone,
       url: `${site.url}/kontakt`,
       areaServed: "DE",
       availableLanguage: "de",
+    },
+    // Betreiber-Entität (Lippe Forst ist eine Marke der TR Vertriebs GmbH).
+    // Bewusst als parentOrganization statt sameAs, damit die Firmen-Registry
+    // (Elektronikhandel) NICHT den Forst-Brand fehl-etikettiert. Anker = North
+    // Data (verifiziert, HRB 11734 + Bahnhofstr. 70b matchen exakt).
+    parentOrganization: {
+      "@type": "Organization",
+      name: site.contact.company,
+      url: "https://www.tr-vertrieb.de",
+      identifier: {
+        "@type": "PropertyValue",
+        propertyID: "HRB",
+        value: `${site.legal.registerNumber} ${site.legal.registerCourt}`,
+      },
+      sameAs: [
+        "https://www.northdata.com/TR+Vertriebs+GmbH,+Horn-Bad+Meinberg/Amtsgericht+Lemgo+HRB+11734",
+        "https://implisense.com/en/companies/tr-vertriebs-gmbh-paderborn-DESB6SSSU996",
+      ],
     },
   };
 

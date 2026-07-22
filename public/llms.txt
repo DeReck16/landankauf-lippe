@@ -10,6 +10,11 @@ Betreiber: TR Vertriebs GmbH, Bahnhofstraße 70b, 32805 Horn-Bad Meinberg. HRB 1
 - [Fläche verpachten](https://lippeforst.de/flaeche-verpachten): Langfristige Pachtverträge, eigene Bewirtschaftung oder Vermittlung zuverlässiger Pächter.
 - [Fläche bewerten](https://lippeforst.de/flaeche-bewerten): Kostenlose Wertindikation auf Basis BORIS NRW und realer Vergleichsverkäufe.
 
+## Solar & Wind (Energiepacht / Flächenverpachtung)
+
+- [Solarpark verpachten](https://lippeforst.de/solarpark-verpachten): Landwirtschaftliche Fläche für Freiflächen-Photovoltaik verpachten — Pacht 2.500–4.500 €/ha/Jahr (Top-Lagen ~5.000). Kostenloser Flächen-Check zu Netznähe, EEG-Kulisse und dem baurechtlich privilegierten 200-m-Streifen an Autobahn und Schiene.
+- [Windkraft verpachten](https://lippeforst.de/windkraft-verpachten): Fläche für Windenergie verpachten — fünf- bis sechsstellige Jahrespacht je Windenergieanlage, auch Poolmodelle. Windkulisse OWL steht seit dem Teilplan 04/2025 fest. Wir holen mehrere Angebote von Projektierern ein.
+
 ## Flächentypen
 
 - [Ackerland verkaufen](https://lippeforst.de/ackerland-verkaufen): Hofnah, hofentfernt, mit oder ohne Pächter.
@@ -23,7 +28,11 @@ Betreiber: TR Vertriebs GmbH, Bahnhofstraße 70b, 32805 Horn-Bad Meinberg. HRB 1
 
 ## Ratgeber und Blog
 
-- [Ratgeber](https://lippeforst.de/ratgeber)
+- [Bodenrichtwerte Kreis Lippe](https://lippeforst.de/ratgeber/bodenrichtwerte-lippe): Aktuelle Bodenrichtwerte für Acker-, Grün- und Waldflächen.
+- [Pachtpreise Ackerland NRW](https://lippeforst.de/ratgeber/pachtpreise-ackerland-nrw): Pachtspiegel und regionale Richtwerte.
+- [Ackerland-Preise NRW](https://lippeforst.de/ratgeber/ackerland-preis-nrw): Kaufpreisentwicklung landwirtschaftlicher Flächen.
+- [Waldpreise NRW](https://lippeforst.de/ratgeber/wald-preis-nrw): Was Waldflächen je Hektar kosten.
+- [Grundstücksverkehrsgesetz](https://lippeforst.de/ratgeber/grundstuecksverkehrsgesetz): Genehmigung, Vorkaufsrecht und Ablauf beim Flächenverkauf.
 - [Blog](https://lippeforst.de/blog): Holzpreise 2026, Bauerwartungsland, Jagdpacht, Pachtspiegel, VNS-Fristen, Käferholz, Hofnachfolge.
 - [RSS-Feed](https://lippeforst.de/feed.xml)
 

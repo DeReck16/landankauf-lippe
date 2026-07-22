@@ -5,7 +5,7 @@ import ClickToReveal from "@/components/ClickToReveal";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Kontakt — Lippe Forst",
+  title: "Kontakt",
   description:
     "Telefon, WhatsApp oder Formular: Sprechen Sie uns an, wenn Sie Ackerland, Wiese oder Wald im Kreis Lippe verkaufen, verpachten oder bewerten lassen möchten.",
   alternates: { canonical: "/kontakt" },

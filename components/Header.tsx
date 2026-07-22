@@ -1,5 +1,6 @@
 import Link from "next/link";
 import ClickToReveal from "@/components/ClickToReveal";
+import MobileNav from "@/components/MobileNav";
 import { site } from "@/lib/site";
 
 const nav = [
@@ -51,6 +52,7 @@ export default function Header() {
           >
             Anfrage
           </Link>
+          <MobileNav items={nav} />
         </div>
       </div>
     </header>
