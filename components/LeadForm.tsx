@@ -6,6 +6,9 @@ import { submitLead } from "@/lib/lead";
 // Google-Ads-Conversion "LIPPEFORST Form Lead" (Label ist öffentlich/safe)
 const FORM_CONVERSION = "AW-18000118202/kDUqCKC7u7ocELqDkIdD";
 
+// Marker-IDs, die /api/lead für verworfene Bot-Submits zurückgibt (siehe onSubmit).
+const DROPPED_IDS = new Set(["HONEYPOT", "SPAM"]);
+
 /** Telefonnummer auf E.164 normalisieren (DE-Default). */
 function normalisePhone(raw?: string | null): string | undefined {
   if (!raw) return undefined;
@@ -107,7 +110,12 @@ export default function LeadForm({
     startTransition(async () => {
       const res = await submitLead(fd);
       if (res.ok) {
-        fireFormConversion(userData);
+        // Bot-Submits (Honeypot / Link-im-Namen) kommen serverseitig bewusst als
+        // ok:true zurück, damit Bots keinen Unterschied zum Erfolg merken — sie
+        // dürfen aber weder die Ads-Conversion noch das GA4-generate_lead
+        // auslösen. Sonst zählt jeder Spam-Bot als Lead (Befund 01.08.2026:
+        // 79 GA4-Events in 30 Tagen bei 2 echten Leads im Blob-Backup).
+        if (!DROPPED_IDS.has(res.id)) fireFormConversion(userData);
         setSuccess(res.id);
         formEl.reset();
       } else {
