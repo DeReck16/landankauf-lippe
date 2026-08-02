@@ -20,6 +20,62 @@ export type Article = {
 
 export const ARTICLES: Article[] = [
   {
+    slug: "bodenmarkt-lippe-nrw-2025-kaufwerte-gefallen",
+    title:
+      "Bodenmarkt Lippe & NRW 2025: Warum die Kaufwerte fielen (−6 %) — und Lipper Waldverkäufe sich verdoppelten",
+    description:
+      "Erstmals seit Jahren sind die amtlichen Kaufwerte für landwirtschaftliche Flächen in NRW gefallen — auf rund 81.953 €/ha (−6 %), bei so wenigen Verkäufen wie seit 50 Jahren nicht. Im Kreis Lippe lief der Markt 2025 dagegen gegen den Trend, und die Waldverkäufe haben sich fast verdoppelt. Die Zahlen und was sie für Eigentümer bedeuten.",
+    category: "Markt",
+    publishedAt: "2026-08-02",
+    readingMinutes: 8,
+    keywords: [
+      "Bodenpreise Lippe 2025",
+      "Kaufwerte landwirtschaftliche Grundstücke NRW",
+      "Ackerland Preis Hektar OWL",
+      "Grundstücksmarktbericht Kreis Lippe",
+      "Waldfläche verkaufen Lippe",
+      "Grünlandpreise NRW Detmold",
+    ],
+    heroImage: "/blog-bodenmarkt-2025.jpg",
+    faq: [
+      {
+        q: "Was kostet 2024/25 ein Hektar Ackerland im Kreis Lippe?",
+        a: "Der Gutachterausschuss Kreis Lippe/Stadt Detmold weist für Ackerland einen Mittelwert von rund 5,26 €/m² aus — also etwa 52.600 €/ha. Das liegt deutlich unter dem Spitzenniveau im Regierungsbezirk Münster (rund 119.600 €/ha) und ordnet OWL am unteren Ende der teuersten Bodenregion Deutschlands ein. Der tatsächliche Preis Ihrer Fläche hängt stark von Bodenzahl, Zuschnitt, Pachtstatus und lokaler Nachfrage ab — die genannten Werte sind Richtwerte, keine Einzelpreise.",
+      },
+      {
+        q: "Fallen die Bodenpreise jetzt — lohnt sich Warten oder Verkaufen?",
+        a: "NRW-weit gaben die amtlichen Kaufwerte 2024 um rund 6 % auf 81.953 €/ha nach, bei nur 1.483 Kaufverträgen — dem niedrigsten Handelsvolumen seit rund 50 Jahren. In Lippe selbst zog der Markt 2025 dagegen an (+24 % Kauffälle). „Der Preis“ fällt also nicht flächendeckend — Lage und Nutzungsart entscheiden. Eine kostenlose Wertindikation ist sinnvoller als eine pauschale Markterwartung.",
+      },
+      {
+        q: "Warum haben sich die Waldverkäufe in Lippe so stark erhöht?",
+        a: "Die Zahl der forstwirtschaftlichen Kauffälle in Lippe stieg 2025 von 15 auf 28, die gehandelte Fläche von 22 auf 45 ha. Treiber sind Nachwirkungen von Käfer- und Sturmschäden, Nachfrage benachbarter Betriebe zur Arrondierung sowie Kapitalanleger. Der Durchschnittspreis lag inklusive Aufwuchs bei rund 1,53 €/m² — wobei bestockte Bestände stark von Alter und Baumart abhängen.",
+      },
+    ],
+    content: `
+<p class="lead">Der Bodenmarkt sendet 2025/26 ein ungewohntes Signal: Zum ersten Mal seit Jahren sind die amtlichen Kaufwerte für landwirtschaftliche Flächen in Nordrhein-Westfalen gefallen — und das bei so wenigen Verkäufen wie seit einem halben Jahrhundert nicht. Im Kreis Lippe lief der Markt 2025 allerdings gegen diesen Landestrend, und die Waldverkäufe haben sich nahezu verdoppelt. Wir ordnen die frischen Zahlen aus den amtlichen Quellen ein — und erklären, was sie für Eigentümer in Lippe konkret bedeuten.</p>
+
+<figure>
+<img src="/blog-bodenmarkt-2025.jpg" alt="Luftbild einer Kulturlandschaft in Ostwestfalen-Lippe mit Acker-, Grünland- und Waldparzellen — Bodenmarkt 2025" width="1600" height="900" style="width:100%;height:auto;border-radius:14px" loading="lazy" />
+<figcaption>Acker, Grünland und Wald im Wechsel — der Lipper Flächenmarkt entwickelte sich 2025 anders als der NRW-Durchschnitt.</figcaption>
+</figure>
+
+<h2>NRW 2024: erstmals fallende Kaufwerte — und Rekord-wenige Verkäufe</h2>
+<p>Die amtliche Statistik (Statistik.NRW/Destatis) zeigt für 2024 eine kleine Trendwende: Der durchschnittliche Kaufwert für landwirtschaftliche Flächen in NRW fiel auf rund <strong>81.953 €/ha</strong> — nach etwa 87.236 €/ha im Vorjahr, also <strong>rund −6 %</strong>. Bemerkenswert ist der Kontrast zum Bund, wo der Durchschnitt im selben Zeitraum um rund 5 % auf etwa 35.300 €/ha <em>stieg</em>. NRW bleibt damit trotz Rückgang der mit Abstand teuerste Bodenmarkt Deutschlands.</p>
+<p>Noch aussagekräftiger als der Preis ist das Volumen: In ganz NRW wurden 2024 nur <strong>1.483 Kaufverträge</strong> über landwirtschaftliche Flächen registriert — nach Einordnung der Statistiker so wenige wie in den letzten rund 50 Jahren nicht. Innerhalb des Landes ist die Spanne groß: Der Regierungsbezirk Münster führt mit rund 119.600 €/ha, während der Regierungsbezirk Detmold (also OWL mit dem Kreis Lippe) mit rund 62.000 €/ha am unteren Ende liegt.</p>
+
+<h2>Kreis Lippe 2025: der Markt zog gegen den Landestrend an</h2>
+<p>Der frisch veröffentlichte Grundstücksmarktbericht des Gutachterausschusses Kreis Lippe/Stadt Detmold (Daten 2025) zeichnet für die Region ein anderes Bild als die Landesstatistik. Statt Rückgang: mehr Bewegung. Die land- und forstwirtschaftlichen Kauffälle stiegen von <strong>114 auf 141 (+24 %)</strong>, die gehandelte Fläche von rund <strong>220 auf 300 ha (+36 %)</strong>. Bei den Preisen unterscheidet der Bericht nach Nutzungsart: <strong>Ackerland konstant</strong> (Mittelwert rund 5,26 €/m², also etwa 52.600 €/ha), <strong>Grünlandpreise gestiegen</strong>. Diese €/ha-Angaben sind Umsatz-je-Fläche-Mittelwerte und als Richtwerte zu lesen, nicht als Einzelpreise — die tatsächliche Bandbreite ist groß, wie wir im Ratgeber <a href="/blog/hektar-ackerland-lippe-wertbestimmende-faktoren">Was einen Hektar Ackerland in Lippe wirklich wert macht</a> beschreiben.</p>
+
+<h2>Waldverkäufe in Lippe: nahezu verdoppelt</h2>
+<p>Der auffälligste Einzelbefund betrifft den Wald — und damit unser Kerngeschäft. Die forstwirtschaftlichen Kauffälle im Kreis Lippe stiegen 2025 von <strong>15 auf 28</strong>, die gehandelte Waldfläche von <strong>22 auf 45 ha</strong>, der Geldumsatz von rund <strong>0,30 auf 0,69 Mio. €</strong>. Der Durchschnittspreis lag inklusive Aufwuchs bei rund 1,53 €/m² — mit erheblicher Spanne je nach Alter und Baumart des Bestandes.</p>
+<p>Die Treiber sind bekannt: Nachwirkungen von Käfer- und Sturmschäden bringen Flächen auf den Markt, während benachbarte Betriebe zur Arrondierung und Kapitalanleger auf der Kaufseite stehen. Wer überlegt, seinen Wald zu halten und zu fördern oder zu verkaufen, findet die grundsätzliche Abwägung in <a href="/blog/privatwald-lippe-halten-foerdern-verkaufen">Privatwald in Lippe: halten, fördern oder verkaufen</a>.</p>
+
+<h2>Was heißt das für Eigentümer?</h2>
+<p>Die wichtigste Lehre aus den Zahlen: „Der Bodenpreis“ als eine Größe gibt es nicht. Landesweit sinkende Durchschnitte und ein anziehender Lipper Markt stehen im selben Jahr nebeneinander — entscheidend sind Lage, Nutzungsart und Zustand der konkreten Fläche. Warum die amtlichen Kaufwerte ohnehin nicht mit dem erzielbaren Marktpreis gleichzusetzen sind, erklären wir in <a href="/blog/bodenrichtwert-vs-marktpreis-lippe">Bodenrichtwert vs. Marktpreis</a>.</p>
+<p>Für eine belastbare Einschätzung Ihrer eigenen Fläche ist deshalb der Blick auf das konkrete Flurstück sinnvoller als jede Durchschnittszahl. Nutzen Sie dafür unsere <a href="/blog/fluechen-quick-check-wertindikation">kostenlose Wertindikation</a> oder sprechen Sie uns direkt zum <a href="/wald-verkaufen">Verkauf einer Waldfläche</a> an.</p>
+`,
+  },
+  {
     slug: "waldfoerderung-nrw-2026-antragstopp-wiederbewaldungspraemie",
     title:
       "Waldförderung 2026 in der Krise: Antragstopp beim Klimaangepassten Waldmanagement — was Lipper Waldbesitzer jetzt noch bekommen",
