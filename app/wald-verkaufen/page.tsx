@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
+import QuickValuation from "@/components/QuickValuation";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -25,9 +26,32 @@ export default function Page() {
         }}
       />
 
+      <section className="section border-b border-black/5">
+        <div className="container-page grid gap-10 lg:grid-cols-[1fr_1.05fr] items-start">
+          <div>
+            <p className="eyebrow">Kurzantwort</p>
+            <h2 className="font-serif text-2xl md:text-3xl mt-2 leading-snug">Was ist Wald im Kreis Lippe wert?</h2>
+            <p className="mt-4 text-lg leading-relaxed">2024 wurden im Kreis Lippe <strong>15 forstwirtschaftliche Kauffälle über 22,44 Hektar</strong> beurkundet — im Mittel <strong>1,34 €/m² inklusive Aufwuchs</strong>, also rund <strong>13.400 € je Hektar</strong>. Die Spanne ist beim Wald größer als bei jeder anderen Fläche: hiebsreifes Laubholz liegt deutlich darüber, Käfer- und Aufforstungsflächen am unteren Rand. Rechnen Sie Ihren Bestand rechts durch — anonym, ohne Kontaktdaten.</p>
+            <p className="mt-4 text-sm text-[color:var(--color-muted)] leading-relaxed">
+              Quelle: Grundstücksmarktbericht 2025 für den Kreis Lippe (Berichtsjahr 2024),
+              Gutachterausschuss für Grundstückswerte im Kreis Lippe und in der Stadt Detmold.
+               Reine Bodenwerte ohne Aufwuchs liegen niedriger.
+            </p>
+          </div>
+          <div className="card">
+            <QuickValuation
+              compact
+              defaultTyp="wald"
+              ctaHref="#anfrage"
+              heading="Was bringt mein Waldgrundstück?"
+            />
+          </div>
+        </div>
+      </section>
+
       <section className="section">
         <div className="container-page grid gap-12 lg:grid-cols-[1.2fr_1fr]">
-          <article className="prose-lippe order-2 lg:order-1">
+          <article className="prose-lippe order-1">
             <h2>Welchen Wald wir ankaufen</h2>
             <ul>
               <li>Privatwald jeglicher Bestockung — Buche, Eiche, Esche, Birke, Kiefer, Fichte, Douglasie</li>
@@ -41,7 +65,7 @@ export default function Page() {
 
             <h2>Wert eines Waldgrundstücks im Kreis Lippe</h2>
             <p>
-              Die Bewertung von Waldflächen ist komplexer als die von Acker oder Wiese. Sie setzt sich zusammen aus dem Bodenwert (typischerweise 0,30–1,50 €/m²) und dem Bestandswert (vorratsabhängig: junge Aufforstung ist niedriger bewertet, hiebsreife Bestände entsprechend höher). Die Bandbreite reicht je nach Bestand, Erschließung und Marktlage von <strong>3.000–18.000 €/ha</strong>, in Einzelfällen mehr.
+              Die Bewertung von Waldflächen ist komplexer als die von Acker oder Wiese. Sie setzt sich zusammen aus dem Bodenwert (typischerweise 0,30–1,50 €/m²) und dem Bestandswert (vorratsabhängig: junge Aufforstung ist niedriger bewertet, hiebsreife Bestände entsprechend höher). Der Mittelwert der 2024 im Kreis Lippe beurkundeten Forstverkäufe lag bei <strong>13.400 €/ha</strong> (1,34 €/m² inklusive Aufwuchs). Die Bandbreite reicht je nach Bestand, Erschließung und Marktlage von <strong>5.400 bis 21.400 €/ha</strong> — hiebsreifes Laubholz auch darüber, Käfer- und Aufforstungsflächen darunter.
             </p>
             <p>
               Wir machen Ihnen — anders als manche Online-Rechner — keine Phantasiezahlen. Wir schauen uns die Fläche an, berücksichtigen Bestandsalter, Holzpreise, Erschließung, Pflegezustand und die Wegesituation. Dann bekommen Sie eine Zahl, die wir auch begründen können.
@@ -64,7 +88,7 @@ export default function Page() {
               <li>Keine Kahlschlag-Strategien — wir bewirtschaften nachhaltig</li>
             </ul>
           </article>
-          <aside id="anfrage" className="order-1 lg:order-2 lg:sticky lg:top-24 self-start">
+          <aside id="anfrage" className="order-2 lg:sticky lg:top-24 self-start">
             <LeadForm
               source="wald-verkaufen"
               defaultIntent="Verkaufen"

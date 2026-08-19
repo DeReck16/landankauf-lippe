@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
+import QuickValuation from "@/components/QuickValuation";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -25,9 +26,32 @@ export default function Page() {
         }}
       />
 
+      <section className="section border-b border-black/5">
+        <div className="container-page grid gap-10 lg:grid-cols-[1fr_1.05fr] items-start">
+          <div>
+            <p className="eyebrow">Kurzantwort</p>
+            <h2 className="font-serif text-2xl md:text-3xl mt-2 leading-snug">Was ist Grünland im Kreis Lippe wert?</h2>
+            <p className="mt-4 text-lg leading-relaxed">2024 wurden im Kreis Lippe <strong>24 Kauffälle über 34,32 Hektar</strong> Grünland beurkundet — im Mittel <strong>1,89 €/m²</strong>, also rund <strong>18.900 € je Hektar</strong>. Ausschlaggebend ist die Bewirtschaftbarkeit: Hang- und Schutzgebietsflächen liegen niedriger, gut befahrbare Talgrundlagen höher. Rechnen Sie Ihre Wiese rechts durch — anonym, ohne Kontaktdaten.</p>
+            <p className="mt-4 text-sm text-[color:var(--color-muted)] leading-relaxed">
+              Quelle: Grundstücksmarktbericht 2025 für den Kreis Lippe (Berichtsjahr 2024),
+              Gutachterausschuss für Grundstückswerte im Kreis Lippe und in der Stadt Detmold.
+               Liegt die Fläche im Vertragsnaturschutz, kann die Förderung den reinen Flächenwert deutlich übersteigen.
+            </p>
+          </div>
+          <div className="card">
+            <QuickValuation
+              compact
+              defaultTyp="gruenland"
+              ctaHref="#anfrage"
+              heading="Was bringt meine Wiese?"
+            />
+          </div>
+        </div>
+      </section>
+
       <section className="section">
         <div className="container-page grid gap-12 lg:grid-cols-[1.2fr_1fr]">
-          <article className="prose-lippe order-2 lg:order-1">
+          <article className="prose-lippe order-1">
             <h2>Welche Wiesen wir ankaufen</h2>
             <ul>
               <li>Klassisches Wirtschaftsgrünland — Mahd, Standweide, Mähweide</li>
@@ -40,7 +64,7 @@ export default function Page() {
 
             <h2>Bodenrichtwerte für Grünland Kreis Lippe</h2>
             <p>
-              Grünland in Lippe wird typischerweise im Verhältnis 1 : 1,6 zum Ackerland bewertet — also durchschnittlich rund <strong>0,8–2,0 €/m²</strong> je nach Lage und Bodenqualität. Hangflächen oder Schutzgebietsflächen liegen oft niedriger; gut bewirtschaftbare Talgrundlagen können höher liegen.
+              Grünland erreicht in Lippe deutlich weniger als Ackerland: dem Ackerland-Mittel von 5,26 €/m² standen 2024 beim Grünland <strong>1,89 €/m²</strong> gegenüber — etwa ein Drittel. Die übliche Spanne liegt bei <strong>0,95–2,85 €/m²</strong> (rund 9.500–28.500 €/ha). Hangflächen und Schutzgebietsflächen liegen darunter, gut befahrbare Talgrundlagen darüber.
             </p>
             <p>
               Diese Werte sind nur ein Ausgangspunkt. Wenn Ihre Fläche FFH-relevant ist oder im Vertragsnaturschutz liegt, kann sie über die VNS-Förderung deutlich werthaltiger sein als das reine Pachtpotenzial. Mehr dazu auf der <Link href="/services/vns-oekopunkte">Seite zu VNS und Ökopunkten</Link>.
@@ -61,7 +85,7 @@ export default function Page() {
               Nichts. Wir machen Ihnen ein konkretes Kaufangebot, sobald wir die Eckdaten Ihrer Wiese kennen. Sie entscheiden, ob Sie verkaufen möchten — kein Druck, keine Provision, keine versteckten Kosten.
             </p>
           </article>
-          <aside id="anfrage" className="order-1 lg:order-2 lg:sticky lg:top-24 self-start">
+          <aside id="anfrage" className="order-2 lg:sticky lg:top-24 self-start">
             <LeadForm
               source="wiese-verkaufen"
               defaultIntent="Verkaufen"

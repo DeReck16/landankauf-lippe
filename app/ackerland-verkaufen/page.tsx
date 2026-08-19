@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
+import QuickValuation from "@/components/QuickValuation";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -17,7 +18,7 @@ export default function Page() {
       <PageHero
         eyebrow="Ackerland · Kreis Lippe"
         title="Ackerland im Kreis Lippe verkaufen — direkt, fair, ohne Provision."
-        subtitle="Wir kaufen Ackerland in allen Lipper Gemeinden: Detmold, Lemgo, Bad Salzuflen, Horn-Bad Meinberg, Blomberg, Lage, Oerlinghausen, Schieder-Schwalenberg, Schlangen, Augustdorf, Barntrup, Dörentrup, Extertal, Kalletal, Leopoldshöhe und Lügde — und auch im Umland."
+        subtitle="Wir kaufen Ackerland in allen 16 Lipper Kommunen und im angrenzenden Umland — auch verpachtet, auch aus einer Erbengemeinschaft."
         primaryCta={{ href: "#anfrage", label: "Unverbindlich bewerten" }}
         whatsappCta={{
           href: `https://wa.me/${site.contact.whatsapp.replace(/[^0-9]/g, "")}?text=${encodeURIComponent("Guten Tag, ich möchte mein Ackerland im Kreis Lippe verkaufen — bitte um eine diskrete Erstbewertung.")}`,
@@ -25,9 +26,32 @@ export default function Page() {
         }}
       />
 
+      <section className="section border-b border-black/5">
+        <div className="container-page grid gap-10 lg:grid-cols-[1fr_1.05fr] items-start">
+          <div>
+            <p className="eyebrow">Kurzantwort</p>
+            <h2 className="font-serif text-2xl md:text-3xl mt-2 leading-snug">Was ist Ackerland im Kreis Lippe wert?</h2>
+            <p className="mt-4 text-lg leading-relaxed">Im Jahr 2024 wurden im Kreis Lippe <strong>75 Kauffälle über 163,67 Hektar</strong> Ackerland beurkundet — im Mittel <strong>5,26 €/m²</strong>, also rund <strong>52.600 € je Hektar</strong>. Nach oben und unten entscheidet vor allem die Bonität (Ackerzahl), dazu Zuschnitt, Hofnähe und Erschließung. Rechnen Sie Ihre Fläche rechts direkt durch — anonym, ohne Kontaktdaten.</p>
+            <p className="mt-4 text-sm text-[color:var(--color-muted)] leading-relaxed">
+              Quelle: Grundstücksmarktbericht 2025 für den Kreis Lippe (Berichtsjahr 2024),
+              Gutachterausschuss für Grundstückswerte im Kreis Lippe und in der Stadt Detmold.
+               Der Bodenrichtwert liegt darunter: er ist ein geglätteter Lagewert, kein Kaufpreis.
+            </p>
+          </div>
+          <div className="card">
+            <QuickValuation
+              compact
+              defaultTyp="ackerland"
+              ctaHref="#anfrage"
+              heading="Was bringt mein Ackerland?"
+            />
+          </div>
+        </div>
+      </section>
+
       <section className="section">
         <div className="container-page grid gap-12 lg:grid-cols-[1.2fr_1fr]">
-          <article className="prose-lippe order-2 lg:order-1">
+          <article className="prose-lippe order-1">
             <h2>Warum Ackerland im Kreis Lippe direkt verkaufen?</h2>
             <p>
               Der Markt für landwirtschaftliche Flächen in Ostwestfalen-Lippe ist eng. Nachfrage durch Landwirte, Investoren und Stiftungen ist hoch — was bedeutet, dass Sie als Verkäufer in der starken Position sind. Voraussetzung: Sie kennen den realen Marktwert und wissen, was bei einem Verkauf rechtlich beachtet werden muss.
@@ -38,7 +62,7 @@ export default function Page() {
 
             <h2>Bodenrichtwerte für Ackerland im Kreis Lippe</h2>
             <p>
-              Die offiziellen Bodenrichtwerte des Gutachterausschusses Lippe sind im <Link href="https://geoportal.kreislippe.de/geoportal/application/bodenrichtwerte" target="_blank" rel="noopener">Geoportal des Kreises</Link> sowie unter <Link href="https://www.boris.nrw.de" target="_blank" rel="noopener">BORIS NRW</Link> kostenlos einsehbar. Sie liegen je nach Lage und Bodenqualität typischerweise zwischen <strong>1,40 €/m² und 4,50 €/m²</strong> (entspricht 14.000–45.000 €/ha). Premium-Lagen mit hoher Bonität liegen darüber, schwere oder schlecht erschlossene Flächen darunter.
+              Zwei Zahlen, die oft verwechselt werden: Der <strong>Bodenrichtwert</strong> ist ein geglätteter Lagewert und liegt in Lippe je nach Gemarkung meist zwischen 1,40 €/m² und 4,50 €/m². Der <strong>tatsächlich gezahlte Kaufpreis</strong> liegt darüber — 2024 im Mittel bei 5,26 €/m² (rund 52.600 €/ha) über 75 Kauffälle. Wer nur den Bodenrichtwert kennt, verkauft tendenziell zu billig. Beide Werte sind öffentlich einsehbar: im <Link href="https://geoportal.kreislippe.de/geoportal/application/bodenrichtwerte" target="_blank" rel="noopener">Geoportal des Kreises</Link> und unter <Link href="https://www.boris.nrw.de" target="_blank" rel="noopener">BORIS NRW</Link>.
             </p>
             <p>
               Wichtig: Der Bodenrichtwert ist ein Mittelwert. Für eine konkrete Wertindikation brauchen wir Größe, Gemarkung, Flurstück und Pachtstatus — die Auswertung machen wir kostenlos über unser <Link href="/flaeche-bewerten">Bewertungs-Tool</Link>.
@@ -54,12 +78,17 @@ export default function Page() {
               Erbengemeinschaften sind unser Spezialgebiet. Wir koordinieren mit allen Miteigentümern, bringen das Grundbuch auf den aktuellen Stand und sorgen für eine saubere Abwicklung — auch wenn die Eigentümer in unterschiedlichen Bundesländern oder im Ausland leben.
             </p>
 
+            <h2>In welchen Gemeinden wir kaufen</h2>
+            <p>
+              Detmold, Lemgo, Bad Salzuflen, Horn-Bad Meinberg, Blomberg, Lage, Oerlinghausen, Schieder-Schwalenberg, Schlangen, Augustdorf, Barntrup, Dörentrup, Extertal, Kalletal, Leopoldshöhe und Lügde — dazu die angrenzenden Bereiche in den Kreisen Paderborn, Höxter, Herford und Gütersloh.
+            </p>
+
             <h2>Genehmigungspflicht nach GrdstVG</h2>
             <p>
               Ab 1 ha greift in NRW das Grundstücksverkehrsgesetz. Der Kaufvertrag muss durch die Landwirtschaftskammer genehmigt werden, und das siedlungsrechtliche Vorkaufsrecht kann ausgeübt werden. Mehr dazu in unserem <Link href="/ratgeber/grundstuecksverkehrsgesetz">Ratgeber</Link>. Wir kennen den Ablauf und übernehmen die Koordination mit Notar und Behörde.
             </p>
           </article>
-          <aside id="anfrage" className="order-1 lg:order-2 lg:sticky lg:top-24 self-start">
+          <aside id="anfrage" className="order-2 lg:sticky lg:top-24 self-start">
             <LeadForm
               source="ackerland-verkaufen"
               defaultIntent="Verkaufen"

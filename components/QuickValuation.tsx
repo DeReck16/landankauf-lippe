@@ -14,8 +14,24 @@ import {
 const eur = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 0 });
 const eurM2 = new Intl.NumberFormat("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-export default function QuickValuation({ compact = false }: { compact?: boolean }) {
-  const [typ, setTyp] = useState<FlaechenTyp>("ackerland");
+type QuickValuationProps = {
+  compact?: boolean;
+  /** Flaechentyp vorbelegen — auf einer Landingpage immer der Typ der Seite. */
+  defaultTyp?: FlaechenTyp;
+  /** Ziel des CTA. Auf Landingpages der Anker zum Formular derselben Seite. */
+  ctaHref?: string;
+  ctaLabel?: string;
+  heading?: string;
+};
+
+export default function QuickValuation({
+  compact = false,
+  defaultTyp = "ackerland",
+  ctaHref = "/kontakt#formular",
+  ctaLabel = "Genaue Bewertung anfragen",
+  heading = "Was könnte meine Fläche bringen?",
+}: QuickValuationProps) {
+  const [typ, setTyp] = useState<FlaechenTyp>(defaultTyp);
   const [groesseStr, setGroesseStr] = useState("1.0");
   const [gemeinde, setGemeinde] = useState<string>("Detmold");
   const [qualitaet, setQualitaet] =
@@ -36,7 +52,7 @@ export default function QuickValuation({ compact = false }: { compact?: boolean 
       <div className="flex items-baseline justify-between gap-3 flex-wrap">
         <div>
           <p className="eyebrow">Sofort-Indikation</p>
-          <h3 className="font-serif text-2xl mt-1">Was könnte meine Fläche bringen?</h3>
+          <h3 className="font-serif text-2xl mt-1">{heading}</h3>
         </div>
         <span className="text-xs text-[color:var(--color-muted)]">100 % anonym · keine Daten gespeichert</span>
       </div>
@@ -107,9 +123,15 @@ export default function QuickValuation({ compact = false }: { compact?: boolean 
             {result.hint} Diese Indikation ist <strong>kein Verkehrswertgutachten</strong> — sie basiert auf öffentlichen Bodenrichtwerten und tatsächlich gezahlten Kaufpreisen 2024 im Kreis Lippe und ist als Orientierung zu verstehen.
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
-            <Link href="/kontakt#formular" className="btn-on-dark">
-              Genaue Bewertung anfragen
-            </Link>
+            {ctaHref.startsWith("#") ? (
+              <a href={ctaHref} className="btn-on-dark">
+                {ctaLabel}
+              </a>
+            ) : (
+              <Link href={ctaHref} className="btn-on-dark">
+                {ctaLabel}
+              </Link>
+            )}
           </div>
         </div>
       ) : (
