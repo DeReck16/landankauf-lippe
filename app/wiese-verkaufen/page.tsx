@@ -51,7 +51,7 @@ export default function Page() {
 
       <section className="section">
         <div className="container-page grid gap-12 lg:grid-cols-[1.2fr_1fr]">
-          <article className="prose-lippe order-1">
+          <article className="prose-lippe order-2 lg:order-1">
             <h2>Welche Wiesen wir ankaufen</h2>
             <ul>
               <li>Klassisches Wirtschaftsgrünland — Mahd, Standweide, Mähweide</li>
@@ -85,7 +85,7 @@ export default function Page() {
               Nichts. Wir machen Ihnen ein konkretes Kaufangebot, sobald wir die Eckdaten Ihrer Wiese kennen. Sie entscheiden, ob Sie verkaufen möchten — kein Druck, keine Provision, keine versteckten Kosten.
             </p>
           </article>
-          <aside id="anfrage" className="order-2 lg:sticky lg:top-24 self-start">
+          <aside id="anfrage" className="order-1 lg:order-2 lg:sticky lg:top-24 self-start">
             <LeadForm
               source="wiese-verkaufen"
               defaultIntent="Verkaufen"

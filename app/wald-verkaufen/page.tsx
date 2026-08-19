@@ -51,7 +51,7 @@ export default function Page() {
 
       <section className="section">
         <div className="container-page grid gap-12 lg:grid-cols-[1.2fr_1fr]">
-          <article className="prose-lippe order-1">
+          <article className="prose-lippe order-2 lg:order-1">
             <h2>Welchen Wald wir ankaufen</h2>
             <ul>
               <li>Privatwald jeglicher Bestockung — Buche, Eiche, Esche, Birke, Kiefer, Fichte, Douglasie</li>
@@ -88,7 +88,7 @@ export default function Page() {
               <li>Keine Kahlschlag-Strategien — wir bewirtschaften nachhaltig</li>
             </ul>
           </article>
-          <aside id="anfrage" className="order-2 lg:sticky lg:top-24 self-start">
+          <aside id="anfrage" className="order-1 lg:order-2 lg:sticky lg:top-24 self-start">
             <LeadForm
               source="wald-verkaufen"
               defaultIntent="Verkaufen"
