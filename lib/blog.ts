@@ -20,6 +20,63 @@ export type Article = {
 
 export const ARTICLES: Article[] = [
   {
+    slug: "batteriespeicher-ackerland-pacht-lippe",
+    title:
+      "Batteriespeicher statt Solarpark: Warum eine halbe Hektar am Umspannwerk 2026 mehr Pacht bringt als 5 ha Ackerland",
+    description:
+      "Großbatteriespeicher sind der neue Boom im Stromnetz: Ende 2025 lagen über 720 GW Netzanschlussanfragen vor, und seit Ende 2025 sind netznahe Speicher im Außenbereich baurechtlich privilegiert. Für Flächeneigentümer in Lippe zählt jetzt die Netznähe mehr als Größe oder Bodenqualität — mit Pachten, die weit über PV und Ackerpacht liegen.",
+    category: "Markt",
+    publishedAt: "2026-08-19",
+    readingMinutes: 8,
+    keywords: [
+      "Batteriespeicher Ackerland verpachten",
+      "Pacht Batteriespeicher Umspannwerk",
+      "Stromspeicher Fläche Kreis Lippe",
+      "§ 35 BauGB Batteriespeicher Privilegierung",
+      "Großspeicher Pachtpreis 2026",
+      "Fläche nahe Umspannwerk vermarkten",
+    ],
+    heroImage: "/blog-batteriespeicher-2026.jpg",
+    faq: [
+      {
+        q: "Wie nah muss meine Fläche am Umspannwerk liegen, damit sie für einen Batteriespeicher taugt?",
+        a: "Für die baurechtliche Privilegierung im Außenbereich nach § 35 Abs. 1 Nr. 12 BauGB darf der Speicher höchstens rund 200 m Luftlinie von einer Umspannanlage entfernt sein und muss mindestens 4 MW Nennleistung haben. Wirtschaftlich gilt: je kürzer die Kabeltrasse, desto höher die Pacht. Schon 0,2 bis 0,5 ha reichen für einen Speicher in der Größenordnung von 10 MW.",
+      },
+      {
+        q: "Bringt ein Batteriespeicher wirklich mehr als ein Solarpark oder Ackerpacht?",
+        a: "In der Regel deutlich: Für Batteriespeicherflächen werden häufig 15.000 bis über 50.000 € pro Hektar und Jahr genannt, gegenüber etwa 2.500 bis 4.500 € bei Solarparks und rund 614 € Ackerpacht im NRW-Durchschnitt. Voraussetzung ist die netznahe Lage mit freier Netzkapazität — ohne die ist der Standort für einen Speicher wertlos.",
+      },
+      {
+        q: "Muss ich meine Fläche verkaufen oder kann ich sie verpachten?",
+        a: "Beides ist möglich, üblich ist die Verpachtung. Meist werden langfristige Nutzungsverträge über oft 20 bis 30 Jahre geschlossen, abgesichert durch eine Dienstbarkeit im Grundbuch; das Eigentum bleibt bei Ihnen. Entscheidend sind eine solide Rückbausicherheit und eine Indexierung der Pacht im Vertrag.",
+      },
+    ],
+    content: `
+<p class="lead">Jahrelang war die Rechnung für ertragsschwache oder gut gelegene Flächen einfach: Ackerbau, Verpachtung, vielleicht ein Solarpark. 2026 kommt ein neuer, überraschend lukrativer Nutzer dazu — der Großbatteriespeicher. Und anders als bei Photovoltaik oder Ackerland zählt bei ihm nicht die Fläche oder die Bodenzahl, sondern eine einzige Eigenschaft: die Nähe zum Umspannwerk. Für Flächeneigentümer im Kreis Lippe kann das die Nutzung mit dem höchsten Ertrag pro Hektar überhaupt sein. Wir ordnen ein, was dahintersteckt.</p>
+
+<figure>
+<img src="/blog-batteriespeicher-2026.jpg" alt="Batteriespeicher-Container am Feldrand neben einem Umspannwerk in der OWL-Landschaft" width="1600" height="900" style="width:100%;height:auto;border-radius:14px" loading="lazy" />
+<figcaption>Großbatteriespeicher docken am Umspannwerk an — auf oft weniger als einem halben Hektar.</figcaption>
+</figure>
+
+<h2>Der Netz-Boom, den kaum jemand auf dem Schirm hat</h2>
+<p>Das Stromnetz braucht dringend Puffer, die Sonnen- und Windstrom zwischenspeichern und dann abgeben, wenn er gebraucht wird. Der Ansturm ist enorm: Ende 2025 lagen bundesweit <strong>über 720 GW an Netzanschlussanfragen</strong> für Großspeicher vor, während erst rund 2,9 GW an Anlagen über 1 MW tatsächlich in Betrieb waren. Allein im ersten Quartal 2026 gingen mehr als 2 GW neu ans Netz — ein Zuwachs im Großspeicher-Segment von rund <strong>290 % gegenüber dem Vorjahr</strong>. Der Engpass ist nicht die Nachfrage, sondern die Zahl geeigneter, netznaher Standorte.</p>
+
+<h2>Neu seit Ende 2025: Batteriespeicher sind baurechtlich privilegiert</h2>
+<p>Lange war der Bau im Außenbereich die Hürde. Das hat sich geändert: Über ein Ende 2025 beschlossenes Beschleunigungsgesetz wurden Standalone-Batteriespeicher unter bestimmten Voraussetzungen im Außenbereich <strong>privilegiert</strong> (§ 35 Abs. 1 Nr. 12 BauGB). Die zentralen Schwellen: mindestens <strong>4 MW Nennleistung</strong>, höchstens <strong>rund 200 m</strong> Abstand zu einer Umspannanlage (oder einem Kraftwerk ab 50 MW) und eine Deckelung auf 0,5 % der Gemeindefläche bzw. maximal 50.000 m². Daneben können Speicher auch im räumlich-funktionalen Zusammenhang mit bestehenden Erneuerbaren-Anlagen privilegiert sein (§ 35 Abs. 1 Nr. 11 BauGB). Die genaue Zuordnung und Genehmigungsfähigkeit ist immer im Einzelfall mit Gemeinde und Bauamt zu klären.</p>
+
+<h2>Warum die Pacht ein Vielfaches beträgt</h2>
+<p>Der wirtschaftliche Reiz ist erheblich. Für Batteriespeicherflächen werden häufig <strong>15.000 bis über 50.000 € pro Hektar und Jahr</strong> genannt — zum Vergleich: Solarparks liegen eher bei 2.500 bis 4.500 €/ha, und die Ackerpacht erreicht selbst im bundesweit teuersten NRW im Schnitt nur rund 614 €/ha. Dabei braucht ein Speicher wenig Platz: Für eine Anlage in der Größenordnung von 10 MW genügen oft <strong>0,2 bis 0,5 ha</strong>. Eine kleine, unscheinbare Fläche direkt am Netzknoten kann so mehr abwerfen als mehrere Hektar bester Ackerboden.</p>
+
+<h2>Lage schlägt Größe und Bodenqualität</h2>
+<p>Das ist der entscheidende Unterschied zu allem, was Flächeneigentümer bisher kannten. Bei Ackerland zählen Bodenzahl, Zuschnitt und Größe; beim Solarpark die Ausrichtung und die Fläche. Beim Batteriespeicher zählt fast nur eines: die <strong>Nähe zum Umspannwerk und freie Netzkapazität</strong>. Eine ertragsschwache Restfläche neben einem Netzknoten kann damit plötzlich der wertvollste Quadratmeter im ganzen Betrieb sein — während eine erstklassige, aber netzferne Ackerfläche für einen Speicher wertlos ist. Wie unterschiedlich Marktpreis und Nutzungswert auseinanderlaufen können, zeigt auch unser Beitrag <a href="/blog/hektar-ackerland-lippe-wertbestimmende-faktoren">Was einen Hektar Ackerland in Lippe wirklich wert macht</a>.</p>
+
+<h2>Was das für Eigentümer in Lippe heißt</h2>
+<p>Der Netz- und Energieausbau in Ostwestfalen-Lippe schafft die Infrastruktur, an die Speicher andocken — Umspannwerke, Leitungen, Einspeisepunkte. Wer eine Fläche in deren Nähe besitzt, sollte prüfen lassen, ob sie als Speicherstandort in Frage kommt, bevor er sie klassisch verpachtet. Die Abgrenzung zu den bekannten Energie-Nutzungen ist dabei wichtig: Ein Batteriespeicher ist etwas anderes als die <a href="/blog/photovoltaik-pacht-kreis-lippe">Photovoltaik-Freiflächenverpachtung</a> und als die <a href="/blog/agri-photovoltaik-ackerland-pacht-kreis-lippe">Agri-Photovoltaik</a> — er erzeugt keinen Strom, er puffert ihn.</p>
+<p>Ob Ihre Fläche netznah genug liegt und was realistisch erzielbar ist, lässt sich nur am konkreten Flurstück beurteilen. Sprechen Sie uns an — wir prüfen die Eignung und begleiten die <a href="/flaeche-verpachten">Verpachtung Ihrer Fläche</a> von der ersten Einschätzung bis zum Vertrag.</p>
+`,
+  },
+  {
     slug: "bodenmarkt-lippe-nrw-2025-kaufwerte-gefallen",
     title:
       "Bodenmarkt Lippe & NRW 2025: Warum die Kaufwerte fielen (−6 %) — und Lipper Waldverkäufe sich verdoppelten",
