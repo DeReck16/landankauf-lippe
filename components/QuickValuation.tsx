@@ -32,7 +32,7 @@ export default function QuickValuation({
   heading = "Was könnte meine Fläche bringen?",
 }: QuickValuationProps) {
   const [typ, setTyp] = useState<FlaechenTyp>(defaultTyp);
-  const [groesseStr, setGroesseStr] = useState("1.0");
+  const [groesseStr, setGroesseStr] = useState("1,0");
   const [gemeinde, setGemeinde] = useState<string>("Detmold");
   const [qualitaet, setQualitaet] =
     useState<NonNullable<ValuationInput["qualitaet"]>>("durchschnitt");
