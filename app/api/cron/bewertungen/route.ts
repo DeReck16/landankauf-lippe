@@ -4,7 +4,8 @@ import { bewertungenAutomatisch } from "@/lib/portal/vorgang";
 
 // Täglicher Vercel-Cron (vercel.json): sendet fällige Bitten um eine
 // Google-Bewertung — aber NUR, wenn „automatisch senden“ in der Verwaltung
-// eingeschaltet ist (Standard: aus). Ohne Anreiz, an alle Abschlüsse.
+// eingeschaltet ist (Standard: aus). Ohne Anreiz, ohne Vorauswahl — und nur an
+// Kunden mit Einwilligung in Bewertungs-E-Mails (§ 7 UWG, siehe bewertungsmailErlaubt).
 
 export const runtime = "nodejs";
 
