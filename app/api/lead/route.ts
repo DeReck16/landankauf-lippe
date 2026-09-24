@@ -1,13 +1,16 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { put } from "@vercel/blob";
 import { site } from "@/lib/site";
+import { dataPrefix, hasBlobToken } from "@/lib/admin/config";
+import { orteErgaenzen } from "@/lib/admin/daten";
 
 /**
  * Zentraler Lead-Endpoint (alle Formulare gehen hierüber).
  * Mehrkanal-Zustellung für maximale Ausfallsicherheit:
  *   1. Resend    — primär, von verifizierter Domain (DKIM/SPF/DMARC).
  *   2. Formspree — Fallback, parallel als Sicherheitsnetz.
- *   3. Vercel Blob — durable Backup, damit nie ein Lead verloren geht.
+ *   3. Vercel Blob — privater Speicher „lippe-forst-privat“ (Frankfurt), Grundlage
+ *      der Verwaltung unter /admin. Nur mit Token lesbar, nie öffentlich.
  *   4. Console   — letzter Floor in den Runtime-Logs.
  * Gibt ok:true zurück, sobald mindestens ein Kanal greift (Blob zählt).
  */
@@ -161,20 +164,34 @@ export async function POST(req: NextRequest) {
   const to = process.env.LEAD_TO_EMAIL || site.contact.email || site.contact.emailFallback;
   const from = process.env.LEAD_FROM_EMAIL || `Lippe Forst <onboarding@resend.dev>`;
 
-  // 1. Durable Backup: Vercel Blob
+  // 1. Durable Backup: privater Vercel-Blob-Speicher
   let blobOk = false;
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
+  if (hasBlobToken()) {
     try {
       const date = new Date().toISOString().slice(0, 10);
       await put(
-        `leads/${date}/${id}.json`,
+        `${dataPrefix()}leads/${date}/${id}.json`,
         JSON.stringify({ id, receivedAt: new Date().toISOString(), ...input }, null, 2),
-        { access: "public", contentType: "application/json", addRandomSuffix: false },
+        {
+          access: "private",
+          token: process.env.LF_BLOB_READ_WRITE_TOKEN,
+          contentType: "application/json",
+          addRandomSuffix: false,
+        },
       );
       blobOk = true;
     } catch (err) {
       console.error("[lead] blob exception", err);
     }
+  }
+
+  // Ort fürs Matching schon jetzt nachschlagen, damit die Verwaltung ihn kennt.
+  // Begrenzt (kurzer Text, max. 5 s), damit Formular-Spam OpenStreetMap nicht flutet;
+  // Rest erledigt der Knopf „Fehlende Orte nachschlagen“ in der Verwaltung.
+  if (blobOk && input.ort !== "—" && input.ort.length <= 120) {
+    after(() =>
+      orteErgaenzen("Formular", [input.ort], 5_000).catch((err) => console.error("[lead] orte", err)),
+    );
   }
 
   // 2 + 3: Resend + Formspree parallel

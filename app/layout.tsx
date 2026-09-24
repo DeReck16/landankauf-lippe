@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import AdsConversions from "@/components/AdsConversions";
+import PublicOnly from "@/components/PublicOnly";
 import "./globals.css";
 
 const inter = Inter({
@@ -137,26 +138,30 @@ export default function RootLayout({
       className={`${inter.variable} ${lora.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <Header />
+        <PublicOnly>
+          <Header />
+        </PublicOnly>
         <main className="flex-1">{children}</main>
-        <Footer />
-        <WhatsAppFloat />
-        <GoogleAnalytics gaId="G-0Y4K8M7RJS" />
-        <Script id="google-ads-init" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('config', 'AW-18000118202');
-          `}
-        </Script>
-        <AdsConversions
-          whatsappLabel="enWZCPGV-7gcELqDkIdD"
-          phoneLabel="V0goCPSV-7gcELqDkIdD"
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(ldOrg) }}
-        />
+        <PublicOnly>
+          <Footer />
+          <WhatsAppFloat />
+          <GoogleAnalytics gaId="G-0Y4K8M7RJS" />
+          <Script id="google-ads-init" strategy="afterInteractive">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('config', 'AW-18000118202');
+            `}
+          </Script>
+          <AdsConversions
+            whatsappLabel="enWZCPGV-7gcELqDkIdD"
+            phoneLabel="V0goCPSV-7gcELqDkIdD"
+          />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(ldOrg) }}
+          />
+        </PublicOnly>
       </body>
     </html>
   );

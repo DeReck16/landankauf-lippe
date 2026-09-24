@@ -19,9 +19,16 @@
 - Tel: 0176 38803064 | E-Mail: noch offen (Fallback: dennisreckling@t-online.de)
 
 ## Lead-Versand
-- Server Action `lib/lead.ts` → Resend API
-- ENV: `RESEND_API_KEY`, `LEAD_TO_EMAIL`, `LEAD_FROM_EMAIL` (noch nicht in Vercel)
-- Bei fehlendem Key: Logging only, Form zeigt Erfolg
+- `components/LeadForm.tsx` → `lib/lead.ts` → Route `app/api/lead/route.ts`: Resend (an `LEAD_TO_EMAIL`) + Formspree + privater Blob
+- Jede Anfrage liegt als `leads/<datum>/<LL-ID>.json` im **privaten** Blob-Speicher `lippe-forst-privat` (fra1, Token `LF_BLOB_READ_WRITE_TOKEN`). Der alte öffentliche Speicher `lippe-forst-leads` (`BLOB_READ_WRITE_TOKEN`) gehört nur noch der Gewerbe-Seite (GIL-…).
+
+## Verwaltung `/admin`
+- Anmeldung per Einmal-Link an `ADMIN_EMAILS` (HMAC mit `ADMIN_SESSION_SECRET`, Cookie `lf_verwaltung` Pfad /admin, 30 Tage). Link-Seite meldet erst per Knopf an (Mail-Scanner verbrauchen sonst den Link).
+- `proxy.ts` = Vorab-Weiche; jede Seite/Action prüft selbst (`lib/admin/session.ts`).
+- Zustand (Status, Notizen, Matching-Übersteuerungen, Paare, Orts-Cache, Protokoll) = eine Datei `admin/zustand.json`, geschrieben mit ETag-`ifMatch` (`lib/admin/store.ts`). Veränderliches immer über `frischLesen` holen (Next cached SDK-`get`, und gzip liefert schwache ETags).
+- Matching `lib/admin/matching.ts`: gleiche Art (Kauf/Pacht) Pflicht, Flächentyp, Entfernung (Nominatim, gecacht), Größe. Anonyme Hinweistexte `lib/admin/texte.ts` — werden nur kopiert, nie verschickt.
+- Lokal: `vercel env pull .env.local --environment=development` + `LF_DATA_PREFIX="dev/"`, Anmeldelink steht dann im Server-Log.
+- Jedes Bedienelement bekommt einen `title`-Tooltip.
 
 ## Offene To-Dos
 - [ ] Domain `lippeforst.de` registrieren + Vercel DNS

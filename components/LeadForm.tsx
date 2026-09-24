@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { submitLead } from "@/lib/lead";
+import { FLAECHENTYPEN, INTENTS, isGesuchIntent, type Flaechentyp, type Intent } from "@/lib/lead-options";
 
 // Google-Ads-Conversion "LIPPEFORST Form Lead" (Label ist öffentlich/safe)
 const FORM_CONVERSION = "AW-18000118202/kDUqCKC7u7ocELqDkIdD";
@@ -37,7 +38,7 @@ function buildUserData(fd: FormData): Record<string, unknown> | undefined {
   return Object.keys(data).length ? data : undefined;
 }
 
-function fireFormConversion(userData?: Record<string, unknown>) {
+function fireFormConversion(userData: Record<string, unknown> | undefined, gesuch: boolean) {
   try {
     const w = window as unknown as {
       dataLayer?: unknown[];
@@ -49,17 +50,23 @@ function fireFormConversion(userData?: Record<string, unknown>) {
         w.dataLayer!.push(args);
       };
     }
-    w.gtag("event", "conversion", {
-      send_to: FORM_CONVERSION,
-      transport_type: "beacon",
-      ...(userData ? { user_data: userData } : {}),
-    });
+    // Gesuche (Pächter/Käufer suchen Fläche) zählen NICHT als Ads-Conversion:
+    // Die Kampagnen sollen Flächen-Anbieter bringen, und Smart Bidding würde
+    // sonst auf Käufer-Traffic hin optimieren, den die Negatives bewusst aussperren.
+    if (!gesuch) {
+      w.gtag("event", "conversion", {
+        send_to: FORM_CONVERSION,
+        transport_type: "beacon",
+        ...(userData ? { user_data: userData } : {}),
+      });
+    }
 
     // No send_to → goes to every configured target on the page (GA4
     // G-0Y4K8M7RJS included), so leads from organic/direct traffic become
     // visible as a GA4 key event, not just Ads-attributed ones.
     w.gtag("event", "generate_lead", {
       transport_type: "beacon",
+      lead_type: gesuch ? "gesuch" : "angebot",
       ...(userData ? { user_data: userData } : {}),
     });
   } catch {
@@ -68,26 +75,13 @@ function fireFormConversion(userData?: Record<string, unknown>) {
 }
 
 type Props = {
-  defaultIntent?: "Verkaufen" | "Verpachten" | "Energiepacht (Solar/Wind)" | "Bewertung" | "VNS / Ökopunkte" | "Lohnunternehmer" | "Bauland-Beratung" | "Allgemein";
-  defaultFlaechentyp?: "Ackerland" | "Wiese / Grünland" | "Wald / Forst" | "Bauland" | "Sonstiges";
+  defaultIntent?: Intent;
+  defaultFlaechentyp?: Flaechentyp;
   source?: string;
   variant?: "embedded" | "card";
   title?: string;
   subtitle?: string;
 };
-
-const intents = [
-  "Verkaufen",
-  "Verpachten",
-  "Energiepacht (Solar/Wind)",
-  "Bewertung",
-  "VNS / Ökopunkte",
-  "Lohnunternehmer",
-  "Bauland-Beratung",
-  "Allgemein",
-];
-
-const flaechentypen = ["Ackerland", "Wiese / Grünland", "Wald / Forst", "Bauland", "Sonstiges"];
 
 export default function LeadForm({
   defaultIntent = "Verkaufen",
@@ -100,6 +94,8 @@ export default function LeadForm({
   const [isPending, startTransition] = useTransition();
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [intent, setIntent] = useState<string>(defaultIntent);
+  const gesuch = isGesuchIntent(intent);
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -107,6 +103,7 @@ export default function LeadForm({
     const fd = new FormData(e.currentTarget);
     const userData = buildUserData(fd);
     const formEl = e.currentTarget;
+    const submittedGesuch = isGesuchIntent(String(fd.get("intent") || ""));
     startTransition(async () => {
       const res = await submitLead(fd);
       if (res.ok) {
@@ -115,7 +112,7 @@ export default function LeadForm({
         // dürfen aber weder die Ads-Conversion noch das GA4-generate_lead
         // auslösen. Sonst zählt jeder Spam-Bot als Lead (Befund 01.08.2026:
         // 79 GA4-Events in 30 Tagen bei 2 echten Leads im Blob-Backup).
-        if (!DROPPED_IDS.has(res.id)) fireFormConversion(userData);
+        if (!DROPPED_IDS.has(res.id)) fireFormConversion(userData, submittedGesuch);
         setSuccess(res.id);
         formEl.reset();
       } else {
@@ -161,32 +158,65 @@ export default function LeadForm({
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
           <label className="field-label" htmlFor="intent">Anliegen</label>
-          <select id="intent" name="intent" defaultValue={defaultIntent} className="field-select">
-            {intents.map((i) => <option key={i} value={i}>{i}</option>)}
+          <select
+            id="intent"
+            name="intent"
+            value={intent}
+            onChange={(e) => setIntent(e.target.value)}
+            className="field-select"
+          >
+            {INTENTS.map((i) => <option key={i} value={i}>{i}</option>)}
           </select>
         </div>
         <div>
-          <label className="field-label" htmlFor="flaechentyp">Flächentyp</label>
+          <label className="field-label" htmlFor="flaechentyp">
+            {gesuch ? "Gesuchter Flächentyp" : "Flächentyp"}
+          </label>
           <select id="flaechentyp" name="flaechentyp" defaultValue={defaultFlaechentyp} className="field-select">
-            {flaechentypen.map((t) => <option key={t} value={t}>{t}</option>)}
+            {FLAECHENTYPEN.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
         <div>
-          <label className="field-label" htmlFor="groesse">Größe (in Hektar oder m²)</label>
-          <input id="groesse" name="groesse" placeholder="z. B. 1,5 ha" className="field-input" />
+          <label className="field-label" htmlFor="groesse">
+            {gesuch ? "Gewünschte Größe" : "Größe (in Hektar oder m²)"}
+          </label>
+          <input id="groesse" name="groesse" placeholder={gesuch ? "z. B. 5–10 ha" : "z. B. 1,5 ha"} className="field-input" />
         </div>
         <div>
-          <label className="field-label" htmlFor="ort">Gemeinde / Gemarkung</label>
-          <input id="ort" name="ort" placeholder="z. B. Detmold, Leopoldstal" className="field-input" />
+          <label className="field-label" htmlFor="ort">
+            {gesuch ? "Wo suchen Sie?" : "Gemeinde / Gemarkung"}
+          </label>
+          <input
+            id="ort"
+            name="ort"
+            placeholder={gesuch ? "z. B. Lemgo, Kalletal, Lage" : "z. B. Detmold, Leopoldstal"}
+            className="field-input"
+          />
         </div>
-        <div className="sm:col-span-2">
-          <label className="field-label" htmlFor="flurstueck">Flur / Flurstück (optional)</label>
-          <input id="flurstueck" name="flurstueck" placeholder="z. B. Flur 9, Flst. 113" className="field-input" />
-        </div>
+        {!gesuch && (
+          <div className="sm:col-span-2">
+            <label className="field-label" htmlFor="flurstueck">Flur / Flurstück (optional)</label>
+            <input id="flurstueck" name="flurstueck" placeholder="z. B. Flur 9, Flst. 113" className="field-input" />
+          </div>
+        )}
         <div className="sm:col-span-2">
           <label className="field-label" htmlFor="message">Ihre Nachricht (optional)</label>
-          <textarea id="message" name="message" className="field-textarea" placeholder="Was sollten wir noch wissen? Pacht- oder Bewirtschaftungsstatus, Zeitvorstellung, …" />
+          <textarea
+            id="message"
+            name="message"
+            className="field-textarea"
+            placeholder={
+              gesuch
+                ? "Was bewirtschaften Sie, ab wann und wie lange möchten Sie pachten oder kaufen? …"
+                : "Was sollten wir noch wissen? Pacht- oder Bewirtschaftungsstatus, Zeitvorstellung, …"
+            }
+          />
         </div>
+        {gesuch && (
+          <p className="sm:col-span-2 text-sm text-[color:var(--color-ink-soft)] bg-[color:var(--color-brand-soft)] rounded-md px-3 py-2">
+            Wir melden uns, sobald uns eine passende Fläche angeboten wird. Kontaktdaten geben wir nur weiter, wenn beide Seiten zugestimmt haben.
+          </p>
+        )}
         <div>
           <label className="field-label" htmlFor="name">Ihr Name *</label>
           <input id="name" name="name" required className="field-input" />

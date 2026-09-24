@@ -48,7 +48,10 @@ export default function Page() {
             Wir geben Ihre Daten nicht an Dritte weiter — auch nicht an Pächter, Nachbarn, andere Landwirte oder Behörden. Eine Übermittlung erfolgt nur dann, wenn dies für die Bearbeitung Ihres Anliegens unerlässlich ist (z. B. an Notar, Lohnunternehmer oder Behörde), und nur mit Ihrer ausdrücklichen Zustimmung. Bei Anfragen zur Energiepacht (Solar/Wind) geben wir Ihre Kontakt- und Flächendaten erst nach Ihrer ausdrücklichen Freigabe an ausgewählte Projektentwickler weiter, damit diese Ihnen Angebote unterbreiten können.
           </p>
           <p>
-            Zur Zustellung Ihrer Anfrage nutzen wir den E-Mail-Versanddienst Resend (Resend, Inc., USA). Mit Resend besteht ein Auftragsverarbeitungsvertrag.
+            Wenn Sie eine Fläche anbieten oder suchen, gleichen wir Ihre Angaben (Flächenart, Größe, Lage, Kauf oder Pacht) intern mit anderen Anfragen ab, um passende Gegenstücke zu finden. Der jeweils anderen Seite nennen wir dabei zunächst nur allgemeine Eckdaten ohne Namen, Kontaktdaten oder Flurstück (z. B. „ca. 5 ha Grünland im Raum Kalletal“). Ihre Kontaktdaten geben wir erst weiter, wenn Sie dem ausdrücklich zugestimmt haben. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO.
+          </p>
+          <p>
+            Zur Zustellung Ihrer Anfrage nutzen wir den E-Mail-Versanddienst Resend (Resend, Inc., USA). Mit Resend besteht ein Auftragsverarbeitungsvertrag. Zusätzlich speichern wir jede Anfrage in einem zugriffsgeschützten Speicher unseres Hosters Vercel mit Standort Frankfurt am Main, damit keine Anfrage verloren geht.
           </p>
 
           <h2>4. Speicherdauer</h2>

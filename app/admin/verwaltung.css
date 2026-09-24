@@ -1,0 +1,326 @@
+/* Verwaltung (/admin) — alle Klassen mit Präfix lfa-, damit nichts mit der
+   öffentlichen Seite kollidiert. Farben aus den Tokens in globals.css. */
+
+.lfa {
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-size: 0.95rem;
+}
+
+.lfa-kopf {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-line);
+}
+.lfa-kopf-zeile {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0.7rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.lfa-marke {
+  font-family: var(--font-serif), Georgia, serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  text-decoration: none;
+  color: var(--color-brand-dark);
+  white-space: nowrap;
+}
+.lfa-marke small {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-weight: 500;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-left: 0.4rem;
+}
+.lfa-hauptnav {
+  display: flex;
+  gap: 0.25rem;
+  flex: 1;
+}
+.lfa-hauptnav > a {
+  padding: 0.45rem 0.85rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  color: var(--color-ink-soft);
+  font-weight: 500;
+}
+.lfa-hauptnav > a:hover { background: var(--color-brand-soft); color: var(--color-brand-dark); }
+.lfa-hauptnav > a[aria-current="page"] { background: var(--color-brand); color: #fff; }
+.lfa-zaehler {
+  display: inline-block;
+  min-width: 1.3rem;
+  margin-left: 0.35rem;
+  padding: 0 0.35rem;
+  border-radius: 9999px;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 0.72rem;
+  line-height: 1.3rem;
+  text-align: center;
+}
+
+.lfa-seite {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+.lfa-fuss {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 1rem;
+  font-size: 0.78rem;
+  color: var(--color-muted);
+  border-top: 1px solid var(--color-line);
+}
+
+.lfa-titelzeile {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+.lfa-h1 { font-size: 1.7rem; line-height: 1.2; }
+.lfa-h2 { font-size: 1.2rem; margin-bottom: 0.75rem; }
+.lfa-unterzeile { color: var(--color-ink-soft); margin-top: 0.25rem; }
+
+/* Kennzahlen-Kacheln */
+.lfa-kacheln {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+.lfa-kachel {
+  display: block;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: 0.8rem;
+  padding: 0.8rem 1rem;
+  text-decoration: none;
+  color: inherit;
+}
+a.lfa-kachel:hover { border-color: var(--color-brand); }
+.lfa-kachel-wert { font-size: 1.6rem; font-weight: 600; font-family: var(--font-serif), Georgia, serif; }
+.lfa-kachel-name { font-size: 0.8rem; color: var(--color-muted); }
+
+/* Filterleiste */
+.lfa-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: flex-end;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: 0.8rem;
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+}
+.lfa-filter > label { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.78rem; color: var(--color-muted); }
+.lfa-filter .field-input, .lfa-filter .field-select { padding: 0.5rem 0.7rem; font-size: 0.9rem; }
+.lfa-filter-suche { flex: 1 1 14rem; }
+
+/* Knöpfe */
+.lfa-knopf {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 38px;
+  padding: 0.45rem 1rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-brand);
+  background: var(--color-brand);
+  color: #fff;
+  font-weight: 500;
+  font-size: 0.88rem;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.lfa-knopf:hover { background: var(--color-brand-dark); }
+.lfa-knopf:disabled { opacity: 0.45; cursor: not-allowed; }
+.lfa-knopf-hell { background: transparent; color: var(--color-brand-dark); }
+.lfa-knopf-hell:hover { background: var(--color-brand-soft); }
+.lfa-knopf-leise { background: transparent; color: var(--color-ink-soft); border-color: var(--color-line); }
+.lfa-knopf-leise:hover { background: #f3f1ea; }
+.lfa-knopf-klein { min-height: 30px; padding: 0.2rem 0.7rem; font-size: 0.8rem; }
+.lfa-knopfreihe { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+
+/* Abzeichen */
+.lfa-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.1rem 0.55rem;
+  border-radius: 9999px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+.lfa-badge-angebot { background: #e9f0e6; color: #1f4127; border-color: #cddcc6; }
+.lfa-badge-gesuch { background: #e6eef6; color: #1d3f63; border-color: #c8d8ea; }
+.lfa-badge-keine { background: #f1efe8; color: #5d6659; border-color: #e3dfd2; }
+.lfa-badge-ads { background: #fdf3dd; color: #7a5410; border-color: #f0dfb4; }
+.lfa-badge-status-neu { background: #c89b3c; color: #fff; }
+.lfa-badge-status-in_arbeit { background: #f6efdc; color: #7a5410; border-color: #eadbb4; }
+.lfa-badge-status-beantwortet { background: #e6eef6; color: #1d3f63; border-color: #c8d8ea; }
+.lfa-badge-status-erledigt { background: #e9f0e6; color: #1f4127; border-color: #cddcc6; }
+.lfa-badge-status-archiv { background: #f1efe8; color: #7a8479; border-color: #e3dfd2; }
+.lfa-badge-match { background: #2f5d3a; color: #fff; }
+
+/* Anfragen-Liste: Tabelle am Desktop, Karten auf dem Handy */
+.lfa-liste {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: 0.8rem;
+  overflow: hidden;
+}
+.lfa-liste th {
+  text-align: left;
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  font-weight: 600;
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid var(--color-line);
+  background: #fcfbf7;
+  cursor: help;
+}
+.lfa-liste td {
+  padding: 0.7rem 0.75rem;
+  border-bottom: 1px solid var(--color-line);
+  vertical-align: top;
+}
+.lfa-liste tr:last-child td { border-bottom: 0; }
+.lfa-liste tbody tr:hover td { background: #fcfbf7; }
+.lfa-zeile-neu td:first-child { box-shadow: inset 3px 0 0 var(--color-accent); }
+.lfa-link-name { font-weight: 600; color: var(--color-brand-dark); text-decoration: none; }
+.lfa-link-name:hover { text-decoration: underline; }
+.lfa-klein { font-size: 0.8rem; color: var(--color-muted); }
+.lfa-zelle-stapel { display: flex; flex-direction: column; gap: 0.2rem; align-items: flex-start; }
+.lfa-kontakt a { color: var(--color-ink-soft); text-decoration: none; overflow-wrap: anywhere; }
+.lfa-kontakt a.lfa-link-name { color: var(--color-brand-dark); }
+.lfa-kontakt a:hover { color: var(--color-brand); text-decoration: underline; }
+
+@media (max-width: 860px) {
+  .lfa-liste, .lfa-liste tbody, .lfa-liste tr, .lfa-liste td { display: block; width: 100%; }
+  .lfa-liste thead { display: none; }
+  .lfa-liste { border: 0; background: transparent; }
+  .lfa-liste tr {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 0.8rem;
+    margin-bottom: 0.75rem;
+    padding: 0.4rem 0;
+  }
+  .lfa-liste td { border: 0; padding: 0.3rem 0.9rem; }
+  .lfa-liste td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-muted);
+  }
+  .lfa-zeile-neu { box-shadow: inset 3px 0 0 var(--color-accent); }
+  .lfa-zeile-neu td:first-child { box-shadow: none; }
+}
+
+/* Panels und Detailansicht */
+.lfa-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: 0.9rem;
+  padding: 1.1rem 1.2rem;
+  margin-bottom: 1rem;
+}
+.lfa-raster {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+@media (max-width: 960px) { .lfa-raster { grid-template-columns: minmax(0, 1fr); } }
+.lfa-daten { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 0.45rem 0.9rem; }
+.lfa-daten dt { color: var(--color-muted); font-size: 0.85rem; }
+.lfa-daten dd { word-break: break-word; }
+@media (max-width: 520px) { .lfa-daten { grid-template-columns: minmax(0, 1fr); } .lfa-daten dd { margin-bottom: 0.4rem; } }
+.lfa-nachricht { white-space: pre-wrap; background: #fcfbf7; border: 1px solid var(--color-line); border-radius: 0.6rem; padding: 0.75rem 0.9rem; }
+.lfa-formraster { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+.lfa-formraster .lfa-breit { grid-column: 1 / -1; }
+@media (max-width: 560px) { .lfa-formraster { grid-template-columns: minmax(0, 1fr); } }
+.lfa-panel .field-input, .lfa-panel .field-select, .lfa-panel .field-textarea { padding: 0.55rem 0.75rem; font-size: 0.9rem; }
+.lfa-panel .field-textarea { min-height: 5.5rem; }
+.lfa-hilfe { font-size: 0.78rem; color: var(--color-muted); margin-top: 0.25rem; }
+
+.lfa-hinweis {
+  background: var(--color-accent-soft);
+  border: 1px solid #eadbb4;
+  color: #5e4410;
+  border-radius: 0.7rem;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.88rem;
+  margin-bottom: 1rem;
+}
+.lfa-hinweis-ok { background: var(--color-brand-soft); border-color: #cddcc6; color: var(--color-brand-dark); }
+.lfa-hinweis-fehler { background: #fdecea; border-color: #f5c6c0; color: #8a2a1d; }
+.lfa-leer { text-align: center; color: var(--color-muted); padding: 2.5rem 1rem; }
+
+.lfa-protokoll { list-style: none; padding: 0; margin: 0; }
+.lfa-protokoll li { padding: 0.4rem 0; border-bottom: 1px dashed var(--color-line); font-size: 0.85rem; }
+.lfa-protokoll li:last-child { border-bottom: 0; }
+
+/* Matching */
+.lfa-paar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 8.5rem minmax(0, 1fr);
+  gap: 0.9rem;
+  align-items: stretch;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: 0.9rem;
+  padding: 1rem;
+  margin-bottom: 0.9rem;
+}
+.lfa-paar-seite { min-width: 0; }
+.lfa-paar-mitte { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.35rem; text-align: center; }
+.lfa-paar-fuss { grid-column: 1 / -1; border-top: 1px solid var(--color-line); padding-top: 0.8rem; display: flex; flex-direction: column; gap: 0.7rem; }
+@media (max-width: 760px) {
+  .lfa-paar { grid-template-columns: minmax(0, 1fr); }
+  .lfa-paar-mitte { flex-direction: row; justify-content: flex-start; }
+}
+.lfa-score { font-size: 1.5rem; font-weight: 700; font-family: var(--font-serif), Georgia, serif; color: var(--color-brand-dark); }
+.lfa-scorebalken { width: 100%; max-width: 7rem; height: 6px; border-radius: 9999px; background: var(--color-line); overflow: hidden; }
+.lfa-scorebalken > span { display: block; height: 100%; background: var(--color-brand); }
+.lfa-gruende { margin: 0; padding-left: 1.1rem; list-style: disc; color: var(--color-ink-soft); font-size: 0.86rem; }
+.lfa-zustimmung { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.85rem; }
+.lfa-texte { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+@media (max-width: 760px) { .lfa-texte { grid-template-columns: minmax(0, 1fr); } }
+.lfa-texte textarea { font-size: 0.82rem; min-height: 11rem; }
+.lfa-details > summary { cursor: pointer; color: var(--color-brand-dark); font-weight: 500; font-size: 0.88rem; }
+.lfa-details[open] > summary { margin-bottom: 0.6rem; }
+
+/* Anmeldung */
+.lfa-anmeldung {
+  max-width: 26rem;
+  margin: 4rem auto;
+  padding: 0 1rem;
+}
+.lfa-anmeldung .lfa-panel { padding: 1.6rem; }

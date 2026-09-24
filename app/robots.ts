@@ -4,7 +4,7 @@ import { site } from "@/lib/site";
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
-      { userAgent: "*", allow: "/" },
+      { userAgent: "*", allow: "/", disallow: ["/admin", "/api/"] },
       // KI-/Answer-Engine-Crawler explizit erlauben (konsistent mit den
       // Schwester-Sites im TR-Verbund) — Entity- und Zitier-Signal.
       {
@@ -25,6 +25,8 @@ export default function robots(): MetadataRoute.Robots {
           "Meta-ExternalAgent",
         ],
         allow: "/",
+        // Eigene Gruppe → die Sperren aus „*“ gelten hier nicht automatisch.
+        disallow: ["/admin", "/api/"],
       },
     ],
     sitemap: `${site.url}/sitemap.xml`,
