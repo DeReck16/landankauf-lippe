@@ -33,7 +33,7 @@ export default function Page() {
             </p>
             <h3>1. Fairer Preis nach Bodenrichtwert</h3>
             <p>
-              Wir orientieren uns an den jährlich aktualisierten Bodenrichtwerten des Gutachterausschusses Kreis Lippe und an realen Vergleichsverkäufen aus den Gemeinden Detmold, Lemgo, Bad Salzuflen, Horn-Bad Meinberg, Blomberg, Lage und dem gesamten Lipper Land. Sie bekommen keine "Lockangebote", sondern eine Zahl, die wir auch erklären können.
+              Wir orientieren uns an den jährlich aktualisierten Bodenrichtwerten des Gutachterausschusses Kreis Lippe und an realen Vergleichsverkäufen aus den Gemeinden Detmold, Lemgo, Bad Salzuflen, Horn-Bad Meinberg, Blomberg, Lage und dem gesamten Lipper Land. Sie bekommen keine „Lockangebote“, sondern eine Zahl, die wir auch erklären können.
             </p>
             <h3>2. Volle Diskretion ohne Aushängung</h3>
             <p>
@@ -68,7 +68,7 @@ export default function Page() {
 
             <h2>Kommen wir ins Gespräch?</h2>
             <p>
-              Schicken Sie uns eine kurze Nachricht über das Formular oder rufen Sie an. Sie bekommen innerhalb von 24 Stunden eine erste Einschätzung — kostenlos, unverbindlich und auf Augenhöhe.
+              Schicken Sie uns eine kurze Nachricht über das Formular, per E-Mail oder WhatsApp. Sie bekommen innerhalb von 24 Stunden eine erste Einschätzung — kostenlos, unverbindlich und auf Augenhöhe.
             </p>
           </article>
           <aside id="anfrage" className="lg:sticky lg:top-24 self-start">

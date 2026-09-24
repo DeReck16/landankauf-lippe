@@ -16,7 +16,7 @@
 
 ## Kontakt in Site
 - TR Vertriebs GmbH, Bahnhofstr. 70 b, 32805 Horn-Bad Meinberg | HRB 11734 Amtsgericht Lemgo
-- Tel. nur serverseitig (`lib/telefon.ts`); auf der Website nie im Klartext (Anzeige per Klick, WhatsApp über `/whatsapp`-Weiterleitung) | E-Mail: info@tr-immobilien.com (Vertragspartner bleibt TR Vertriebs GmbH)
+- Kein Telefon auf der Website und in Kunden-Mails (Dennis 24.09.2026: nur E-Mail/Formular, WhatsApp über `/whatsapp`-Weiterleitung bleibt). Nummer nur serverseitig in `lib/telefon.ts` für Pflichtangaben in Verträgen (Art. 246a EGBGB, Widerrufsbelehrung) | E-Mail: info@tr-immobilien.com (Vertragspartner bleibt TR Vertriebs GmbH)
 
 ## Lead-Versand
 - `components/LeadForm.tsx` → `lib/lead.ts` → Route `app/api/lead/route.ts`: Resend (an `LEAD_TO_EMAIL`) + Formspree + privater Blob

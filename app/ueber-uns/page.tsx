@@ -48,7 +48,7 @@ export default function Page() {
 
           <h2>Sie haben Fragen?</h2>
           <p>
-            <Link href="/kontakt">Kontaktieren Sie uns gerne</Link> — telefonisch, per E-Mail oder über das Formular. Eine erste Einschätzung Ihrer Fläche bekommen Sie immer kostenlos.
+            <Link href="/kontakt">Kontaktieren Sie uns gerne</Link> — per E-Mail, WhatsApp oder über das Formular. Eine erste Einschätzung Ihrer Fläche bekommen Sie immer kostenlos.
           </p>
         </div>
       </section>

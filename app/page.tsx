@@ -18,7 +18,6 @@ export const metadata: Metadata = seitenMetadaten({
 import QuickValuation from "@/components/QuickValuation";
 import BoerseAbschnitt from "@/components/boerse/BoerseAbschnitt";
 import VideoEmbed from "@/components/VideoEmbed";
-import ClickToReveal from "@/components/ClickToReveal";
 import { site, services, flaechenTypen, whatsappLink } from "@/lib/site";
 
 const faq: { q: string; a: string; aJsx?: ReactNode }[] = [
@@ -140,13 +139,6 @@ export default function Home() {
                 </svg>
                 WhatsApp
               </a>
-              <ClickToReveal
-                encoded={site.contact.phoneEncoded}
-                type="tel"
-                label="Telefon anzeigen"
-                className="btn-secondary border-white/40 text-white hover:bg-white/10 cursor-pointer"
-                revealedClassName="btn-secondary border-white/40 text-white hover:bg-white/10"
-              />
             </div>
             <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-6 text-sm text-white/70 max-w-xl">
               <div>
@@ -333,7 +325,7 @@ export default function Home() {
           </div>
           <ol className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4 text-white/90">
             {[
-              { n: "01", t: "Anfrage", d: "Sie nennen uns Größe, Lage und Anliegen — telefonisch oder über das Formular." },
+              { n: "01", t: "Anfrage", d: "Sie nennen uns Größe, Lage und Anliegen — über das Formular, per E-Mail oder WhatsApp." },
               { n: "02", t: "Indikation", d: "Innerhalb von 24 Stunden erhalten Sie eine erste, ehrliche Preisindikation." },
               { n: "03", t: "Vor-Ort-Termin", d: "Wir schauen uns die Fläche gemeinsam an — kostenlos und unverbindlich." },
               { n: "04", t: "Notar & Auszahlung", d: "Termin beim Notar Ihrer Wahl — Auszahlung erfolgt innerhalb weniger Wochen." },
@@ -404,17 +396,13 @@ export default function Home() {
         <div className="container-narrow text-center">
           <h2 className="text-3xl md:text-4xl">Bereit für ein erstes Gespräch?</h2>
           <p className="mt-4 text-[color:var(--color-ink-soft)] text-lg">
-            Rufen Sie uns an oder schreiben Sie uns eine Nachricht — wir melden uns innerhalb von 24 Stunden.
+            Schreiben Sie uns — über das Formular, per E-Mail oder WhatsApp. Wir melden uns innerhalb von 24 Stunden.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Link href="/kontakt#formular" className="btn-primary">Anfrage starten</Link>
-            <ClickToReveal
-              encoded={site.contact.phoneEncoded}
-              type="tel"
-              label="Telefon anzeigen"
-              className="btn-secondary cursor-pointer"
-              revealedClassName="btn-secondary"
-            />
+            <a href={whatsappLink()} target="_blank" rel="noopener nofollow" className="btn-secondary" title="Öffnet einen WhatsApp-Chat mit Lippe Forst">
+              WhatsApp schreiben
+            </a>
           </div>
         </div>
       </section>
