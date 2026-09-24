@@ -35,7 +35,7 @@ export default function Page() {
 
           <h2>Unsere Grundregeln</h2>
           <ul>
-            <li><strong>Direkt</strong> — kein Maklerkette, kein Provisionsaufschlag, kein Inserat.</li>
+            <li><strong>Direkt</strong> — keine Maklerkette, kein Provisionsaufschlag, kein Inserat.</li>
             <li><strong>Diskret</strong> — was Sie uns sagen, bleibt zwischen uns.</li>
             <li><strong>Ehrlich</strong> — wir nennen Preise, die wir auch begründen können.</li>
             <li><strong>Nachhaltig</strong> — was wir kaufen, bleibt im Lipper Land. Keine Spekulation, keine Versiegelung.</li>
@@ -43,7 +43,7 @@ export default function Page() {
 
           <h2>Mit wem wir zusammenarbeiten</h2>
           <p>
-            Für VNS- und Naturschutzberatung arbeiten wir mit der <Link href="https://www.biologischestationlippe.de" target="_blank" rel="noopener">Biologischen Station Lippe</Link>, der UNB Kreis Lippe und der Landwirtschaftskammer NRW (Kreisstelle Lippe-Höxter) zusammen. Für forstliche Themen mit Wald und Holz NRW. Für Lohnarbeiten mit etablierten Betrieben aus dem Kreis. Für rechtliche und notarielle Themen mit Notaren der Region.
+            Für VNS- und Naturschutzberatung arbeiten wir mit der <Link href="https://www.biologischestationlippe.de" target="_blank" rel="noopener">Biologischen Station Lippe</Link>, der UNB Kreis Lippe und der Landwirtschaftskammer NRW (Kreisstellen Höxter, Lippe, Paderborn) zusammen. Für forstliche Themen mit Wald und Holz NRW. Für Lohnarbeiten mit etablierten Betrieben aus dem Kreis. Für rechtliche und notarielle Themen mit Notaren der Region.
           </p>
 
           <h2>Sie haben Fragen?</h2>

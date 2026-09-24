@@ -28,7 +28,7 @@ export default function Page() {
             <h2>Leistungen unserer Partnerbetriebe</h2>
             <ul>
               <li><strong>Mahd & Heuwerbung</strong> — Schlegelmäher, Kreiselmäher, Schwadenwerber, Pressen (Rund-, Quaderballen)</li>
-              <li><strong>Mulchen & Pflege extensiver Flächen</strong> — auch Hangflächen mit Ferngesteuertem oder spezialisiertem Gerät</li>
+              <li><strong>Mulchen & Pflege extensiver Flächen</strong> — auch Hangflächen mit ferngesteuertem oder spezialisiertem Gerät</li>
               <li><strong>Heckenpflege & Knickrückschnitt</strong> — fachgerecht, im naturschutzkonformen Zeitfenster</li>
               <li><strong>Aussaat, Düngung, Pflanzenschutz</strong> — wenn die Fläche aktiv bewirtschaftet wird</li>
               <li><strong>Bodenbearbeitung & Drainage</strong> — Pflügen, Grubbern, Mulchsaat, Drainagepflege</li>
