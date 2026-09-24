@@ -13,6 +13,7 @@ import {
   vorlageZurueckziehenAktion,
 } from "../../portal-actions";
 import BestaetigenKnopf from "../BestaetigenKnopf";
+import AlleFreigeben from "../AlleFreigeben";
 import { Meldung } from "../teile";
 
 export const metadata: Metadata = { title: "Vorlagen & Einstellungen" };
@@ -41,6 +42,7 @@ export default async function VorlagenPage(props: PageProps<"/admin/vorlagen">) 
         </div>
       </div>
       <Meldung sp={sp} />
+      <AlleFreigeben e={e} zurueck={zurueck} />
 
       {VORLAGEN_REIHENFOLGE.map((id) => {
         const v = VORLAGEN[id];

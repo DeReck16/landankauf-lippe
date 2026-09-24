@@ -9,6 +9,8 @@ import { ROLLE_LABEL, ROLLE_TIPP, artLabel, datumZeit } from "@/lib/admin/format
 import { ladeNeu, ladePortal } from "@/lib/admin/neu";
 import { STUFE_INFO, stufe } from "@/lib/portal/model";
 import StatusSchnell from "./StatusSchnell";
+import AlleFreigeben from "./AlleFreigeben";
+import { Meldung } from "./teile";
 
 export const metadata: Metadata = { title: "Anfragen" };
 
@@ -63,6 +65,8 @@ export default async function AnfragenPage(props: PageProps<"/admin">) {
           <p className="lfa-unterzeile">Alle Formular-Anfragen von lippeforst.de, neueste zuerst.</p>
         </div>
       </div>
+      <Meldung sp={sp} />
+      <AlleFreigeben e={portal.einstellungen} zurueck="/admin" />
 
       <div className="lfa-kacheln">
         {kacheln.map((k) => (

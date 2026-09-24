@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin/session";
 import { mutateZustand } from "@/lib/admin/store";
-import { VORLAGEN, istVorlageId, kundenVorlage, istFreigegeben, vorlageHash } from "@/lib/vertraege/vorlagen";
+import { VORLAGEN, VORLAGEN_REIHENFOLGE, istVorlageId, kundenVorlage, istFreigegeben, vorlageHash } from "@/lib/vertraege/vorlagen";
 import * as A from "@/lib/portal/ablauf";
 import * as V from "@/lib/portal/vorgang";
 import * as M from "@/lib/portal/model";
@@ -386,6 +386,37 @@ export async function vorlageFreigebenAktion(fd: FormData): Promise<void> {
   });
   await mutateZustand(email, () => ({ was: `Vorlage „${v.titel}“ (Version ${v.version}) freigegeben`, ref: `vorlage:${id}` }));
   zurueck(fd, `Vorlage „${v.titel}“ freigegeben.`, "ok", id);
+}
+
+/** Alle noch nicht freigegebenen Vorlagen in der aktuellen Fassung auf einmal freigeben. */
+export async function alleVorlagenFreigebenAktion(fd: FormData): Promise<void> {
+  const { email } = await requireAdmin();
+  if (feld(fd, "geprueft", 2) !== "1") zurueck(fd, "Bitte bestätigen, dass die Vorlagen geprüft wurden.", "fehler", "alle-freigeben");
+  const am = new Date().toISOString();
+  let neu: string[] = [];
+  await aendereEinstellungen((e) => {
+    neu = []; // bei einer ETag-Wiederholung neu zählen
+    for (const id of VORLAGEN_REIHENFOLGE) {
+      const v = VORLAGEN[id];
+      const hash = vorlageHash(id);
+      const liste = e.freigaben[id] ?? [];
+      if (liste.some((f) => f.version === v.version && f.hash === hash && !f.zurueckgezogen)) continue;
+      liste.unshift({ version: v.version, hash, am, von: email });
+      e.freigaben[id] = liste.slice(0, 50);
+      neu.push(v.titel);
+    }
+    if (neu.length === 0) return false;
+  });
+  if (neu.length > 0) {
+    await mutateZustand(email, () => ({ was: `Vorlagen freigegeben: ${neu.join(" · ")}`, ref: "vorlage:alle" }));
+  }
+  zurueck(
+    fd,
+    neu.length > 0
+      ? `${neu.length} Vorlage${neu.length === 1 ? "" : "n"} freigegeben — Kunden können jetzt online unterschreiben.`
+      : "Alle Vorlagen waren bereits freigegeben.",
+    "ok",
+  );
 }
 
 export async function vorlageZurueckziehenAktion(fd: FormData): Promise<void> {
