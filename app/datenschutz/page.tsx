@@ -53,6 +53,9 @@ export default function Page() {
           <p>
             Zur Zustellung Ihrer Anfrage nutzen wir den E-Mail-Versanddienst Resend (Resend, Inc., USA). Mit Resend besteht ein Auftragsverarbeitungsvertrag. Zusätzlich speichern wir jede Anfrage in einem zugriffsgeschützten Speicher unseres Hosters Vercel mit Standort Frankfurt am Main, damit keine Anfrage verloren geht.
           </p>
+          <p>
+            Als Ausfallsicherung übermitteln wir Ihre Anfrage außerdem an den Formulardienst Formspree (Formspree, Inc., USA), der sie uns per E-Mail zustellt. Formspree verarbeitet die Daten als Auftragsverarbeiter auf Servern in den USA; die Übermittlung stützt sich auf die EU-Standardvertragsklauseln (Art. 46 Abs. 2 lit. c DSGVO). Rechtsgrundlage ist unser berechtigtes Interesse, keine Anfrage durch einen technischen Ausfall zu verlieren (Art. 6 Abs. 1 lit. f DSGVO).
+          </p>
 
           <h2>4. Speicherdauer</h2>
           <p>
