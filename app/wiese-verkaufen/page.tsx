@@ -32,9 +32,9 @@ export default function Page() {
           <div>
             <p className="eyebrow">Kurzantwort</p>
             <h2 className="font-serif text-2xl md:text-3xl mt-2 leading-snug">Was ist Grünland im Kreis Lippe wert?</h2>
-            <p className="mt-4 text-lg leading-relaxed">2024 wurden im Kreis Lippe <strong>24 Kauffälle über 34,32 Hektar</strong> Grünland beurkundet — im Mittel <strong>1,89 €/m²</strong>, also rund <strong>18.900 € je Hektar</strong>. Ausschlaggebend ist die Bewirtschaftbarkeit: Hang- und Schutzgebietsflächen liegen niedriger, gut befahrbare Talgrundlagen höher. Rechnen Sie Ihre Wiese rechts durch — anonym, ohne Kontaktdaten.</p>
+            <p className="mt-4 text-lg leading-relaxed">2025 wurden im Kreis Lippe <strong>24 Kauffälle über 33,84 Hektar</strong> Grünland beurkundet — im Mittel <strong>2,16 €/m²</strong>, also rund <strong>21.600 € je Hektar</strong>; die Grünlandpreise sind laut Gutachterausschuss gestiegen. Ausschlaggebend ist die Bewirtschaftbarkeit: Hang- und Schutzgebietsflächen liegen niedriger, gut befahrbare Talgrundlagen höher. Rechnen Sie Ihre Wiese rechts durch — anonym, ohne Kontaktdaten.</p>
             <p className="mt-4 text-sm text-[color:var(--color-muted)] leading-relaxed">
-              Quelle: Grundstücksmarktbericht 2025 für den Kreis Lippe (Berichtsjahr 2024),
+              Quelle: Grundstücksmarktbericht 2026 für den Kreis Lippe (Berichtsjahr 2025),
               Gutachterausschuss für Grundstückswerte im Kreis Lippe und in der Stadt Detmold.
                Liegt die Fläche im Vertragsnaturschutz, kann die Förderung den reinen Flächenwert deutlich übersteigen.
             </p>
@@ -65,7 +65,7 @@ export default function Page() {
 
             <h2>Bodenrichtwerte für Grünland Kreis Lippe</h2>
             <p>
-              Grünland erreicht in Lippe deutlich weniger als Ackerland: dem Ackerland-Mittel von 5,26 €/m² standen 2024 beim Grünland <strong>1,89 €/m²</strong> gegenüber — etwa ein Drittel. Die übliche Spanne liegt bei <strong>0,95–2,85 €/m²</strong> (rund 9.500–28.500 €/ha). Hangflächen und Schutzgebietsflächen liegen darunter, gut befahrbare Talgrundlagen darüber.
+              Grünland erreicht in Lippe deutlich weniger als Ackerland: 2025 lag das Grünland-Mittel bei <strong>2,16 €/m²</strong>, das Ackerland-Mittel bei 3,80 €/m² — gut die Hälfte. Die übliche Spanne liegt bei <strong>1,10–3,25 €/m²</strong> (rund 11.000–32.500 €/ha). Hangflächen und Schutzgebietsflächen liegen darunter, gut befahrbare Talgrundlagen darüber.
             </p>
             <p>
               Diese Werte sind nur ein Ausgangspunkt. Wenn Ihre Fläche FFH-relevant ist oder im Vertragsnaturschutz liegt, kann sie über die VNS-Förderung deutlich werthaltiger sein als das reine Pachtpotenzial. Mehr dazu auf der <Link href="/services/vns-oekopunkte">Seite zu VNS und Ökopunkten</Link>.

@@ -328,15 +328,11 @@ function Stage({
   fps = 60,
   loop = true,
   autoplay = true,
-  persistKey = 'animstage',
   children,
 }) {
-  const [time, setTime] = React.useState(() => {
-    try {
-      const v = parseFloat(localStorage.getItem(persistKey + ':t') || '0');
-      return isFinite(v) ? clamp(v, 0, duration) : 0;
-    } catch { return 0; }
-  });
+  // Startet immer bei 0 — die Abspielposition wird bewusst NICHT im Browser
+  // gespeichert (keine Speicherung auf dem Endgerät ohne Einwilligung, § 25 TDDDG).
+  const [time, setTime] = React.useState(0);
   const [playing, setPlaying] = React.useState(autoplay);
   const [hoverTime, setHoverTime] = React.useState(null);
   const [scale, setScale] = React.useState(1);
@@ -345,11 +341,6 @@ function Stage({
   const canvasRef = React.useRef(null);
   const rafRef = React.useRef(null);
   const lastTsRef = React.useRef(null);
-
-  // Persist playhead
-  React.useEffect(() => {
-    try { localStorage.setItem(persistKey + ':t', String(time)); } catch {}
-  }, [time, persistKey]);
 
   // Auto-scale to fit viewport
   React.useEffect(() => {

@@ -115,7 +115,7 @@ export default async function Page({ params }: { params: Promise<Params> }) {
             <h2>Was wir Ihnen bieten</h2>
             <ul>
               <li><strong>Direkter Ankauf</strong> ohne Maklerkette und ohne Provision</li>
-              <li><strong>Faire Wertindikation</strong> in 24 h, basierend auf Grundstücksmarktbericht 2025 und realen Vergleichsverkäufen {city.display}</li>
+              <li><strong>Faire Wertindikation</strong> in 24 h, basierend auf Grundstücksmarktbericht 2026 und realen Vergleichsverkäufen {city.display}</li>
               <li><strong>Diskretion</strong> — kein Inserat, keine Aushängung, keine Weitergabe Ihrer Daten ohne Ihre Zustimmung</li>
               <li><strong>Erbengemeinschaften</strong> sind unser Spezialgebiet — wir koordinieren mit Notar, Grundbuchamt und allen Miteigentümern</li>
               <li><strong>Pachtverhältnisse</strong> übernehmen wir; Vorkaufsrechte beachten wir selbstverständlich</li>
@@ -123,7 +123,7 @@ export default async function Page({ params }: { params: Promise<Params> }) {
 
             <h2>Marktdaten {city.name}</h2>
             <p>
-              Bauland in mittlerer Lage liegt {city.display} laut Grundstücksmarktbericht 2026 bei rund <strong>{city.baulandMittlereLage} €/m²</strong>. Für landwirtschaftliche Flächen orientieren wir uns am Kreismittel der tatsächlich gezahlten Preise 2024: Ackerland ø ~5,26 €/m², Grünland ø ~1,89 €/m², Wald (mit Aufwuchs) ø ~1,34 €/m². Lokale Abweichungen je nach Bonität, Zuschnitt und Erschließung sind die Regel — wir bewerten Ihre Fläche konkret.
+              Bauland in mittlerer Lage liegt {city.display} laut Grundstücksmarktbericht 2026 bei rund <strong>{city.baulandMittlereLage} €/m²</strong>. Für landwirtschaftliche Flächen orientieren wir uns am Kreismittel der tatsächlich gezahlten Preise 2025: Ackerland ø ~3,80 €/m² (Preisniveau laut Gutachterausschuss konstant, 2024: ~5,26 €/m²), Grünland ø ~2,16 €/m², Wald (mit Aufwuchs) ø ~1,53 €/m². Lokale Abweichungen je nach Bonität, Zuschnitt und Erschließung sind die Regel — wir bewerten Ihre Fläche konkret.
             </p>
             <p>
               <Link href="/ratgeber/bodenrichtwerte-lippe">Mehr Hintergrund: Bodenrichtwerte Kreis Lippe</Link>

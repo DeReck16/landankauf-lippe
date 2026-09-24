@@ -32,11 +32,11 @@ export default function Page() {
           <div>
             <p className="eyebrow">Kurzantwort</p>
             <h2 className="font-serif text-2xl md:text-3xl mt-2 leading-snug">Was ist Ackerland im Kreis Lippe wert?</h2>
-            <p className="mt-4 text-lg leading-relaxed">Im Jahr 2024 wurden im Kreis Lippe <strong>75 Kauffälle über 163,67 Hektar</strong> Ackerland beurkundet — im Mittel <strong>5,26 €/m²</strong>, also rund <strong>52.600 € je Hektar</strong>. Nach oben und unten entscheidet vor allem die Bonität (Ackerzahl), dazu Zuschnitt, Hofnähe und Erschließung. Rechnen Sie Ihre Fläche rechts direkt durch — anonym, ohne Kontaktdaten.</p>
+            <p className="mt-4 text-lg leading-relaxed">Im Jahr 2025 wurden im Kreis Lippe <strong>89 Kauffälle über 221,58 Hektar</strong> Ackerland beurkundet — im Mittel <strong>3,80 €/m²</strong>, also rund <strong>38.000 € je Hektar</strong> (2024: 5,26 €/m²). Das Preisniveau ist laut Gutachterausschuss konstant geblieben; der Mittelwert schwankt mit der Zusammensetzung der verkauften Flächen. Nach oben und unten entscheidet vor allem die Bonität (Ackerzahl), dazu Zuschnitt, Hofnähe und Erschließung. Rechnen Sie Ihre Fläche rechts direkt durch — anonym, ohne Kontaktdaten.</p>
             <p className="mt-4 text-sm text-[color:var(--color-muted)] leading-relaxed">
-              Quelle: Grundstücksmarktbericht 2025 für den Kreis Lippe (Berichtsjahr 2024),
+              Quelle: Grundstücksmarktbericht 2026 für den Kreis Lippe (Berichtsjahr 2025),
               Gutachterausschuss für Grundstückswerte im Kreis Lippe und in der Stadt Detmold.
-               Der Bodenrichtwert liegt meist darunter: er ist ein geglätteter Lagewert, kein Kaufpreis.
+               Der Bodenrichtwert ist ein geglätteter Lagewert, kein Kaufpreis.
             </p>
           </div>
           <div className="card">
@@ -63,7 +63,7 @@ export default function Page() {
 
             <h2>Bodenrichtwerte für Ackerland im Kreis Lippe</h2>
             <p>
-              Zwei Zahlen, die oft verwechselt werden: Der <strong>Bodenrichtwert</strong> ist ein geglätteter Lagewert und liegt für Ackerland in Lippe je nach Zone etwa zwischen 2,40 €/m² und 5,90 €/m² (Stichtag 01.01.2026). Der <strong>tatsächlich gezahlte Kaufpreis</strong> liegt oft darüber — 2024 im Mittel bei 5,26 €/m² (rund 52.600 €/ha) über 75 Kauffälle. Wer nur den Bodenrichtwert kennt, verkauft tendenziell zu billig. Beide Werte sind öffentlich einsehbar: im <Link href="https://geoportal.kreislippe.de/geoportal/application/bodenrichtwerte" target="_blank" rel="noopener">Geoportal des Kreises</Link> und unter <Link href="https://www.boris.nrw.de" target="_blank" rel="noopener">BORIS NRW</Link>.
+              Zwei Zahlen, die oft verwechselt werden: Der <strong>Bodenrichtwert</strong> ist ein geglätteter Lagewert und liegt für Ackerland in Lippe je nach Zone etwa zwischen 2,40 €/m² und 5,90 €/m² (Stichtag 01.01.2026). Der <strong>tatsächlich gezahlte Kaufpreis</strong> hängt an der einzelnen Fläche: 2025 lag er im Kreismittel bei rund 3,80 €/m² (89 Kauffälle), 2024 bei 5,26 €/m². Bonität, Zuschnitt, Lage und Pachtstatus entscheiden, ob Ihre Fläche über oder unter dem Richtwert liegt. Beide Werte sind öffentlich einsehbar: im <Link href="https://geoportal.kreislippe.de/geoportal/application/bodenrichtwerte" target="_blank" rel="noopener">Geoportal des Kreises</Link> und unter <Link href="https://www.boris.nrw.de" target="_blank" rel="noopener">BORIS NRW</Link>.
             </p>
             <p>
               Wichtig: Der Bodenrichtwert ist ein Mittelwert. Für eine konkrete Wertindikation brauchen wir Größe, Gemarkung, Flurstück und Pachtstatus — die Auswertung machen wir kostenlos über unser <Link href="/flaeche-bewerten">Bewertungs-Tool</Link>.

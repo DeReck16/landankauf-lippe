@@ -38,3 +38,5 @@
 
 ## Inhalts-Änderungen
 - Routes: `app/<route>/page.tsx` | Site-Config zentral: `lib/site.ts`
+- Erklärfilm (iframe `/video/index.html`): Quellen in `video-quelle/*.jsx`, bauen mit `node scripts/erklaerfilm-bauen.mjs` → `public/video/film.js`. React (Produktion) und Schriften liegen selbst gehostet unter `public/video/` — keine CDNs, kein localStorage.
+- Marktzahlen (Landingpages, `lib/valuation.ts`, Ortsseiten): Grundstücksmarktbericht Kreis Lippe 2026 (Berichtsjahr 2025); Acker-Mittel im Tool = flächengewichtet 2024/2025.
