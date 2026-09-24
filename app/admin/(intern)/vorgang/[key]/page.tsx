@@ -22,6 +22,7 @@ import {
   type VorgangKontext,
 } from "@/lib/portal/vorgang";
 import { istFreigegeben } from "@/lib/vertraege/vorlagen";
+import { SPERRE_FREIGABE, SPERRE_UNTERSCHRIFT, beideUnterschrieben, vorgangSchritte } from "@/lib/portal/schritte";
 import {
   externErfassenAktion,
   freigabeZurueckziehenAktion,
@@ -47,6 +48,7 @@ import BestaetigenKnopf from "../../BestaetigenKnopf";
 import GesehenMarker from "../../GesehenMarker";
 import MailEntwurf from "../../MailEntwurf";
 import { DokumentListe, KundenStand, Meldung, Verlauf } from "../../teile";
+import { JetztDran, SchrittLeiste } from "../../Schritte";
 
 export const metadata: Metadata = { title: "Vorgang" };
 
@@ -610,6 +612,9 @@ function ExternPanel({ ctx, zurueck }: { ctx: VorgangKontext; zurueck: string })
           ))}
         </ul>
       ) : null}
+      {!v?.freigabe ? (
+        <p className="lfa-hinweis" title={SPERRE_FREIGABE}>{SPERRE_FREIGABE}</p>
+      ) : (
       <form action={externErfassenAktion} className="lfa-inline">
         <input type="hidden" name="key" value={ctx.key} />
         <input type="hidden" name="zurueck" value={zurueck} />
@@ -644,6 +649,7 @@ function ExternPanel({ ctx, zurueck }: { ctx: VorgangKontext; zurueck: string })
           Erfassen
         </BestaetigenKnopf>
       </form>
+      )}
     </section>
   );
 }
@@ -663,6 +669,8 @@ export default async function VorgangPage(props: PageProps<"/admin/vorgang/[key]
   const v = ctx.vorgang;
   const frei = M.aktiveFreigabe(v);
   const pr = freigabePruefung(ctx);
+  const sch = vorgangSchritte({ art: ctx.art, meta: ctx.meta, vorgang: v, anbieter: ctx.anbieter, suchender: ctx.suchender });
+  const beide = beideUnterschrieben(ctx.anbieter, ctx.suchender);
   const neueEreignisse = neu.vorgang(v);
   const neuIds = new Set(neueEreignisse.map((e) => e.id));
   const bewertungsUrl = M.bewertungsUrl(portal.einstellungen, process.env.GOOGLE_REVIEW_URL);
@@ -702,6 +710,9 @@ export default async function VorgangPage(props: PageProps<"/admin/vorgang/[key]
         </div>
       </div>
 
+      <SchrittLeiste schritte={sch.schritte} verworfen={sch.verworfen} />
+      <JetztDran aktuell={sch.aktuell} gesamt={sch.schritte.length} verworfen={sch.verworfen} />
+
       <div className="lfa-raster">
         <div>
           <section className="lfa-panel">
@@ -722,7 +733,7 @@ export default async function VorgangPage(props: PageProps<"/admin/vorgang/[key]
                         <input type="hidden" name="art" value={ctx.art} />
                         <input type="hidden" name="an" value={am ? "0" : "1"} />
                         <input type="hidden" name="zurueck" value={zurueck} />
-                        <button type="submit" className={`lfa-knopf lfa-knopf-klein ${am ? "" : "lfa-knopf-hell"}`} title={am ? "Zustimmung zurücknehmen" : "Zustimmung zu diesem Kontakt erfassen (z. B. telefonisch erteilt) — Kunden können auch selbst im Kundenbereich zustimmen"}>
+                        <button type="submit" disabled={!am && !beide} className={`lfa-knopf lfa-knopf-klein ${am ? "" : "lfa-knopf-hell"}`} title={am ? "Zustimmung zurücknehmen" : !beide ? SPERRE_UNTERSCHRIFT : "Zustimmung zu diesem Kontakt erfassen (z. B. telefonisch erteilt) — Kunden können auch selbst im Kundenbereich zustimmen"}>
                           {am ? `✓ ${M.ROLLE_NAME[r]} stimmt zu (${datumDe(am)})` : `Zustimmung ${M.ROLLE_ARTIKEL[r].gen} erfassen`}
                         </button>
                       </form>

@@ -231,7 +231,16 @@ export async function zustimmenAktion(fd: FormData): Promise<void> {
   const { kunde, key, ctx } = await vorgangFuerKunde(fd);
   const pfad = `/kunde/vorgang/${key}?k=${kunde.id}`;
   if (kunde.widerruf || kunde.kuendigung) nachricht(pfad, "Ihr Vertrag ist beendet — eine Zustimmung ist nicht mehr möglich.", true);
-  await V.zustimmungSetzen(key, ctx.art, kunde.rolle, "kunde", true);
+  const erg = await V.zustimmungSetzen(key, ctx.art, kunde.rolle, "kunde", true);
+  if (!erg.ok) {
+    nachricht(
+      pfad,
+      kunde.vertrag
+        ? "Die Gegenseite hat ihren Vertrag noch nicht unterschrieben — wir melden uns, sobald Sie zustimmen können."
+        : "Bitte unterschreiben Sie zuerst Ihren Vertrag mit Lippe Forst — danach können Sie dem Kontakt zustimmen.",
+      true,
+    );
+  }
   revalidatePath("/kunde", "layout");
   nachricht(pfad, "Danke — Ihre Zustimmung ist vermerkt. Sobald beide Seiten zugestimmt und unterschrieben haben, geben wir die Kontaktdaten frei.");
 }

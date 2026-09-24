@@ -10,6 +10,7 @@ import { GRUSS, verwaltungsLink } from "./ablauf";
 import { pdfAblegen, protokollDokument } from "./dokumente";
 import { adminInfo, kundenMail, type Anhang } from "./mail";
 import * as M from "./model";
+import { SPERRE_FREIGABE, SPERRE_UNTERSCHRIFT, beideUnterschrieben } from "./schritte";
 import { aendereKunde, aendereVorgang, alleVorgaenge, ladeEinstellungen, ladeKunde, ladeVorgang } from "./speicher";
 import * as T from "./texte";
 
@@ -100,7 +101,14 @@ export async function hinweisVermerken(key: string, art: M.Art, rolle: M.Rolle, 
   }
 }
 
-export async function zustimmungSetzen(key: string, art: M.Art, rolle: M.Rolle, quelle: string, erteilt: boolean): Promise<void> {
+export async function zustimmungSetzen(key: string, art: M.Art, rolle: M.Rolle, quelle: string, erteilt: boolean): Promise<{ ok: boolean; fehler?: string }> {
+  // Schritt 4 erst nach Schritt 3: Zustimmung zum Kontakt nur, wenn beide unterschrieben haben
+  // (der Suchende also die Provisionsvereinbarung). Zurücknehmen geht immer.
+  if (erteilt) {
+    const [aId, gId] = key.split("~");
+    const [ka, kg] = await Promise.all([ladeKunde(aId), ladeKunde(gId)]);
+    if (!beideUnterschrieben(ka, kg)) return { ok: false, fehler: SPERRE_UNTERSCHRIFT };
+  }
   const feld = rolle === "anbieter" ? "zustimmungAnbieter" : "zustimmungSuchender";
   await paarAendern(quelle === "kunde" ? `kunde:${rolle}` : quelle, key, (m) => {
     if (m.status === "verworfen") return;
@@ -120,6 +128,7 @@ export async function zustimmungSetzen(key: string, art: M.Art, rolle: M.Rolle, 
       "Die Freigabe ist möglich, sobald beide Seiten unterschrieben und zugestimmt haben.",
     ], verwaltungsLink(`/admin/vorgang/${key}`));
   }
+  return { ok: true };
 }
 
 export async function ablehnen(key: string, art: M.Art, rolle: M.Rolle, grund: string): Promise<void> {
@@ -781,8 +790,13 @@ export async function externErfassen(
   art: M.Art,
   von: string,
   daten: { datum: string; flaecheHa: number | null; betrag: number | null; quelle: string; notiz: string },
-): Promise<{ widerrufen: boolean }> {
+): Promise<{ ok: boolean; fehler?: string; widerrufen: boolean }> {
   const [ctx, e] = await Promise.all([ladeVorgangKontext(key), ladeEinstellungen()]);
+  // Provision nur mit Nachweis über Lippe Forst (Freigabe, auch wenn später zurückgezogen)
+  // und unterschriebener Provisionsvereinbarung des Suchenden.
+  if (!ctx) return { ok: false, fehler: "Vorgang nicht gefunden.", widerrufen: false };
+  if (!ctx.vorgang?.freigabe) return { ok: false, fehler: SPERRE_FREIGABE, widerrufen: false };
+  if (!ctx.suchender?.vertrag) return { ok: false, fehler: "Der Suchende hat keine Provisionsvereinbarung unterschrieben — daraus entsteht kein Provisionsanspruch.", widerrufen: false };
   const konditionen = ctx?.suchender?.vertrag?.konditionen ?? null;
   // Hat der Suchende widerrufen, entsteht kein Provisionsanspruch aus dem Vertrag (allenfalls
   // Wertersatz): dann nur vormerken, keinen Gutschein ausgeben und keine Abschluss-Mails senden.
@@ -825,7 +839,7 @@ export async function externErfassen(
     `Erfasst durch ${von}: ${art === "kauf" ? "Kaufvertrag" : "Pachtvertrag"} vom ${T.tagDe(daten.datum)}${daten.flaecheHa ? `, ${T.haText(daten.flaecheHa)}` : ""}.`,
     `Bemessung: ${M.euro(daten.betrag)} → Provision ${M.euro(provision.netto)} netto / ${M.euro(provision.brutto)} brutto.`,
   ], verwaltungsLink(`/admin/vorgang/${key}`));
-  return { widerrufen };
+  return { ok: true, widerrufen };
 }
 
 export async function provisionStatusSetzen(key: string, id: string, status: M.ProvisionStatus, notiz: string, von: string): Promise<void> {

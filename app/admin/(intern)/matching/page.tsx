@@ -12,6 +12,8 @@ import { basisUrl } from "@/lib/portal/sitzung";
 import { freigabePruefung } from "@/lib/portal/vorgang";
 import { paarAktion } from "../../actions";
 import { freigebenAktion, zustimmungErfassenAktion } from "../../portal-actions";
+import { SPERRE_UNTERSCHRIFT, beideUnterschrieben, vorgangSchritte } from "@/lib/portal/schritte";
+import { SchrittKurz } from "../Schritte";
 import BestaetigenKnopf from "../BestaetigenKnopf";
 import GesehenMarker from "../GesehenMarker";
 import MailEntwurf from "../MailEntwurf";
@@ -57,7 +59,7 @@ function AktionsKnopf({ k, aktion, text, tipp, leise, disabled }: { k: Kandidat;
   );
 }
 
-function Zustimmung({ k, rolle, zurueck }: { k: Kandidat; rolle: M.Rolle; zurueck: string }) {
+function Zustimmung({ k, rolle, zurueck, gesperrt }: { k: Kandidat; rolle: M.Rolle; zurueck: string; gesperrt?: boolean }) {
   const am = rolle === "anbieter" ? k.meta?.zustimmungAnbieter : k.meta?.zustimmungSuchender;
   const quelle = k.meta?.zustimmungQuelle?.[rolle];
   const wer = rolle === "anbieter" ? "Anbieter" : "Suchender";
@@ -71,9 +73,12 @@ function Zustimmung({ k, rolle, zurueck }: { k: Kandidat; rolle: M.Rolle; zuruec
       <input type="hidden" name="zurueck" value={zurueck} />
       <button
         type="submit"
+        disabled={!am && gesperrt}
         className={`lfa-knopf lfa-knopf-klein ${am ? "" : "lfa-knopf-hell"}`}
         title={
-          am
+          !am && gesperrt
+            ? SPERRE_UNTERSCHRIFT
+            : am
             ? `${wer} hat am ${datum(am)} zugestimmt${quelle === "kunde" ? " (selbst im Kundenbereich)" : quelle ? ` (erfasst von ${quelle})` : ""}. Klick nimmt die Zustimmung zurück.`
             : `Zustimmung ${M.ROLLE_ARTIKEL[rolle].gen} zu genau diesem Kontakt erfassen (z. B. telefonisch oder per Mail erteilt). Der Kunde kann auch selbst im Kundenbereich zustimmen.`
         }
@@ -93,6 +98,8 @@ function PaarKarte({ k, zustand, portal, neu, basis, zurueck, bewertungsUrl }: {
   const neueEreignisse = neu.vorgang(vorgang).length + neu.kunde(anbieter).length + neu.kunde(suchender).length;
   const pr = freigabePruefung({ key: k.key, art: k.angebot.art === "kauf" ? "kauf" : "pacht", meta: k.meta, vorgang, angebot: k.angebot, gesuch: k.gesuch, anbieter, suchender, zustand });
   const aktiv = status === "vorgemerkt" || status === "angefragt";
+  const beide = beideUnterschrieben(anbieter, suchender);
+  const sch = vorgangSchritte({ art: k.angebot.art === "kauf" ? "kauf" : "pacht", meta: k.meta, vorgang, anbieter, suchender });
 
   const entwuerfe: Entwurf[] =
     status === "verworfen"
@@ -116,6 +123,7 @@ function PaarKarte({ k, zustand, portal, neu, basis, zurueck, bewertungsUrl }: {
         <span className="lfa-scorebalken"><span style={{ width: `${k.score ?? 0}%` }} /></span>
         {k.distanzKm != null && <span className="lfa-klein">{k.distanzKm} km</span>}
         <span className="lfa-badge lfa-badge-keine" title={MATCH_STATUS[status].tipp}>{MATCH_STATUS[status].label}</span>
+        {k.meta && <SchrittKurz schritte={sch.schritte} aktuell={sch.aktuell} verworfen={sch.verworfen} />}
         {neuerVorschlag && <span className="lfa-neu-text" title="Neuer Vorschlag — noch nie angesehen"><span className="lfa-puls" />neu</span>}
       </div>
       <Seite lead={k.gesuch} titel="Gesuch" />
@@ -147,10 +155,10 @@ function PaarKarte({ k, zustand, portal, neu, basis, zurueck, bewertungsUrl }: {
           {aktiv && (
             <>
               {status === "vorgemerkt" && (
-                <AktionsKnopf k={k} aktion="angefragt" text="Hinweise extern verschickt" leise tipp="Nur klicken, wenn beide anonymen Hinweise außerhalb der Verwaltung (Telefon, eigenes Postfach) gesendet wurden — setzt den Status auf „Angefragt“" />
+                <AktionsKnopf k={k} aktion="angefragt" text="Hinweise extern verschickt" leise disabled={!beide} tipp={beide ? "Nur klicken, wenn beide anonymen Hinweise außerhalb der Verwaltung (Telefon, eigenes Postfach) gesendet wurden — setzt den Status auf „Angefragt“" : SPERRE_UNTERSCHRIFT} />
               )}
-              <Zustimmung k={k} rolle="anbieter" zurueck={zurueck} />
-              <Zustimmung k={k} rolle="suchender" zurueck={zurueck} />
+              <Zustimmung k={k} rolle="anbieter" zurueck={zurueck} gesperrt={!beide} />
+              <Zustimmung k={k} rolle="suchender" zurueck={zurueck} gesperrt={!beide} />
               <AktionsKnopf k={k} aktion="verwerfen" text={status === "angefragt" ? "Abgesagt" : "Passt nicht"} leise tipp="Eine Seite hat abgelehnt oder das Paar passt nicht — verwerfen" />
               {status === "vorgemerkt" && <AktionsKnopf k={k} aktion="zuruecksetzen" text="Zurücksetzen" leise tipp="Zurück zum unbearbeiteten Vorschlag; Zustimmungen und Notiz werden gelöscht" />}
             </>

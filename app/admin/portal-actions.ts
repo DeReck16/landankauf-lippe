@@ -8,6 +8,7 @@ import { VORLAGEN, VORLAGEN_REIHENFOLGE, istVorlageId, kundenVorlage, istFreigeg
 import * as A from "@/lib/portal/ablauf";
 import * as V from "@/lib/portal/vorgang";
 import * as M from "@/lib/portal/model";
+import { SPERRE_UNTERSCHRIFT, beideUnterschrieben } from "@/lib/portal/schritte";
 import { MAIL_ZWECKE, type MailZweck } from "@/lib/portal/entwuerfe";
 import { kundenMail } from "@/lib/portal/mail";
 import { aendereEinstellungen, aendereKunde, aendereVorgang, istKundeId, istPaarKey, ladeEinstellungen, ladeKunde, ladeVorgang, markiereGesehen } from "@/lib/portal/speicher";
@@ -141,7 +142,8 @@ export async function zustimmungErfassenAktion(fd: FormData): Promise<void> {
   const r = rolle(fd);
   const an = feld(fd, "an", 2) === "1";
   const art: M.Art = feld(fd, "art", 10) === "kauf" ? "kauf" : "pacht";
-  await V.zustimmungSetzen(key, art, r, email, an);
+  const erg = await V.zustimmungSetzen(key, art, r, email, an);
+  if (!erg.ok) zurueck(fd, erg.fehler ?? "Nicht möglich.", "fehler", key);
   zurueck(fd, an ? `Zustimmung ${M.ROLLE_ARTIKEL[r].gen} erfasst.` : `Zustimmung ${M.ROLLE_ARTIKEL[r].gen} zurückgenommen.`, "ok", key);
 }
 
@@ -338,6 +340,7 @@ export async function externErfassenAktion(fd: FormData): Promise<void> {
     quelle: feld(fd, "quelle", 200),
     notiz: feld(fd, "notiz", 1000),
   });
+  if (!r.ok) zurueck(fd, r.fehler ?? "Nicht möglich.", "fehler", "extern");
   zurueck(
     fd,
     r.widerrufen
@@ -517,6 +520,13 @@ export async function mailSendenAktion(_prev: MailState, fd: FormData): Promise<
   }
 
   // Serverseitige Sperren (der Knopf ist im Entwurf schon deaktiviert — hier noch einmal prüfen):
+  // Anonyme Hinweise erst, wenn beide unterschrieben haben (Schritt 3 vor Schritt 4).
+  if (zweck === "hinweis") {
+    if (!key) return { status: "fehler", text: "Hinweise gehören zu einem Vorgang." };
+    const [aId, gId] = key.split("~");
+    const [ka, kg] = await Promise.all([ladeKunde(aId), ladeKunde(gId)]);
+    if (!beideUnterschrieben(ka, kg)) return { status: "fehler", text: SPERRE_UNTERSCHRIFT };
+  }
   // Bewertungsbitte nur mit Einwilligung (§ 7 UWG), Vorgangs-Mitteilungen nicht nach einem Widerruf.
   if (zweck === "bewertung" && !M.bewertungsmailErlaubt(kunde)) {
     return { status: "fehler", text: "Keine Einwilligung in Bewertungs-E-Mails (oder Widerspruch) — nicht gesendet." };

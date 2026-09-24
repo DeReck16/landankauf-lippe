@@ -12,6 +12,8 @@ import { linkEinloesen, mailDrosseln, mutateZustand, readZustand, listLeads } fr
 import { sendeAnmeldelink } from "@/lib/admin/mail";
 import { orteErgaenzen } from "@/lib/admin/daten";
 import { orteAusText, ortKey } from "@/lib/admin/geo";
+import { ladeKunde } from "@/lib/portal/speicher";
+import { beideUnterschrieben } from "@/lib/portal/schritte";
 import { LEAD_STATUS, MATCH_STATUS, leadView, type Art, type LeadMeta, type LeadStatus, type MatchMeta, type Rolle } from "@/lib/admin/model";
 
 // ---------------------------------------------------------------------------
@@ -208,6 +210,16 @@ export async function paarAktion(formData: FormData): Promise<void> {
   if (!/^LL-[A-Z0-9]+~LL-[A-Z0-9]+$/.test(key)) throw new Error("Ungültiges Paar");
   const aktion = text(formData, "aktion", 30);
   const heute = new Date().toISOString();
+
+  // Schritt 4 (anonym vorstellen) erst, wenn beide unterschrieben haben — der Knopf ist dann ohnehin gesperrt.
+  if (aktion === "angefragt") {
+    const [aId, gId] = key.split("~");
+    const [ka, kg] = await Promise.all([ladeKunde(aId), ladeKunde(gId)]);
+    if (!beideUnterschrieben(ka, kg)) {
+      revalidatePath("/admin", "layout");
+      return;
+    }
+  }
 
   await mutateZustand(email, (z) => {
     const alt = z.paare[key];

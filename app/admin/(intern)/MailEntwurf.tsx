@@ -129,7 +129,7 @@ export default function MailEntwurf({ e, offen }: { e: EntwurfDaten; offen?: boo
             <button type="button" className="lfa-knopf lfa-knopf-hell lfa-knopf-klein" disabled={gesperrt} onClick={mailprogramm} title="Öffnet Ihr Mailprogramm mit Empfänger, Betreff und Text — gesendet wird dort; im Verlauf wird das NICHT gespeichert">
               Im Mailprogramm öffnen
             </button>
-            <button type="button" className="lfa-knopf lfa-knopf-leise lfa-knopf-klein" onClick={kopieren} title="Kopiert Empfänger, Betreff und Text in die Zwischenablage — z. B. für WhatsApp oder ein anderes Postfach">
+            <button type="button" className="lfa-knopf lfa-knopf-leise lfa-knopf-klein" disabled={gesperrt} onClick={kopieren} title="Kopiert Empfänger, Betreff und Text in die Zwischenablage — z. B. für WhatsApp oder ein anderes Postfach">
               {kopiert ? "Kopiert ✓" : "Kopieren"}
             </button>
           </div>

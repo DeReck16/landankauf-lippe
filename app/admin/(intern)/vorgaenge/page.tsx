@@ -5,6 +5,8 @@ import { ladeVerwaltung } from "@/lib/admin/daten";
 import { MATCH_STATUS, type LeadView } from "@/lib/admin/model";
 import { datumZeit } from "@/lib/admin/format";
 import { ladeNeu, ladePortal } from "@/lib/admin/neu";
+import { vorgangSchritte } from "@/lib/portal/schritte";
+import { SchrittKurz } from "../Schritte";
 import * as M from "@/lib/portal/model";
 import { datumDe, tagDe } from "@/lib/portal/texte";
 import { bewertungFaellig } from "@/lib/portal/vorgang";
@@ -162,7 +164,7 @@ export default async function VorgaengePage(props: PageProps<"/admin/vorgaenge">
             <thead>
               <tr>
                 <th title="Anbieter ↔ Suchender">Paar</th>
-                <th title="Stand im Matching">Status</th>
+                <th title="Stand im Matching und Fortschritt in sieben Schritten">Status &amp; Fortschritt</th>
                 <th title="Onboarding des Anbieters">Anbieter</th>
                 <th title="Onboarding des Suchenden">Suchender</th>
                 <th title="Pacht- oder Kaufvertrag">Vertrag</th>
@@ -191,6 +193,10 @@ export default async function VorgaengePage(props: PageProps<"/admin/vorgaenge">
                     </td>
                     <td data-label="Status">
                       <span className="lfa-badge lfa-badge-keine" title={MATCH_STATUS[x.meta?.status ?? "vorschlag"].tipp}>{MATCH_STATUS[x.meta?.status ?? "vorschlag"].label}</span>
+                      {(() => {
+                        const sch = vorgangSchritte({ art: x.v?.art ?? (byId.get(x.key.split("~")[0])?.art === "kauf" ? "kauf" : "pacht"), meta: x.meta, vorgang: x.v, anbieter: x.a, suchender: x.s });
+                        return <div style={{ marginTop: "0.3rem" }}><SchrittKurz schritte={sch.schritte} aktuell={sch.aktuell} verworfen={sch.verworfen} /></div>;
+                      })()}
                     </td>
                     <td data-label="Anbieter">{stufeBadge(x.a, "anbieter")}</td>
                     <td data-label="Suchender">{stufeBadge(x.s, "suchender")}</td>

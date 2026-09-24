@@ -422,6 +422,68 @@ a.lfa-kachel:hover { border-color: var(--color-brand); }
 }
 .lfa-bestaetigen-frage { flex: 1 1 16rem; min-width: 0; font-size: 0.84rem; line-height: 1.4; color: #5e4410; }
 
+/* Fortschritt eines Vorgangs (app/admin/(intern)/Schritte.tsx) */
+.lfa-schritte {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.4rem;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.9rem;
+}
+.lfa-schritt {
+  display: flex;
+  gap: 0.45rem;
+  align-items: flex-start;
+  min-width: 0;
+  padding: 0.5rem 0.55rem;
+  border: 1px solid #e6e2d6;
+  border-radius: 0.7rem;
+  background: #fff;
+  color: var(--color-muted);
+}
+.lfa-schritt-nr {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.45rem;
+  height: 1.45rem;
+  border-radius: 9999px;
+  background: #ece8dc;
+  color: var(--color-ink-soft);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.lfa-schritt-text { display: flex; flex-direction: column; min-width: 0; }
+.lfa-schritt-titel { font-size: 0.8rem; font-weight: 600; line-height: 1.25; }
+.lfa-schritt-detail {
+  font-size: 0.72rem;
+  line-height: 1.3;
+  margin-top: 0.15rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+.lfa-schritt-erledigt { border-color: #cddcc6; background: var(--color-brand-soft); color: var(--color-brand-dark); }
+.lfa-schritt-erledigt .lfa-schritt-nr { background: var(--color-brand); color: #fff; }
+.lfa-schritt-aktuell { border-color: var(--color-accent); background: #fff8e8; color: var(--color-ink); }
+.lfa-schritt-aktuell .lfa-schritt-nr { background: var(--color-accent); color: #fff; }
+.lfa-schritte-verworfen .lfa-schritt { opacity: 0.55; }
+@media (max-width: 1100px) { .lfa-schritte { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .lfa-schritte { grid-template-columns: minmax(0, 1fr); } }
+.lfa-jetzt { display: grid; gap: 0.25rem; border-color: var(--color-accent); }
+
+.lfa-schritt-kurz { display: inline-flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
+.lfa-schritt-segmente { display: inline-flex; gap: 2px; }
+.lfa-segment { width: 0.9rem; height: 0.35rem; border-radius: 9999px; background: #e3dfd2; }
+.lfa-segment-erledigt { background: var(--color-brand); }
+.lfa-segment-aktuell { background: var(--color-accent); animation: lfa-segment-puls 1.6s ease-in-out infinite; }
+@keyframes lfa-segment-puls { 50% { opacity: 0.35; } }
+@media (prefers-reduced-motion: reduce) { .lfa-segment-aktuell { animation: none; } }
+
 /* Hinweis „Vorlagen noch nicht freigegeben“ mit „Alle freigeben“ */
 .lfa-alle-freigeben { border-color: #eadbb4; background: #fffcf3; }
 

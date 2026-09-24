@@ -5,6 +5,7 @@ import { hinweisAnAnbieter, hinweisAnSuchenden } from "@/lib/admin/texte";
 import { FIRMA } from "@/lib/vertraege/firma";
 import { GRUSS, einladungsLink, zugangsLink } from "./ablauf";
 import * as M from "./model";
+import { SPERRE_UNTERSCHRIFT, beideUnterschrieben } from "./schritte";
 import * as T from "./texte";
 import { PACHTANZEIGE_STELLE, bewertungFaellig, bewertungsText } from "./vorgang";
 
@@ -237,6 +238,8 @@ export function entwuerfePaar(opts: {
     return "";
   }
 
+  // Anonyme Hinweise erst nach Schritt 3: beide haben unterschrieben (Suchender: Provisionsvereinbarung).
+  const hinweisSperre = beideUnterschrieben(anbieter, suchender) ? undefined : SPERRE_UNTERSCHRIFT;
   if (status === "vorschlag" || status === "vorgemerkt" || status === "angefragt") {
     if (anS) {
       liste.push({
@@ -252,7 +255,8 @@ export function entwuerfePaar(opts: {
         tipp: "Anonymer Hinweis an den Suchenden: nur Gemeinde, Typ, Größe, Art — kein Name, kein Flurstück.",
         wirkung: "Vermerkt den Hinweis im Vorgang; sind beide Hinweise gesendet, wechselt das Paar auf „Angefragt“.",
         gesendetAm: vorgang?.hinweise?.suchender,
-        faellig: status === "vorgemerkt" && !vorgang?.hinweise?.suchender,
+        faellig: !hinweisSperre && status !== "vorschlag" && !vorgang?.hinweise?.suchender,
+        gesperrt: hinweisSperre,
       });
     }
     if (anA) {
@@ -269,7 +273,8 @@ export function entwuerfePaar(opts: {
         tipp: "Anonymer Hinweis an den Anbieter: nur Gemeinde, Typ, Größe, Art des Gesuchs — kein Name.",
         wirkung: "Vermerkt den Hinweis im Vorgang; sind beide Hinweise gesendet, wechselt das Paar auf „Angefragt“.",
         gesendetAm: vorgang?.hinweise?.anbieter,
-        faellig: status === "vorgemerkt" && !vorgang?.hinweise?.anbieter,
+        faellig: !hinweisSperre && status !== "vorschlag" && !vorgang?.hinweise?.anbieter,
+        gesperrt: hinweisSperre,
       });
     }
   }
