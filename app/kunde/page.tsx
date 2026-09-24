@@ -206,7 +206,7 @@ export default async function KundePage(props: PageProps<"/kunde">) {
       )}
 
       <p className="lfk-klein">
-        Fragen? Antworten Sie einfach auf eine unserer E-Mails oder rufen Sie uns an. <Link href="/datenschutz" style={{ textDecoration: "underline" }} title="Wie wir Ihre Daten im Kundenbereich verarbeiten">Datenschutz</Link>
+        Fragen? Antworten Sie einfach auf eine unserer E-Mails. <Link href="/datenschutz" style={{ textDecoration: "underline" }} title="Wie wir Ihre Daten im Kundenbereich verarbeiten">Datenschutz</Link>
       </p>
     </>
   );

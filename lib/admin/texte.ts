@@ -22,7 +22,6 @@ Dennis Reckling
 --
 Lippe Forst · lippeforst.de
 Bahnhofstraße 70b · 32805 Horn-Bad Meinberg
-Mobil: 0176 38803064
 TR Vertriebs GmbH · Amtsgericht Lemgo HRB 11734
 Geschäftsführer: Dennis Reckling, Martin Thomann`;
 
