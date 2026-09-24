@@ -1360,7 +1360,7 @@ export const ARTICLES: Article[] = [
 <p>Wenn vom Bestand nichts Wertvolles übrig ist, geht es nicht mehr um Verwertung, sondern um den nächsten Bestand. Hier kommt die Wiederaufforstung ins Spiel.</p>
 
 <h2>Wiederaufforstung: Pflicht und Förderung</h2>
-<p>Das Landesforstgesetz NRW (LFoG) schreibt eine Wiederaufforstung innerhalb von drei Jahren vor — das gilt auch für Käfer- und Sturmwurfflächen. Wer es ignoriert, bekommt Aufforderung der unteren Forstbehörde, ggf. mit Zwangsmaßnahmen.</p>
+<p>Das Landesforstgesetz NRW (§ 44 LFoG) schreibt eine Wiederaufforstung innerhalb von zwei Jahren vor — das gilt auch für Käfer- und Sturmwurfflächen. Wer es ignoriert, bekommt Aufforderung der unteren Forstbehörde, ggf. mit Zwangsmaßnahmen.</p>
 <p>Die Gute Nachricht: Wiederaufforstung wird gefördert. Über die <em>Förderrichtlinie Privat- und Körperschaftswald NRW</em> sind Investitionszuschüsse und Pflegezuschüsse möglich:</p>
 <ul>
 <li>Pflanzgut-Förderung: 0,80–1,50 € pro Pflanze bei klimastabilem Mischwald</li>
