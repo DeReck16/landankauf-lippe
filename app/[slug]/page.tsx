@@ -116,7 +116,7 @@ export default async function Page({ params }: { params: Promise<Params> }) {
             <ul>
               <li><strong>Direkter Ankauf</strong> ohne Maklerkette und ohne Provision</li>
               <li><strong>Faire Wertindikation</strong> in 24 h, basierend auf Grundstücksmarktbericht 2025 und realen Vergleichsverkäufen {city.display}</li>
-              <li><strong>Diskretion</strong> — kein Inserat, keine Aushängung, keine Weitergabe Ihrer Daten</li>
+              <li><strong>Diskretion</strong> — kein Inserat, keine Aushängung, keine Weitergabe Ihrer Daten ohne Ihre Zustimmung</li>
               <li><strong>Erbengemeinschaften</strong> sind unser Spezialgebiet — wir koordinieren mit Notar, Grundbuchamt und allen Miteigentümern</li>
               <li><strong>Pachtverhältnisse</strong> übernehmen wir; Vorkaufsrechte beachten wir selbstverständlich</li>
             </ul>

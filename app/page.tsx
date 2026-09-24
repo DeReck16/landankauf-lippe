@@ -270,7 +270,7 @@ export default function Home() {
             {[
               "Keine Vermarktung Ihrer Fläche im Internet oder vor Ort",
               "Keine Weitergabe Ihrer Daten an Dritte ohne ausdrückliche Zustimmung",
-              "Anfragen werden anonym verarbeitet — auch unsere Wert-Indikation findet ohne Servereingabe statt",
+              "Die Wert-Indikation läuft komplett in Ihrem Browser — Ihre Eingaben erreichen uns nicht",
               "Vor-Ort-Termine in Zivil, ohne Beschriftung, ohne Aufmerksamkeit",
               "Pächter, Erben, Miteigentümer werden nur nach Ihrer Freigabe einbezogen",
               "Auf Wunsch Treuhand-Abwicklung über den Notar Ihres Vertrauens",

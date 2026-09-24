@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
 import ClickToReveal from "@/components/ClickToReveal";
@@ -80,20 +81,20 @@ export default function Page() {
 
             <div className="mt-6 card bg-[color:var(--color-brand-soft)]">
               <p className="text-sm text-[color:var(--color-ink)] leading-relaxed">
-                <strong>Diskretionshinweis:</strong> Alle Anfragen werden vertraulich behandelt. Wir geben Ihre Daten nicht weiter, auch nicht an Pächter, Nachbarn oder andere Landwirte. Über das Ergebnis entscheiden ausschließlich Sie.
+                <strong>Diskretionshinweis:</strong> Alle Anfragen werden vertraulich behandelt. Ohne Ihre ausdrückliche Zustimmung geben wir Ihre Daten nicht weiter — auch nicht an Pächter, Nachbarn oder andere Landwirte. Über das Ergebnis entscheiden ausschließlich Sie.
               </p>
             </div>
 
             <div className="mt-6 text-sm text-[color:var(--color-ink-soft)] leading-relaxed">
               <p className="font-semibold text-[color:var(--color-ink)] mb-2">Was passiert nach Ihrer Anfrage?</p>
               <ol className="list-decimal pl-5 space-y-1">
-                <li>Anfrage geht direkt an <span className="font-mono text-xs">{site.contact.email}</span> — kein Tool, kein Drittanbieter dazwischen.</li>
+                <li>Ihre Anfrage geht per E-Mail an <span className="font-mono text-xs">{site.contact.email}</span> und wird zusätzlich in unserem geschützten Speicher gesichert.</li>
                 <li>Wir bestätigen Eingang innerhalb weniger Stunden, in der Regel persönlich per Mail oder Anruf.</li>
                 <li>Innerhalb von 24 Stunden bekommen Sie eine erste Wert- oder Beratungsindikation.</li>
                 <li>Bei Interesse vereinbaren wir einen unverbindlichen Vor-Ort-Termin oder ein Telefonat.</li>
               </ol>
               <p className="mt-2 text-xs text-[color:var(--color-muted)]">
-                Datenfluss: Formular → verschlüsselt an unseren Server → Mail an {site.contact.email}. Backup in privatem Vercel Blob Storage. Keine Übermittlung an Marketing- oder CRM-Systeme.
+                Datenfluss: Formular → verschlüsselt an unseren Server (Hosting: Vercel) → E-Mail an {site.contact.email} über den Versanddienst Resend, als Ausfallsicherung zusätzlich über Formspree; Sicherung im privaten Vercel-Speicher in Frankfurt. Zur Erfolgsmessung übermitteln wir gehashte Kontaktdaten an Google (Enhanced Conversions). Einzelheiten in der <Link href="/datenschutz" className="underline">Datenschutzerklärung</Link>.
               </p>
             </div>
           </div>
