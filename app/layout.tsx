@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import AdsConversions from "@/components/AdsConversions";
 import PublicOnly from "@/components/PublicOnly";
+import TrackingOnly from "@/components/TrackingOnly";
 import "./globals.css";
 
 const inter = Inter({
@@ -144,6 +145,8 @@ export default function RootLayout({
         <main className="flex-1">{children}</main>
         <PublicOnly>
           <Footer />
+        </PublicOnly>
+        <TrackingOnly>
           <WhatsAppFloat />
           <GoogleAnalytics gaId="G-0Y4K8M7RJS" />
           <Script id="google-ads-init" strategy="afterInteractive">
@@ -157,6 +160,8 @@ export default function RootLayout({
             whatsappLabel="enWZCPGV-7gcELqDkIdD"
             phoneLabel="V0goCPSV-7gcELqDkIdD"
           />
+        </TrackingOnly>
+        <PublicOnly>
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{ __html: JSON.stringify(ldOrg) }}

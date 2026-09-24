@@ -2,8 +2,8 @@ import { formatGroesse, type LeadView } from "./model";
 
 // Anonyme Hinweistexte für beide Seiten eines Paares — ohne Namen, Kontakt-
 // daten oder Flurstück. Nur Gemeinde, Flächentyp, Größe und Art. Die Texte
-// sind ein Vorschlag zum Einfügen in die Antwort-Mail; sie werden nie
-// automatisch verschickt.
+// sind Grundlage der E-Mail-Entwürfe im Matching (lib/portal/entwuerfe.ts);
+// verschickt wird nur auf ausdrücklichen Klick der Verwaltung.
 
 function typText(typ: string): string {
   if (typ === "Wiese / Grünland") return "Grünland";

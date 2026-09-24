@@ -132,9 +132,12 @@ export default function Footer() {
       <div className="border-t border-white/10">
         <div className="container-page px-5 py-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-white/50">
           <p>© {year} {site.contact.company}. Alle Rechte vorbehalten.</p>
-          <div className="flex gap-5">
+          <div className="flex flex-wrap justify-center gap-x-5 gap-y-2">
             <Link href="/impressum" className="hover:text-white">Impressum</Link>
             <Link href="/datenschutz" className="hover:text-white">Datenschutz</Link>
+            <Link href="/kunde" className="hover:text-white" title="Kundenbereich: Vertrag, Vorschläge und Dokumente">Kundenbereich</Link>
+            <Link href="/kunde/widerruf" className="hover:text-white" title="Widerrufsfunktion für online geschlossene Verträge">Vertrag widerrufen</Link>
+            <Link href="/kunde/kuendigung" className="hover:text-white" title="Verträge mit Lippe Forst online kündigen">Verträge hier kündigen</Link>
           </div>
         </div>
       </div>

@@ -40,3 +40,49 @@ export function hasBlobToken(): boolean {
 export function dataPrefix(): string {
   return process.env.LF_DATA_PREFIX || "";
 }
+
+// ---------------------------------------------------------------------------
+// Kundenbereich (/kunde) und E-Mail-Versand
+//   ADMIN_NOTIFY_EMAILS  — Empfänger der automatischen Ereignis-Mails (Komma-getrennt)
+//   LEAD_TO_EMAIL        — Anfragenpostfach; Reply-To aller Kunden-Mails
+//   KUNDEN_FROM_EMAIL    — optional: Absender der Kunden-Mails (Standard kontakt@lippeforst.de)
+
+export const KUNDE_COOKIE = "lf_kunde";
+export const KUNDE_SITZUNG_TAGE = 14;
+export const KUNDE_LOGIN_MINUTEN = 20;
+export const EINLADUNG_TAGE = 30;
+export const ZUGANG_TAGE = 14;
+
+function adressListe(raw: string | undefined): string[] {
+  return (raw || "")
+    .split(/[,;\s]+/)
+    .map((s) => s.trim().toLowerCase())
+    .filter((s) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s));
+}
+
+/** Empfänger der automatischen Ereignis-Mails (Einladung angenommen, unterschrieben, Widerruf …). */
+export function notifyEmails(): string[] {
+  return adressListe(process.env.ADMIN_NOTIFY_EMAILS);
+}
+
+/** Antworten der Kunden landen im Anfragenpostfach. */
+export function antwortAdresse(): string {
+  return adressListe(process.env.LEAD_TO_EMAIL)[0] || "info@tr-immobilien.com";
+}
+
+export function kundenAbsender(): string {
+  return process.env.KUNDEN_FROM_EMAIL || "Lippe Forst <kontakt@lippeforst.de>";
+}
+
+export function verwaltungsAbsender(): string {
+  return process.env.VERWALTUNG_FROM_EMAIL || "Lippe Forst Verwaltung <verwaltung@lippeforst.de>";
+}
+
+/**
+ * Testmodus: lokal (NODE_ENV ≠ production) oder mit Daten-Präfix wird keine
+ * einzige Mail verschickt — weder an Kunden noch an die Verwaltung. Die Mails
+ * stehen dann nur im Server-Log.
+ */
+export function testModus(): boolean {
+  return process.env.NODE_ENV !== "production" || Boolean(process.env.LF_DATA_PREFIX);
+}

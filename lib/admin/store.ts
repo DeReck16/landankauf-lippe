@@ -169,6 +169,126 @@ export async function linkEinloesen(nonce: string): Promise<boolean> {
   return markerAnlegen(`${dataPrefix()}admin/auth/benutzt/${nonce}.json`);
 }
 
+/** Einmal-Marker für beliebige Zwecke (z. B. Kunden-Anmeldelinks). false = gab es schon. */
+export async function einmalMarker(relPfad: string): Promise<boolean> {
+  return markerAnlegen(`${dataPrefix()}${relPfad}`);
+}
+
+// ---------------------------------------------------------------------------
+// Allgemeine JSON-Dateien (Kundenbereich, Vorgänge, Einstellungen) — gleiches
+// Schutzmuster wie der Zustand: frisch lesen, mit ifMatch zurückschreiben.
+
+function istKonflikt(err: unknown): boolean {
+  return (
+    err instanceof BlobPreconditionFailedError ||
+    (err instanceof BlobError && /exist|precondition|etag/i.test(err.message))
+  );
+}
+
+/** Veränderliche JSON-Datei frisch lesen (Pfad ohne Daten-Präfix). */
+export async function jsonLesen<T>(relPfad: string): Promise<{ daten: T; etag: string } | null> {
+  const res = await frischLesen(`${dataPrefix()}${relPfad}`);
+  if (!res) return null;
+  return { daten: JSON.parse(res.text) as T, etag: res.etag };
+}
+
+/**
+ * JSON-Datei ändern: lesen → `aendern` anwenden → mit ifMatch schreiben.
+ * `aendern` darf `false` zurückgeben, dann wird nichts geschrieben.
+ * Bei parallelen Änderungen wird frisch gelesen und erneut angewendet.
+ */
+export async function jsonAendern<T>(
+  relPfad: string,
+  leer: () => T,
+  aendern: (d: T, neu: boolean) => void | false,
+): Promise<T> {
+  const pfad = `${dataPrefix()}${relPfad}`;
+  for (let versuch = 0; versuch < 6; versuch++) {
+    const res = await frischLesen(pfad);
+    const daten = res ? (JSON.parse(res.text) as T) : leer();
+    if (aendern(daten, !res) === false) return daten;
+    try {
+      await put(pfad, JSON.stringify(daten), {
+        access: "private",
+        token: blobToken(),
+        contentType: "application/json",
+        addRandomSuffix: false,
+        cacheControlMaxAge: 60,
+        ...(res ? { allowOverwrite: true, ifMatch: res.etag } : { allowOverwrite: false }),
+      });
+      return daten;
+    } catch (err) {
+      if (!istKonflikt(err)) throw err;
+      await new Promise((r) => setTimeout(r, 120 * (versuch + 1) + Math.random() * 80));
+    }
+  }
+  throw new Error("Speichern fehlgeschlagen, weil parallel geändert wurde — bitte neu laden und erneut versuchen.");
+}
+
+/** Alle JSON-Dateien unter einem Präfix, jeweils frisch gelesen. */
+export async function jsonListe<T>(relPrefix: string): Promise<T[]> {
+  const pfade: string[] = [];
+  let cursor: string | undefined;
+  do {
+    const page = await list({ prefix: `${dataPrefix()}${relPrefix}`, token: blobToken(), cursor, limit: 1000 });
+    for (const b of page.blobs) if (b.pathname.endsWith(".json")) pfade.push(b.pathname);
+    cursor = page.hasMore ? page.cursor : undefined;
+  } while (cursor);
+  const inhalte = await mapLimit(pfade, 8, async (pfad): Promise<T | null> => {
+    try {
+      const res = await frischLesen(pfad);
+      return res ? (JSON.parse(res.text) as T) : null;
+    } catch (err) {
+      console.error("[speicher] Datei nicht lesbar", pfad, err);
+      return null;
+    }
+  });
+  return inhalte.filter((x): x is T => x !== null);
+}
+
+/** Eine Anfrage nach ID (Anfragen sind unveränderlich und im Speicher der Instanz gecacht). */
+export async function leadLesen(id: string): Promise<LeadRecord | null> {
+  if (!/^LL-[A-Z0-9]+$/.test(id)) return null;
+  return (await listLeads()).find((l) => l.id === id) ?? null;
+}
+
+/** Unveränderliche Datei (z. B. unterschriebenes PDF) anlegen — nie überschreiben. */
+export async function dateiAnlegen(relPfad: string, inhalt: Buffer | Uint8Array | string, contentType: string): Promise<void> {
+  const body = typeof inhalt === "string" ? inhalt : Buffer.from(inhalt);
+  await put(`${dataPrefix()}${relPfad}`, body, {
+    access: "private",
+    token: blobToken(),
+    contentType,
+    addRandomSuffix: false,
+    allowOverwrite: false,
+  });
+}
+
+/** Datei aus dem privaten Speicher holen (für authentifizierte Downloads). */
+export async function dateiLesen(relPfad: string): Promise<{ bytes: ArrayBuffer; contentType: string } | null> {
+  const token = blobToken();
+  const storeId = token.split("_")[3];
+  const url = new URL(`https://${storeId}.private.blob.vercel-storage.com/${dataPrefix()}${relPfad}`);
+  url.searchParams.set("r", randomUUID());
+  const res = await fetch(url, { headers: { authorization: `Bearer ${token}` }, cache: "no-store" });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`Speicher antwortet mit HTTP ${res.status} für ${relPfad}`);
+  return { bytes: await res.arrayBuffer(), contentType: res.headers.get("content-type") || "application/octet-stream" };
+}
+
+/** Alle Dateien unter einem Präfix (Pfade ohne Daten-Präfix) — für Aufräumen/Tests. */
+export async function dateienListen(relPrefix: string): Promise<string[]> {
+  const pfade: string[] = [];
+  let cursor: string | undefined;
+  const p = dataPrefix();
+  do {
+    const page = await list({ prefix: `${p}${relPrefix}`, token: blobToken(), cursor, limit: 1000 });
+    for (const b of page.blobs) pfade.push(b.pathname.slice(p.length));
+    cursor = page.hasMore ? page.cursor : undefined;
+  } while (cursor);
+  return pfade;
+}
+
 /** Höchstens ein Anmeldelink pro Adresse und Minute. true = darf senden. */
 export async function mailDrosseln(email: string): Promise<boolean> {
   const hash = createHash("sha256").update(email.toLowerCase()).digest("hex").slice(0, 24);

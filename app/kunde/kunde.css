@@ -1,0 +1,193 @@
+/* Kundenbereich (/kunde) — alle Klassen mit Präfix lfk-, damit nichts mit der
+   öffentlichen Seite oder der Verwaltung kollidiert. Farben aus globals.css. */
+
+.lfk {
+  background: var(--color-bg);
+  min-height: 60vh;
+  padding: 1.5rem 1rem 4rem;
+}
+.lfk-seite { max-width: 52rem; margin: 0 auto; }
+.lfk-breit { max-width: 64rem; }
+
+.lfk-leiste {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-line);
+}
+.lfk-leiste-titel {
+  font-family: var(--font-serif), Georgia, serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--color-brand-dark);
+  text-decoration: none;
+}
+.lfk-leiste-titel small {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-left: 0.4rem;
+}
+.lfk-leiste-links { display: flex; flex-wrap: wrap; gap: 0.35rem 0.9rem; align-items: center; font-size: 0.88rem; }
+.lfk-leiste-links a, .lfk-link-knopf {
+  color: var(--color-ink-soft);
+  text-decoration: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+.lfk-leiste-links a:hover, .lfk-link-knopf:hover { color: var(--color-brand); text-decoration: underline; }
+
+.lfk-h1 { font-size: 1.75rem; line-height: 1.2; margin-bottom: 0.35rem; }
+.lfk-h2 { font-size: 1.25rem; margin-bottom: 0.6rem; }
+.lfk-unterzeile { color: var(--color-ink-soft); margin-bottom: 1.25rem; line-height: 1.6; }
+.lfk-klein { font-size: 0.84rem; color: var(--color-muted); line-height: 1.55; }
+
+.lfk-karte {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: 1rem;
+  padding: 1.25rem 1.3rem;
+  margin-bottom: 1rem;
+}
+.lfk-karte-hervor { border-color: var(--color-brand); box-shadow: 0 0 0 3px var(--color-brand-soft); }
+
+.lfk-hinweis {
+  border-radius: 0.8rem;
+  padding: 0.75rem 0.95rem;
+  margin-bottom: 1rem;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  background: var(--color-accent-soft);
+  border: 1px solid #eadbb4;
+  color: #5e4410;
+}
+.lfk-hinweis-ok { background: var(--color-brand-soft); border-color: #cddcc6; color: var(--color-brand-dark); }
+.lfk-hinweis-fehler { background: #fdecea; border-color: #f5c6c0; color: #8a2a1d; }
+
+/* Schritte des Onboardings */
+.lfk-schritte { display: flex; flex-wrap: wrap; gap: 0.4rem; list-style: none; padding: 0; margin: 0 0 1.25rem; counter-reset: lfk-schritt; }
+.lfk-schritte li {
+  counter-increment: lfk-schritt;
+  display: flex; align-items: center; gap: 0.4rem;
+  font-size: 0.84rem; color: var(--color-muted);
+  background: var(--color-surface); border: 1px solid var(--color-line); border-radius: 9999px;
+  padding: 0.3rem 0.8rem 0.3rem 0.35rem;
+}
+.lfk-schritte li::before {
+  content: counter(lfk-schritt);
+  display: inline-grid; place-items: center;
+  width: 1.4rem; height: 1.4rem; border-radius: 9999px;
+  background: var(--color-line); color: var(--color-ink-soft); font-weight: 600; font-size: 0.75rem;
+}
+.lfk-schritte li[data-stand="fertig"] { color: var(--color-brand-dark); }
+.lfk-schritte li[data-stand="fertig"]::before { content: "✓"; background: var(--color-brand); color: #fff; }
+.lfk-schritte li[data-stand="jetzt"] { color: var(--color-ink); border-color: var(--color-brand); font-weight: 600; }
+.lfk-schritte li[data-stand="jetzt"]::before { background: var(--color-accent); color: #fff; }
+
+/* Formulare */
+.lfk-form { display: grid; gap: 0.9rem; }
+.lfk-raster { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.9rem; }
+.lfk-raster .lfk-voll { grid-column: 1 / -1; }
+@media (max-width: 600px) { .lfk-raster { grid-template-columns: minmax(0, 1fr); } }
+.lfk-auswahl { display: grid; gap: 0.6rem; }
+.lfk-option {
+  display: flex; gap: 0.7rem; align-items: flex-start;
+  border: 1px solid var(--color-line); border-radius: 0.8rem; padding: 0.75rem 0.9rem;
+  cursor: pointer; background: #fff; line-height: 1.5; font-size: 0.92rem;
+}
+.lfk-option:has(input:checked) { border-color: var(--color-brand); box-shadow: 0 0 0 3px var(--color-brand-soft); }
+.lfk-option input { margin-top: 0.3rem; flex: none; }
+.lfk-option strong { display: block; }
+.lfk-check {
+  display: flex; gap: 0.65rem; align-items: flex-start;
+  font-size: 0.9rem; line-height: 1.55; color: var(--color-ink);
+  padding: 0.6rem 0.75rem; border: 1px solid var(--color-line); border-radius: 0.7rem; background: #fff;
+}
+.lfk-check input { margin-top: 0.3rem; flex: none; width: 1.05rem; height: 1.05rem; accent-color: var(--color-brand); }
+.lfk-check-fehlt { border-color: #d98b7f; background: #fff6f4; }
+.lfk-check-frei { border-style: dashed; }
+
+.lfk-knopfreihe { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
+.lfk-knopf-klein { padding: 0.5rem 1rem !important; min-height: 38px !important; font-size: 0.88rem; }
+.lfk-knopf-warn {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 44px; padding: 0.7rem 1.2rem; border-radius: 9999px;
+  background: #fff; color: #8a2a1d; border: 1.5px solid #b4412f; font-weight: 600; cursor: pointer; text-decoration: none;
+}
+.lfk-knopf-warn:hover { background: #fdecea; }
+
+/* Vertrag lesen und unterschreiben */
+.lfk-vertrag {
+  border: 1px solid var(--color-line);
+  border-radius: 0.9rem;
+  background: #fff;
+  padding: 1.1rem 1.2rem;
+  max-height: 70vh;
+  overflow: auto;
+}
+.lfk-zusammenfassung {
+  border: 2px solid var(--color-brand);
+  border-radius: 0.9rem;
+  background: var(--color-brand-soft);
+  padding: 0.9rem 1rem;
+}
+.lfk-zusammenfassung dl { display: grid; grid-template-columns: 10rem minmax(0, 1fr); gap: 0.35rem 0.8rem; margin: 0; font-size: 0.92rem; }
+.lfk-zusammenfassung dt { color: var(--color-ink-soft); }
+.lfk-zusammenfassung dd { margin: 0; font-weight: 500; }
+@media (max-width: 560px) { .lfk-zusammenfassung dl { grid-template-columns: minmax(0, 1fr); } .lfk-zusammenfassung dd { margin-bottom: 0.3rem; } }
+.lfk-unterschrift {
+  display: grid; gap: 0.5rem;
+  border-top: 1px dashed var(--color-line); padding-top: 0.9rem;
+}
+.lfk-unterschrift input[name="name"] { font-family: var(--font-serif), Georgia, serif; font-size: 1.15rem; }
+
+/* Vorgänge, Kontakte, Dokumente */
+.lfk-liste { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
+.lfk-liste > li {
+  border: 1px solid var(--color-line); border-radius: 0.8rem; padding: 0.8rem 0.95rem; background: #fff;
+  display: flex; flex-wrap: wrap; gap: 0.4rem 0.8rem; align-items: center; justify-content: space-between;
+}
+.lfk-liste .lfk-klein { overflow-wrap: anywhere; }
+.lfk-badge {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  padding: 0.12rem 0.6rem; border-radius: 9999px; font-size: 0.76rem; font-weight: 600;
+  background: #f1efe8; color: #5d6659; border: 1px solid #e3dfd2; white-space: nowrap;
+}
+.lfk-badge-ok { background: #e9f0e6; color: #1f4127; border-color: #cddcc6; }
+.lfk-badge-warn { background: #fdf3dd; color: #7a5410; border-color: #f0dfb4; }
+.lfk-badge-rot { background: #fdecea; color: #8a2a1d; border-color: #f5c6c0; }
+.lfk-daten { display: grid; grid-template-columns: 9rem minmax(0, 1fr); gap: 0.35rem 0.9rem; margin: 0; }
+.lfk-daten dt { color: var(--color-muted); font-size: 0.86rem; }
+.lfk-daten dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 520px) { .lfk-daten { grid-template-columns: minmax(0, 1fr); } .lfk-daten dd { margin-bottom: 0.35rem; } }
+
+.lfk-gutschein {
+  border: 2px dashed var(--color-accent);
+  background: var(--color-accent-soft);
+  border-radius: 1rem;
+  padding: 1rem 1.1rem;
+  margin-bottom: 1rem;
+}
+.lfk-gutschein-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 1.15rem; font-weight: 700; letter-spacing: 0.06em; color: var(--color-ink); }
+
+/* Danke-Dialog nach dem Abschluss */
+.lfk-dialog-hintergrund {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(28, 37, 25, 0.45);
+  display: grid; place-items: center; padding: 1rem;
+}
+.lfk-dialog {
+  background: #fff; border-radius: 1.1rem; max-width: 28rem; width: 100%;
+  padding: 1.4rem 1.4rem 1.2rem; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+}
+.lfk-dialog h2 { font-size: 1.35rem; margin-bottom: 0.5rem; }
+.lfk-dialog p { color: var(--color-ink-soft); line-height: 1.6; margin-bottom: 1rem; }

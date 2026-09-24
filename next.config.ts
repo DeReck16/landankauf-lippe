@@ -22,6 +22,11 @@ const nextConfig: NextConfig = {
         source: "/admin/:path*",
         headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
       },
+      // Kundenbereich: ebenfalls nie indexieren (persönliche Links, Verträge).
+      {
+        source: "/kunde/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
     ];
   },
 };

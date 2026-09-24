@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "../vertrag.css";
 import "./verwaltung.css";
 
 export const metadata: Metadata = {

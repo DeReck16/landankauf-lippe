@@ -6,6 +6,8 @@ import { findeKandidaten } from "@/lib/admin/matching";
 import { LEAD_STATUS, formatGroesse, type LeadStatus, type LeadView } from "@/lib/admin/model";
 import { FLAECHENTYPEN } from "@/lib/lead-options";
 import { ROLLE_LABEL, ROLLE_TIPP, artLabel, datumZeit } from "@/lib/admin/format";
+import { ladeNeu, ladePortal } from "@/lib/admin/neu";
+import { STUFE_INFO, stufe } from "@/lib/portal/model";
 import StatusSchnell from "./StatusSchnell";
 
 export const metadata: Metadata = { title: "Anfragen" };
@@ -22,14 +24,14 @@ function passtZurSuche(l: LeadView, q: string): boolean {
 }
 
 export default async function AnfragenPage(props: PageProps<"/admin">) {
-  await requireAdmin();
+  const { email } = await requireAdmin();
   const sp = await props.searchParams;
   const q = typeof sp.q === "string" ? sp.q.trim() : "";
   const status = typeof sp.status === "string" ? sp.status : "offen";
   const rolle = typeof sp.rolle === "string" ? sp.rolle : "alle";
   const typ = typeof sp.typ === "string" ? sp.typ : "alle";
 
-  const { leads, zustand } = await ladeVerwaltung();
+  const [{ leads, zustand }, portal, neu] = await Promise.all([ladeVerwaltung(), ladePortal(), ladeNeu(email)]);
   const { kandidaten } = findeKandidaten(leads, zustand);
   const matchesJeAnfrage = new Map<string, number>();
   for (const k of kandidaten) {
@@ -47,10 +49,10 @@ export default async function AnfragenPage(props: PageProps<"/admin">) {
   const aktiv = leads.filter((l) => l.status !== "archiv");
   const kacheln = [
     { wert: aktiv.length, name: "Anfragen", href: "/admin", tipp: "Alle Anfragen außer Archiv (Test, Spam, Dubletten)" },
-    { wert: aktiv.filter((l) => l.status === "neu").length, name: "Neu", href: "/admin?status=neu", tipp: "Noch nicht bearbeitete Anfragen anzeigen" },
+    { wert: aktiv.filter((l) => l.status === "neu").length, name: "Neu", href: "/admin?status=neu", tipp: "Noch nicht bearbeitete Anfragen anzeigen", puls: aktiv.some((l) => neu.anfrage(l)) },
     { wert: aktiv.filter((l) => l.rolle === "angebot").length, name: "Angebote", href: "/admin?rolle=angebot", tipp: "Nur Flächen-Angebote (verkaufen/verpachten) anzeigen" },
     { wert: aktiv.filter((l) => l.rolle === "gesuch").length, name: "Gesuche", href: "/admin?rolle=gesuch", tipp: "Nur Gesuche (Fläche pachten/kaufen) anzeigen" },
-    { wert: kandidaten.filter((k) => !k.meta).length, name: "Neue Vorschläge", href: "/admin/matching", tipp: "Zum Matching: Paare aus Angebot und Gesuch, die noch niemand angesehen hat" },
+    { wert: kandidaten.filter((k) => !k.meta).length, name: "Neue Vorschläge", href: "/admin/matching", tipp: "Zum Matching: Paare aus Angebot und Gesuch, die noch niemand bearbeitet hat", puls: kandidaten.some((k) => !k.meta && neu.vorschlag(k.key)) },
   ];
 
   return (
@@ -64,7 +66,7 @@ export default async function AnfragenPage(props: PageProps<"/admin">) {
 
       <div className="lfa-kacheln">
         {kacheln.map((k) => (
-          <Link key={k.name} href={k.href} className="lfa-kachel" title={k.tipp}>
+          <Link key={k.name} href={k.href} className={`lfa-kachel ${"puls" in k && k.puls ? "lfa-puls-ring" : ""}`} title={k.tipp}>
             <div className="lfa-kachel-wert">{k.wert}</div>
             <div className="lfa-kachel-name">{k.name}</div>
           </Link>
@@ -132,6 +134,9 @@ export default async function AnfragenPage(props: PageProps<"/admin">) {
           <tbody>
             {sichtbar.map((l) => {
               const matches = matchesJeAnfrage.get(l.id) ?? 0;
+              const kunde = portal.kunden.get(l.id);
+              const neuEreignisse = neu.kunde(kunde);
+              const istNeu = neu.anfrage(l);
               return (
                 <tr key={l.id} className={l.status === "neu" ? "lfa-zeile-neu" : undefined}>
                   <td data-label="Eingang">
@@ -164,9 +169,16 @@ export default async function AnfragenPage(props: PageProps<"/admin">) {
                     {l.flurstueck !== "—" && <div className="lfa-klein">{l.flurstueck}</div>}
                   </td>
                   <td data-label="Kontakt" className="lfa-kontakt">
-                    <Link href={`/admin/anfrage/${l.id}`} className="lfa-link-name" title="Anfrage öffnen: alle Angaben, Bearbeitung, Matching-Angaben und passende Gegenstücke">
+                    <Link href={`/admin/anfrage/${l.id}`} className="lfa-link-name" title="Anfrage öffnen: alle Angaben, Onboarding, Bearbeitung, Matching-Angaben und passende Gegenstücke">
+                      {(istNeu || neuEreignisse.length > 0) && <span className="lfa-puls" title={istNeu ? "Neue Anfrage — noch nicht geöffnet" : `${neuEreignisse.length} neue Ereignisse im Kundenbereich`} />}
                       {l.name}
                     </Link>
+                    {kunde && (
+                      <div>
+                        <span className="lfa-badge lfa-badge-keine" title={STUFE_INFO[stufe(kunde)].tipp}>Onboarding: {STUFE_INFO[stufe(kunde)].label}</span>
+                      </div>
+                    )}
+                    {neuEreignisse.length > 0 && <div className="lfa-neu-text">{neuEreignisse[0].text}</div>}
                     {l.email !== "—" && (
                       <div>
                         <a href={`mailto:${l.email}`} title="Öffnet eine neue E-Mail an diese Adresse im Mailprogramm">{l.email}</a>

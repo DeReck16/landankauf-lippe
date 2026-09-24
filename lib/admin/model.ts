@@ -49,16 +49,22 @@ export type LeadMeta = {
 export const MATCH_STATUS = {
   vorschlag: { label: "Vorschlag", tipp: "Automatisch gefunden, noch nicht angesehen." },
   vorgemerkt: { label: "Vorgemerkt", tipp: "Passt — soll beiden Seiten anonym angeboten werden." },
-  angefragt: { label: "Angefragt", tipp: "Beide Seiten haben den anonymen Hinweis bekommen, Zustimmung steht aus." },
-  kontakt: { label: "Kontakt hergestellt", tipp: "Beide haben zugestimmt, Kontaktdaten wurden weitergegeben." },
+  angefragt: { label: "Angefragt", tipp: "Beide Seiten haben den anonymen Hinweis bekommen, Zustimmung und Onboarding stehen aus." },
+  kontakt: { label: "Kontakt freigegeben", tipp: "Beide haben unterschrieben und zugestimmt — die Kontaktdaten sind im Kundenbereich freigegeben." },
+  abschluss: { label: "Vertrag geschlossen", tipp: "Pacht- oder Kaufvertrag ist geschlossen — die Provision ist erfasst." },
   verworfen: { label: "Verworfen", tipp: "Passt nicht — wird nicht mehr vorgeschlagen." },
 } as const;
 export type MatchStatus = keyof typeof MATCH_STATUS;
 
 export type MatchMeta = {
   status: MatchStatus;
+  /** Zustimmung zum konkreten Kontakt — im Kundenbereich oder von der Verwaltung erfasst. */
   zustimmungAnbieter?: string | null;
   zustimmungSuchender?: string | null;
+  /** Wer die Zustimmung erfasst hat („kunde“ = selbst im Kundenbereich, sonst Admin-Adresse). */
+  zustimmungQuelle?: { anbieter?: string; suchender?: string };
+  /** Eine Seite hat im Kundenbereich „kein Interesse“ gemeldet. */
+  ablehnung?: { rolle: "anbieter" | "suchender"; am: string; grund?: string };
   notiz?: string;
   geaendert?: { am: string; von: string };
 };

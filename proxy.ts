@@ -1,12 +1,23 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { SESSION_COOKIE } from "@/lib/admin/config";
+import { KUNDE_COOKIE, SESSION_COOKIE } from "@/lib/admin/config";
 import { verifySessionToken } from "@/lib/admin/token";
 
-// Vorab-Weiche für /admin: ohne gültiges Sitzungscookie geht es zur Anmeldung.
-// Die eigentliche Prüfung machen Seiten und Server Actions selbst (lib/admin/session.ts).
+// Vorab-Weiche für /admin und /kunde: ohne Sitzungscookie geht es zur Anmeldung.
+// Die eigentliche Prüfung machen Seiten, Routen und Server Actions selbst
+// (lib/admin/session.ts, lib/portal/sitzung.ts).
+
+// Im Kundenbereich ohne Anmeldung erreichbar: Einladung, Anmeldung,
+// Widerrufsfunktion (§ 356a BGB) und Kündigung.
+const KUNDE_OEFFENTLICH = /^\/kunde\/(einladung|anmelden|widerruf|kuendigung)(\/|$)/;
 
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
+
+  if (pathname === "/kunde" || pathname.startsWith("/kunde/")) {
+    if (KUNDE_OEFFENTLICH.test(pathname) || request.cookies.has(KUNDE_COOKIE)) return NextResponse.next();
+    return NextResponse.redirect(new URL("/kunde/anmelden", request.url));
+  }
+
   if (pathname === "/admin/anmelden" || pathname.startsWith("/admin/anmelden/")) {
     return NextResponse.next();
   }
@@ -23,5 +34,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/kunde/:path*"],
 };

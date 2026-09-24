@@ -3,9 +3,10 @@
 import { usePathname } from "next/navigation";
 
 /**
- * Rendert die öffentliche Seitenhülle (Kopf, Fuß, WhatsApp, Analytics, Ads)
- * überall außer in der Verwaltung unter /admin — dort soll weder Tracking
- * laufen noch die Website-Navigation stören.
+ * Rendert die öffentliche Seitenhülle (Kopf, Fuß, strukturierte Daten)
+ * überall außer in der Verwaltung unter /admin — dort soll die Website-
+ * Navigation nicht stören. Der Kundenbereich (/kunde) behält Kopf und Fuß.
+ * Tracking und WhatsApp-Knopf regelt components/TrackingOnly (auch ohne /kunde).
  */
 export default function PublicOnly({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

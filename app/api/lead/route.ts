@@ -194,6 +194,14 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Testmodus: Mit Daten-Präfix (lokale Tests, z. B. LF_DATA_PREFIX="dev/") geht
+  // weder eine Mail über Resend noch eine Kopie an Formspree raus — sonst landen
+  // Testanfragen im echten Postfach. Die Anfrage liegt nur im Blob (unter dem Präfix).
+  if (dataPrefix()) {
+    console.log(`[lead] Testmodus (${dataPrefix()}): ${id} nur im Speicher abgelegt — kein Resend, kein Formspree.`);
+    return NextResponse.json({ ok: true, id, delivered: { resend: false, formspree: false, blob: blobOk }, test: true });
+  }
+
   // 2 + 3: Resend + Formspree parallel
   const [resendOk, formspreeOk] = await Promise.all([
     sendResend(apiKey, from, to, subject, text, input.email),

@@ -213,29 +213,22 @@ export async function paarAktion(formData: FormData): Promise<void> {
     const alt = z.paare[key];
     const meta: MatchMeta = alt ? { ...alt } : { status: "vorschlag" };
     let was = "";
+    // Nach der Freigabe nicht mehr verwerfen/zurücksetzen — erst „Freigabe zurückziehen“ im Vorgang.
+    if ((alt?.status === "kontakt" || alt?.status === "abschluss") && aktion !== "notiz") return;
     switch (aktion) {
       case "vormerken":
         meta.status = "vorgemerkt";
         was = "Paar vorgemerkt";
         break;
       case "angefragt":
+        // Hinweise wurden außerhalb der Verwaltung verschickt (Telefon, eigenes Postfach).
+        if (meta.status !== "vorschlag" && meta.status !== "vorgemerkt") return;
         meta.status = "angefragt";
         was = "Beide Seiten anonym angefragt";
         break;
-      case "zustimmung_anbieter":
-        meta.zustimmungAnbieter = meta.zustimmungAnbieter ? null : heute;
-        was = meta.zustimmungAnbieter ? "Zustimmung des Anbieters erfasst" : "Zustimmung des Anbieters zurückgenommen";
-        break;
-      case "zustimmung_suchender":
-        meta.zustimmungSuchender = meta.zustimmungSuchender ? null : heute;
-        was = meta.zustimmungSuchender ? "Zustimmung des Suchenden erfasst" : "Zustimmung des Suchenden zurückgenommen";
-        break;
-      case "kontakt":
-        // Kontaktdaten erst weitergeben, wenn beide Seiten zugestimmt haben.
-        if (!meta.zustimmungAnbieter || !meta.zustimmungSuchender) return;
-        meta.status = "kontakt";
-        was = "Kontakt hergestellt";
-        break;
+      // Zustimmungen und die Freigabe laufen über app/admin/portal-actions.ts
+      // (zustimmungErfassenAktion, freigebenAktion) — dort werden Unterschrift,
+      // Widerrufsfrist und Zustimmung beider Seiten geprüft.
       case "verwerfen":
         meta.status = "verworfen";
         was = "Paar verworfen";

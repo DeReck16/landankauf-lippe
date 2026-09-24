@@ -6,8 +6,29 @@ import { ladeVerwaltung } from "@/lib/admin/daten";
 import { findeKandidaten, punkteFuer } from "@/lib/admin/matching";
 import { LEAD_STATUS, MATCH_STATUS, ableitenAusAnliegen, formatGroesse, parseGroesse, type LeadStatus } from "@/lib/admin/model";
 import { ROLLE_LABEL, ROLLE_TIPP, artLabel, datumZeit } from "@/lib/admin/format";
+import { ladeNeu, ladePortal } from "@/lib/admin/neu";
 import { FLAECHENTYPEN } from "@/lib/lead-options";
+import { einladungsLink } from "@/lib/portal/ablauf";
+import { entwuerfeKunde } from "@/lib/portal/entwuerfe";
+import * as M from "@/lib/portal/model";
+import { basisUrl } from "@/lib/portal/sitzung";
+import { anschrift, datumDe, flaecheZeile, rolleVonLead } from "@/lib/portal/texte";
+import { VORLAGEN, istFreigegeben, kundenVorlage } from "@/lib/vertraege/vorlagen";
 import { anfrageSpeichern, ortNeuSuchen } from "../../../actions";
+import {
+  bestaetigungSendenAktion,
+  bewertungsWiderspruchAktion,
+  einladungErstellenAktion,
+  einladungZurueckziehenAktion,
+  kuendigungErfassenAktion,
+  widerrufErfassenAktion,
+  zugangSperrenAktion,
+} from "../../../portal-actions";
+import BestaetigenKnopf from "../../BestaetigenKnopf";
+import GesehenMarker from "../../GesehenMarker";
+import LinkKopieren from "../../LinkKopieren";
+import MailEntwurf from "../../MailEntwurf";
+import { DokumentListe, KundenStand, Meldung, Puls, Verlauf, VorgangLink } from "../../teile";
 
 export const metadata: Metadata = { title: "Anfrage" };
 
@@ -16,31 +37,46 @@ function zahlFeld(v: number | null | undefined): string {
 }
 
 export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]">) {
-  await requireAdmin();
+  const { email } = await requireAdmin();
   const { id } = await props.params;
-  const { leads, zustand } = await ladeVerwaltung();
+  const sp = await props.searchParams;
+  const [{ leads, zustand }, portal, neu] = await Promise.all([ladeVerwaltung(), ladePortal(), ladeNeu(email)]);
   const l = leads.find((x) => x.id === id);
   if (!l) notFound();
 
+  const kunde = portal.kunden.get(l.id) ?? null;
+  const rr = rolleVonLead(l);
+  const basis = await basisUrl();
   const abgeleitet = ableitenAusAnliegen(l.intent);
   const geparst = parseGroesse(l.groesse);
   const orte = punkteFuer(l, zustand.orte);
-  const eigeneKandidaten = findeKandidaten(leads, zustand).kandidaten.filter(
-    (k) => k.angebot.id === l.id || k.gesuch.id === l.id,
-  );
+  const eigeneKandidaten = findeKandidaten(leads, zustand).kandidaten.filter((k) => k.angebot.id === l.id || k.gesuch.id === l.id);
   const verlauf = zustand.protokoll.filter((p) => p.ref === l.id || p.ref?.split("~").includes(l.id)).slice(0, 30);
   const einzel = l.rolle !== "gesuch";
   const minAlt = zahlFeld(l.groesseWert.minHa);
   const maxAlt = einzel ? minAlt : zahlFeld(l.groesseWert.maxHa);
+  const zurueck = `/admin/anfrage/${l.id}`;
+
+  const neueEreignisse = neu.kunde(kunde);
+  const neuIds = new Set(neueEreignisse.map((e) => e.id));
+  const vorlage = rr ? kundenVorlage(rr.rolle, rr.art) : null;
+  const vorlageFrei = vorlage ? istFreigegeben(portal.einstellungen, vorlage) : false;
+  const link = kunde ? einladungsLink(kunde, basis) : null;
+  const entwuerfe = entwuerfeKunde({ lead: l, kunde, einstellungen: portal.einstellungen, basis });
 
   return (
     <>
+      <GesehenMarker keys={[`anfrage:${l.id}`, `kunde:${l.id}`]} />
       <p style={{ marginBottom: "0.75rem" }}>
         <Link href="/admin" className="lfa-klein" title="Zurück zur Liste aller Anfragen">← Alle Anfragen</Link>
       </p>
+      <Meldung sp={sp} />
       <div className="lfa-titelzeile">
         <div>
-          <h1 className="lfa-h1">{l.name}</h1>
+          <h1 className="lfa-h1">
+            <Puls an={neu.anfrage(l)} tipp="Neue Anfrage — wird ab jetzt als angesehen vermerkt" />
+            {l.name}
+          </h1>
           <div className="lfa-knopfreihe" style={{ marginTop: "0.4rem" }}>
             <span className={`lfa-badge lfa-badge-${l.rolle}`} title={ROLLE_TIPP[l.rolle]}>
               {ROLLE_LABEL[l.rolle]}
@@ -100,6 +136,201 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
             <div className="lfa-nachricht">{l.message !== "—" ? l.message : "Keine Nachricht."}</div>
           </section>
 
+          <section className="lfa-panel" id="kundenbereich">
+            <h2 className="lfa-h2">
+              Kundenbereich &amp; Onboarding
+              {neueEreignisse.length > 0 && <span className="lfa-neu-text" style={{ marginLeft: "0.5rem" }}><span className="lfa-puls" />{neueEreignisse.length} neu</span>}
+            </h2>
+            {!rr ? (
+              <p className="lfa-klein">
+                Onboarding gibt es nur für Angebote und Gesuche mit Kauf oder Pacht. Rechts unter „Angaben fürs Matching“ lässt sich die Anfrage einordnen.
+              </p>
+            ) : (
+              <>
+                <KundenStand k={kunde} rolle={rr.rolle} />
+                <p className="lfa-klein" style={{ margin: "0.5rem 0" }}>
+                  Vertrag: <strong>{VORLAGEN[vorlage!].titel}</strong>
+                  {vorlageFrei ? " — Vorlage freigegeben." : " — Vorlage noch NICHT freigegeben (Verwaltung → Vorlagen)."}
+                </p>
+
+                {kunde?.stammdaten && (
+                  <dl className="lfa-daten" style={{ marginBottom: "0.75rem" }}>
+                    <dt>Name (Angaben)</dt><dd>{kunde.stammdaten.name}{kunde.stammdaten.betrieb ? ` · ${kunde.stammdaten.betrieb}` : ""}</dd>
+                    <dt>Anschrift</dt><dd>{anschrift(kunde.stammdaten) || "—"}</dd>
+                    <dt>Telefon</dt><dd>{kunde.stammdaten.telefon || "—"}</dd>
+                    <dt>Handelt als</dt><dd>{kunde.stammdaten.eigenschaft === "verbraucher" ? "Verbraucher (§ 13 BGB)" : "Unternehmer (§ 14 BGB)"}</dd>
+                    {kunde.flaechen?.length ? (
+                      <>
+                        <dt>Flächen</dt>
+                        <dd>{kunde.flaechen.map((f, i) => <div key={i}>{flaecheZeile(f)}</div>)}</dd>
+                      </>
+                    ) : null}
+                  </dl>
+                )}
+
+                {!kunde?.vertrag && (
+                  <div className="lfa-abschnitt">
+                    <h3 className="lfa-h3">Einladung</h3>
+                    {kunde?.einladung ? (
+                      <p className="lfa-klein">
+                        Erstellt {datumZeit(kunde.einladung.erstelltAm)} · gültig bis {datumDe(kunde.einladung.bis)}
+                        {kunde.einladung.gesendetAm ? ` · per Mail gesendet ${datumZeit(kunde.einladung.gesendetAm)}` : " · noch nicht gesendet"}
+                        {kunde.einladung.angenommenAm ? ` · geöffnet ${datumZeit(kunde.einladung.angenommenAm)}` : ""}
+                      </p>
+                    ) : (
+                      <p className="lfa-klein">Noch keine Einladung. Der persönliche Link ist 30 Tage gültig und an diese Anfrage und Rolle gebunden.</p>
+                    )}
+                    {link && <LinkKopieren link={link} tipp="Kopiert den persönlichen Einladungslink — z. B. für eine eigene Mail oder WhatsApp" />}
+                    <div className="lfa-knopfreihe" style={{ marginTop: "0.5rem" }}>
+                      <form action={einladungErstellenAktion}>
+                        <input type="hidden" name="kunde" value={l.id} />
+                        <input type="hidden" name="zurueck" value={zurueck} />
+                        <button
+                          type="submit"
+                          className="lfa-knopf lfa-knopf-klein"
+                          disabled={!vorlageFrei || l.email === "—"}
+                          title={
+                            !vorlageFrei
+                              ? "Erst möglich, wenn die Vertragsvorlage unter „Vorlagen“ freigegeben ist"
+                              : kunde?.einladung
+                                ? "Erstellt einen neuen Link — der bisherige wird damit ungültig. Gesendet wird noch nichts."
+                                : "Erstellt den persönlichen Einladungslink und legt die Kundenakte an. Gesendet wird noch nichts — der Entwurf erscheint unten."
+                          }
+                        >
+                          {kunde?.einladung ? "Neuen Link erstellen" : "Einladung erstellen"}
+                        </button>
+                      </form>
+                      {kunde?.einladung && (
+                        <form action={einladungZurueckziehenAktion}>
+                          <input type="hidden" name="kunde" value={l.id} />
+                          <input type="hidden" name="zurueck" value={zurueck} />
+                          <BestaetigenKnopf className="lfa-knopf lfa-knopf-leise lfa-knopf-klein" frage="Einladungslink ungültig machen? Der Kunde kann ihn danach nicht mehr benutzen." tipp="Macht den Einladungslink sofort ungültig (z. B. falsch verschickt)">
+                            Link ungültig machen
+                          </BestaetigenKnopf>
+                        </form>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {kunde && (
+                  <div className="lfa-abschnitt">
+                    <h3 className="lfa-h3">Dokumente</h3>
+                    <DokumentListe dokumente={kunde.dokumente} quelle={{ k: kunde.id }} neu={(dokId) => neu.dokumentNeu(kunde, dokId)} />
+                  </div>
+                )}
+
+                {kunde?.vertrag && (
+                  <div className="lfa-abschnitt">
+                    <h3 className="lfa-h3">Vertrag verwalten</h3>
+                    <div className="lfa-knopfreihe">
+                      <form action={bestaetigungSendenAktion}>
+                        <input type="hidden" name="kunde" value={kunde.id} />
+                        <input type="hidden" name="zurueck" value={zurueck} />
+                        <BestaetigenKnopf className="lfa-knopf lfa-knopf-hell lfa-knopf-klein" frage={`Vertragsbestätigung mit PDF erneut an ${kunde.email} senden?`} tipp="Sendet die Vertragsbestätigung mit dem PDF erneut an den Kunden (dauerhafter Datenträger, § 312f BGB)">
+                          Bestätigung erneut senden
+                        </BestaetigenKnopf>
+                      </form>
+                      {M.bewertungsmailErlaubt(kunde) && (
+                        <form action={bewertungsWiderspruchAktion}>
+                          <input type="hidden" name="kunde" value={kunde.id} />
+                          <input type="hidden" name="zurueck" value={zurueck} />
+                          <BestaetigenKnopf className="lfa-knopf lfa-knopf-leise lfa-knopf-klein" frage="Widerspruch gegen Bewertungs-E-Mails vermerken? Danach wird keine Bitte um eine Bewertung mehr per E-Mail vorgeschlagen oder automatisch gesendet." tipp="Der Kunde möchte keine Bitte um eine Bewertung per E-Mail (Einwilligung widerrufen)">
+                            Keine Bewertungs-Mails
+                          </BestaetigenKnopf>
+                        </form>
+                      )}
+                      <form action={zugangSperrenAktion}>
+                        <input type="hidden" name="kunde" value={kunde.id} />
+                        <input type="hidden" name="zurueck" value={zurueck} />
+                        <input type="hidden" name="sperren" value={kunde.gesperrt ? "0" : "1"} />
+                        <BestaetigenKnopf
+                          className="lfa-knopf lfa-knopf-leise lfa-knopf-klein"
+                          frage={kunde.gesperrt ? "Zugang zum Kundenbereich wieder freigeben?" : "Zugang zum Kundenbereich sperren? Alle Sitzungen des Kunden enden sofort."}
+                          tipp={kunde.gesperrt ? "Gibt den Kundenbereich wieder frei (neue Anmeldung per Link nötig)" : "Sperrt den Kundenbereich für diesen Kunden sofort (alle Sitzungen enden)"}
+                        >
+                          {kunde.gesperrt ? "Zugang entsperren" : "Zugang sperren"}
+                        </BestaetigenKnopf>
+                      </form>
+                    </div>
+                    {!kunde.widerruf && (
+                      <details className="lfa-details" style={{ marginTop: "0.6rem" }}>
+                        <summary title="Einen per E-Mail, Post oder Telefon eingegangenen Widerruf bzw. eine Kündigung erfassen">Widerruf oder Kündigung erfassen</summary>
+                        <div className="lfa-knopfreihe" style={{ alignItems: "flex-start" }}>
+                          {M.hatWiderrufsrecht(kunde) && (
+                            <form action={widerrufErfassenAktion} className="lfa-inline" style={{ flex: "1 1 18rem" }}>
+                              <input type="hidden" name="kunde" value={kunde.id} />
+                              <input type="hidden" name="zurueck" value={zurueck} />
+                              <label>
+                                Eingang
+                                <select name="eingang" className="field-select" title="Wie der Widerruf eingegangen ist">
+                                  <option value="email">per E-Mail</option>
+                                  <option value="post">per Post</option>
+                                  <option value="telefon">telefonisch</option>
+                                  <option value="sonstig">sonstig</option>
+                                </select>
+                              </label>
+                              <label>
+                                Notiz
+                                <input name="notiz" className="field-input" title="z. B. Datum des Schreibens" />
+                              </label>
+                              <BestaetigenKnopf className="lfa-knopf lfa-knopf-klein" frage="Widerruf erfassen? Danach sind keine Freigaben mehr möglich." tipp="Erfasst den Widerruf; die Verwaltung wird benachrichtigt">
+                                Widerruf erfassen
+                              </BestaetigenKnopf>
+                            </form>
+                          )}
+                          {!kunde.kuendigung && (
+                            <form action={kuendigungErfassenAktion} className="lfa-inline" style={{ flex: "1 1 18rem" }}>
+                              <input type="hidden" name="kunde" value={kunde.id} />
+                              <input type="hidden" name="zurueck" value={zurueck} />
+                              <label>
+                                Eingang
+                                <select name="eingang" className="field-select" title="Wie die Kündigung eingegangen ist">
+                                  <option value="email">per E-Mail</option>
+                                  <option value="post">per Post</option>
+                                  <option value="telefon">telefonisch</option>
+                                  <option value="sonstig">sonstig</option>
+                                </select>
+                              </label>
+                              <label>
+                                Notiz
+                                <input name="notiz" className="field-input" title="z. B. Grund der Kündigung" />
+                              </label>
+                              <BestaetigenKnopf className="lfa-knopf lfa-knopf-leise lfa-knopf-klein" frage="Kündigung erfassen? Es werden keine neuen Flächen/Interessenten mehr vorgestellt." tipp="Erfasst die Kündigung; bereits nachgewiesene Flächen bleiben provisionsgeschützt">
+                                Kündigung erfassen
+                              </BestaetigenKnopf>
+                            </form>
+                          )}
+                        </div>
+                      </details>
+                    )}
+                  </div>
+                )}
+
+                {kunde && (
+                  <div className="lfa-abschnitt">
+                    <h3 className="lfa-h3">Verlauf der Kundenakte</h3>
+                    <Verlauf ereignisse={kunde.ereignisse} mails={kunde.mails} neuIds={neuIds} />
+                  </div>
+                )}
+              </>
+            )}
+          </section>
+
+          {entwuerfe.length > 0 && (
+            <section className="lfa-panel" id="entwuerfe">
+              <h2 className="lfa-h2">E-Mail-Entwürfe</h2>
+              <p className="lfa-klein" style={{ marginBottom: "0.6rem" }}>
+                Jeder Entwurf ist vor dem Senden änderbar. „Senden“ fragt noch einmal nach und verschickt dann über lippeforst.de (Antworten ins Anfragenpostfach, Kopie an die Verwaltung); der Text wird im Verlauf gespeichert.
+              </p>
+              <div className="lfa-entwuerfe">
+                {entwuerfe.map((e) => (
+                  <MailEntwurf key={e.id} e={e} offen={Boolean(e.faellig)} />
+                ))}
+              </div>
+            </section>
+          )}
+
           <section className="lfa-panel">
             <h2 className="lfa-h2">Passende Gegenstücke</h2>
             {l.rolle === "keine" ? (
@@ -114,18 +345,19 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
                 {eigeneKandidaten.map((k) => {
                   const gegen = k.angebot.id === l.id ? k.gesuch : k.angebot;
                   return (
-                    <li key={k.key}>
-                      <Link href={`/admin/matching?anfrage=${l.id}#${k.key}`} className="lfa-link-name" title="Paar im Matching öffnen: anonyme Hinweistexte, Zustimmungen, Kontakt">
+                    <li key={k.key} style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", alignItems: "center" }}>
+                      <Link href={`/admin/matching?anfrage=${l.id}#${k.key}`} className="lfa-link-name" title="Paar im Matching öffnen: Hinweise, Zustimmungen, Freigabe">
                         {gegen.name}
-                      </Link>{" "}
+                      </Link>
                       <span className="lfa-klein">
                         {ROLLE_LABEL[gegen.rolle]} · {gegen.typ} · {gegen.ortText || "Ort offen"}
                         {k.score != null ? ` · ${k.score} %` : ""}
                         {k.distanzKm != null ? ` · ${k.distanzKm} km` : ""}
-                      </span>{" "}
+                      </span>
                       <span className="lfa-badge lfa-badge-keine" title={MATCH_STATUS[k.meta?.status ?? "vorschlag"].tipp}>
                         {MATCH_STATUS[k.meta?.status ?? "vorschlag"].label}
                       </span>
+                      {k.meta && <VorgangLink k={k.key} text="Vorgang" />}
                     </li>
                   );
                 })}
@@ -276,7 +508,7 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
           </section>
 
           <section className="lfa-panel">
-            <h2 className="lfa-h2">Verlauf</h2>
+            <h2 className="lfa-h2">Verlauf der Anfrage</h2>
             {verlauf.length === 0 ? (
               <p className="lfa-klein">Noch keine Änderungen.</p>
             ) : (
@@ -295,4 +527,3 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
     </>
   );
 }
-

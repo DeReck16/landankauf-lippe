@@ -1,0 +1,86 @@
+/* Vertragstexte (components/vertrag/VertragsText.tsx) — Präfix lfd-, genutzt in
+   Verwaltung und Kundenbereich. Farben aus den Tokens in globals.css. */
+
+.lfd {
+  font-size: 0.93rem;
+  line-height: 1.62;
+  color: var(--color-ink);
+  overflow-wrap: anywhere;
+}
+.lfd-titel {
+  font-size: 1.35rem;
+  line-height: 1.25;
+  color: var(--color-brand-dark);
+  margin-bottom: 0.25rem;
+}
+.lfd-untertitel { color: var(--color-muted); font-size: 0.85rem; margin-bottom: 1rem; }
+.lfd-h2 {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-weight: 650;
+  font-size: 1rem;
+  margin: 1.2rem 0 0.35rem;
+  color: var(--color-ink);
+}
+.lfd-h3 {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin: 0.9rem 0 0.25rem;
+}
+.lfd-p { margin: 0 0 0.55rem; color: var(--color-ink-soft); }
+.lfd-liste { margin: 0 0 0.7rem; padding-left: 1.2rem; list-style: disc; color: var(--color-ink-soft); }
+.lfd-liste-nr { list-style: decimal; }
+.lfd-liste li + li { margin-top: 0.25rem; }
+.lfd-kasten {
+  border-left: 3px solid var(--color-accent);
+  background: var(--color-accent-soft);
+  border-radius: 0 0.6rem 0.6rem 0;
+  padding: 0.75rem 0.95rem;
+  margin: 0.6rem 0 0.9rem;
+}
+.lfd-kasten p { margin: 0 0 0.45rem; color: var(--color-ink); }
+.lfd-kasten p:last-child { margin-bottom: 0; }
+.lfd-kasten-titel { font-weight: 650; }
+.lfd-felder { margin: 0.3rem 0 0.9rem; display: grid; gap: 0.3rem; }
+.lfd-felder > div { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: 0.75rem; }
+.lfd-felder dt { color: var(--color-muted); font-size: 0.84rem; }
+.lfd-felder dd { margin: 0; }
+@media (max-width: 560px) {
+  .lfd-felder > div { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .lfd-felder dd { margin-bottom: 0.35rem; }
+}
+.lfd-trenner { border: 0; border-top: 1px solid var(--color-line); margin: 1rem 0; }
+.lfd-kompakt { font-size: 0.86rem; }
+.lfd-kompakt .lfd-titel { font-size: 1.15rem; }
+
+/* Flurstücke erfassen (components/portal/FlaechenEditor.tsx) */
+.lfd-flaechen { display: grid; gap: 0.45rem; }
+.lfd-flaechen-kopf,
+.lfd-flaechen-zeile {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.6fr) minmax(0, 0.9fr) minmax(0, 0.8fr) minmax(0, 1fr) 2.2rem;
+  gap: 0.4rem;
+  align-items: center;
+}
+.lfd-flaechen-kopf { font-size: 0.74rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.lfd-flaechen .field-input { padding: 0.5rem 0.6rem; font-size: 0.9rem; }
+.lfd-flaechen-weg {
+  width: 2.2rem; height: 2.2rem; border-radius: 9999px; border: 1px solid var(--color-line);
+  background: transparent; color: var(--color-ink-soft); cursor: pointer; font-size: 1.1rem; line-height: 1;
+}
+.lfd-flaechen-weg:hover:not(:disabled) { background: #fdecea; color: #8a2a1d; }
+.lfd-flaechen-weg:disabled { opacity: 0.35; cursor: not-allowed; }
+.lfd-flaechen-plus {
+  justify-self: start; border: 1px dashed var(--color-brand); color: var(--color-brand-dark); background: transparent;
+  border-radius: 9999px; padding: 0.35rem 0.9rem; font-size: 0.85rem; cursor: pointer;
+}
+.lfd-flaechen-plus:hover:not(:disabled) { background: var(--color-brand-soft); }
+@media (max-width: 640px) {
+  .lfd-flaechen-kopf { display: none; }
+  .lfd-flaechen-zeile {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    border: 1px solid var(--color-line); border-radius: 0.7rem; padding: 0.55rem;
+  }
+  .lfd-flaechen-zeile > input:first-child { grid-column: 1 / -1; }
+  .lfd-flaechen-weg { justify-self: end; }
+}

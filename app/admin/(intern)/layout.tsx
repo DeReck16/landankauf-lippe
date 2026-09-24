@@ -2,13 +2,25 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/admin/session";
 import { ladeVerwaltung } from "@/lib/admin/daten";
 import { findeKandidaten } from "@/lib/admin/matching";
+import { ladeNeu, ladePortal } from "@/lib/admin/neu";
+import { VORLAGEN_REIHENFOLGE, istFreigegeben } from "@/lib/vertraege/vorlagen";
+import { testModus } from "@/lib/admin/config";
 import { abmelden } from "../actions";
 import HauptNav from "./HauptNav";
 
 export default async function InternLayout({ children }: { children: React.ReactNode }) {
   const { email } = await requireAdmin();
-  const { leads, zustand } = await ladeVerwaltung();
-  const offeneVorschlaege = findeKandidaten(leads, zustand).kandidaten.filter((k) => !k.meta).length;
+  const [{ leads, zustand }, portal, neu] = await Promise.all([ladeVerwaltung(), ladePortal(), ladeNeu(email)]);
+  const kandidaten = findeKandidaten(leads, zustand).kandidaten.filter((k) => !k.meta);
+  const z = {
+    neueAnfragen: leads.filter((l) => l.status !== "archiv" && neu.anfrage(l)).length,
+    offeneVorschlaege: kandidaten.length,
+    neueVorschlaege: kandidaten.filter((k) => neu.vorschlag(k.key)).length,
+    neueEreignisse:
+      [...portal.kunden.values()].filter((k) => neu.kunde(k).length > 0).length +
+      [...portal.vorgaenge.values()].filter((v) => neu.vorgang(v).length > 0).length,
+    vorlagenOffen: VORLAGEN_REIHENFOLGE.filter((id) => !istFreigegeben(portal.einstellungen, id)).length,
+  };
 
   return (
     <>
@@ -17,7 +29,7 @@ export default async function InternLayout({ children }: { children: React.React
           <Link href="/admin" className="lfa-marke" title="Zur Übersicht aller Anfragen">
             Lippe Forst <small>Verwaltung</small>
           </Link>
-          <HauptNav offeneVorschlaege={offeneVorschlaege} />
+          <HauptNav z={z} />
           <form action={abmelden}>
             <button
               type="submit"
@@ -29,6 +41,11 @@ export default async function InternLayout({ children }: { children: React.React
           </form>
         </div>
       </header>
+      {testModus() && (
+        <div className="lfa-testmodus" title="Lokal bzw. mit Daten-Präfix: Es werden keine E-Mails verschickt, sie stehen nur im Server-Log.">
+          Testmodus — E-Mails werden nicht verschickt, nur protokolliert.
+        </div>
+      )}
       <div className="lfa-seite">{children}</div>
       <footer className="lfa-fuss">
         Angemeldet als {email} · Daten im privaten Speicher (Vercel, Frankfurt) · Ortsdaten © OpenStreetMap-Mitwirkende

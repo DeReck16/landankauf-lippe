@@ -43,6 +43,7 @@
 }
 .lfa-hauptnav {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.25rem;
   flex: 1;
 }
@@ -67,11 +68,24 @@
   line-height: 1.3rem;
   text-align: center;
 }
+.lfa-zaehler-warn { background: #b4412f; }
+@media (max-width: 560px) {
+  .lfa-hauptnav { order: 3; flex-basis: 100%; }
+  .lfa-hauptnav > a { padding: 0.4rem 0.65rem; font-size: 0.9rem; }
+}
 
 .lfa-seite {
   max-width: 80rem;
   margin: 0 auto;
   padding: 1.5rem 1rem 3rem;
+}
+.lfa-testmodus {
+  background: #fdf3dd;
+  color: #7a5410;
+  border-bottom: 1px solid #f0dfb4;
+  text-align: center;
+  font-size: 0.8rem;
+  padding: 0.3rem 1rem;
 }
 .lfa-fuss {
   max-width: 80rem;
@@ -324,3 +338,110 @@ a.lfa-kachel:hover { border-color: var(--color-brand); }
   padding: 0 1rem;
 }
 .lfa-anmeldung .lfa-panel { padding: 1.6rem; }
+
+/* ---------------------------------------------------------------------------
+   Neu & ungesehen: dezent pulsierender Punkt bzw. Ring in Akzentfarbe.
+   Bei „Bewegung reduzieren“ nur ein ruhiger Punkt/Ring. */
+.lfa-puls {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  width: 0.55rem;
+  height: 0.55rem;
+  margin: 0 0.4rem 0 0.1rem;
+  border-radius: 9999px;
+  background: var(--color-accent);
+  vertical-align: middle;
+}
+.lfa-puls::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: var(--color-accent);
+  animation: lfa-puls-punkt 1.9s ease-out infinite;
+}
+@keyframes lfa-puls-punkt {
+  0% { transform: scale(1); opacity: 0.65; }
+  75%, 100% { transform: scale(2.8); opacity: 0; }
+}
+.lfa-puls-ring { animation: lfa-puls-ring 2.2s ease-out infinite; }
+@keyframes lfa-puls-ring {
+  0% { box-shadow: 0 0 0 0 rgba(200, 155, 60, 0.5); }
+  70% { box-shadow: 0 0 0 9px rgba(200, 155, 60, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(200, 155, 60, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lfa-puls::after { animation: none; opacity: 0; }
+  .lfa-puls-ring { animation: none; box-shadow: 0 0 0 2px var(--color-accent); }
+}
+.lfa-neu-text { color: #7a5410; font-weight: 600; font-size: 0.78rem; }
+
+/* Weitere Abzeichen */
+.lfa-badge-ok { background: #e9f0e6; color: #1f4127; border-color: #cddcc6; }
+.lfa-badge-warn { background: #fdf3dd; color: #7a5410; border-color: #f0dfb4; }
+.lfa-badge-rot { background: #fdecea; color: #8a2a1d; border-color: #f5c6c0; }
+
+/* E-Mail-Entwürfe */
+.lfa-entwuerfe { display: grid; gap: 0.5rem; }
+.lfa-entwurf {
+  border: 1px solid var(--color-line);
+  border-radius: 0.75rem;
+  background: #fcfbf7;
+  padding: 0.55rem 0.75rem;
+}
+.lfa-entwurf[open] { background: var(--color-surface); }
+.lfa-entwurf-faellig { border-color: #eadbb4; }
+.lfa-entwurf > summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--color-brand-dark);
+}
+.lfa-entwurf-titel { flex: 1 1 12rem; min-width: 0; }
+.lfa-entwurf-form { display: grid; gap: 0.6rem; margin-top: 0.7rem; }
+.lfa-entwurf-form .field-input, .lfa-entwurf-form .field-textarea { padding: 0.5rem 0.7rem; font-size: 0.88rem; }
+.lfa-entwurf-text { min-height: 15rem; font-size: 0.85rem; line-height: 1.5; }
+.lfa-hinweis-frage { background: #fff8e8; border-color: #eadbb4; }
+
+/* Link anzeigen + kopieren */
+.lfa-linkzeile { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+.lfa-linkzeile .field-input { flex: 1 1 14rem; min-width: 0; font-size: 0.8rem; padding: 0.45rem 0.6rem; }
+
+/* Prüfliste (z. B. Voraussetzungen der Freigabe) */
+.lfa-pruefliste { list-style: none; margin: 0.25rem 0 0.6rem; padding: 0; display: grid; gap: 0.2rem; font-size: 0.86rem; }
+.lfa-pruefliste li { display: flex; gap: 0.45rem; align-items: baseline; }
+.lfa-pruefliste li::before { content: "✗"; color: #8a2a1d; font-weight: 700; flex: none; width: 1rem; }
+.lfa-pruefliste li.lfa-ok::before { content: "✓"; color: var(--color-brand); }
+
+/* Onboarding-Stand einer Seite */
+.lfa-seitenstatus { display: grid; gap: 0.3rem; font-size: 0.85rem; }
+.lfa-seitenstatus-zeile { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
+
+/* Verlauf (Ereignisse, Mails) */
+.lfa-verlauf { list-style: none; margin: 0; padding: 0; }
+.lfa-verlauf > li { padding: 0.45rem 0; border-bottom: 1px dashed var(--color-line); font-size: 0.85rem; }
+.lfa-verlauf > li:last-child { border-bottom: 0; }
+.lfa-verlauf-neu { background: linear-gradient(90deg, rgba(200, 155, 60, 0.12), transparent 70%); border-radius: 0.4rem; padding-left: 0.4rem !important; }
+.lfa-verlauf details > summary { cursor: pointer; color: var(--color-brand-dark); }
+.lfa-mailtext { white-space: pre-wrap; background: #fcfbf7; border: 1px solid var(--color-line); border-radius: 0.5rem; padding: 0.6rem 0.75rem; font-size: 0.8rem; margin-top: 0.4rem; overflow-wrap: anywhere; }
+
+/* Dokumente */
+.lfa-doks { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; }
+.lfa-doks > li { display: flex; flex-wrap: wrap; gap: 0.3rem 0.6rem; align-items: baseline; font-size: 0.86rem; padding: 0.45rem 0.6rem; border: 1px solid var(--color-line); border-radius: 0.6rem; background: #fcfbf7; }
+.lfa-doks .lfa-klein { overflow-wrap: anywhere; }
+
+/* Kompakte Formulare, Abschnitte */
+.lfa-inline { display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: flex-end; }
+.lfa-inline > label { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.78rem; color: var(--color-muted); flex: 1 1 9rem; min-width: 0; }
+.lfa-inline .field-input, .lfa-inline .field-select { padding: 0.45rem 0.6rem; font-size: 0.88rem; }
+.lfa-abschnitt { border-top: 1px solid var(--color-line); margin-top: 0.9rem; padding-top: 0.9rem; }
+.lfa-abschnitt:first-child { border-top: 0; margin-top: 0; padding-top: 0; }
+.lfa-h3 { font-size: 1rem; margin-bottom: 0.5rem; font-family: var(--font-sans), system-ui, sans-serif; font-weight: 650; }
+.lfa-vorschau { max-height: 34rem; overflow: auto; border: 1px solid var(--color-line); border-radius: 0.7rem; padding: 0.9rem 1rem; background: #fff; }
+.lfa-check { display: flex; gap: 0.5rem; align-items: flex-start; font-size: 0.86rem; color: var(--color-ink-soft); }
+.lfa-check input { margin-top: 0.25rem; flex: none; }

@@ -214,7 +214,7 @@ export default function LeadForm({
         </div>
         {gesuch && (
           <p className="sm:col-span-2 text-sm text-[color:var(--color-ink-soft)] bg-[color:var(--color-brand-soft)] rounded-md px-3 py-2">
-            Wir melden uns, sobald uns eine passende Fläche angeboten wird. Kontaktdaten geben wir nur weiter, wenn beide Seiten zugestimmt haben.
+            Wir melden uns, sobald uns eine passende Fläche angeboten wird. Kontaktdaten geben wir nur weiter, wenn beide Seiten zugestimmt haben. Für Suchende fällt nur bei Erfolg eine Provision an — die Konditionen erhalten Sie vorab schriftlich, bevor wir Ihnen eine Fläche nachweisen.
           </p>
         )}
         <div>
@@ -245,7 +245,8 @@ export default function LeadForm({
         </button>
         <ul className="text-xs text-[color:var(--color-muted)] leading-relaxed space-y-0.5">
           <li>✓ Antwort innerhalb 24 h</li>
-          <li>✓ Keine Provision</li>
+          {/* Suchende zahlen im Erfolgsfall eine Provision — „Keine Provision“ gilt nur für Eigentümer. */}
+          <li>{gesuch ? "✓ Provision nur bei Erfolg" : "✓ Keine Provision für Eigentümer"}</li>
           <li>✓ Völlige Diskretion</li>
         </ul>
       </div>
