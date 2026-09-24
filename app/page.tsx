@@ -13,8 +13,6 @@ export const metadata: Metadata = seitenMetadaten({
   pfad: "/",
 });
 import QuickValuation from "@/components/QuickValuation";
-import Testimonials from "@/components/Testimonials";
-import Partners from "@/components/Partners";
 import VideoEmbed from "@/components/VideoEmbed";
 import ClickToReveal from "@/components/ClickToReveal";
 import { site, services, flaechenTypen } from "@/lib/site";
@@ -176,8 +174,6 @@ export default function Home() {
         </div>
       </section>
 
-      <Partners />
-
       <VideoEmbed />
 
       {/* WAS WIR ANBIETEN */}
@@ -301,8 +297,6 @@ export default function Home() {
           <QuickValuation />
         </div>
       </section>
-
-      <Testimonials />
 
       {/* BAULAND */}
       <section className="py-16 px-5 bg-[color:var(--color-accent-soft)]">
