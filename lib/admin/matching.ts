@@ -119,12 +119,20 @@ export function findeKandidaten(leads: LeadView[], zustand: Zustand): { kandidat
   const angebote = aktiv.filter((l) => l.rolle === "angebot");
   const gesuche = aktiv.filter((l) => l.rolle === "gesuch");
   const kandidaten = new Map<string, Kandidat>();
+  // Vergeben: Für dieses Angebot ist in einem Vorgang schon ein Vertrag geschlossen —
+  // keine neuen Vorschläge mehr (bestehende Paare bleiben sichtbar, mit Warnung).
+  const vergeben = new Set(
+    Object.entries(zustand.paare)
+      .filter(([, m]) => m.status === "abschluss")
+      .map(([k]) => k.split("~")[0]),
+  );
 
   for (const angebot of angebote) {
     for (const gesuch of gesuche) {
       const key = paarKey(angebot.id, gesuch.id);
       const meta = zustand.paare[key] ?? null;
       if (meta?.status === "verworfen") continue;
+      if (!meta && vergeben.has(angebot.id)) continue;
       const b = bewerten(angebot, gesuch, zustand.orte);
       if (!b || (b.score ?? 0) < 25) continue;
       kandidaten.set(key, { key, meta, ...b });
@@ -151,6 +159,12 @@ export function findeKandidaten(leads: LeadView[], zustand: Zustand): { kandidat
       gruende: b?.gruende ?? [],
       hinweise: b ? b.hinweise : ["Passt nach den aktuellen Angaben nicht mehr automatisch — manuell gepflegt."],
     });
+  }
+
+  for (const k of kandidaten.values()) {
+    if (vergeben.has(k.angebot.id) && k.meta?.status !== "abschluss" && k.meta?.status !== "verworfen") {
+      k.hinweise = ["Diese Fläche ist bereits vergeben — in einem anderen Vorgang wurde ein Vertrag geschlossen. Paar beenden oder Angebot prüfen.", ...k.hinweise];
+    }
   }
 
   // Interesse über die Flächenbörse: Das Paar ist gewollt, auch wenn Ort oder Größe rechnerisch nicht passen.

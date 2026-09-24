@@ -53,8 +53,9 @@ export default function BoersePanel({ l, zustand }: { l: LeadView; zustand: Zust
   const werte = {
     code: b?.code ?? "LF-…",
     typ: b?.typ || ((FLAECHENTYPEN as readonly string[]).includes(l.typ) ? l.typ : "Ackerland"),
-    groesseHa: b ? b.groesseHa : vorschlagHa != null ? Math.round(vorschlagHa * 2) / 2 : null,
-    lage: b?.lage ?? (gemeinde ? `Raum ${gemeinde}` : ""),
+    // Vorschläge auch nach dem Erfassen der Einwilligung (dann gibt es b schon, aber noch ohne Angaben).
+    groesseHa: b?.groesseHa ?? (vorschlagHa != null ? Math.round(vorschlagHa * 2) / 2 : null),
+    lage: b?.lage || (gemeinde ? `Raum ${gemeinde}` : ""),
     text: b?.text ?? "",
   };
   const luecken = boerseLuecken(b, l);
