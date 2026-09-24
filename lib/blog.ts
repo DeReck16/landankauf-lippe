@@ -364,6 +364,7 @@ export const ARTICLES: Article[] = [
       "Sommer 2026: Das Fichten-Leitsortiment BC 2b+ liegt je nach Region bei 125–145 €/Fm, NRW nähert sich der 150-€-Marke — fast das Dreifache der Kalamitätsjahre. Warum die Preise steigen (Angebotsverknappung, nicht Nachfrage), was das Käferrisiko 2026 bedeutet und wie Lipper Waldbesitzer das Preisfenster nutzen: Einschlag, Halten oder Flächenverkauf.",
     category: "Wald",
     publishedAt: "2026-06-11",
+    updatedAt: "2026-09-24",
     readingMinutes: 9,
     keywords: [
       "Holzpreise 2026",
@@ -418,7 +419,7 @@ export const ARTICLES: Article[] = [
 <p>Der ehrliche Blick auf die Ursachen ist wichtig, denn er entscheidet über die Stabilität der Preise. Die Rally kommt <strong>nicht</strong> von der Nachfrage: Die Baukonjunktur bleibt schwach, die Baugenehmigungen steigen nur leicht, und auch die Exportmärkte Nordamerika und China stagnieren. Die Preise steigen, weil das <strong>Angebot eingebrochen</strong> ist:</p>
 <ul>
 <li><strong>Der Borkenkäfer ist 2025 weitgehend ausgefallen.</strong> Nach Jahren der Zwangsnutzung gab es kaum Kalamitätsholz — der Markt, der jahrelang mit Käferholz geflutet war, ist leergefegt.</li>
-<li><strong>Waldbesitzer halten zurück.</strong> Wer in den Käferjahren zu Tiefstpreisen räumen musste, schlägt heute freiwillig wenig ein — viele warten auf weiter steigende Preise, manche aus steuerlichen Überlegungen.</li>
+<li><strong>Waldbesitzer halten zurück.</strong> Wer in den Käferjahren zu Tiefstpreisen räumen musste, schlägt heute freiwillig wenig ein — viele warten auf weiter steigende Preise.</li>
 <li><strong>Sägewerke kämpfen um Rundholz.</strong> Branchenvertreter warnen bereits vor Produktionsstopps; viele Betriebe weichen mangels Fichte verstärkt auf Kiefer aus.</li>
 </ul>
 <p>Eine angebotsgetriebene Rally ist real verdientes Geld für Verkäufer — aber sie steht auf schmalerem Fundament als ein Nachfrage-Boom. Kommt kurzfristig viel Holz an den Markt, kippt sie.</p>
@@ -436,8 +437,6 @@ export const ARTICLES: Article[] = [
 <p><strong>2. Halten und pflegen.</strong> Wer stabile, gemischte oder junge Bestände hat, muss nicht in den Markt hinein verkaufen. Dann gilt: Käferkontrolle ab jetzt alle zwei Wochen, befallene Stämme schnell raus — bei 112 €/Fm für Käferholz ist selbst die Zwangsnutzung derzeit kein Verlustgeschäft. Welche Förderkulisse parallel läuft, zeigt der Beitrag <a href="/blog/privatwald-lippe-halten-foerdern-verkaufen">Privatwald halten, fördern oder verkaufen</a>.</p>
 <p><strong>3. Die Fläche als Ganzes verkaufen.</strong> Oft übersehen: Rekord-Holzpreise heben nicht nur den Erlös aus dem Einschlag, sondern den <strong>Verkehrswert des stehenden Bestandes</strong> — und damit den Preis, den ein Käufer für die gesamte Waldfläche zahlt. Wer ohnehin über einen Ausstieg nachdenkt (Alter, Entfernung zur Fläche, Erbengemeinschaft, kein Interesse an der Bewirtschaftung), verkauft 2026 in eine deutlich bessere Bewertungslage als noch vor zwei Jahren. Wie Waldwerte zustande kommen, erklärt <a href="/blog/wald-als-vermoegensanlage-lippe">Wald als Vermögensanlage</a>.</p>
 
-<h2>Steuern nicht vergessen</h2>
-<p>Außerordentliche Holznutzungen können steuerlich begünstigt sein (§ 34b EStG, bei Kalamität ermäßigte Steuersätze) — und beim Verkauf der gesamten Fläche gelten andere Regeln als beim laufenden Holzverkauf, Stichwort Behaltefristen und Betriebsvermögen. Einen Überblick gibt unser Beitrag zu <a href="/blog/steuern-verkauf-landwirtschaft-behaltefrist">Steuern und Behaltefristen beim Flächenverkauf</a>; die konkrete Gestaltung gehört zum Steuerberater, idealerweise <em>vor</em> dem Einschlag oder Verkauf.</p>
 
 <h2>Was wir konkret tun</h2>
 <p>Wir kaufen und vermitteln Waldflächen im Kreis Lippe und Umland — und sagen Ihnen vorab ehrlich, was Ihr Bestand im aktuellen Markt wert ist: nach Baumart, Alter, Erschließung und eben dem Holzpreis-Niveau 2026. Eine erste Wertindikation ist kostenlos und unverbindlich: <a href="/wald-verkaufen">Wald verkaufen im Kreis Lippe</a> oder direkt über das <a href="/kontakt">Kontaktformular</a>.</p>
@@ -451,6 +450,7 @@ export const ARTICLES: Article[] = [
       "2025 wurden nur 206.600 Wohnungen fertiggestellt — 18 % weniger und der niedrigste Stand seit 2012. Gleichzeitig steigen die Baugenehmigungen. Was diese Schere für Lipper Flächeneigentümer bedeutet: vom Acker (rund 4–5 €/m²) zum Bauerwartungsland (im Mittel rund 24 €/m²), wann sich der Verkauf lohnt und welche Flächen wirklich profitieren.",
     category: "Markt",
     publishedAt: "2026-06-04",
+    updatedAt: "2026-09-24",
     readingMinutes: 9,
     keywords: [
       "Bauerwartungsland Lippe verkaufen",
@@ -514,11 +514,10 @@ export const ARTICLES: Article[] = [
 <p>Die Verlockung ist, auf das volle Baurecht zu warten und dann zum Bauland-Preis zu verkaufen. Das kann aufgehen — birgt aber reale Risiken: Eine Baulandentwicklung dauert im Kreis Lippe oft 5 bis 10 Jahre, die Gemeinde kann das Verfahren jederzeit stoppen, im Umlegungsverfahren gehen 25–30 Prozent der Fläche für Erschließung und öffentliche Zwecke verloren, und die Erschließungskosten trägt am Ende der Eigentümer.</p>
 <p>Der pragmatische Mittelweg ist häufig der Verkauf als <strong>Bauerwartungsland</strong>: Man realisiert den größten Wertsprung (Acker → Bauerwartung), gibt aber das jahrelange Entwicklungsrisiko an einen Projektentwickler oder Bauträger ab. Wann welcher Weg sinnvoll ist, hängt vom konkreten Verfahrensstand ab — das beleuchten wir im Detail unter <a href="/blog/bauerwartungsland-warten-oder-verkaufen">Bauerwartungsland: warten oder verkaufen?</a></p>
 
-<h2>Steuern und Recht — die zwei Stolpersteine</h2>
-<p>Zwei Punkte werden regelmäßig unterschätzt:</p>
+<h2>Der rechtliche Stolperstein</h2>
+<p>Ein Punkt wird regelmäßig unterschätzt:</p>
 <ul>
 <li><strong>Grundstücksverkehrsgesetz (GrdstVG):</strong> Der Verkauf landwirtschaftlicher Flächen ist genehmigungspflichtig, und das siedlungsrechtliche Vorkaufsrecht kann zugunsten eines Landwirts ausgeübt werden. Genehmigungsfrei sind erst Flächen im Geltungsbereich eines Bebauungsplans (§ 4 Nr. 4 GrdstVG) — reines Bauerwartungsland bleibt meist genehmigungspflichtig, der Übergang ist in der Praxis streitanfällig. Mehr dazu: <a href="/blog/grundstuecksverkehrsgesetz-praxis-nrw">Grundstücksverkehrsgesetz in der Praxis</a>.</li>
-<li><strong>Besteuerung des Gewinns:</strong> Bei Betriebsvermögen ist der Veräußerungsgewinn grundsätzlich steuerpflichtig — eine Reinvestitionsrücklage nach § 6b EStG oder die Behaltefristen können die Last erheblich senken. Den Überblick gibt unser Beitrag zu <a href="/blog/steuern-verkauf-landwirtschaft-behaltefrist">Steuern und Behaltefristen beim Flächenverkauf</a>.</li>
 </ul>
 
 <h2>Was wir konkret tun</h2>
@@ -626,7 +625,8 @@ export const ARTICLES: Article[] = [
     description:
       "Solarpark-Investoren bieten Lipper Eigentümern aktuell 2.500 bis 5.000 €/ha pro Jahr — bei 30 Jahren Laufzeit. Wo sich das wirklich rechnet, welche fünf Fallen wir in Verträgen 2025/2026 gesehen haben und wann klassischer Verkauf oder Pacht besser ist.",
     category: "Markt",
-    publishedAt: "2025-03-18",
+    publishedAt: "2026-05-15",
+    updatedAt: "2026-09-24",
     readingMinutes: 8,
     keywords: [
       "Photovoltaik Pacht Lippe",
@@ -649,7 +649,7 @@ export const ARTICLES: Article[] = [
 <p>Gesucht werden Flächen mit guter Sonneneinstrahlung, ebener Topographie, Nähe zum Mittelspannungsnetz und idealerweise außerhalb von Schutzgebietskulissen. Die Mindestgröße liegt meist bei 5 ha (zusammenhängend oder im Pool mit Nachbarn).</p>
 
 <h2>Wo Photovoltaik im Kreis Lippe besonders geht</h2>
-<p>Aus unserer Praxis und nach Rücksprache mit der Kreisplanung sind vier Lagen im Kreis Lippe besonders im Fokus:</p>
+<p>Vier Lagen im Kreis Lippe sind besonders im Fokus:</p>
 <ul>
 <li><strong>Senne-Übergang (Schlangen, Augustdorf)</strong> — sandige Böden mit niedriger Bonität, gute Sonneneinstrahlung, ebene Schläge. Klassisches PV-Land.</li>
 <li><strong>Kalletal</strong> — ebene Talflächen mit guter Netzanbindung. Mehrere Projekte in Planung.</li>
@@ -688,7 +688,7 @@ export const ARTICLES: Article[] = [
 <p>Manche Verträge enthalten Klauseln, die dem Eigentümer das Risiko übertragen, falls Bebauungsplan oder Genehmigung scheitern. Das gehört zum Investor. Punkt.</p>
 
 <h2>Wann sich PV-Pacht wirklich lohnt</h2>
-<p>Aus unserer Praxis ist PV-Pacht die richtige Wahl, wenn:</p>
+<p>PV-Pacht ist meist die richtige Wahl, wenn:</p>
 <ul>
 <li>Die Fläche eine eher schwache Acker-Bonität hat (Sandboden, niedrige Punkte) — der Opportunitätskostenverlust gegenüber klassischer Pacht ist gering</li>
 <li>Der Eigentümer ein langfristiges, planbares Einkommen sucht und keine Liquidität braucht</li>
@@ -699,7 +699,7 @@ export const ARTICLES: Article[] = [
 <h2>Wann klassischer Verkauf oder Pacht besser ist</h2>
 <p>PV ist nicht universell die beste Lösung. Klassische Pacht oder Direktverkauf gewinnt, wenn:</p>
 <ul>
-<li>Die Fläche hochwertig ist (Bonität 60+, hofnah) — klassische Pacht ist bei guter Lage steuerlich oft besser, weil Pacht unter EinkommensSt-Regel landet, PV-Pacht teils gewerblich gewertet wird</li>
+<li>Die Fläche hochwertig ist (Bonität 60+, hofnah) — gute, hofnahe Ackerflächen sind für die Landwirtschaft oft wertvoller als für einen Solarpark</li>
 <li>Die nächste Generation Interesse an der Fläche hat — eine 30-Jahres-PV-Bindung schließt die Übergabe an Kinder oft de facto aus</li>
 <li>Die Fläche zeitnah verkauft werden soll — ein laufender PV-Vertrag macht den Verkauf komplizierter, weil der Käufer die Dienstbarkeit übernimmt</li>
 <li>Der Eigentümer Liquidität braucht — bei 30 ha PV-Pacht à 4.000 €/ha sind das 120.000 €/Jahr brutto, aber der Verkaufswert würde sofort 1,5 Mio. € freisetzen (allerdings ohne 30 Jahre Folgeerträge)</li>
@@ -717,7 +717,8 @@ export const ARTICLES: Article[] = [
     description:
       "Wie das Ökokonto NRW funktioniert, welche Lipper Flächen sich eignen — und warum Ökopunkte für Eigentümer mit schwer bewirtschaftbaren Hangflächen oft mehr Geld bringen als ein klassischer Verkauf.",
     category: "Förderung",
-    publishedAt: "2026-04-15",
+    publishedAt: "2026-05-15",
+    updatedAt: "2026-09-24",
     readingMinutes: 8,
     keywords: [
       "Ökopunkte Kreis Lippe",
@@ -772,7 +773,7 @@ export const ARTICLES: Article[] = [
 <p>Realistischer Zeitrahmen: 12 bis 24 Monate von Erstgespräch bis Auszahlung. Wer schneller Liquidität braucht, sollte zum Direktverkauf tendieren — Ökokonto ist eine mittel- bis langfristige Optimierung.</p>
 
 <h2>Wann sich Ökokonto besonders lohnt</h2>
-<p>Aus unserer Erfahrung ist das Ökokonto fast immer lukrativer als der Direktverkauf, wenn:</p>
+<p>Das Ökokonto ist meist lukrativer als der Direktverkauf, wenn:</p>
 <ul>
 <li>Die Fläche schwer zu verpachten ist (Hang, FFH-Lage, kleinteilig)</li>
 <li>Die Bonität niedrig und der Bodenrichtwert unterdurchschnittlich ist</li>
@@ -792,7 +793,8 @@ export const ARTICLES: Article[] = [
     description:
       "Genehmigungspflicht der Landwirtschaftskammer, siedlungsrechtliches Vorkaufsrecht, ungesunde Bodenverteilung — was die Theorie sagt und wie der Ablauf im Kreis Lippe tatsächlich aussieht.",
     category: "Recht",
-    publishedAt: "2026-03-20",
+    publishedAt: "2026-05-15",
+    updatedAt: "2026-09-24",
     readingMinutes: 7,
     keywords: [
       "Grundstücksverkehrsgesetz NRW",
@@ -843,7 +845,7 @@ export const ARTICLES: Article[] = [
 </ul>
 
 <h2>Was wir konkret tun</h2>
-<p>Bei jedem Direktankauf koordinieren wir mit dem Notar Ihrer Wahl die Genehmigungsphase. Wir kennen die Lipper Behörden, wissen welche Argumente überzeugen und welche Pakete der Verkauf brauchen darf. Bisher ist uns kein Vertrag versagt worden — weil wir realistische Preise zahlen, eigene landwirtschaftliche Strukturen vorweisen können und vertragliche Vorkaufsrechte aus Pachtverträgen sauber adressieren.</p>
+<p>Bei jedem Direktankauf koordinieren wir mit dem Notar Ihrer Wahl die Genehmigungsphase. Entscheidend für eine zügige Genehmigung sind ein marktüblicher Preis, ein vollständiger Antrag und der saubere Umgang mit vertraglichen Vorkaufsrechten aus Pachtverträgen.</p>
 <p>Das Wichtigste: Sie als Verkäuferin oder Verkäufer haben mit der Behörde nichts direkt zu tun. Ihr einziger Anker bleibt der Notar. Wir kümmern uns um den Rest.</p>
 `,
   },
@@ -854,7 +856,7 @@ export const ARTICLES: Article[] = [
     description:
       "Aktuelle Pachtpreise im Kreis Lippe für Ackerland, Grünland und Sondernutzungen. Mit Bandbreiten je Bonität, Vergleich zu Vorjahren und Hinweisen, wann sich Pachterneuerung oder Direktverkauf rechnet.",
     category: "Markt",
-    publishedAt: "2026-02-12",
+    publishedAt: "2026-05-15",
     readingMinutes: 7,
     keywords: [
       "Pachtspiegel Lippe 2026",
@@ -922,7 +924,8 @@ export const ARTICLES: Article[] = [
     description:
       "Was Privatwald in Lippe heute wert ist, welche Förderprogramme NRW Eigentümern zur Verfügung stehen — und wann es wirtschaftlich sinnvoller ist, zu halten als zu verkaufen.",
     category: "Wald",
-    publishedAt: "2026-01-09",
+    publishedAt: "2026-05-15",
+    updatedAt: "2026-09-24",
     readingMinutes: 8,
     keywords: [
       "Privatwald Lippe verkaufen",
@@ -937,7 +940,7 @@ export const ARTICLES: Article[] = [
 <h2>Weg 1: Halten und passiv bewirtschaften</h2>
 <p>Für viele Lipper Privatwaldeigentümer ist „Halten" die unausgesprochene Default-Option. Der Wald gehört zur Familie, der Förster ruft zweimal im Jahr an, gelegentlich wird Holz gemacht. Was dabei oft übersehen wird:</p>
 <ul>
-<li><strong>Steuerliche Belastung</strong>: Wald gilt als landwirtschaftliches Vermögen, ist aber nicht von der Grundsteuer befreit. Für ungenutzten Privatwald fallen jährlich kleine, aber konstante Kosten an.</li>
+<li><strong>Laufende Kosten</strong>: Auch für ungenutzten Privatwald fallen jährlich kleine, aber konstante Kosten an, etwa Grundsteuer und Beiträge.</li>
 <li><strong>Verkehrssicherungspflicht</strong>: Bei Wegen, Straßen oder Wanderpfaden in der Nähe haftet der Eigentümer für umstürzende Bäume. Eine Versicherung ist Pflicht — oder zumindest dringend zu empfehlen.</li>
 <li><strong>Käferholz und Sturmschäden</strong>: Wer 2018–2022 Fichtenbestände hatte, weiß, wovon hier die Rede ist. Wiederaufforstung ist gesetzlich vorgeschrieben und teuer.</li>
 </ul>
@@ -968,7 +971,7 @@ export const ARTICLES: Article[] = [
 <ul>
 <li>Der Eigentümer keinen Bezug mehr zum Wald hat oder im fernen Ausland lebt</li>
 <li>Der Bestand wenig wertvoll ist (Käferflächen, Wiederaufforstungspflicht ohne Eigenmittel)</li>
-<li>Liquiditätsbedarf besteht (Erbschaftssteuer, anderer Investitionsbedarf)</li>
+<li>Liquiditätsbedarf besteht (etwa für andere Investitionen)</li>
 <li>Erbengemeinschaft sich auf einheitliches Vorgehen nicht einigen kann</li>
 </ul>
 <p>Privatwald-Werte im Kreis Lippe (2024er Marktdaten):</p>
@@ -989,7 +992,7 @@ export const ARTICLES: Article[] = [
 <p>So bleibt die Substanz erhalten, der Eigentümer bekommt Liquidität und die Bewirtschaftung wird professionalisiert.</p>
 
 <h2>Was wir konkret tun</h2>
-<p>Wir kennen die Lipper Forstlandschaft aus eigener Praxis — am Püngelsberg, in den Wäldern rund um Leopoldstal, am Triftenberge. Wir koordinieren mit dem zuständigen Forstamt von Wald und Holz NRW (Förster Thomas Schulte und Kollegen), beantragen Biotopbaum-Förderung mit Ihnen, vermitteln in die FBG Passadetal und kaufen — wenn der Verkauf der bessere Weg ist — Privatwald direkt.</p>
+<p>Wir kennen die Lipper Forstlandschaft aus eigener Praxis — am Püngelsberg, in den Wäldern rund um Leopoldstal, am Triftenberge. Auf Wunsch stimmen wir uns mit dem zuständigen Regionalforstamt von Wald und Holz NRW ab, stellen mit Ihnen den Antrag auf Biotopbaum-Förderung, stellen den Kontakt zur FBG Passadetal her und kaufen — wenn der Verkauf der bessere Weg ist — Privatwald direkt.</p>
 `,
   },
   {
@@ -999,7 +1002,7 @@ export const ARTICLES: Article[] = [
     description:
       "Was tun, wenn der alte Pächter aufgehört hat und niemand die Hangwiese mehr will? Drei Wege, wie aus einer Problemfläche ein verlässlicher Ertrag wird — ohne Eigenaufwand.",
     category: "Praxis",
-    publishedAt: "2025-11-18",
+    publishedAt: "2026-05-15",
     readingMinutes: 6,
     keywords: [
       "Hangwiese verpachten",
@@ -1058,7 +1061,8 @@ export const ARTICLES: Article[] = [
     description:
       "Was passiert, wenn drei Geschwister 4 Hektar Acker erben und einer im Ausland lebt? Sechs Stolpersteine in Lipper Erbengemeinschaften — und wie der Verkauf trotzdem in unter sechs Monaten durchläuft.",
     category: "Recht",
-    publishedAt: "2025-10-22",
+    publishedAt: "2026-05-15",
+    updatedAt: "2026-09-24",
     readingMinutes: 7,
     keywords: [
       "Erbengemeinschaft Ackerland verkaufen",
@@ -1083,12 +1087,12 @@ export const ARTICLES: Article[] = [
 <ul>
 <li><strong>Auszahlung</strong> — der „Halter" kauft die anderen aus. Erfordert Liquidität, ist aber oft die schnellste Lösung.</li>
 <li><strong>Teilungsversteigerung</strong> — formaljuristischer Weg, dauert 12–18 Monate, kostet Gebühren, das Ergebnis ist meist nicht optimal.</li>
-<li><strong>Vermittlungsgespräch mit allen Beteiligten</strong> — wir setzen uns mit allen Miteigentümern zusammen (auch per Videokonferenz mit dem Cousin in Spanien) und arbeiten eine einvernehmliche Lösung aus.</li>
+<li><strong>Vermittlungsgespräch mit allen Beteiligten</strong> — wir setzen uns mit allen Miteigentümern zusammen (auch per Videokonferenz, wenn jemand weit entfernt wohnt) und arbeiten eine einvernehmliche Lösung aus.</li>
 </ul>
-<p>Aus unserer Erfahrung: Weg 3 löst 80 % der Fälle. Oft ist „Halten" beim widerständigen Miteigentümer kein echter Wille, sondern Verlustangst oder Misstrauen gegenüber den anderen Miteigentümern. Mit einem neutralen Außenstehenden lässt sich das auflösen.</p>
+<p>Weg 3 führt häufig zum Ziel. Oft ist „Halten" beim widerständigen Miteigentümer kein echter Wille, sondern Verlustangst oder Misstrauen gegenüber den anderen Miteigentümern. Mit einem neutralen Außenstehenden lässt sich das auflösen.</p>
 
 <h2>Stolperstein 4: Ein Miteigentümer lebt im Ausland</h2>
-<p>Spanien, Schweiz, USA — wir hatten alles. Die Beurkundung läuft dann meist über die deutsche Botschaft im Ausland (mit deutlich höheren Beurkundungsgebühren) oder über eine Generalvollmacht, die der ausländische Erbe einem Vertreter in Deutschland gibt.</p>
+<p>Miterben im Ausland sind keine Seltenheit. Die Beurkundung läuft dann meist über die deutsche Botschaft im Ausland (mit deutlich höheren Beurkundungsgebühren) oder über eine Generalvollmacht, die der ausländische Erbe einem Vertreter in Deutschland gibt.</p>
 <p>Generalvollmacht ist meist die schnellere Variante. Wir erstellen die Vorlage zusammen mit dem Notar, schicken sie ans Konsulat, der ausländische Erbe lässt sie dort beglaubigen, das Original wird per Kurier zurück nach Deutschland geschickt. Zeitaufwand: 4–6 Wochen.</p>
 
 <h2>Stolperstein 5: Pachtvertrag mit langer Restlaufzeit</h2>
@@ -1099,7 +1103,7 @@ export const ARTICLES: Article[] = [
 <p>Manchmal sind die familiären Verhältnisse einfach zerrüttet. Der Bruder, mit dem man seit 20 Jahren nicht spricht; die Schwester, die schon im Vorfeld ihre Anwältin eingeschaltet hat. Wenn das die Lage ist, übernehmen wir die Kommunikation.</p>
 <p>Wir sprechen mit jedem Miteigentümer einzeln, formulieren einen Vorschlag, der für alle akzeptabel ist, und legen das Ergebnis dem Notar vor. Die Beurkundung kann dann entweder gemeinsam (mit Distanz) oder seriell stattfinden — keiner muss dem anderen begegnen, wenn das nicht gewünscht ist.</p>
 
-<h2>Was unsere typische Erbschafts-Abwicklung kostet</h2>
+<h2>Was eine Erbschafts-Abwicklung typischerweise kostet</h2>
 <p>Übersicht der typischen Kosten für eine 4-ha-Erbengemeinschaft mit drei Erben:</p>
 <ul>
 <li>Erbenermittlung Notar: 200–400 €</li>
@@ -1121,7 +1125,7 @@ export const ARTICLES: Article[] = [
     description:
       "Der Bodenrichtwert sagt 1,80 €/m² — der Käufer bietet 4,20 €/m². Warum stimmen die zwei Zahlen nicht überein? Eine Einordnung mit echten Marktdaten aus dem Kreis Lippe.",
     category: "Markt",
-    publishedAt: "2025-09-15",
+    publishedAt: "2026-05-15",
     readingMinutes: 6,
     keywords: [
       "Bodenrichtwert Marktpreis Lippe",
@@ -1195,7 +1199,7 @@ export const ARTICLES: Article[] = [
     description:
       "Jede Lipper Gemeinde braucht regelmäßig Ausgleichsflächen für Bebauungspläne. Wer als privater Eigentümer Flächen anbietet, kann oft bessere Preise erzielen als am freien Markt — wenn man weiß, wie der Hase läuft.",
     category: "Förderung",
-    publishedAt: "2025-08-25",
+    publishedAt: "2026-05-15",
     readingMinutes: 7,
     keywords: [
       "Ausgleichsflächen Kommune Lippe",
@@ -1264,7 +1268,8 @@ export const ARTICLES: Article[] = [
     description:
       "Eine Fläche im Außenbereich, von der jeder spricht, dass sie irgendwann Bauland wird. Lohnt das jahrelange Warten — oder verkaufen, solange noch verkauft werden kann? Eine nüchterne Einordnung mit Lipper Beispielen.",
     category: "Markt",
-    publishedAt: "2025-07-31",
+    publishedAt: "2026-05-15",
+    updatedAt: "2026-09-24",
     readingMinutes: 6,
     keywords: [
       "Bauerwartungsland Kreis Lippe",
@@ -1286,7 +1291,7 @@ export const ARTICLES: Article[] = [
 <p>Im Grundstücksmarktbericht 2024 des Kreises Lippe wird Bauerwartungsland mit einem durchschnittlichen Kaufpreis von rund 23–29 €/m² für die Klasse „unerschlossen und ungeordnet" geführt — das entspricht ca. 17 % des erschlossenen Wohnbaulandwerts. Diese Quote ist die wichtige Größe: erschließungsbeitragsfreies Bauland liegt etwa beim 5-fachen.</p>
 
 <h2>Wann das Warten lohnt</h2>
-<p>Aus unserer Praxis ergeben sich drei Konstellationen, in denen Warten klar besser ist als der Verkauf:</p>
+<p>Es gibt drei Konstellationen, in denen Warten klar besser ist als der Verkauf:</p>
 <ul>
 <li><strong>Konkrete Aufnahme im Flächennutzungsplan</strong> — wenn die Gemeinde die Fläche bereits als zukünftige Bauerwartung führt, ist die Bebauung in 5–10 Jahren wahrscheinlich.</li>
 <li><strong>Direkter Ortsrand wachsender Gemeinden</strong> — z. B. in Detmold, Lage, Bad Salzuflen, wo die Einwohnerzahl steigt und Wohnungsbedarf hoch ist.</li>
@@ -1298,7 +1303,7 @@ export const ARTICLES: Article[] = [
 <ul>
 <li><strong>Spekulative Außenbereichslagen ohne Plan</strong> — wenn die Gemeinde keine Bebauungsabsicht hat, wird die Fläche auch in 30 Jahren Acker bleiben. Hier sind die „in 10 Jahren ist das Bauland"-Aussagen reine Hoffnung.</li>
 <li><strong>Schrumpfende Gemeinden</strong> — Schieder-Schwalenberg, Lügde, Teile von Extertal haben strukturell rückläufige Bevölkerungszahlen. Hier wird kein Bauland mehr ausgewiesen.</li>
-<li><strong>Eigentümer mit Liquiditätsbedarf</strong> — wer die Substanz braucht, sollte verkaufen, bevor Erbschaftssteuer, Pflegekosten oder andere Belastungen den Wertzuwachs auffressen.</li>
+<li><strong>Eigentümer mit Liquiditätsbedarf</strong> — wer die Substanz braucht, sollte verkaufen, bevor Pflegekosten oder andere Belastungen den Wertzuwachs auffressen.</li>
 <li><strong>Erbengemeinschaften</strong> — über 15 Jahre halten ist organisatorisch fast unmöglich, weil sich Miteigentümerstrukturen verschieben.</li>
 </ul>
 
@@ -1313,11 +1318,11 @@ export const ARTICLES: Article[] = [
 <p>Wer eine Fläche hat, die sich auf der Klassenleiter nach oben bewegt, sieht den Wertzuwachs Schritt für Schritt. Wer in der untersten Klasse stehen bleibt, sieht jahrzehntelang keine Bewegung.</p>
 
 <h2>Praktische Faustregel</h2>
-<p>In 80 % der Fälle, in denen wir mit Eigentümern darüber sprechen, ist die Antwort: <strong>Verkauf jetzt</strong>. Die Begründung:</p>
+<p>Oft lautet die nüchterne Antwort: <strong>Verkauf jetzt</strong>. Die Begründung:</p>
 <ul>
 <li>Die Wahrscheinlichkeit, dass Bauland-Status erreicht wird, ist meist unter 50 %</li>
 <li>Der Zinseszins-Effekt einer Verkaufssumme heute schlägt oft die Wertsteigerung</li>
-<li>Risiken (Steuer, Erbschaft, politische Wechsel der Gemeindepolitik) wachsen mit der Zeit</li>
+<li>Risiken (Erbfall, politische Wechsel in der Gemeinde) wachsen mit der Zeit</li>
 </ul>
 <p>In den verbleibenden 20 % — bei klarer Bauerwartung, geduldigen Eigentümern und stabilen Gemeinden — kann Halten der profitablere Weg sein.</p>
 
@@ -1332,7 +1337,7 @@ export const ARTICLES: Article[] = [
     description:
       "Fichtenbestände, die innerhalb von Wochen abgängig sind. Sturmwurfflächen, die niemand räumt. Was Lipper Privatwaldbesitzer in der Praxis machen, wenn der eigene Wald zur wirtschaftlichen Belastung wird.",
     category: "Wald",
-    publishedAt: "2025-06-19",
+    publishedAt: "2026-05-15",
     readingMinutes: 8,
     keywords: [
       "Käferholz Lippe",
@@ -1402,7 +1407,7 @@ export const ARTICLES: Article[] = [
     description:
       "Eine alte Streuobstwiese im Erbe — was tun? Drei Förderprogramme in NRW, die den Erhalt finanziell tragen: Vertragsnaturschutz, Streuobstmittel des Landes, Ökopunkte. Mit konkreten Förderhöhen und realen Beispielen aus Lippe.",
     category: "Förderung",
-    publishedAt: "2025-04-23",
+    publishedAt: "2026-05-15",
     readingMinutes: 7,
     keywords: [
       "Streuobstwiese Förderung NRW",
@@ -1465,7 +1470,8 @@ export const ARTICLES: Article[] = [
     description:
       "Der Hof wird nicht weitergeführt. Niemand aus der Familie übernimmt. Vier realistische Wege, wie Lipper Vollerwerbsbetriebe die Aufgabe organisiert und finanziell sinnvoll gestalten können.",
     category: "Praxis",
-    publishedAt: "2025-02-04",
+    publishedAt: "2026-05-15",
+    updatedAt: "2026-09-24",
     readingMinutes: 8,
     keywords: [
       "Hofnachfolge Lippe",
@@ -1496,17 +1502,10 @@ Nachteile: Der Paketpreis liegt typisch 10–15 % unter dem optimierten Einzelve
 Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), bei verteilten Erben kann die Verwaltung in 15 Jahren schwierig werden.</p>
 
 <h3>Weg 4: Tausch- und Konsolidierungs-Strategie</h3>
-<p>Manchmal liegt die optimale Lösung im Tausch: schwer bewirtschaftbare Splitterflächen werden in Tauschverträge eingebracht, der Eigentümer bekommt zusammenhängende Top-Flächen, die er dann verpachtet oder gestaffelt verkauft. Wir koordinieren solche Tauschketten gelegentlich, wenn 4–6 Betriebe in einer Gemarkung mitziehen wollen.</p>
+<p>Manchmal liegt die optimale Lösung im Tausch: schwer bewirtschaftbare Splitterflächen werden in Tauschverträge eingebracht, der Eigentümer bekommt zusammenhängende Top-Flächen, die er dann verpachtet oder gestaffelt verkauft. Solche Tauschketten lassen sich koordinieren, wenn 4–6 Betriebe in einer Gemarkung mitziehen.</p>
 
-<h2>Die steuerlichen Fallen</h2>
-<p>Eine Hofauflösung hat erhebliche steuerliche Implikationen — die meisten Eigentümer unterschätzen sie:</p>
-<ul>
-<li><strong>Betriebsaufgabe</strong> führt zu Aufdeckung stiller Reserven (BFH-Rechtsprechung). Die Wertdifferenz zwischen Buchwert und Marktwert der Flächen wird steuerpflichtig.</li>
-<li><strong>Aufgabe-Freibetrag</strong> (§ 16 EStG): bei Vollendung des 55. Lebensjahres oder Berufsunfähigkeit gibt es einen Freibetrag von 45.000 €, der bei höheren Gewinnen abgeschmolzen wird.</li>
-<li><strong>Halber Steuersatz</strong> für Veräußerungsgewinne über dem Freibetrag — wenn die Voraussetzungen vorliegen.</li>
-<li><strong>Erbschaftssteuer</strong>: landwirtschaftliches Vermögen ist privilegiert (Bewertungsgesetz), wenn die Bewirtschaftung 7 Jahre weiterläuft. Bei Auflösung entfällt diese Privilegierung rückwirkend.</li>
-</ul>
-<p>Konsequenz: Steuerberater frühzeitig einbinden, oft 1–2 Jahre vor der geplanten Auflösung. Eine schlecht geplante Hofaufgabe kann 30–40 % des Buchwertes als Steuer kosten.</p>
+<h2>Steuerberatung früh einbinden</h2>
+<p>Eine Hofaufgabe hat steuerliche Folgen, die sich nur mit Ihrer Steuerberatung sauber planen lassen — am besten ein bis zwei Jahre vor der geplanten Auflösung.</p>
 
 <h2>Wohnhaus und Wirtschaftsgebäude</h2>
 <p>Der Hof als Gebäude-Komplex hat eine andere Logik als die Flächen:</p>
@@ -1530,91 +1529,14 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
 `,
   },
   {
-    slug: "erbschaftsteuer-landwirtschaftliches-vermoegen",
-    title:
-      "Erbschaftsteuer bei landwirtschaftlichem Vermögen: Was Lipper Erben wissen müssen",
-    description:
-      "Acker, Wald und Hofstelle sind in der Erbschaftsteuer privilegiert — wenn die Bedingungen stimmen. Welche, wie hoch der Schutz ist und wann er rückwirkend entfällt: ein Praxis-Leitfaden für Lipper Erben.",
-    category: "Recht",
-    publishedAt: "2024-12-17",
-    readingMinutes: 7,
-    keywords: [
-      "Erbschaftsteuer landwirtschaftliches Vermögen",
-      "Verschonungsabschlag landwirtschaftlich",
-      "Hof Erbe Steuer NRW",
-      "Bewertungsgesetz Landwirtschaft",
-      "Behaltefrist Landwirtschaft",
-    ],
-    content: `
-<p class="lead">Wer landwirtschaftliches Vermögen erbt, profitiert in Deutschland von einer erheblichen Steuerprivilegierung — wenn er die Bedingungen einhält. Wer sie nicht kennt oder versehentlich verletzt, zahlt schnell sechsstellig nach. Dieser Artikel zeigt, wie der Schutz funktioniert und wo die Stolpersteine liegen.</p>
-
-<h2>Was unter „landwirtschaftlichem Vermögen" fällt</h2>
-<p>Das Bewertungsgesetz (BewG) unterscheidet:</p>
-<ul>
-<li><strong>Land- und forstwirtschaftliches Vermögen</strong> im Sinne von § 158 BewG — also Flächen, Hofstelle, lebendes und totes Inventar</li>
-<li><strong>Wohnteil</strong> der Hofstelle — wird separat bewertet</li>
-<li><strong>Verpachtete Flächen</strong> ohne aktive Bewirtschaftung durch den Eigentümer — gehören meist nicht mehr zum begünstigten land- und forstwirtschaftlichen Vermögen</li>
-</ul>
-<p>Die Unterscheidung ist wichtig, weil nur das aktiv bewirtschaftete land- und forstwirtschaftliche Vermögen die Privilegierung genießt.</p>
-
-<h2>Die Bewertungs-Privilegierung</h2>
-<p>Land- und forstwirtschaftliches Vermögen wird im BewG zu einem deutlich niedrigeren Wert angesetzt als sein tatsächlicher Verkehrswert. Beispiel:</p>
-<ul>
-<li>Verkehrswert 5 ha Ackerland in Lippe: ca. 250.000 € (5,00 €/m²)</li>
-<li>Bewertung nach BewG: oft nur 10.000–15.000 € (3–6 % des Verkehrswerts)</li>
-</ul>
-<p>Diese reduzierte Bewertung allein senkt die Erbschaftsteuer-Belastung dramatisch.</p>
-
-<h2>Plus: Verschonungsabschlag</h2>
-<p>Zusätzlich gibt es den Verschonungsabschlag nach §§ 13a, 13b ErbStG. Bei landwirtschaftlichem Vermögen gibt es zwei Modelle:</p>
-<ul>
-<li><strong>Regelverschonung</strong>: 85 % der bewerteten Substanz bleiben steuerfrei. Bedingung: 5 Jahre Behaltefrist (Bewirtschaftung muss 5 Jahre weiterlaufen).</li>
-<li><strong>Optionsverschonung</strong>: 100 % steuerfrei. Bedingung: 7 Jahre Behaltefrist plus strengere Lohnsummen-Anforderungen.</li>
-</ul>
-<p>Das bedeutet: aus einem geerbten Hektar Ackerland mit Verkehrswert 50.000 € wird steuerlich oft eine Belastung von wenigen Hundert Euro — wenn die Bedingungen stimmen.</p>
-
-<h2>Die Behaltefristen — der gefährlichste Punkt</h2>
-<p>Wenn die geerbte Fläche innerhalb der 5- (oder 7-) Jahresfrist verkauft, aus der landwirtschaftlichen Nutzung herausgenommen oder umgenutzt wird, entfällt der Verschonungsabschlag rückwirkend — anteilig.</p>
-<p>Beispiel: Erbe verkauft die geerbten Flächen nach 3 Jahren. Bei 5-Jahres-Frist entfällt 2/5 = 40 % des Verschonungsabschlags. Aus 0 € Steuer werden plötzlich 40 % des Steuerwerts. Bei größeren Erbschaften (Hofstelle plus 20 ha) können das schnell 50.000–100.000 € Nachzahlung sein.</p>
-<p>Wichtig: nicht jeder Verkauf führt zur rückwirkenden Belastung — bei „Sonderfällen" (Umstrukturierung, Krankheit, andere Härtefälle) gibt es Ausnahmen. Aber als Faustregel: <strong>innerhalb der Behaltefrist nicht verkaufen, wenn vermeidbar</strong>.</p>
-
-<h2>Was Lipper Erben konkret prüfen sollten</h2>
-<p>Wenn Sie landwirtschaftliches Vermögen erben:</p>
-<ol>
-<li><strong>Bestandsaufnahme</strong>: Welche Flächen sind aktiv bewirtschaftet, welche verpachtet, welche Hofstelle?</li>
-<li><strong>Bewirtschafter-Status klären</strong>: Wird der Hof weitergeführt (durch Sie oder einen Pächter), oder ist Auflösung geplant?</li>
-<li><strong>Steuerberater einschalten — vor der Erbschaftsteuer-Erklärung</strong>. Eine falsche Aussage in der Erklärung kann den Verschonungsabschlag nachträglich gefährden.</li>
-<li><strong>Behaltefrist im Auge behalten</strong>: 5 oder 7 Jahre, gestaffelt nach Erbgutsumme</li>
-<li><strong>Wenn Verkauf innerhalb der Frist nötig wird</strong>: prüfen ob ein Härtefall vorliegt</li>
-</ol>
-
-<h2>Der Sonderfall: Wenn keiner mehr bewirtschaftet</h2>
-<p>Wenn Sie eine Hofstelle plus Flächen erben, aber niemand in der Familie bewirtschaftet — was passiert dann steuerlich? Die Antwort hängt davon ab, ob die Flächen weiter <em>tatsächlich</em> landwirtschaftlich genutzt werden:</p>
-<ul>
-<li>Bei Verpachtung an einen Vollerwerbsbetrieb: meist erhält der Verschonungsabschlag, weil die Fläche „aktiv landwirtschaftlich genutzt" bleibt — auch wenn der Eigentümer selbst nicht bewirtschaftet.</li>
-<li>Bei Brachfallen oder Umnutzung: Risiko des Wegfalls des Verschonungsabschlags.</li>
-<li>Bei Verkauf an einen anderen Vollerwerbsbetrieb innerhalb der Behaltefrist: rückwirkende anteilige Belastung — siehe oben.</li>
-</ul>
-
-<h2>Strategie: Behaltefrist überbrücken, dann verkaufen</h2>
-<p>Eine bewährte Strategie für Erben, die langfristig verkaufen wollen, aber nicht sofort: die Flächen werden für die Dauer der Behaltefrist verpachtet (an einen aktiven Landwirt), nach Ablauf der Frist verkauft. Steuerlich ist das die optimale Lösung.</p>
-<p>Im Kreis Lippe konkret: bei einer 5-jährigen Behaltefrist und beabsichtigtem Verkauf eines 10-ha-Pakets in 5 Jahren — die Pacht über die Behaltefrist bringt parallel laufendes Einkommen (typisch 30.000–50.000 €), die Behaltefrist wird sauber gehalten, danach Verkauf zum vollen Preis.</p>
-
-<h2>Praktischer Hinweis</h2>
-<p>Erbschaftssteuer-Themen sollten <em>immer</em> mit einem Steuerberater geklärt werden — bei größeren landwirtschaftlichen Vermögen mit einem Steuerberater, der auf land- und forstwirtschaftliches Steuerrecht spezialisiert ist. In Lippe gibt es solche Spezialisten in Detmold und Lemgo. Die einmalige Beratung von 1.000–2.000 € spart oft fünf- bis sechsstellige Beträge.</p>
-
-<h2>Was wir tun</h2>
-<p>Wir koordinieren bei Erbfällen mit Ihrem Steuerberater die zeitliche Abstimmung: wann ist der Verkauf steuerlich am günstigsten, wie wird die Behaltefrist gehalten, welche Optionen (Pacht/Verkauf-Mix) sind sinnvoll. Wir kennen die typischen Konstellationen und sprechen die Sprache der Steuerberater — das macht den Prozess für die Familie deutlich entspannter.</p>
-`,
-  },
-  {
     slug: "wald-als-vermoegensanlage-lippe",
     title:
       "Wald als Vermögensanlage: Was Privatwald in Lippe langfristig wirklich erträgt",
     description:
-      "Wald gilt als sichere Anlage, die Inflation übersteht. Stimmt das? Eine nüchterne Renditenrechnung über 30 Jahre für Lipper Privatwald — mit Steuern, Förderung und Holzpreisentwicklung.",
+      "Wald gilt als sichere Anlage, die Inflation übersteht. Stimmt das? Eine nüchterne Renditenrechnung über 30 Jahre für Lipper Privatwald — mit Förderung und Holzpreisentwicklung.",
     category: "Wald",
-    publishedAt: "2024-11-05",
+    publishedAt: "2026-05-15",
+    updatedAt: "2026-09-24",
     readingMinutes: 7,
     keywords: [
       "Wald Vermögensanlage",
@@ -1643,13 +1565,12 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
 <li><strong>Kosten</strong>: ca. 100–200 €/ha/Jahr für Pflege, Grundsteuer, Versicherung = 3.000–6.000 €/ha über 30 Jahre</li>
 <li><strong>Wert in 30 Jahren</strong>: bei Buche dann hiebsreif, etwa 18.000–25.000 €/ha real</li>
 </ul>
-<p>Reale Gesamtrendite über 30 Jahre: <strong>etwa 1,8–2,5 % pro Jahr nach Steuern</strong>. Das ist konservativ, aber realistisch.</p>
+<p>Reale Gesamtrendite über 30 Jahre: <strong>etwa 1,8–2,5 % pro Jahr</strong> (grobe Schätzung). Das ist konservativ, aber realistisch.</p>
 
 <h2>Wo der Vergleich zu anderen Anlagen hinkt</h2>
 <p>Aktien-Indizes (DAX, MSCI World) haben langfristig 5–7 % reale Rendite. Wald liegt darunter. <em>Warum kaufen dann Leute Wald?</em></p>
 <ul>
 <li><strong>Diversifikation</strong> — Wald ist nicht mit Aktien korreliert</li>
-<li><strong>Steuerliche Privilegien</strong> — Wald wird im Bewertungsgesetz extrem niedrig angesetzt (Erbschaftssteuer-Vorteile)</li>
 <li><strong>Emotionaler Wert</strong> — eigenes Stück Natur, generationenübergreifend</li>
 <li><strong>Krisensicherheit</strong> — in Inflationsphasen historisch stabil; in Krisenzeiten gefragt</li>
 </ul>
@@ -1685,7 +1606,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
 </ol>
 
 <h2>Praktische Empfehlung</h2>
-<p>Wald als reine Geldanlage zu betrachten verfehlt meist den Punkt. Wer eine 2–7 % Rendite sucht, soll in Aktien-ETFs anlegen. Wer eine generationenübergreifende Vermögensbasis aufbauen will, mit Inflationsschutz, steuerlichen Vorteilen und einem emotionalen Wert, der nicht in Excel-Tabellen passt — der findet im Lipper Privatwald eine sehr gute Option. Die Rendite ist bescheiden, aber die Substanz hält.</p>
+<p>Wald als reine Geldanlage zu betrachten verfehlt meist den Punkt: Wer vor allem Rendite sucht, wird im Wald nicht glücklich. Wer eine generationenübergreifende Vermögensbasis aufbauen will, mit Inflationsschutz und einem emotionalen Wert, der nicht in Excel-Tabellen passt — der findet im Lipper Privatwald eine sehr gute Option. Die Rendite ist bescheiden, aber die Substanz hält.</p>
 
 <h2>Was wir tun</h2>
 <p>Wir kaufen Lipper Privatwald regelmäßig — auch zur Vermögensanlage. Wenn Sie verkaufen wollen oder einen Wald-Pool für Investoren suchen, sprechen Sie uns an. Wir haben auch Erfahrung mit der Co-Investment-Struktur für Familien, die Wald als gemeinsame Anlage halten wollen.</p>
@@ -1698,7 +1619,8 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
     description:
       "Vor dem Verkauf einer landwirtschaftlichen Fläche lohnt ein Blick ins Grundbuch — viele Eigentümer kennen ihre Lasten nicht. Welche typischen Einträge im Kreis Lippe vorkommen und wie sie den Wert beeinflussen.",
     category: "Recht",
-    publishedAt: "2024-09-12",
+    publishedAt: "2026-05-15",
+    updatedAt: "2026-09-24",
     readingMinutes: 7,
     keywords: [
       "Lasten Grundbuch Acker",
@@ -1758,8 +1680,8 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
 <h2>Löschung alter Lasten</h2>
 <p>Alte Reallasten oder ungenutzte Dienstbarkeiten können oft gelöscht werden — über § 1019 BGB (bei ungenutzter Last) oder im Einverständnis mit den Begünstigten. Der Notar wickelt das ab, Kosten meist 500–1.500 €. Eine Wertsteigerung der Fläche von 5–15 % ist häufig die Folge.</p>
 
-<h2>Praxis-Beispiel</h2>
-<p>2024 hatten wir den Fall einer 3,5-ha-Fläche in der Gemarkung Schmedissen mit drei eingetragenen Lasten: ein Wegerecht aus 1962, ein Wasserleitungsrecht der Stadtwerke und ein nicht mehr ausgeübtes Vorkaufsrecht eines verstorbenen Onkels. Die Bewertung lag bei 5,80 €/m² (Verkehrswert) — minus die drei Lasten landete der Verkaufspreis bei 4,20 €/m². Durch Löschung der zwei alten Lasten (Wegerecht aus 1962 ungenutzt, Vorkaufsrecht verstorben) konnten wir den Preis im realen Verkauf wieder auf 5,40 €/m² heben. Mehrwert: 25.000 € auf der Fläche.</p>
+<h2>Rechenbeispiel</h2>
+<p>Ein vereinfachtes Beispiel mit angenommenen Werten: Auf einer 3,5-ha-Fläche lasten ein seit Jahrzehnten ungenutztes Wegerecht, ein Wasserleitungsrecht der Stadtwerke und ein Vorkaufsrecht zugunsten einer inzwischen verstorbenen Person. Ohne Lasten läge der Verkehrswert bei 5,80 €/m² — mit den drei Lasten bietet ein Käufer vielleicht nur 4,20 €/m². Werden die beiden hinfälligen Lasten vor dem Verkauf gelöscht, sind wieder rund 5,40 €/m² erzielbar. Bei 35.000 m² macht das einen Unterschied von rund 42.000 €.</p>
 
 <h2>Was wir tun</h2>
 <p>Wir prüfen den Grundbuchauszug Ihrer Fläche kostenlos und identifizieren Löschungsmöglichkeiten. Beim eigentlichen Verkauf koordinieren wir die Löschung mit Ihrem Notar und ggf. den Begünstigten. Das holt oft 5–15 % Mehrwert raus — bei minimalem Aufwand für Sie als Eigentümer.</p>
@@ -1772,7 +1694,8 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
     description:
       "Ein Landpachtvertrag aus 2018 ist heute oft 30 % unter Marktniveau und enthält zudem Klauseln, die Eigentümer benachteiligen. Welche 7 Bestandteile in jeden neuen Vertrag gehören — und welche nicht.",
     category: "Recht",
-    publishedAt: "2024-07-18",
+    publishedAt: "2026-05-15",
+    updatedAt: "2026-09-24",
     readingMinutes: 7,
     keywords: [
       "Landpachtvertrag Klauseln",
@@ -1847,7 +1770,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
 </ul>
 
 <h2>Empfehlung</h2>
-<p>Wenn Sie einen Pachtvertrag aus 2018 oder früher haben, prüfen Sie spätestens bei der nächsten Verlängerung kritisch: Markt-Pacht erreicht? Klauseln aktuell? Förderungs-Optionen abgedeckt? Wenn nicht: Neuverhandlung. Der Pächter wird in 80 % der Fälle mitziehen, weil er die Fläche behalten will.</p>
+<p>Wenn Sie einen Pachtvertrag aus 2018 oder früher haben, prüfen Sie spätestens bei der nächsten Verlängerung kritisch: Markt-Pacht erreicht? Klauseln aktuell? Förderungs-Optionen abgedeckt? Wenn nicht: Neuverhandlung. Viele Pächter ziehen mit, weil sie die Fläche behalten wollen.</p>
 
 <h2>Was wir tun</h2>
 <p>Wir prüfen Ihren bestehenden Pachtvertrag kostenlos. Bei Pachterneuerung verhandeln wir mit dem Pächter (auf Wunsch ohne dass er Ihren Namen erfährt) und stellen einen marktgerechten, modern formulierten Vertrag auf. Bei Bedarf koordinieren wir den Notar — wobei Landpachtverträge in Deutschland im Gegensatz zu Kaufverträgen nicht notariell beurkundet werden müssen.</p>
@@ -1860,7 +1783,8 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
     description:
       "Zwei Äcker im selben Dorf, gleiche Größe, völlig unterschiedlicher Verkaufspreis. Welche sechs Faktoren bei landwirtschaftlichen Flächen in Lippe wirklich den Preis machen — und welche Eigentümer überschätzen oder ignorieren.",
     category: "Markt",
-    publishedAt: "2024-05-22",
+    publishedAt: "2026-05-15",
+    updatedAt: "2026-09-24",
     readingMinutes: 7,
     keywords: [
       "Ackerland Wert Lippe",
@@ -1920,7 +1844,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
 </ul>
 
 <h2>Beispielrechnung: 2 ha im Werretal-Übergang</h2>
-<p>Konkretes Beispiel aus 2023/2024 in der Gemarkung Lemgo:</p>
+<p>Ein vereinfachtes Rechenbeispiel mit angenommenen Werten:</p>
 <ul>
 <li>Bodenrichtwert in der Zone: 2,50 €/m² → 50.000 € rein bodenrichtwert-basiert</li>
 <li>Faktor 1 Bonität AZ 65 (über Standard 55): +12 % → 56.000 €</li>
@@ -1943,7 +1867,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
     description:
       "CO2-Zertifikate sind das nächste große Thema im Privatwald. Was Lipper Waldbesitzer 2025 darüber wissen sollten, welche Programme realistisch sind und wo die Verträge zur Falle werden können.",
     category: "Wald",
-    publishedAt: "2025-05-15",
+    publishedAt: "2026-05-15",
     readingMinutes: 7,
     keywords: [
       "CO2-Zertifikate Wald NRW",
@@ -2006,85 +1930,14 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
 `,
   },
   {
-    slug: "steuern-verkauf-landwirtschaft-behaltefrist",
-    title:
-      "Steuern beim Verkauf landwirtschaftlicher Flächen: Behaltefrist, Veräußerungsgewinn und 10-Jahres-Regel",
-    description:
-      "Wer landwirtschaftliche Flächen verkauft, sollte die steuerlichen Mechanismen kennen — bevor der Vertrag unterschrieben ist. Was Behaltefristen, stille Reserven und Halbabzugsverfahren für Lipper Eigentümer bedeuten.",
-    category: "Recht",
-    publishedAt: "2025-01-20",
-    readingMinutes: 7,
-    keywords: [
-      "Steuer Verkauf Ackerland",
-      "Behaltefrist Landwirtschaft",
-      "Stille Reserven Boden",
-      "Halbabzugsverfahren Land",
-      "Veräußerungsgewinn Acker",
-    ],
-    content: `
-<p class="lead">Der Verkauf einer landwirtschaftlichen Fläche kann steuerlich ein 4-stelliger Schnellschuss oder ein 5-stelliges Optimierungsthema sein. Welche Faktoren den Unterschied machen — und wann sich der Steuerberater wirklich lohnt.</p>
-
-<h2>Die zwei Welten: Privatvermögen vs. Betriebsvermögen</h2>
-<p>Beim Verkauf landwirtschaftlicher Flächen ist die erste Frage immer dieselbe: liegt die Fläche im Privatvermögen oder im Betriebsvermögen?</p>
-<ul>
-<li><strong>Privatvermögen</strong>: Bei reinem Privateigentümer ohne Bewirtschaftung gilt § 23 EStG. Verkauf nach 10 Jahren Haltedauer steuerfrei. Vorher: Veräußerungsgewinn ist Spekulationsgewinn.</li>
-<li><strong>Betriebsvermögen</strong>: Bei aktivem Vollerwerbsbetrieb gilt § 13 i.V.m. § 16 EStG. Verkauf realisiert stille Reserven, die voll versteuert werden — es sei denn, ein Tatbestand der Begünstigung greift (Aufgabe-Freibetrag, halber Steuersatz, Reinvestitionsrücklage).</li>
-</ul>
-
-<h2>Privatvermögen — die 10-Jahres-Regel</h2>
-<p>Wenn die Fläche im Privatvermögen ist (z. B. geerbt vor mehr als 10 Jahren, oder seit Generationen privat gehalten), gilt eine einfache Regel: <strong>Verkauf nach 10 Jahren ist steuerfrei</strong>.</p>
-<p>Vor Ablauf der 10 Jahre ist der Veräußerungsgewinn (Verkaufspreis minus Anschaffungskosten minus Verkaufsnebenkosten) als sonstige Einkünfte zu versteuern — mit dem persönlichen Einkommensteuersatz.</p>
-<p>Im Kreis Lippe ist die häufigste Konstellation: Erbschaft 2015 oder früher, Verkauf 2025 — also nach 10+ Jahren, komplett steuerfrei. Das ist der einfache Fall.</p>
-
-<h2>Betriebsvermögen — die komplizierte Welt</h2>
-<p>Wenn die Fläche zum landwirtschaftlichen Betrieb gehört, wird es deutlich umfangreicher. Beim Verkauf werden stille Reserven aufgedeckt:</p>
-<ul>
-<li><strong>Stille Reserven</strong>: Differenz zwischen Buchwert (oft nahe Null bei lange gehaltenem Boden) und Verkehrswert (heute hoch)</li>
-<li>Diese Differenz ist als Veräußerungsgewinn voll steuerpflichtig</li>
-<li>Bei einem Hektar mit Buchwert 5.000 € und Verkehrswert 50.000 €: 45.000 € Veräußerungsgewinn</li>
-<li>Bei einem Spitzensteuersatz von ca. 45 %: 20.250 € Steuer</li>
-</ul>
-
-<h3>Begünstigungen im Betriebsvermögen</h3>
-<ul>
-<li><strong>Aufgabe-Freibetrag (§ 16 Abs. 4 EStG)</strong>: 45.000 € Freibetrag für Veräußerungs- oder Aufgabegewinn, wenn der Steuerpflichtige das 55. Lebensjahr vollendet hat oder dauerhaft berufsunfähig ist. Abschmelzung ab 136.000 € Gewinn.</li>
-<li><strong>Halber Steuersatz (§ 34 EStG)</strong>: Auf den Veräußerungsgewinn bei Erfüllung der oben genannten Voraussetzungen — oft 56 % des regulären Steuersatzes.</li>
-<li><strong>Reinvestitionsrücklage (§ 6b EStG)</strong>: Bei Reinvestition in andere landwirtschaftliche Wirtschaftsgüter binnen 4 Jahren kann die Steuer aufgeschoben werden.</li>
-</ul>
-
-<h2>Häufigste Konstellation im Lipper Land</h2>
-<p>Der Klassiker: jemand erbt Hofstellen mit Flächen, der Hof wurde nie aufgegeben (Betriebsfortführung über Verpachtung), Verkauf einzelner Flächen 5–10 Jahre nach Erbschaft. Steuerlich ist das die schwierigste Konstellation, weil:</p>
-<ul>
-<li>Die Flächen gelten als Betriebsvermögen (auch bei reiner Verpachtung, weil kein Aufgabeakt erklärt wurde)</li>
-<li>Stille Reserven sind über Jahrzehnte aufgelaufen</li>
-<li>Begünstigungen greifen oft nicht (zu jung, kein Aufgabeakt)</li>
-</ul>
-<p>Lösung: <strong>Strukturierte Betriebsaufgabe</strong> vor dem Verkauf, mit dokumentierter Aufgabe-Erklärung beim Finanzamt. Das öffnet den Aufgabe-Freibetrag und den halben Steuersatz — und kann fünfstellige Steuerersparnis bringen.</p>
-
-<h2>Der Sonderfall Bauland</h2>
-<p>Wenn eine landwirtschaftliche Fläche in Bauland umgewidmet wird (oder als Bauerwartungsland verkauft wird), verändert sich die Steuersituation grundlegend:</p>
-<ul>
-<li>Die 10-Jahres-Regel des Privatvermögens kann <em>nicht</em> mehr greifen, wenn die Fläche im Betriebsvermögen war</li>
-<li>Der Veräußerungsgewinn aus dem Bauland-Verkauf gilt als laufender Gewinn — voll und nicht begünstigt</li>
-<li>Hier kann eine Reinvestitionsrücklage besonders sinnvoll sein</li>
-</ul>
-
-<h2>Wann der Steuerberater unbedingt ran muss</h2>
-<p>Bei Privatvermögen mit über 10 Jahren Haltedauer: einfach. Steuerfrei verkaufen, fertig.</p>
-<p>Bei allen anderen Konstellationen — Betriebsvermögen, Erbschaft, Hofaufgabe-Themen, Bauland-Umwidmung — gehört der Steuerberater frühzeitig dazu. Idealerweise 1–2 Jahre vor dem geplanten Verkauf. Eine schlechte Steuer-Strukturierung kostet schnell 20.000–80.000 € — bei einem Honorar von 500–2.000 € für eine gute Beratung ist das ein klares Geschäft.</p>
-
-<h2>Was wir tun</h2>
-<p>Wir koordinieren bei jedem Verkauf mit Ihrem Steuerberater die zeitliche und strukturelle Planung. Wenn keine Beziehung zu einem Steuerberater besteht, vermitteln wir an Lipper Spezialisten in Detmold und Lemgo, die auf land- und forstwirtschaftliches Steuerrecht ausgerichtet sind.</p>
-`,
-  },
-  {
     slug: "paechter-beim-verkauf-einbeziehen",
     title:
       "Pächter beim Verkauf einbeziehen: Drei Wege, ohne Vertrauensbruch",
     description:
       "Soll man den Pächter über einen geplanten Verkauf informieren — oder erst nach Vertragsschluss? Drei Wege, die in der Lipper Praxis funktionieren, mit Vor- und Nachteilen je nach Konstellation.",
     category: "Praxis",
-    publishedAt: "2024-10-15",
+    publishedAt: "2026-05-15",
+    updatedAt: "2026-09-24",
     readingMinutes: 6,
     keywords: [
       "Pächter informieren Verkauf",
@@ -2145,7 +1998,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
 </ul>
 
 <h2>Welcher Weg passt</h2>
-<p>Aus unserer Praxis: in 70 % der Lipper Fälle ist <strong>Weg 3</strong> der beste. Pächter werden im richtigen Moment informiert, behalten Vertrauen, und der Käufer kann gleich klären, ob er den Pachtvertrag fortsetzt oder zur nächsten Pachtperiode anderes plant.</p>
+<p>In den meisten Fällen ist <strong>Weg 3</strong> der beste. Pächter werden im richtigen Moment informiert, behalten Vertrauen, und der Käufer kann gleich klären, ob er den Pachtvertrag fortsetzt oder zur nächsten Pachtperiode anderes plant.</p>
 <p>Weg 1 funktioniert gut, wenn der Pächter eine konkrete Kaufoption hat und die Beziehung freundschaftlich ist.</p>
 <p>Weg 2 ist sinnvoll, wenn der Pächter problematisch ist (Pacht-Rückstände, fortdauernde Bewirtschaftungsmängel, zerrüttetes Verhältnis) — oder wenn maximale Diskretion gefragt ist (z. B. Erbengemeinschafts-Konflikte, die nicht öffentlich werden sollen).</p>
 
@@ -2168,7 +2021,8 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
     description:
       "Neben Landwirten und Investoren gibt es eine dritte Käufergruppe für Lipper Flächen: Genossenschaften, Stiftungen, Bodenfonds. Welche Modelle es gibt, wann sich der Verkauf an sie lohnt und welche Konditionen üblich sind.",
     category: "Markt",
-    publishedAt: "2024-08-21",
+    publishedAt: "2026-05-15",
+    updatedAt: "2026-09-24",
     readingMinutes: 6,
     keywords: [
       "Bodenfonds Käufer landwirtschaftliche Fläche",
@@ -2200,7 +2054,6 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
 <ul>
 <li>Schnelle, sichere Abwicklung (Stiftungen haben Eigenmittel, keine Bankfinanzierung)</li>
 <li>Die Fläche bleibt dauerhaft erhalten — emotional wichtig für viele Erben</li>
-<li>Steuerliche Vorteile beim Verkäufer durch gemeinnützigen Empfänger (in seltenen Konstellationen)</li>
 </ul>
 <p>Wer Stiftungen ansprechen will: typischerweise über das jeweilige Geschäftsbüro. Die NRW-Stiftung hat eine eigene Anmeldemaske für Flächen-Angebote. Antwortzeit: 4–12 Wochen.</p>
 
@@ -2247,7 +2100,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
     description:
       "Bevor Sie mit einem Käufer oder Makler sprechen — hier der Quick-Check, wie Sie selbst eine grobe Werteinschätzung für Ihre Lipper Fläche bekommen. Mit konkreten Schritten und kostenlosen Quellen.",
     category: "Markt",
-    publishedAt: "2024-06-12",
+    publishedAt: "2026-05-15",
     readingMinutes: 5,
     keywords: [
       "Wert Acker selbst einschätzen",
@@ -2332,6 +2185,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
       "Bis zum 30. Juni 2026 müssen VNS-Anträge für Verpflichtungen ab 01.01.2027 bei der UNB Kreis Lippe eingegangen sein. Welche Pakete passen, welche Lipper Flächen besonders profitieren — und wie der Antragsweg über die Biologische Station Lippe abläuft.",
     category: "VNS",
     publishedAt: "2026-05-06",
+    updatedAt: "2026-09-24",
     readingMinutes: 9,
     keywords: [
       "Vertragsnaturschutz NRW 2026",
@@ -2356,7 +2210,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
 <p>Die Bio-Station Lippe und die UNB nehmen die meisten Erstgespräche im April und Mai an — wer im Juni anruft, läuft in den Engpass und riskiert, dass die Bestandserfassung nicht mehr rechtzeitig läuft.</p>
 
 <h2>Welche Flächen im Kreis Lippe besonders profitieren</h2>
-<p>Nicht jede Fläche eignet sich gleich gut. Aus unserer Praxis und in Abstimmung mit der Bio-Station Lippe haben wir vier Lipper Hotspots identifiziert, in denen VNS überproportional lohnt:</p>
+<p>Nicht jede Fläche eignet sich gleich gut. In vier Lipper Gebieten lohnt VNS besonders:</p>
 <ul>
 <li><strong>FFH-Gebiet Egge (DE-4319-301)</strong> — die Hochlagen rund um Veldrom, Leopoldstal, Holzhausen-Externsteine und das Silberbachtal. Hier sind extensive Mähwiesen (LRT 6510) und Bergmähwiesen (LRT 6520) als Schutzgut anerkannt. Höchste Förderpakete plus Zusatzmodule für späte Mahd und Verzicht auf Mineraldüngung.</li>
 <li><strong>NSG Silberbachtal mit Ziegenberg (LIP-028)</strong> — Hangflächen entlang der L 954 mit hohem ökologischem Potenzial.</li>
@@ -2410,7 +2264,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
 
 <h2>Was wir konkret tun</h2>
 <p>Lippe Forst ist Eigentümer eigener Forst- und Wiesenflächen rund um Leopoldstal, den Püngelsberg und das Triftenberge-Gebiet. Wir kennen die Bio-Station Lippe persönlich, haben mit der UNB Kreis Lippe in eigener Sache zusammengearbeitet und wissen, welche Pakete für welche Lipper Lage tatsächlich Sinn ergeben.</p>
-<p>Wenn Sie unsicher sind, ob VNS für Ihre Fläche passt — und ob die Frist 30.06.2026 noch zu schaffen ist — schauen wir kostenlos drauf. Sprechen Sie uns an, idealerweise <strong>noch im Mai 2026</strong>, damit das Erstgespräch mit der Bio-Station rechtzeitig stattfindet.</p>
+<p>Wenn Sie unsicher sind, ob VNS für Ihre Fläche passt, schauen wir kostenlos drauf. Sprechen Sie uns am besten bis Anfang Mai an, damit das Erstgespräch mit der Bio-Station vor der jährlichen Antragsfrist am 30. Juni stattfinden kann.</p>
 `,
   },
 ];
@@ -2428,7 +2282,7 @@ export function articlesSorted(): Article[] {
 export const CATEGORY_LABEL: Record<Article["category"], string> = {
   VNS: "Vertragsnaturschutz",
   Markt: "Markt & Preise",
-  Recht: "Recht & Steuern",
+  Recht: "Recht",
   Praxis: "Praxis & Tipps",
   Wald: "Wald & Forst",
   Förderung: "Förderung",
