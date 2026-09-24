@@ -54,7 +54,7 @@ export default function BlogIndex() {
               <Link
                 key={a.slug}
                 href={`/blog/${a.slug}`}
-                className="card group flex flex-col"
+                className="card group flex flex-col min-w-0"
               >
                 <div className="flex items-center gap-2 mb-3">
                   <span className="inline-block px-2 py-0.5 rounded-full bg-[color:var(--color-brand-soft)] text-[color:var(--color-brand-dark)] text-[11px] font-semibold uppercase tracking-wider">
@@ -68,7 +68,7 @@ export default function BlogIndex() {
                     })}
                   </span>
                 </div>
-                <h2 className="font-serif text-xl leading-snug mb-2 group-hover:text-[color:var(--color-brand)] transition-colors">
+                <h2 className="font-serif text-xl leading-snug mb-2 group-hover:text-[color:var(--color-brand)] transition-colors break-words max-sm:hyphens-auto">
                   {a.title}
                 </h2>
                 <p className="text-sm text-[color:var(--color-ink-soft)] leading-relaxed flex-1">
