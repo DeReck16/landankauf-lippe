@@ -64,6 +64,10 @@ export default function Page() {
             <strong>Kontakt über WhatsApp und Telefon:</strong> Unsere Seiten enthalten einen Link zu WhatsApp (WhatsApp Ireland Limited, Merrion Road, Dublin 4, D04 X2K5, Irland). Daten fließen erst, wenn Sie den Link anklicken — dann öffnet sich WhatsApp, und WhatsApp verarbeitet Ihre Telefonnummer, die Nachricht und Nutzungsdaten nach seinen eigenen Datenschutzbestimmungen; eine Übermittlung in die USA ist dabei möglich (Meta ist nach dem EU-US Data Privacy Framework zertifiziert). Schreiben Sie uns über WhatsApp oder rufen Sie uns an, nutzen wir Ihre Angaben zur Bearbeitung Ihres Anliegens (Art. 6 Abs. 1 lit. b DSGVO). Ein Klick auf den WhatsApp- oder Telefon-Link wird außerdem als Conversion an Google Ads gemeldet (siehe Abschnitt 7). Wenn Sie WhatsApp nicht nutzen möchten, erreichen Sie uns per E-Mail oder über das Formular.
           </p>
 
+          <p>
+            <strong>Flächenbörse:</strong> Mit Ihrer ausdrücklichen Einwilligung zeigen wir Ihr Kaufangebot anonym in unserer Flächenbörse auf lippeforst.de — nur mit Flächentyp, ungefährer Größe, grober Lage (Gemeinde) und einem kurzen Text, nie mit Namen, Kontaktdaten oder Flurstück (Art. 6 Abs. 1 lit. a DSGVO). Sie können die Einwilligung jederzeit widerrufen; dann nehmen wir das Angebot sofort von der Website. Wer über die Börse Interesse anmeldet, wird wie jede andere Anfrage behandelt (siehe oben).
+          </p>
+
           <h2>4. Kundenbereich, Online-Verträge und Dokumente</h2>
           <p>
             Wenn wir Ihnen eine passende Fläche oder einen passenden Interessenten vorstellen möchten, laden wir Sie in unseren Kundenbereich unter lippeforst.de/kunde ein. Dort erfassen Sie Ihre Angaben (Name, Anschrift, Telefon, gegebenenfalls Betrieb, ob Sie als Verbraucher oder Unternehmer handeln, bei Anbietern die Flurstücke), lesen den Vertrag und unterschreiben ihn online. Wir verarbeiten diese Daten, um den Vertrag abzuschließen und durchzuführen (Art. 6 Abs. 1 lit. b DSGVO).

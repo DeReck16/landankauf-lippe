@@ -29,6 +29,7 @@ import GesehenMarker from "../../GesehenMarker";
 import LinkKopieren from "../../LinkKopieren";
 import MailEntwurf from "../../MailEntwurf";
 import { DokumentListe, KundenStand, Meldung, Puls, Verlauf, VorgangLink } from "../../teile";
+import BoersePanel, { BoerseHerkunft } from "./BoersePanel";
 
 export const metadata: Metadata = { title: "Anfrage" };
 
@@ -135,6 +136,9 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
             <h3 className="lfa-h2" style={{ marginTop: "1.1rem", fontSize: "1rem" }}>Nachricht</h3>
             <div className="lfa-nachricht">{l.message !== "—" ? l.message : "Keine Nachricht."}</div>
           </section>
+
+          <BoerseHerkunft l={l} zustand={zustand} />
+          <BoersePanel l={l} zustand={zustand} />
 
           <section className="lfa-panel" id="kundenbereich">
             <h2 className="lfa-h2">

@@ -14,7 +14,8 @@ import { orteErgaenzen } from "@/lib/admin/daten";
 import { orteAusText, ortKey } from "@/lib/admin/geo";
 import { ladeKunde } from "@/lib/portal/speicher";
 import { beideUnterschrieben } from "@/lib/portal/schritte";
-import { LEAD_STATUS, MATCH_STATUS, leadView, type Art, type LeadMeta, type LeadStatus, type MatchMeta, type Rolle } from "@/lib/admin/model";
+import { LEAD_STATUS, MATCH_STATUS, leadView, type Art, type BoerseMeta, type LeadMeta, type LeadStatus, type MatchMeta, type Rolle } from "@/lib/admin/model";
+import { boerseLuecken, boerseNeuSchreiben, neuerBoerseCode } from "@/lib/boerse";
 
 // ---------------------------------------------------------------------------
 // Anmeldung per Link
@@ -161,6 +162,12 @@ export async function anfrageSpeichern(formData: FormData): Promise<void> {
     return { was: aenderungen.join(" · "), ref: id };
   });
 
+  // Erledigt/archiviert: ein Börsen-Angebot verschwindet sofort von der Website.
+  if (bereich === "status" || bereich === "bearbeitung") {
+    const { zustand } = await readZustand();
+    if (zustand.anfragen[id]?.boerse?.online) await boerseNeuSchreiben();
+  }
+
   if (ortGeaendert !== null) {
     const lead = (await listLeads()).find((l) => l.id === id);
     const zustand = (await readZustand()).zustand;
@@ -265,4 +272,87 @@ export async function paarAktion(formData: FormData): Promise<void> {
     return { was, ref: key };
   });
   revalidatePath("/admin", "layout");
+}
+
+// ---------------------------------------------------------------------------
+// Flächenbörse: Angaben, Einwilligung des Eigentümers, veröffentlichen
+
+const BOERSE_QUELLEN = ["telefonisch", "per E-Mail", "schriftlich", "im Kundenbereich"];
+
+export async function boerseAktion(formData: FormData): Promise<void> {
+  const { email } = await requireAdmin();
+  const id = text(formData, "id", 40);
+  if (!/^LL-[A-Z0-9]+$/.test(id)) throw new Error("Ungültige Anfrage-ID");
+  const aktion = text(formData, "aktion", 30);
+  const zurueck = `/admin/anfrage/${id}`;
+  const lead = (await listLeads()).find((l) => l.id === id);
+  if (!lead) redirect(`${zurueck}?m=${encodeURIComponent("Anfrage nicht gefunden.")}&mt=fehler`);
+  const jetzt = new Date().toISOString();
+  let meldung = "";
+  let fehler = false;
+  let oeffentlichBetroffen = false;
+
+  await mutateZustand(email, (z) => {
+    meldung = "";
+    fehler = false;
+    const meta: LeadMeta = { ...(z.anfragen[id] ?? {}) };
+    const vorhanden = new Set(Object.values(z.anfragen).map((m) => m.boerse?.code).filter((c): c is string => Boolean(c)));
+    const b: BoerseMeta = meta.boerse ? { ...meta.boerse } : { code: neuerBoerseCode(vorhanden), typ: "", groesseHa: null, lage: "", text: "", einwilligung: null, online: false };
+    let was = "";
+    switch (aktion) {
+      case "speichern": {
+        const typ = text(formData, "typ", 40);
+        if ((FLAECHENTYPEN as readonly string[]).includes(typ)) b.typ = typ;
+        b.groesseHa = zahlOderNull(text(formData, "groesseHa", 12));
+        b.lage = text(formData, "lage", 80);
+        b.text = text(formData, "text", 300);
+        was = `Angaben für die Flächenbörse gespeichert (${b.code})`;
+        oeffentlichBetroffen = b.online;
+        break;
+      }
+      case "einwilligung": {
+        const quelle = text(formData, "quelle", 40);
+        const am = text(formData, "am", 10);
+        b.einwilligung = { am: /^\d{4}-\d{2}-\d{2}$/.test(am) ? am : jetzt.slice(0, 10), quelle: BOERSE_QUELLEN.includes(quelle) ? quelle : "telefonisch", von: email };
+        was = `Einwilligung des Eigentümers in die Flächenbörse erfasst (${b.einwilligung.quelle})`;
+        break;
+      }
+      case "einwilligung-zurueck":
+        b.einwilligung = null;
+        oeffentlichBetroffen = b.online;
+        b.online = false;
+        was = "Einwilligung in die Flächenbörse widerrufen — Angebot offline";
+        break;
+      case "online": {
+        const luecken = boerseLuecken(b, leadView(lead!, { ...meta, boerse: b }));
+        if (luecken.length) {
+          meldung = `Nicht veröffentlicht: ${luecken.join(" · ")}.`;
+          fehler = true;
+          return;
+        }
+        b.online = true;
+        b.seit ??= jetzt;
+        oeffentlichBetroffen = true;
+        was = `In der Flächenbörse veröffentlicht (${b.code})`;
+        break;
+      }
+      case "offline":
+        if (!b.online) return;
+        b.online = false;
+        oeffentlichBetroffen = true;
+        was = `Aus der Flächenbörse genommen (${b.code})`;
+        break;
+      default:
+        return;
+    }
+    b.geaendert = { am: jetzt, von: email };
+    meta.boerse = b;
+    z.anfragen[id] = meta;
+    meldung = was;
+    return { was, ref: id };
+  });
+
+  if (oeffentlichBetroffen) await boerseNeuSchreiben();
+  revalidatePath("/admin", "layout");
+  redirect(`${zurueck}?m=${encodeURIComponent(meldung || "Keine Änderung.")}&mt=${fehler ? "fehler" : "ok"}#boerse`);
 }

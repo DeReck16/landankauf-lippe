@@ -7,6 +7,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
   const coreRoutes = [
     "",
+    "flaechenboerse",
     "flaeche-verkaufen",
     "flaeche-verpachten",
     "solarpark-verpachten",

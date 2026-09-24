@@ -5,6 +5,9 @@ import Link from "next/link";
 import LeadForm from "@/components/LeadForm";
 import { seitenMetadaten } from "@/lib/seo";
 
+// Flächenbörse auf der Startseite: alle 5 Minuten bzw. beim Veröffentlichen sofort neu.
+export const revalidate = 300;
+
 export const metadata: Metadata = seitenMetadaten({
   title: "Ackerland & Wald verkaufen im Kreis Lippe – Lippe Forst",
   absolut: true,
@@ -13,6 +16,7 @@ export const metadata: Metadata = seitenMetadaten({
   pfad: "/",
 });
 import QuickValuation from "@/components/QuickValuation";
+import BoerseAbschnitt from "@/components/boerse/BoerseAbschnitt";
 import VideoEmbed from "@/components/VideoEmbed";
 import ClickToReveal from "@/components/ClickToReveal";
 import { site, services, flaechenTypen, whatsappLink } from "@/lib/site";
@@ -120,7 +124,7 @@ export default function Home() {
             </p>
             <div className="mt-5 inline-flex items-center gap-2 text-xs uppercase tracking-wider text-[color:var(--color-accent)] border border-white/15 rounded-full px-3 py-1.5">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-[color:var(--color-accent)]" />
-              Keine Aushängung · keine Inserate · keine Weitergabe
+              Kein Aushang · anonym nur mit Ihrer Zustimmung · keine Weitergabe
             </div>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/flaeche-bewerten" className="btn-on-dark">Kostenlose Wertindikation</Link>
@@ -174,6 +178,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* FLÄCHENBÖRSE */}
+      <BoerseAbschnitt />
 
       <VideoEmbed />
 

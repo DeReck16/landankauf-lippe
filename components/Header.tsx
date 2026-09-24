@@ -4,6 +4,7 @@ import MobileNav from "@/components/MobileNav";
 import { site } from "@/lib/site";
 
 const nav = [
+  { href: "/flaechenboerse", label: "Flächenbörse" },
   { href: "/flaeche-verkaufen", label: "Verkaufen" },
   { href: "/flaeche-verpachten", label: "Verpachten" },
   { href: "/solarpark-verpachten", label: "Solar & Wind" },
@@ -26,12 +27,12 @@ export default function Header() {
             Lippe Forst
           </span>
         </Link>
-        <nav className="hidden lg:flex items-center gap-6 text-sm">
+        <nav className="hidden xl:flex items-center gap-5 text-sm">
           {nav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-brand-dark)] transition-colors"
+              className="whitespace-nowrap text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-brand-dark)] transition-colors"
             >
               {item.label}
             </Link>

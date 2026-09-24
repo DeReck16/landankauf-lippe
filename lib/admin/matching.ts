@@ -153,6 +153,14 @@ export function findeKandidaten(leads: LeadView[], zustand: Zustand): { kandidat
     });
   }
 
+  // Interesse über die Flächenbörse: Das Paar ist gewollt, auch wenn Ort oder Größe rechnerisch nicht passen.
+  for (const k of kandidaten.values()) {
+    const code = k.angebot.meta.boerse?.code;
+    if (!code || k.gesuch.boerse !== code) continue;
+    k.gruende = [`Interesse über die Flächenbörse (${code})`, ...k.gruende];
+    k.hinweise = k.hinweise.filter((h) => !h.startsWith("Passt nach den aktuellen Angaben nicht mehr"));
+  }
+
   const ohneOrt = [...angebote, ...gesuche].filter((l) => punkteFuer(l, zustand.orte).punkte.length === 0);
   const sortiert = [...kandidaten.values()].sort((x, y) => (y.score ?? -1) - (x.score ?? -1));
   return { kandidaten: sortiert, ohneOrt };
