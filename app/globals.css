@@ -49,6 +49,12 @@ a { color: inherit; }
 .prose-lippe li + li { margin-top: 0.35rem; }
 .prose-lippe h2 { margin-top: 2.25rem; margin-bottom: 0.75rem; font-size: 1.55rem; }
 .prose-lippe h3 { margin-top: 1.6rem; margin-bottom: 0.5rem; font-size: 1.2rem; }
+/* Lange Komposita („Grundstücksverkehrsgesetz“, „Verbraucherstreitbeilegung“) sind
+   auf schmalen Handys breiter als die Spalte und erzeugen sonst waagerechtes Scrollen. */
+.prose-lippe h2, .prose-lippe h3 { overflow-wrap: break-word; }
+@media (max-width: 639px) {
+  .prose-lippe h2, .prose-lippe h3 { -webkit-hyphens: auto; hyphens: auto; }
+}
 .prose-lippe a { color: var(--color-brand); text-decoration: underline; text-underline-offset: 3px; }
 .prose-lippe ol { margin-top: 0.6rem; padding-left: 1.4rem; list-style: decimal; }
 .prose-lippe .lead {
@@ -143,12 +149,18 @@ a.btn-on-dark, button.btn-on-dark, .btn-on-dark {
 }
 .card:hover { border-color: var(--color-brand); }
 
-.eyebrow {
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--color-brand);
+/* In @layer components, damit Tailwind-Utilities die Farbe überschreiben können:
+   ungelayert gewann .eyebrow gegen text-[color:var(--color-accent)], und die
+   Dachzeilen auf dunklem Grund (Hero, Erklärfilm, Diskretion, Ablauf) standen
+   grün auf Dunkelgrün (Kontrast ~2,1 : 1 statt Gold ~6,2 : 1). */
+@layer components {
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--color-brand);
+  }
 }
 
 .divider {

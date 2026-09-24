@@ -4,13 +4,14 @@ import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
 import QuickValuation from "@/components/QuickValuation";
 import { site } from "@/lib/site";
+import { seitenMetadaten } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Ackerland verkaufen Kreis Lippe — Direktankauf ohne Provision",
+export const metadata: Metadata = seitenMetadaten({
+  title: "Ackerland verkaufen in Lippe – ohne Provision",
   description:
-    "Sie wollen Ackerland im Kreis Lippe verkaufen? Wir kaufen direkt — fair, diskret, ohne Maklerkette. Detmold, Lemgo, Bad Salzuflen, Horn-Bad Meinberg und ganz Lippe.",
-  alternates: { canonical: "/ackerland-verkaufen" },
-};
+    "Ackerland im Kreis Lippe verkaufen? Wir kaufen direkt — fair, diskret, ohne Maklerkette. In Detmold, Lemgo, Bad Salzuflen, Horn-Bad Meinberg und ganz Lippe.",
+  pfad: "/ackerland-verkaufen",
+});
 
 export default function Page() {
   return (
@@ -35,7 +36,7 @@ export default function Page() {
             <p className="mt-4 text-sm text-[color:var(--color-muted)] leading-relaxed">
               Quelle: Grundstücksmarktbericht 2025 für den Kreis Lippe (Berichtsjahr 2024),
               Gutachterausschuss für Grundstückswerte im Kreis Lippe und in der Stadt Detmold.
-               Der Bodenrichtwert liegt darunter: er ist ein geglätteter Lagewert, kein Kaufpreis.
+               Der Bodenrichtwert liegt meist darunter: er ist ein geglätteter Lagewert, kein Kaufpreis.
             </p>
           </div>
           <div className="card">
@@ -62,7 +63,7 @@ export default function Page() {
 
             <h2>Bodenrichtwerte für Ackerland im Kreis Lippe</h2>
             <p>
-              Zwei Zahlen, die oft verwechselt werden: Der <strong>Bodenrichtwert</strong> ist ein geglätteter Lagewert und liegt in Lippe je nach Gemarkung meist zwischen 1,40 €/m² und 4,50 €/m². Der <strong>tatsächlich gezahlte Kaufpreis</strong> liegt darüber — 2024 im Mittel bei 5,26 €/m² (rund 52.600 €/ha) über 75 Kauffälle. Wer nur den Bodenrichtwert kennt, verkauft tendenziell zu billig. Beide Werte sind öffentlich einsehbar: im <Link href="https://geoportal.kreislippe.de/geoportal/application/bodenrichtwerte" target="_blank" rel="noopener">Geoportal des Kreises</Link> und unter <Link href="https://www.boris.nrw.de" target="_blank" rel="noopener">BORIS NRW</Link>.
+              Zwei Zahlen, die oft verwechselt werden: Der <strong>Bodenrichtwert</strong> ist ein geglätteter Lagewert und liegt für Ackerland in Lippe je nach Zone etwa zwischen 2,40 €/m² und 5,90 €/m² (Stichtag 01.01.2026). Der <strong>tatsächlich gezahlte Kaufpreis</strong> liegt oft darüber — 2024 im Mittel bei 5,26 €/m² (rund 52.600 €/ha) über 75 Kauffälle. Wer nur den Bodenrichtwert kennt, verkauft tendenziell zu billig. Beide Werte sind öffentlich einsehbar: im <Link href="https://geoportal.kreislippe.de/geoportal/application/bodenrichtwerte" target="_blank" rel="noopener">Geoportal des Kreises</Link> und unter <Link href="https://www.boris.nrw.de" target="_blank" rel="noopener">BORIS NRW</Link>.
             </p>
             <p>
               Wichtig: Der Bodenrichtwert ist ein Mittelwert. Für eine konkrete Wertindikation brauchen wir Größe, Gemarkung, Flurstück und Pachtstatus — die Auswertung machen wir kostenlos über unser <Link href="/flaeche-bewerten">Bewertungs-Tool</Link>.
@@ -70,7 +71,7 @@ export default function Page() {
 
             <h2>Verpachtetes Ackerland verkaufen</h2>
             <p>
-              Ihre Fläche ist verpachtet? Kein Problem. Wir kaufen auch mit laufendem Pachtvertrag und übernehmen den bestehenden Vertrag. Der Pächter wird vor dem Verkauf transparent informiert — und kann ggf. sein gesetzliches Vorkaufsrecht prüfen. In der Regel laufen solche Verkäufe völlig geräuschlos ab.
+              Ihre Fläche ist verpachtet? Kein Problem. Wir kaufen auch mit laufendem Pachtvertrag und übernehmen den bestehenden Vertrag. Der Pächter wird vor dem Verkauf transparent informiert. Ein gesetzliches Vorkaufsrecht hat er nicht — ist im Pachtvertrag eines vereinbart, berücksichtigen wir es. In der Regel laufen solche Verkäufe völlig geräuschlos ab.
             </p>
 
             <h2>Ackerland aus Erbengemeinschaft verkaufen</h2>

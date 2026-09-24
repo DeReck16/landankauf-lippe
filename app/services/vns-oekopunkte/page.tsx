@@ -2,23 +2,19 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
+import { seitenMetadaten } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Ökopunkte verkaufen NRW & Vertragsnaturschutz — Kreis Lippe",
+export const metadata: Metadata = seitenMetadaten({
+  title: "Ökopunkte verkaufen NRW & Vertragsnaturschutz",
   description:
-    "Ökopunkte in NRW verkaufen? Wir prüfen Ihre Fläche kostenlos, stellen Ökokonto-Anträge und vermarkten Ihre Ausgleichspunkte im Kreis Lippe. VNS-Antragsfrist 30.06.2026.",
-  alternates: { canonical: "/services/vns-oekopunkte" },
-  openGraph: {
-    title: "Ökopunkte verkaufen NRW & Vertragsnaturschutz — Kreis Lippe",
-    description:
-      "Ökopunkte in NRW verkaufen? Wir prüfen Ihre Fläche kostenlos, stellen Ökokonto-Anträge und vermarkten Ihre Ausgleichspunkte im Kreis Lippe.",
-  },
-};
+    "Ökopunkte in NRW verkaufen? Wir prüfen Ihre Fläche kostenlos, stellen Ökokonto-Anträge und vermarkten Ausgleichspunkte im Kreis Lippe. VNS-Antrag bis 30.06.",
+  pfad: "/services/vns-oekopunkte",
+});
 
 const faq = [
   {
     q: "Wie viel sind Ökopunkte in NRW wert?",
-    a: "Je nach Maßnahme und Gebietskulisse zwischen ca. 0,80 und 3,50 € pro Ökopunkt. Eine Hektar Aufwertung (z. B. Acker zu Wiese) erzeugt häufig 50.000 bis 200.000 Punkte. Im Kreis Lippe und Umfeld liegt der erzielbare Verkaufspreis je nach Nachfragelage bei 1,20 bis 2,50 € pro Punkt — das entspricht einem Erlös von mehreren Zehntausend Euro pro Hektar bei Eigentumserhalt.",
+    a: "Je nach Maßnahme und Gebietskulisse zwischen ca. 0,80 und 3,50 € pro Ökopunkt. Ein Hektar Aufwertung (z. B. Acker zu Wiese) erzeugt häufig 50.000 bis 200.000 Punkte. Im Kreis Lippe und Umfeld liegt der erzielbare Verkaufspreis je nach Nachfragelage bei 1,20 bis 2,50 € pro Punkt — das entspricht einem Erlös von mehreren Zehntausend Euro pro Hektar bei Eigentumserhalt.",
   },
   {
     q: "Wann lohnt sich Vertragsnaturschutz NRW für mich?",
@@ -34,7 +30,7 @@ const faq = [
   },
   {
     q: "Wie lange dauert ein VNS-Antrag im Kreis Lippe?",
-    a: "Die Bearbeitung durch die UNB dauert in der Regel wenige Wochen. Die Verpflichtung startet immer zum 1. Januar des Folgejahres — deswegen ist die Antragsfrist 30.06. entscheidend. Für 2027 läuft die Frist am 30.06.2026 ab. Wir bereiten alles vor, Sie müssen den Antrag nur final elektronisch über ELAN einreichen.",
+    a: "Die Bearbeitung durch die UNB dauert in der Regel wenige Wochen. Die Verpflichtung startet immer zum 1. Januar des Folgejahres — deswegen ist die Antragsfrist 30.06. entscheidend. Für einen Start am 01.01.2028 ist das voraussichtlich der 30.06.2027. Wir bereiten alles vor, Sie müssen den Antrag nur final elektronisch über ELAN einreichen.",
   },
 ];
 
@@ -69,7 +65,7 @@ export default function Page() {
             <hr className="divider mt-3" />
             <h2>Vertragsnaturschutz NRW (VNS)</h2>
             <p>
-              Der Vertragsnaturschutz ist ein Förderprogramm des Landes NRW, mit dem extensive landwirtschaftliche Nutzung honoriert wird. Eigentümer und Bewirtschafter verpflichten sich für 3 oder 5 Jahre zu einer schonenden Bewirtschaftung — und erhalten dafür je nach Paket zwischen <strong>345 und über 2.000 €/ha/Jahr</strong>.
+              Der Vertragsnaturschutz ist ein Förderprogramm des Landes NRW, mit dem extensive landwirtschaftliche Nutzung honoriert wird. Eigentümer und Bewirtschafter verpflichten sich in der Regel für fünf Jahre zu einer schonenden Bewirtschaftung — und erhalten dafür je nach Paket zwischen <strong>345 und über 2.000 €/ha/Jahr</strong>.
             </p>
             <p>
               Im Kreis Lippe spielt VNS vor allem in den Schutzgebietskulissen rund um die Egge, das Silberbachtal, das Externstein-Gebiet und in den Auen von Werre, Bega und Emmer eine Rolle. Wir wissen, welche Pakete in Ihrer Gemarkung zugelassen sind, und stimmen den Antrag mit der <Link href="https://www.biologischestationlippe.de" target="_blank" rel="noopener">Biologischen Station Lippe</Link> sowie der UNB Kreis Lippe ab.
@@ -84,14 +80,14 @@ export default function Page() {
               <li>Hecken- und Knickpflege</li>
             </ul>
 
-            <h3>Kritische Frist 2026</h3>
+            <h3>Antragsfrist: jeweils 30. Juni</h3>
             <p>
-              Der Grundantrag für Verpflichtungen ab 01.01.2027 muss bis <strong>30.06.2026</strong> elektronisch über ELAN bei der UNB Kreis Lippe eingehen. Wer die Frist versäumt, verliert ein ganzes Jahr Förderung. Wenn Ihre Fläche dafür in Frage kommt, sprechen Sie uns rechtzeitig an.
+              Neue VNS-Verträge beginnen immer am 1. Januar. Der Grundantrag muss bis zum <strong>30. Juni des Vorjahres</strong> elektronisch über ELAN bei der UNB Kreis Lippe eingehen — für einen Start am 01.01.2028 also voraussichtlich bis 30.06.2027 (die Frist für 2027 ist am 30.06.2026 abgelaufen). Wer die Frist versäumt, verliert ein ganzes Jahr Förderung. Wenn Ihre Fläche dafür in Frage kommt, sprechen Sie uns rechtzeitig an.
             </p>
 
             <h2>Ökopunkte und Ökokonto</h2>
             <p>
-              Über das Ökokonto können Sie auf Ihrer Fläche freiwillige Aufwertungsmaßnahmen durchführen (z. B. Hecke pflanzen, Acker zu Wiese umwandeln, Tümpel anlegen) und die dabei generierten <strong>Ökopunkte</strong> an Bauträger oder die öffentliche Hand verkaufen. Eine Hektar Aufwertung kann je nach Maßnahme einen vier- bis fünfstelligen einmaligen Erlös bringen — bei Eigentumserhalt.
+              Über das Ökokonto können Sie auf Ihrer Fläche freiwillige Aufwertungsmaßnahmen durchführen (z. B. Hecke pflanzen, Acker zu Wiese umwandeln, Tümpel anlegen) und die dabei generierten <strong>Ökopunkte</strong> an Bauträger oder die öffentliche Hand verkaufen. Ein Hektar Aufwertung kann je nach Maßnahme einen vier- bis fünfstelligen einmaligen Erlös bringen — bei Eigentumserhalt.
             </p>
             <p>
               Wir prüfen, ob Ihre Fläche grundsätzlich geeignet ist, koordinieren mit der UNB die Maßnahmenplanung, organisieren die Umsetzung über regionale Lohnunternehmer und kümmern uns um die Vermarktung der Punkte.

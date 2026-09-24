@@ -4,13 +4,14 @@ import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
 import QuickValuation from "@/components/QuickValuation";
 import { site } from "@/lib/site";
+import { seitenMetadaten } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Wald verkaufen Kreis Lippe & Teutoburger Wald — Privatwald-Ankauf",
+export const metadata: Metadata = seitenMetadaten({
+  title: "Wald verkaufen in Lippe – Privatwald-Ankauf",
   description:
     "Privatwald, Misch- oder Nadelholzbestand im Kreis Lippe verkaufen? Wir kaufen Forstflächen im Teutoburger Wald und der Egge — fair, diskret, ohne Provision.",
-  alternates: { canonical: "/wald-verkaufen" },
-};
+  pfad: "/wald-verkaufen",
+});
 
 export default function Page() {
   return (

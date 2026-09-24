@@ -3,20 +3,15 @@ import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import LeadForm from "@/components/LeadForm";
+import { seitenMetadaten } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: {
-    absolute: "Ackerland & Wald verkaufen im Kreis Lippe – Lippe Forst",
-  },
+export const metadata: Metadata = seitenMetadaten({
+  title: "Ackerland & Wald verkaufen im Kreis Lippe – Lippe Forst",
+  absolut: true,
   description:
     "Fläche im Kreis Lippe verkaufen oder verpachten? Wir kaufen Ackerland, Wiesen und Wald direkt — fair bewertet, ohne Provision. Kostenlose Erstbewertung in 24 h.",
-  alternates: { canonical: "/" },
-  openGraph: {
-    title: "Ackerland & Wald verkaufen im Kreis Lippe – Lippe Forst",
-    description:
-      "Fläche im Kreis Lippe verkaufen oder verpachten? Wir kaufen Ackerland, Wiesen und Wald direkt — fair bewertet, ohne Provision. Kostenlose Erstbewertung in 24 h.",
-  },
-};
+  pfad: "/",
+});
 import QuickValuation from "@/components/QuickValuation";
 import Testimonials from "@/components/Testimonials";
 import Partners from "@/components/Partners";
@@ -268,14 +263,14 @@ export default function Home() {
             <hr className="divider mt-3 bg-[color:var(--color-accent)]" />
             <h2 className="text-3xl md:text-4xl text-white">Was Sie uns sagen, bleibt zwischen uns.</h2>
             <p className="mt-4 text-white/80 leading-relaxed">
-              Verkauf, Erbauseinandersetzung, Pachtwechsel — das sind sensible Themen. Bei uns gibt es keine Aushängung, kein Inserat, kein „Schaufenster". Nachbarn, Pächter, andere Landwirte erfahren nichts, ohne Ihre ausdrückliche Zustimmung.
+              Verkauf, Erbauseinandersetzung, Pachtwechsel — das sind sensible Themen. Bei uns gibt es keine Aushängung, kein Inserat, kein „Schaufenster“. Nachbarn, Pächter, andere Landwirte erfahren nichts, ohne Ihre ausdrückliche Zustimmung.
             </p>
           </div>
           <ul className="space-y-3 text-white/85">
             {[
               "Keine Vermarktung Ihrer Fläche im Internet oder vor Ort",
               "Keine Weitergabe Ihrer Daten an Dritte ohne ausdrückliche Zustimmung",
-              "Anfragen werden anonym verarbeitet — auch unsere Wert-Indikation findet ohne Servereingabe statt",
+              "Die Wert-Indikation läuft komplett in Ihrem Browser — Ihre Eingaben erreichen uns nicht",
               "Vor-Ort-Termine in Zivil, ohne Beschriftung, ohne Aufmerksamkeit",
               "Pächter, Erben, Miteigentümer werden nur nach Ihrer Freigabe einbezogen",
               "Auf Wunsch Treuhand-Abwicklung über den Notar Ihres Vertrauens",

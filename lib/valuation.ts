@@ -45,10 +45,11 @@ const DATA: Record<FlaechenTyp, { mean: number; spread: number; basis: string; h
       "Hiebsreife Laubholzbestände erzielen deutlich höhere Werte. Junge Aufforstung und Käferflächen liegen am unteren Rand.",
   },
   bauland: {
-    mean: 165,
+    // Mittel der Spalte „mittlere Lage“ (16 Kommunen) im Grundstücksmarktbericht 2026: 150,6 €/m²
+    mean: 150,
     spread: 0.55,
     basis:
-      "Wohnbauland Kreis Lippe (Mittel der mittleren Lagen aller 16 Kommunen, Bodenrichtwerte 2025). Schwankt extrem zwischen Detmold/Bad Salzuflen (300+ €/m² gute Lage) und Lügde/Schwalenberg (60–90 €/m²).",
+      "Wohnbauland Kreis Lippe (Mittel der mittleren Lagen aller 16 Kommunen, Grundstücksmarktbericht 2026). Schwankt extrem zwischen Detmold/Bad Salzuflen (300+ €/m² gute Lage) und Lügde/Schwalenberg (60–90 €/m²).",
     hint:
       "Stadt-/Gemeindename ist hier entscheidend — bitte konkrete Lage nennen, dann ermitteln wir den Wert spezifischer.",
   },

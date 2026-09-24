@@ -2,18 +2,17 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
+import { seitenMetadaten } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Windkraft verpachten — Vorranggebiete Kreis Lippe",
+export const metadata: Metadata = seitenMetadaten({
+  title: "Windkraft verpachten im Kreis Lippe",
   description:
-    "Liegt Ihre Fläche in einem Windenergiegebiet? Standortpachten erreichen fünf- bis sechsstellige Beträge pro Jahr, auch per Poolmodell. Kostenloser Flächen-Check.",
-  alternates: { canonical: "/windkraft-verpachten" },
-  openGraph: {
-    title: "Windkraftfläche verpachten — Kreis Lippe & Umland",
-    description:
-      "Standortpachten moderner Windenergieanlagen erreichen fünf- bis sechsstellige Beträge pro Jahr — auch Nachbarflächen verdienen über Poolmodelle mit.",
-  },
-};
+    "Liegt Ihre Fläche in einem Windenergiegebiet? Standortpachten erreichen fünf- bis sechsstellige Jahresbeträge, auch per Poolmodell. Kostenloser Flächen-Check.",
+  pfad: "/windkraft-verpachten",
+  ogTitle: "Windkraftfläche verpachten — Kreis Lippe & Umland",
+  ogDescription:
+    "Standortpachten moderner Windenergieanlagen erreichen fünf- bis sechsstellige Beträge pro Jahr — auch Nachbarflächen verdienen über Poolmodelle mit.",
+});
 
 const faq = [
   {

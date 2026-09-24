@@ -3,8 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
-import { CITIES, FLAECHENTYPEN, cityTypeRoutes, getCity } from "@/lib/cities";
+import { CITIES, FLAECHENTYPEN, UMGEBUNG, cityTypeRoutes, getCity, type City } from "@/lib/cities";
 import { site } from "@/lib/site";
+import { seitenMetadaten } from "@/lib/seo";
 
 type Params = { slug: string };
 
@@ -28,19 +29,23 @@ function parseSlug(slug: string) {
   return { type, city };
 }
 
+// Kurzform für den <title>: „Wiese / Grünland“ ist für Suchergebnisse zu lang.
+const TITEL_KURZ: Record<string, string> = {
+  ackerland: "Ackerland",
+  wiese: "Wiese",
+  wald: "Wald",
+};
+
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { slug } = await params;
   const p = parseSlug(slug);
   if (!p) return {};
   const { type, city } = p;
-  const title = `${type.label} verkaufen ${city.name} — Direktankauf ohne Provision`;
+  // Ziel: höchstens 60 Zeichen inklusive „ | Lippe Forst“ (Layout-Template).
+  const basis = `${TITEL_KURZ[type.slug] ?? type.label} verkaufen in ${city.name}`;
+  const title = basis.length <= 31 ? `${basis} – Direktankauf` : basis;
   const desc = `Sie wollen ${type.label} ${city.display} verkaufen? Wir kaufen direkt — fair, diskret, ohne Maklergebühr. Antwort innerhalb von 24 Stunden.`;
-  return {
-    title,
-    description: desc,
-    alternates: { canonical: `/${slug}` },
-    openGraph: { title, description: desc },
-  };
+  return seitenMetadaten({ title, description: desc, pfad: `/${slug}` });
 }
 
 export default async function Page({ params }: { params: Promise<Params> }) {
@@ -50,7 +55,12 @@ export default async function Page({ params }: { params: Promise<Params> }) {
   const { type, city } = p;
 
   const otherTypes = FLAECHENTYPEN.filter((t) => t.slug !== type.slug);
-  const neighborCities = CITIES.filter((c) => c.slug !== city.slug).slice(0, 6);
+  const umgebung = (UMGEBUNG[city.slug] ?? [])
+    .map((s) => getCity(s))
+    .filter((c): c is City => Boolean(c));
+  const neighborCities = umgebung.length
+    ? umgebung
+    : CITIES.filter((c) => c.slug !== city.slug).slice(0, 6);
 
   const defaultFlaechentyp =
     type.slug === "ackerland" ? "Ackerland" :
@@ -106,14 +116,14 @@ export default async function Page({ params }: { params: Promise<Params> }) {
             <ul>
               <li><strong>Direkter Ankauf</strong> ohne Maklerkette und ohne Provision</li>
               <li><strong>Faire Wertindikation</strong> in 24 h, basierend auf Grundstücksmarktbericht 2025 und realen Vergleichsverkäufen {city.display}</li>
-              <li><strong>Diskretion</strong> — kein Inserat, keine Aushängung, keine Weitergabe Ihrer Daten</li>
+              <li><strong>Diskretion</strong> — kein Inserat, keine Aushängung, keine Weitergabe Ihrer Daten ohne Ihre Zustimmung</li>
               <li><strong>Erbengemeinschaften</strong> sind unser Spezialgebiet — wir koordinieren mit Notar, Grundbuchamt und allen Miteigentümern</li>
               <li><strong>Pachtverhältnisse</strong> übernehmen wir; Vorkaufsrechte beachten wir selbstverständlich</li>
             </ul>
 
             <h2>Marktdaten {city.name}</h2>
             <p>
-              Bauland in mittlerer Lage liegt {city.display} laut Grundstücksmarktbericht 2025 bei rund <strong>{city.baulandMittlereLage} €/m²</strong>. Für landwirtschaftliche Flächen orientieren wir uns am Kreismittel: Ackerland ø ~5,26 €/m², Grünland ø ~1,89 €/m², Wald (mit Aufwuchs) ø ~1,34 €/m². Lokale Abweichungen je nach Bonität, Zuschnitt und Erschließung sind die Regel — wir bewerten Ihre Fläche konkret.
+              Bauland in mittlerer Lage liegt {city.display} laut Grundstücksmarktbericht 2026 bei rund <strong>{city.baulandMittlereLage} €/m²</strong>. Für landwirtschaftliche Flächen orientieren wir uns am Kreismittel der tatsächlich gezahlten Preise 2024: Ackerland ø ~5,26 €/m², Grünland ø ~1,89 €/m², Wald (mit Aufwuchs) ø ~1,34 €/m². Lokale Abweichungen je nach Bonität, Zuschnitt und Erschließung sind die Regel — wir bewerten Ihre Fläche konkret.
             </p>
             <p>
               <Link href="/ratgeber/bodenrichtwerte-lippe">Mehr Hintergrund: Bodenrichtwerte Kreis Lippe</Link>

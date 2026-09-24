@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
 import ClickToReveal from "@/components/ClickToReveal";
 import { site } from "@/lib/site";
+import { seitenMetadaten } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = seitenMetadaten({
   title: "Impressum",
   description: "Impressum und Anbieterkennzeichnung gemäß § 5 DDG der TR Vertriebs GmbH.",
-  alternates: { canonical: "/impressum" },
+  pfad: "/impressum",
   robots: { index: true, follow: false },
-};
+});
 
 export default function Page() {
   return (
@@ -66,12 +67,6 @@ export default function Page() {
           <h2>Verbraucherstreitbeilegung / Universalschlichtungsstelle</h2>
           <p>
             Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.
-          </p>
-
-          <h2>Online-Streitbeilegung</h2>
-          <p>
-            Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:&nbsp;
-            <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener">https://ec.europa.eu/consumers/odr</a>.
           </p>
 
           <h2>Haftung für Inhalte</h2>

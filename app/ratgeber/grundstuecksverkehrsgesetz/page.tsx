@@ -1,14 +1,18 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
+import { ratgeberSchema, seitenMetadaten } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Grundstücksverkehrsgesetz NRW — was Verkäufer wissen müssen",
-  description:
-    "Genehmigungspflicht, siedlungsrechtliches Vorkaufsrecht, Landwirtschaftskammer: Was beim Verkauf landwirtschaftlicher Flächen ab 1 ha in NRW zu beachten ist.",
-  alternates: { canonical: "/ratgeber/grundstuecksverkehrsgesetz" },
-};
+const TITEL = "Grundstücksverkehrsgesetz NRW für Verkäufer";
+const BESCHREIBUNG =
+  "Genehmigungspflicht, siedlungsrechtliches Vorkaufsrecht, Landwirtschaftskammer: Was beim Verkauf landwirtschaftlicher Flächen ab 1 ha in NRW zu beachten ist.";
+const PFAD = "/ratgeber/grundstuecksverkehrsgesetz";
+
+export const metadata: Metadata = seitenMetadaten({
+  title: TITEL,
+  description: BESCHREIBUNG,
+  pfad: PFAD,
+});
 
 export default function Page() {
   return (
@@ -22,9 +26,9 @@ export default function Page() {
       <section className="section">
         <div className="container-page grid gap-12 lg:grid-cols-[1.2fr_1fr]">
           <article className="prose-lippe">
-            <h2>Worum geht's?</h2>
+            <h2>Worum geht’s?</h2>
             <p>
-              Das Grundstücksverkehrsgesetz (GrdstVG) regelt den Verkauf landwirtschaftlich genutzter Flächen. Ziel: Erhalt der Agrarstruktur, Vermeidung der Zersplitterung von Betrieben und Verhinderung "ungesunder" Bodenverteilung. In NRW gilt eine <strong>Genehmigungsschwelle von 1 Hektar</strong> — Flächen ab dieser Größe brauchen eine Genehmigung der Landwirtschaftskammer.
+              Das Grundstücksverkehrsgesetz (GrdstVG) regelt den Verkauf landwirtschaftlich genutzter Flächen. Ziel: Erhalt der Agrarstruktur, Vermeidung der Zersplitterung von Betrieben und Verhinderung „ungesunder“ Bodenverteilung. In NRW gilt eine <strong>Genehmigungsschwelle von 1 Hektar</strong> — Flächen ab dieser Größe brauchen eine Genehmigung der Landwirtschaftskammer.
             </p>
 
             <h2>Was bedeutet das konkret?</h2>
@@ -32,13 +36,13 @@ export default function Page() {
               <li>Sie und der Käufer schließen einen notariellen Kaufvertrag.</li>
               <li>Der Notar leitet den Vertrag der Landwirtschaftskammer NRW (Genehmigungsbehörde) zu.</li>
               <li>Die Behörde prüft innerhalb von max. 3 Monaten, ob die Voraussetzungen für eine Genehmigung vorliegen.</li>
-              <li>Parallel wird das siedlungsrechtliche Vorkaufsrecht der NRW.URBAN bzw. eines beliehenen Siedlungsunternehmens (in NRW: Landgesellschaft) geprüft. Übt es das Vorkaufsrecht aus, "schlüpft" es in den Vertrag und wird zum Käufer.</li>
+              <li>Parallel wird das siedlungsrechtliche Vorkaufsrecht der NRW.URBAN bzw. eines beliehenen Siedlungsunternehmens (in NRW: Landgesellschaft) geprüft. Übt es das Vorkaufsrecht aus, „schlüpft“ es in den Vertrag und wird zum Käufer.</li>
               <li>Bei Genehmigung: Eigentumsübergang läuft normal über das Grundbuch.</li>
             </ol>
 
             <h2>Wann wird die Genehmigung versagt?</h2>
             <p>
-              Wenn der Verkauf "ungesund" wäre — also typischerweise:
+              Wenn der Verkauf „ungesund“ wäre — also typischerweise:
             </p>
             <ul>
               <li>Käufer ist nicht-landwirtschaftlich und ein ortsansässiger Landwirt hätte konkret Bedarf</li>
@@ -55,7 +59,7 @@ export default function Page() {
             <ul>
               <li>Wir kennen den Ablauf und stimmen den Notarvertrag entsprechend ab</li>
               <li>Wir kommunizieren mit der Landwirtschaftskammer und ziehen die Genehmigung zügig durch</li>
-              <li>Wir tragen die behördliche Bearbeitungsdauer ein — keine Hängepartien</li>
+              <li>Wir planen die behördliche Bearbeitungsdauer von Anfang an ein — keine Hängepartien</li>
               <li>Bei verpachteten Flächen: Pächter wird transparent eingebunden</li>
             </ul>
 
@@ -64,7 +68,7 @@ export default function Page() {
               Sammeln Sie vorab alle Unterlagen zu Ihrer Fläche: Grundbuchauszug, Liegenschaftskarte, ggf. Pachtvertrag, ggf. Erbschein. Sprechen Sie uns gerne an — wir gehen den Ablauf gemeinsam mit Ihrem Notar durch, sodass keine Überraschungen entstehen.
             </p>
             <p>
-              Übrigens: Auch unter 1 Hektar lohnt sich Sorgfalt — denn Vorkaufsrechte (Pächter, Miteigentümer) können auch hier greifen.
+              Übrigens: Auch unter 1 Hektar lohnt sich Sorgfalt — denn andere Vorkaufsrechte können auch hier greifen: etwa das der Gemeinde nach dem Baugesetzbuch oder ein im Grundbuch eingetragenes bzw. im Pachtvertrag vereinbartes Vorkaufsrecht. Ein gesetzliches Vorkaufsrecht des Pächters gibt es dagegen nicht.
             </p>
           </article>
           <aside className="lg:sticky lg:top-24 self-start">
@@ -77,6 +81,20 @@ export default function Page() {
           </aside>
         </div>
       </section>
+
+      {ratgeberSchema({
+        titel: TITEL,
+        beschreibung: BESCHREIBUNG,
+        pfad: PFAD,
+        veroeffentlicht: "2026-05-01",
+        aktualisiert: "2026-09-24",
+      }).map((ld, i) => (
+        <script
+          key={i}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
+        />
+      ))}
     </>
   );
 }

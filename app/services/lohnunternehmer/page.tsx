@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
+import { seitenMetadaten } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Lohnunternehmer im Kreis Lippe — Mahd, Pflege, Forstarbeit",
+export const metadata: Metadata = seitenMetadaten({
+  title: "Lohnunternehmer im Kreis Lippe – Mahd & Forst",
   description:
-    "Wir vermitteln verlässliche Lohnunternehmer aus dem Kreis Lippe für Mahd, Heuwerbung, Heckenpflege, Forstarbeiten und mehr. Faire Preise, kurze Wege, regionale Betriebe.",
-  alternates: { canonical: "/services/lohnunternehmer" },
-};
+    "Wir vermitteln verlässliche Lohnunternehmer aus dem Kreis Lippe für Mahd, Heuwerbung, Heckenpflege und Forstarbeiten — faire Preise, kurze Wege.",
+  pfad: "/services/lohnunternehmer",
+});
 
 export default function Page() {
   return (
@@ -27,7 +28,7 @@ export default function Page() {
             <h2>Leistungen unserer Partnerbetriebe</h2>
             <ul>
               <li><strong>Mahd & Heuwerbung</strong> — Schlegelmäher, Kreiselmäher, Schwadenwerber, Pressen (Rund-, Quaderballen)</li>
-              <li><strong>Mulchen & Pflege extensiver Flächen</strong> — auch Hangflächen mit Ferngesteuertem oder spezialisiertem Gerät</li>
+              <li><strong>Mulchen & Pflege extensiver Flächen</strong> — auch Hangflächen mit ferngesteuertem oder spezialisiertem Gerät</li>
               <li><strong>Heckenpflege & Knickrückschnitt</strong> — fachgerecht, im naturschutzkonformen Zeitfenster</li>
               <li><strong>Aussaat, Düngung, Pflanzenschutz</strong> — wenn die Fläche aktiv bewirtschaftet wird</li>
               <li><strong>Bodenbearbeitung & Drainage</strong> — Pflügen, Grubbern, Mulchsaat, Drainagepflege</li>

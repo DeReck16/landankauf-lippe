@@ -3,17 +3,21 @@ import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import { articlesSorted, CATEGORY_LABEL } from "@/lib/blog";
 import { site } from "@/lib/site";
+import { seitenMetadaten } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Blog — Aktuelles aus Lippe zu Flächen, Förderung & Markt",
+const blogMeta = seitenMetadaten({
+  title: "Blog: Flächen, Förderung & Markt in Lippe",
   description:
     "Aktuelle Beiträge zu Bodenrichtwerten, Vertragsnaturschutz, Förderprogrammen und Praxistipps für Eigentümer landwirtschaftlicher Flächen im Kreis Lippe.",
+  pfad: "/blog",
+  ogTitle: "Blog Lippe Forst — Aktuelles zu Flächen, Förderung & Markt",
+  ogDescription:
+    "Praxis-Beiträge für Lipper Eigentümer rund um Verkauf, Pacht, Vertragsnaturschutz und Wald.",
+});
+
+export const metadata: Metadata = {
+  ...blogMeta,
   alternates: { canonical: "/blog", types: { "application/rss+xml": "/feed.xml" } },
-  openGraph: {
-    title: "Blog Lippe Forst — Aktuelles zu Flächen, Förderung & Markt",
-    description:
-      "Praxis-Beiträge für Lipper Eigentümer rund um Verkauf, Pacht, Vertragsnaturschutz und Wald.",
-  },
 };
 
 export default function BlogIndex() {
@@ -50,7 +54,7 @@ export default function BlogIndex() {
               <Link
                 key={a.slug}
                 href={`/blog/${a.slug}`}
-                className="card group flex flex-col"
+                className="card group flex flex-col min-w-0"
               >
                 <div className="flex items-center gap-2 mb-3">
                   <span className="inline-block px-2 py-0.5 rounded-full bg-[color:var(--color-brand-soft)] text-[color:var(--color-brand-dark)] text-[11px] font-semibold uppercase tracking-wider">
@@ -64,7 +68,7 @@ export default function BlogIndex() {
                     })}
                   </span>
                 </div>
-                <h2 className="font-serif text-xl leading-snug mb-2 group-hover:text-[color:var(--color-brand)] transition-colors">
+                <h2 className="font-serif text-xl leading-snug mb-2 group-hover:text-[color:var(--color-brand)] transition-colors break-words max-sm:hyphens-auto">
                   {a.title}
                 </h2>
                 <p className="text-sm text-[color:var(--color-ink-soft)] leading-relaxed flex-1">

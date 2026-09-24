@@ -2,18 +2,17 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
+import { seitenMetadaten } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = seitenMetadaten({
   title: "Solarpark verpachten — Pacht 2.500–4.500 €/ha",
   description:
     "Acker oder Grünland für Photovoltaik verpachten? Solarpark-Pacht 2.500–4.500 €/ha/Jahr. Kostenloser Flächen-Check im Kreis Lippe: Eignung, Netznähe, Potenzial.",
-  alternates: { canonical: "/solarpark-verpachten" },
-  openGraph: {
-    title: "Fläche für Solarpark verpachten — Kreis Lippe & Umland",
-    description:
-      "Solarpark-Pachten liegen bei 2.500–4.500 €/ha/Jahr — ein Vielfaches der Ackerpacht. Kostenloser Flächen-Check: Eignung, Netznähe, Pachtpotenzial.",
-  },
-};
+  pfad: "/solarpark-verpachten",
+  ogTitle: "Fläche für Solarpark verpachten — Kreis Lippe & Umland",
+  ogDescription:
+    "Solarpark-Pachten liegen bei 2.500–4.500 €/ha/Jahr — ein Vielfaches der Ackerpacht. Kostenloser Flächen-Check: Eignung, Netznähe, Pachtpotenzial.",
+});
 
 const faq = [
   {
@@ -73,13 +72,14 @@ export default function Page() {
 
       <section className="section">
         <div className="container-page grid gap-12 lg:grid-cols-[1.2fr_1fr]">
-          <article className="prose-lippe">
+          <article className="prose-lippe min-w-0">
             <span className="eyebrow">Die Rechnung</span>
             <hr className="divider mt-3" />
             <h2>Was Solar-Pacht wirklich bringt</h2>
             <p>
               Während die klassische Ackerpacht in NRW im Schnitt bei rund <strong>659 € je Hektar und Jahr</strong> liegt (<Link href="/ratgeber/pachtpreise-ackerland-nrw">alle Zahlen hier</Link>), zahlen Projektentwickler für geeignete Solarflächen aktuell in der Regel <strong>2.500 bis 4.500 € je Hektar und Jahr</strong> — an sehr guten Standorten auch um 5.000 €. Das ist das Vier- bis Siebenfache, vertraglich gesichert über 20 bis 40 Jahre, meist mit Wertsicherungsklausel.
             </p>
+            <div className="overflow-x-auto">
             <table className="w-full mt-3 border-collapse text-sm">
               <thead>
                 <tr className="bg-[color:var(--color-brand-soft)] text-left">
@@ -106,6 +106,7 @@ export default function Page() {
                 </tr>
               </tbody>
             </table>
+            </div>
             <p className="text-sm text-[color:var(--color-muted)]">
               Marktübliche Bandbreiten Stand 2026; der erzielbare Wert hängt von Standort, Netznähe und Flächenzuschnitt ab.
             </p>

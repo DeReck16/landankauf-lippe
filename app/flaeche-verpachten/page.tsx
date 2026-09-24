@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
+import { seitenMetadaten } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Fläche verpachten im Kreis Lippe — verlässlicher Pachtzins, kein Aufwand",
+export const metadata: Metadata = seitenMetadaten({
+  title: "Fläche verpachten in Lippe – fairer Pachtzins",
   description:
-    "Sie wollen Ackerland, Wiese oder Wald im Kreis Lippe verpachten? Wir bewirtschaften selbst oder vermitteln Ihnen einen verlässlichen Pächter aus der Region — mit fairem Pachtzins und langfristigem Vertrag.",
-  alternates: { canonical: "/flaeche-verpachten" },
-};
+    "Ackerland, Wiese oder Wald im Kreis Lippe verpachten? Wir bewirtschaften selbst oder vermitteln einen verlässlichen Pächter aus der Region. Fairer Pachtzins.",
+  pfad: "/flaeche-verpachten",
+});
 
 export default function Page() {
   return (
@@ -44,7 +45,7 @@ export default function Page() {
               <li><strong>Ackerland:</strong> 350 – 750 €/ha/Jahr (Schwerpunkt Lippe)</li>
               <li><strong>Grünland:</strong> 180 – 380 €/ha/Jahr</li>
               <li><strong>Hangflächen / extensiv:</strong> oft nur Pflegeentgelt — hier lohnt sich ein Blick auf <Link href="/services/vns-oekopunkte">Vertragsnaturschutz</Link></li>
-              <li><strong>Sondernutzung Photovoltaik:</strong> 2.500 – 5.000 €/ha/Jahr, langfristige Verträge — Details auf <Link href="/solarpark-verpachten">Solarpark verpachten</Link></li>
+              <li><strong>Sondernutzung Photovoltaik:</strong> 2.500 – 4.500 €/ha/Jahr, an Spitzenstandorten bis ca. 5.000 €, langfristige Verträge — Details auf <Link href="/solarpark-verpachten">Solarpark verpachten</Link></li>
             </ul>
             <p>
               Den exakten Wert Ihrer Fläche besprechen wir gerne im Detail — kostenlos und unverbindlich.

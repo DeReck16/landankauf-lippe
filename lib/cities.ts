@@ -1,5 +1,6 @@
 // Lipper Gemeinden mit Lokal-SEO-relevanten Daten
-// Bodenrichtwert-Quelle: Grundstücksmarktbericht 2025 für den Kreis Lippe
+// Bodenrichtwert-Quelle: Grundstücksmarktbericht 2026 für den Kreis Lippe und die Stadt Detmold
+// (Bodenrichtwertübersicht Wohnbauflächen, individueller Wohnungsbau, mittlere Lage)
 
 export type CitySlug =
   | "detmold"
@@ -25,7 +26,7 @@ export type City = {
   display: string; // wie in Sätzen verwendet ("in Detmold")
   description: string; // 1-2 Sätze geographischer Kontext
   characteristics: string[]; // 3-5 Bullet-Points zu Lage/Boden
-  baulandMittlereLage: number; // €/m² aus Grundstücksmarktbericht 2025
+  baulandMittlereLage: number; // €/m² aus Grundstücksmarktbericht 2026
 };
 
 export const CITIES: City[] = [
@@ -48,7 +49,7 @@ export const CITIES: City[] = [
     name: "Lemgo",
     display: "in Lemgo",
     description:
-      "Lemgo bringt typische lipper Mischflächen zusammen: leichte Hanglagen am Begatal, Acker- und Grünlandflächen in den Ortsteilen Brake, Lieme, Welstorf, Matorf-Kirchheide. Hofstellen mit angeschlossenen Feldstücken sind hier häufig.",
+      "Lemgo bringt typische Lipper Mischflächen zusammen: leichte Hanglagen am Begatal, Acker- und Grünlandflächen in den Ortsteilen Brake, Lieme, Welstorf, Matorf-Kirchheide. Hofstellen mit angeschlossenen Feldstücken sind hier häufig.",
     characteristics: [
       "Acker- und Grünlandflächen im fruchtbaren Begatal",
       "Bewirtschaftungsfreundliche Schläge in Lieme und Brake",
@@ -94,7 +95,7 @@ export const CITIES: City[] = [
     characteristics: [
       "Ackerflächen mit moderaten Bodenpunkten in den Höhenlagen Donop und Reelkirchen",
       "Hofnahes Grünland im Begatal und an der Distel",
-      "Privatwald in Brüntorf, Eschenbruch und Großenmarpe",
+      "Privatwald in Brüntrup, Eschenbruch und Großenmarpe",
       "Bekannt für historische Stadtmauer und intakten Bauernhofbestand",
     ],
     baulandMittlereLage: 120,
@@ -111,7 +112,7 @@ export const CITIES: City[] = [
       "Geringer Forstanteil, dafür hohe Dichte an Vollerwerbsbetrieben",
       "Strategische Lage zwischen Detmold, Bielefeld und Bad Salzuflen",
     ],
-    baulandMittlereLage: 185,
+    baulandMittlereLage: 180,
   },
   {
     slug: "oerlinghausen",
@@ -125,7 +126,7 @@ export const CITIES: City[] = [
       "Forstanteile rund um den Tönsberg und am Teutoburger Wald",
       "Bauerwartungs- und Bauland mit überdurchschnittlichen Werten",
     ],
-    baulandMittlereLage: 235,
+    baulandMittlereLage: 245,
   },
   {
     slug: "schieder-schwalenberg",
@@ -176,7 +177,7 @@ export const CITIES: City[] = [
     description:
       "Barntrup ist eine kleine Stadt im Osten des Kreises Lippe. Landwirtschaft ist hier traditionell familiengeführt; Flächen werden oft über Generationen weitergegeben.",
     characteristics: [
-      "Mischflächen in Sommersell, Selbeck, Alverdissen",
+      "Mischflächen in Sonneborn, Selbeck, Alverdissen",
       "Forstanteile mit Mischwald in den Höhenlagen",
       "Niedrige Bodenrichtwerte — entsprechend interessant für günstigen Direktankauf",
       "Erbengemeinschaften häufig — wir haben hier einen Schwerpunkt",
@@ -209,7 +210,7 @@ export const CITIES: City[] = [
       "Grünlandflächen mit Pflegebedarf, oft VNS-relevant",
       "Geringere Bodenrichtwerte — guter Direktankauf-Markt",
     ],
-    baulandMittlereLage: 70,
+    baulandMittlereLage: 75,
   },
   {
     slug: "kalletal",
@@ -237,7 +238,7 @@ export const CITIES: City[] = [
       "Geringer Forstanteil",
       "Bauerwartungs- und Mischlagen mit Aufwertungspotenzial",
     ],
-    baulandMittlereLage: 215,
+    baulandMittlereLage: 220,
   },
   {
     slug: "luegde",
@@ -254,6 +255,30 @@ export const CITIES: City[] = [
     baulandMittlereLage: 90,
   },
 ];
+
+/**
+ * Umliegende Gemeinden im Kreis Lippe — für die Rubrik „… in der Umgebung“ auf
+ * den Ortsseiten. Vorher standen dort immer dieselben sechs Städte, sodass die
+ * Seiten von acht Gemeinden nur über die Sitemap erreichbar waren.
+ */
+export const UMGEBUNG: Record<CitySlug, CitySlug[]> = {
+  detmold: ["lemgo", "lage", "horn-bad-meinberg", "blomberg", "schlangen", "augustdorf"],
+  lemgo: ["bad-salzuflen", "lage", "detmold", "blomberg", "doerentrup", "kalletal"],
+  "bad-salzuflen": ["lemgo", "lage", "leopoldshoehe", "kalletal"],
+  "horn-bad-meinberg": ["detmold", "blomberg", "schieder-schwalenberg", "schlangen"],
+  blomberg: ["detmold", "lemgo", "horn-bad-meinberg", "schieder-schwalenberg", "barntrup", "doerentrup", "luegde"],
+  lage: ["detmold", "lemgo", "bad-salzuflen", "leopoldshoehe", "oerlinghausen", "augustdorf"],
+  oerlinghausen: ["lage", "leopoldshoehe", "augustdorf"],
+  "schieder-schwalenberg": ["horn-bad-meinberg", "blomberg", "luegde"],
+  schlangen: ["detmold", "horn-bad-meinberg", "augustdorf"],
+  augustdorf: ["detmold", "lage", "oerlinghausen", "schlangen"],
+  barntrup: ["blomberg", "doerentrup", "extertal", "luegde"],
+  doerentrup: ["lemgo", "blomberg", "barntrup", "extertal", "kalletal"],
+  extertal: ["kalletal", "doerentrup", "barntrup"],
+  kalletal: ["lemgo", "bad-salzuflen", "doerentrup", "extertal"],
+  leopoldshoehe: ["bad-salzuflen", "lage", "oerlinghausen"],
+  luegde: ["schieder-schwalenberg", "blomberg", "barntrup"],
+};
 
 export type FlaechenTypSlug = "ackerland" | "wiese" | "wald";
 

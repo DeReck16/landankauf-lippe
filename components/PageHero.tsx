@@ -37,7 +37,8 @@ export default function PageHero({ eyebrow, title, subtitle, primaryCta, seconda
     <section className="bg-[color:var(--color-ink)] text-white">
       <div className="container-page px-5 py-20 md:py-24">
         <span className="eyebrow text-[color:var(--color-accent)]">{eyebrow}</span>
-        <h1 className="mt-3 max-w-3xl font-serif text-3xl md:text-5xl leading-[1.1] text-white">{title}</h1>
+        {/* break-words/hyphens: lange Komposita („Grundstücksverkehrsgesetz“) sprengen sonst auf Handys die Seitenbreite */}
+        <h1 className="mt-3 max-w-3xl font-serif text-3xl md:text-5xl leading-[1.1] text-white break-words max-sm:hyphens-auto">{title}</h1>
         <p className="mt-5 max-w-2xl text-white/85 text-lg leading-relaxed">{subtitle}</p>
         {(primaryCta || secondaryCta || whatsappCta) && (
           <div className="mt-8 flex flex-wrap gap-3">
