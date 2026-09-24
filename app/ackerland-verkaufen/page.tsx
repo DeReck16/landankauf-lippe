@@ -4,13 +4,14 @@ import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
 import QuickValuation from "@/components/QuickValuation";
 import { site } from "@/lib/site";
+import { seitenMetadaten } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Ackerland verkaufen Kreis Lippe — Direktankauf ohne Provision",
+export const metadata: Metadata = seitenMetadaten({
+  title: "Ackerland verkaufen in Lippe – ohne Provision",
   description:
-    "Sie wollen Ackerland im Kreis Lippe verkaufen? Wir kaufen direkt — fair, diskret, ohne Maklerkette. Detmold, Lemgo, Bad Salzuflen, Horn-Bad Meinberg und ganz Lippe.",
-  alternates: { canonical: "/ackerland-verkaufen" },
-};
+    "Ackerland im Kreis Lippe verkaufen? Wir kaufen direkt — fair, diskret, ohne Maklerkette. In Detmold, Lemgo, Bad Salzuflen, Horn-Bad Meinberg und ganz Lippe.",
+  pfad: "/ackerland-verkaufen",
+});
 
 export default function Page() {
   return (

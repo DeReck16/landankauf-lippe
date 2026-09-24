@@ -4,13 +4,14 @@ import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
 import QuickValuation from "@/components/QuickValuation";
 import { site } from "@/lib/site";
+import { seitenMetadaten } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Wiese & Grünland verkaufen Kreis Lippe — fairer Direktankauf",
+export const metadata: Metadata = seitenMetadaten({
+  title: "Wiese & Grünland verkaufen im Kreis Lippe",
   description:
     "Wiese oder Grünland im Kreis Lippe verkaufen? Wir kaufen auch extensive Mähwiesen, Streuobstwiesen und Hangflächen — direkt, ohne Provision, mit Diskretion.",
-  alternates: { canonical: "/wiese-verkaufen" },
-};
+  pfad: "/wiese-verkaufen",
+});
 
 export default function Page() {
   return (

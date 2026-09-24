@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import { site } from "@/lib/site";
+import { seitenMetadaten } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = seitenMetadaten({
   title: "Über uns — Flächenankauf im Lipper Land",
   description:
-    "Hinter Lippe Forst steht die TR Vertriebs GmbH aus Horn-Bad Meinberg. Lokal verwurzelt, persönlich erreichbar, mit eigenem Bezug zu Wald und Wiese im Kreis Lippe.",
-  alternates: { canonical: "/ueber-uns" },
-};
+    "Hinter Lippe Forst steht die TR Vertriebs GmbH aus Horn-Bad Meinberg — lokal verwurzelt, persönlich erreichbar, mit eigenen Wald- und Wiesenflächen in Lippe.",
+  pfad: "/ueber-uns",
+});
 
 export default function Page() {
   return (

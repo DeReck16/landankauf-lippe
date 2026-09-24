@@ -3,13 +3,14 @@ import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
 import ClickToReveal from "@/components/ClickToReveal";
 import { site } from "@/lib/site";
+import { seitenMetadaten } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = seitenMetadaten({
   title: "Kontakt",
   description:
     "Telefon, WhatsApp oder Formular: Sprechen Sie uns an, wenn Sie Ackerland, Wiese oder Wald im Kreis Lippe verkaufen, verpachten oder bewerten lassen möchten.",
-  alternates: { canonical: "/kontakt" },
-};
+  pfad: "/kontakt",
+});
 
 export default function Page() {
   return (

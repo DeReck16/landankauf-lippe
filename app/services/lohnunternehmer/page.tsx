@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
+import { seitenMetadaten } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Lohnunternehmer im Kreis Lippe — Mahd, Pflege, Forstarbeit",
+export const metadata: Metadata = seitenMetadaten({
+  title: "Lohnunternehmer im Kreis Lippe – Mahd & Forst",
   description:
-    "Wir vermitteln verlässliche Lohnunternehmer aus dem Kreis Lippe für Mahd, Heuwerbung, Heckenpflege, Forstarbeiten und mehr. Faire Preise, kurze Wege, regionale Betriebe.",
-  alternates: { canonical: "/services/lohnunternehmer" },
-};
+    "Wir vermitteln verlässliche Lohnunternehmer aus dem Kreis Lippe für Mahd, Heuwerbung, Heckenpflege und Forstarbeiten — faire Preise, kurze Wege.",
+  pfad: "/services/lohnunternehmer",
+});
 
 export default function Page() {
   return (

@@ -5,6 +5,7 @@ import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
 import { CITIES, FLAECHENTYPEN, cityTypeRoutes, getCity } from "@/lib/cities";
 import { site } from "@/lib/site";
+import { seitenMetadaten } from "@/lib/seo";
 
 type Params = { slug: string };
 
@@ -28,19 +29,23 @@ function parseSlug(slug: string) {
   return { type, city };
 }
 
+// Kurzform für den <title>: „Wiese / Grünland“ ist für Suchergebnisse zu lang.
+const TITEL_KURZ: Record<string, string> = {
+  ackerland: "Ackerland",
+  wiese: "Wiese",
+  wald: "Wald",
+};
+
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { slug } = await params;
   const p = parseSlug(slug);
   if (!p) return {};
   const { type, city } = p;
-  const title = `${type.label} verkaufen ${city.name} — Direktankauf ohne Provision`;
+  // Ziel: höchstens 60 Zeichen inklusive „ | Lippe Forst“ (Layout-Template).
+  const basis = `${TITEL_KURZ[type.slug] ?? type.label} verkaufen in ${city.name}`;
+  const title = basis.length <= 31 ? `${basis} – Direktankauf` : basis;
   const desc = `Sie wollen ${type.label} ${city.display} verkaufen? Wir kaufen direkt — fair, diskret, ohne Maklergebühr. Antwort innerhalb von 24 Stunden.`;
-  return {
-    title,
-    description: desc,
-    alternates: { canonical: `/${slug}` },
-    openGraph: { title, description: desc },
-  };
+  return seitenMetadaten({ title, description: desc, pfad: `/${slug}` });
 }
 
 export default async function Page({ params }: { params: Promise<Params> }) {

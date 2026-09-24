@@ -10,6 +10,7 @@ import {
   getArticle,
 } from "@/lib/blog";
 import { site } from "@/lib/site";
+import { kurzBeschreibung } from "@/lib/seo";
 
 type Params = { slug: string };
 
@@ -29,6 +30,22 @@ function heroFor(a: { heroImage?: string; category: string }): string {
   return a.heroImage ?? CATEGORY_HERO[a.category] ?? "/hero.jpg";
 }
 
+// Blog-Überschriften sind oft 80–140 Zeichen lang; Google zeigt im Suchergebnis
+// nur rund 60. Für den <title> nehmen wir deshalb die längste Kurzform, die passt:
+// erst den ganzen Titel, dann den Teil vor „ — “, dann den vor dem Doppelpunkt —
+// mit Markenzusatz, wenn noch Platz ist. Die H1 auf der Seite bleibt unverändert.
+const MARKE = ` | ${site.name}`;
+function seitenTitel(titel: string): { absolute: string } {
+  const kandidaten = [titel, titel.split(" — ")[0], titel.split(":")[0]]
+    .map((t) => t.trim())
+    .filter((t) => t.length >= 12);
+  for (const k of kandidaten) {
+    if (k.length + MARKE.length <= 60) return { absolute: k + MARKE };
+    if (k.length <= 60) return { absolute: k };
+  }
+  return { absolute: titel };
+}
+
 export function generateStaticParams() {
   return ARTICLES.map((a) => ({ slug: a.slug }));
 }
@@ -43,14 +60,17 @@ export async function generateMetadata({
   if (!a) return {};
   const hero = heroFor(a);
   return {
-    title: a.title,
-    description: a.description,
+    title: seitenTitel(a.title),
+    description: kurzBeschreibung(a.description),
     alternates: {
       canonical: `/blog/${a.slug}`,
       types: { "application/rss+xml": "/feed.xml" },
     },
     openGraph: {
       type: "article",
+      locale: "de_DE",
+      siteName: site.name,
+      url: `/blog/${a.slug}`,
       title: a.title,
       description: a.description,
       publishedTime: a.publishedAt,

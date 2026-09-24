@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
+import { seitenMetadaten } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Fläche verkaufen im Kreis Lippe — fair, regional, ohne Provision",
+export const metadata: Metadata = seitenMetadaten({
+  title: "Fläche verkaufen in Lippe – ohne Provision",
   description:
-    "Ackerland, Wiese oder Wald im Kreis Lippe verkaufen? Wir kaufen direkt zum fairen Preis — ohne Makler, ohne Provision, mit voller Diskretion. Antwort innerhalb von 24 Stunden.",
-  alternates: { canonical: "/flaeche-verkaufen" },
-};
+    "Ackerland, Wiese oder Wald im Kreis Lippe verkaufen? Wir kaufen direkt zum fairen Preis — ohne Makler, ohne Provision, diskret. Antwort binnen 24 Stunden.",
+  pfad: "/flaeche-verkaufen",
+});
 
 export default function Page() {
   return (

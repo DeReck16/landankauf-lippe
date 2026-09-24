@@ -3,20 +3,15 @@ import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import LeadForm from "@/components/LeadForm";
+import { seitenMetadaten } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: {
-    absolute: "Ackerland & Wald verkaufen im Kreis Lippe – Lippe Forst",
-  },
+export const metadata: Metadata = seitenMetadaten({
+  title: "Ackerland & Wald verkaufen im Kreis Lippe – Lippe Forst",
+  absolut: true,
   description:
     "Fläche im Kreis Lippe verkaufen oder verpachten? Wir kaufen Ackerland, Wiesen und Wald direkt — fair bewertet, ohne Provision. Kostenlose Erstbewertung in 24 h.",
-  alternates: { canonical: "/" },
-  openGraph: {
-    title: "Ackerland & Wald verkaufen im Kreis Lippe – Lippe Forst",
-    description:
-      "Fläche im Kreis Lippe verkaufen oder verpachten? Wir kaufen Ackerland, Wiesen und Wald direkt — fair bewertet, ohne Provision. Kostenlose Erstbewertung in 24 h.",
-  },
-};
+  pfad: "/",
+});
 import QuickValuation from "@/components/QuickValuation";
 import Testimonials from "@/components/Testimonials";
 import Partners from "@/components/Partners";

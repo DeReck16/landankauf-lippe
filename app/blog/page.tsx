@@ -3,17 +3,21 @@ import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import { articlesSorted, CATEGORY_LABEL } from "@/lib/blog";
 import { site } from "@/lib/site";
+import { seitenMetadaten } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Blog — Aktuelles aus Lippe zu Flächen, Förderung & Markt",
+const blogMeta = seitenMetadaten({
+  title: "Blog: Flächen, Förderung & Markt in Lippe",
   description:
     "Aktuelle Beiträge zu Bodenrichtwerten, Vertragsnaturschutz, Förderprogrammen und Praxistipps für Eigentümer landwirtschaftlicher Flächen im Kreis Lippe.",
+  pfad: "/blog",
+  ogTitle: "Blog Lippe Forst — Aktuelles zu Flächen, Förderung & Markt",
+  ogDescription:
+    "Praxis-Beiträge für Lipper Eigentümer rund um Verkauf, Pacht, Vertragsnaturschutz und Wald.",
+});
+
+export const metadata: Metadata = {
+  ...blogMeta,
   alternates: { canonical: "/blog", types: { "application/rss+xml": "/feed.xml" } },
-  openGraph: {
-    title: "Blog Lippe Forst — Aktuelles zu Flächen, Förderung & Markt",
-    description:
-      "Praxis-Beiträge für Lipper Eigentümer rund um Verkauf, Pacht, Vertragsnaturschutz und Wald.",
-  },
 };
 
 export default function BlogIndex() {

@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
 import ClickToReveal from "@/components/ClickToReveal";
 import { site } from "@/lib/site";
+import { seitenMetadaten } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = seitenMetadaten({
   title: "Impressum",
   description: "Impressum und Anbieterkennzeichnung gemäß § 5 DDG der TR Vertriebs GmbH.",
-  alternates: { canonical: "/impressum" },
+  pfad: "/impressum",
   robots: { index: true, follow: false },
-};
+});
 
 export default function Page() {
   return (

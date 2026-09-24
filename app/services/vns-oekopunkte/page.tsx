@@ -2,18 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
+import { seitenMetadaten } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Ökopunkte verkaufen NRW & Vertragsnaturschutz — Kreis Lippe",
+export const metadata: Metadata = seitenMetadaten({
+  title: "Ökopunkte verkaufen NRW & Vertragsnaturschutz",
   description:
-    "Ökopunkte in NRW verkaufen? Wir prüfen Ihre Fläche kostenlos, stellen Ökokonto-Anträge und vermarkten Ihre Ausgleichspunkte im Kreis Lippe. VNS-Antragsfrist 30.06.2026.",
-  alternates: { canonical: "/services/vns-oekopunkte" },
-  openGraph: {
-    title: "Ökopunkte verkaufen NRW & Vertragsnaturschutz — Kreis Lippe",
-    description:
-      "Ökopunkte in NRW verkaufen? Wir prüfen Ihre Fläche kostenlos, stellen Ökokonto-Anträge und vermarkten Ihre Ausgleichspunkte im Kreis Lippe.",
-  },
-};
+    "Ökopunkte in NRW verkaufen? Wir prüfen Ihre Fläche kostenlos, stellen Ökokonto-Anträge und vermarkten Ausgleichspunkte im Kreis Lippe. VNS-Antrag bis 30.06.",
+  pfad: "/services/vns-oekopunkte",
+});
 
 const faq = [
   {

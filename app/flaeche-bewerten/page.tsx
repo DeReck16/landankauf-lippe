@@ -3,13 +3,14 @@ import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
 import QuickValuation from "@/components/QuickValuation";
+import { seitenMetadaten } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Fläche bewerten lassen — kostenlose Wertindikation für den Kreis Lippe",
+export const metadata: Metadata = seitenMetadaten({
+  title: "Fläche bewerten – kostenlose Wertindikation",
   description:
-    "Was ist meine Fläche wert? Erhalten Sie eine kostenlose, fundierte Wertindikation für Ackerland, Grünland oder Wald im Kreis Lippe — auf Basis der Bodenrichtwerte und realer Vergleichsverkäufe.",
-  alternates: { canonical: "/flaeche-bewerten" },
-};
+    "Was ist meine Fläche wert? Kostenlose Wertindikation für Ackerland, Grünland oder Wald im Kreis Lippe — auf Basis von Bodenrichtwerten und echten Kaufpreisen.",
+  pfad: "/flaeche-bewerten",
+});
 
 export default function Page() {
   return (

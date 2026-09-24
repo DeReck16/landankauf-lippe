@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
+import { seitenMetadaten } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Fläche verpachten im Kreis Lippe — verlässlicher Pachtzins, kein Aufwand",
+export const metadata: Metadata = seitenMetadaten({
+  title: "Fläche verpachten in Lippe – fairer Pachtzins",
   description:
-    "Sie wollen Ackerland, Wiese oder Wald im Kreis Lippe verpachten? Wir bewirtschaften selbst oder vermitteln Ihnen einen verlässlichen Pächter aus der Region — mit fairem Pachtzins und langfristigem Vertrag.",
-  alternates: { canonical: "/flaeche-verpachten" },
-};
+    "Ackerland, Wiese oder Wald im Kreis Lippe verpachten? Wir bewirtschaften selbst oder vermitteln einen verlässlichen Pächter aus der Region. Fairer Pachtzins.",
+  pfad: "/flaeche-verpachten",
+});
 
 export default function Page() {
   return (
