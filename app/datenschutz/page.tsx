@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
 import ClickToReveal from "@/components/ClickToReveal";
 import { site } from "@/lib/site";
+import { seitenMetadaten } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = seitenMetadaten({
   title: "Datenschutzerklärung",
-  description: "Wie wir Ihre Daten bei einer Anfrage über Lippe Forst verarbeiten — DSGVO-konform.",
-  alternates: { canonical: "/datenschutz" },
+  description: "Wie wir Ihre Daten bei einer Anfrage, im Kundenbereich und bei Online-Verträgen über Lippe Forst verarbeiten — DSGVO-konform.",
+  pfad: "/datenschutz",
   robots: { index: true, follow: false },
-};
+});
 
 export default function Page() {
   return (
@@ -55,6 +56,12 @@ export default function Page() {
           </p>
           <p>
             Als Ausfallsicherung übermitteln wir Ihre Anfrage außerdem an den Formulardienst Formspree (Formspree, Inc., USA), der sie uns per E-Mail zustellt. Formspree verarbeitet die Daten als Auftragsverarbeiter auf Servern in den USA; die Übermittlung stützt sich auf die EU-Standardvertragsklauseln (Art. 46 Abs. 2 lit. c DSGVO). Rechtsgrundlage ist unser berechtigtes Interesse, keine Anfrage durch einen technischen Ausfall zu verlieren (Art. 6 Abs. 1 lit. f DSGVO).
+          </p>
+          <p>
+            <strong>Ortsbestimmung über OpenStreetMap:</strong> Um passende Flächen und Gesuche nach Entfernung abzugleichen, übermittelt unser Server die Ortsangabe aus Ihrer Anfrage (nur den Ortsnamen, z. B. „Kalletal-Westorf“ — ohne Namen, Kontaktdaten oder Flurstück) an den Geodienst Nominatim der OpenStreetMap Foundation (St John’s Innovation Centre, Cowley Road, Cambridge, CB4 0WS, Vereinigtes Königreich) und speichert die gefundenen Koordinaten. Die Anfrage stellt unser Server; Ihre IP-Adresse wird dabei nicht übermittelt. Rechtsgrundlage ist unser berechtigtes Interesse an einem zutreffenden Abgleich (Art. 6 Abs. 1 lit. f DSGVO); für das Vereinigte Königreich besteht ein Angemessenheitsbeschluss der EU-Kommission.
+          </p>
+          <p>
+            <strong>Kontakt über WhatsApp und Telefon:</strong> Unsere Seiten enthalten einen Link zu WhatsApp (WhatsApp Ireland Limited, Merrion Road, Dublin 4, D04 X2K5, Irland). Daten fließen erst, wenn Sie den Link anklicken — dann öffnet sich WhatsApp, und WhatsApp verarbeitet Ihre Telefonnummer, die Nachricht und Nutzungsdaten nach seinen eigenen Datenschutzbestimmungen; eine Übermittlung in die USA ist dabei möglich (Meta ist nach dem EU-US Data Privacy Framework zertifiziert). Schreiben Sie uns über WhatsApp oder rufen Sie uns an, nutzen wir Ihre Angaben zur Bearbeitung Ihres Anliegens (Art. 6 Abs. 1 lit. b DSGVO). Ein Klick auf den WhatsApp- oder Telefon-Link wird außerdem als Conversion an Google Ads gemeldet (siehe Abschnitt 7). Wenn Sie WhatsApp nicht nutzen möchten, erreichen Sie uns per E-Mail oder über das Formular.
           </p>
 
           <h2>4. Kundenbereich, Online-Verträge und Dokumente</h2>

@@ -76,10 +76,15 @@ async function kundenVorgang(
   if (!meta || !roh) return null;
   const andere = leadView(roh, zustand.anfragen[andereId]);
   const v = await ladeVorgang(key);
-  const freigegeben = M.aktiveFreigabe(v) && (meta.status === "kontakt" || meta.status === "abschluss");
+  // Nach einem Widerruf ist die Grundlage für die Weitergabe entfallen: Ohne geschlossenen
+  // Vertrag sieht der Widerrufende den Vorgang nicht mehr, und die Gegenseite sieht seine
+  // Kontaktdaten nicht mehr. (Nach einem Abschluss bleiben Vertrag und Dokumente abrufbar.)
+  if (k.widerruf && !v?.abschluss) return null;
+  const gegen = M.aktiveFreigabe(v) ? await ladeKunde(andereId) : null;
+  const freigegeben =
+    M.aktiveFreigabe(v) && (meta.status === "kontakt" || meta.status === "abschluss") && !(gegen?.widerruf && !v?.abschluss);
   let kontakt: Kontakt | null = null;
   if (freigegeben) {
-    const gegen = await ladeKunde(andereId);
     const s = gegen?.stammdaten;
     kontakt = {
       name: s?.name || T.wert(andere.name),

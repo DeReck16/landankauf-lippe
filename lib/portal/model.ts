@@ -17,6 +17,12 @@ export type Eingang = "online" | "email" | "post" | "telefon" | "sonstig";
 
 export const ROLLE_NAME: Record<Rolle, string> = { anbieter: "Anbieter", suchender: "Suchender" };
 
+/** Rolle mit bestimmtem Artikel — „Suchender“ wird wie ein Adjektiv dekliniert („der Suchende“, „des Suchenden“). */
+export const ROLLE_ARTIKEL: Record<Rolle, { nom: string; gen: string; dat: string; akk: string }> = {
+  anbieter: { nom: "der Anbieter", gen: "des Anbieters", dat: "dem Anbieter", akk: "den Anbieter" },
+  suchender: { nom: "der Suchende", gen: "des Suchenden", dat: "dem Suchenden", akk: "den Suchenden" },
+};
+
 export type Flaeche = {
   gemarkung: string;
   flur: string;
@@ -108,7 +114,7 @@ export type KundenVertrag = {
   dokumentId: string;
   signatur: Signatur;
   eigenschaft: Eigenschaft;
-  /** § 356 Abs. 5 BGB: ausdrücklicher Wunsch, dass vor Ablauf der Widerrufsfrist begonnen wird. */
+  /** § 356 Abs. 4 BGB: ausdrücklicher Wunsch, dass vor Ablauf der Widerrufsfrist begonnen wird. */
   beginnwunschAm: string | null;
   /** Ende der 14-tägigen Widerrufsfrist (nur Verbraucher). */
   widerrufsfristEnde: string | null;
@@ -533,9 +539,15 @@ export function widerrufsfristEnde(vertragsschluss: string): string {
   const d = new Date(vertragsschluss);
   const tag = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Berlin", year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
   const [y, m, t] = tag.split("-").map(Number);
-  // Ende des 14. Tages nach dem Tag des Vertragsschlusses (§§ 187 Abs. 1, 188 Abs. 1 BGB):
-  // 23:59:59 MEZ = 22:59:59 UTC — im Sommer eine Stunde großzügiger, nie zu knapp.
-  const ende = new Date(Date.UTC(y, m - 1, t + 14, 22, 59, 59));
+  // Ende des 14. Tages nach dem Tag des Vertragsschlusses (§§ 187 Abs. 1, 188 Abs. 1 BGB),
+  // 23:59:59 deutscher Zeit — mit der für diesen Tag gültigen Zeitzonen-Verschiebung.
+  const mittag = new Date(Date.UTC(y, m - 1, t + 14, 12, 0, 0));
+  const zone = new Intl.DateTimeFormat("en-US", { timeZone: "Europe/Berlin", timeZoneName: "shortOffset" })
+    .formatToParts(mittag)
+    .find((x) => x.type === "timeZoneName")?.value;
+  const treffer = zone?.match(/GMT([+-]\d+)(?::(\d+))?/);
+  const versatzMin = treffer ? Number(treffer[1]) * 60 + (treffer[2] ? Math.sign(Number(treffer[1])) * Number(treffer[2]) : 0) : 60;
+  const ende = new Date(Date.UTC(y, m - 1, t + 14, 23, 59, 59) - versatzMin * 60_000);
   return ende.toISOString();
 }
 
@@ -564,7 +576,7 @@ export function widerrufMoeglich(k: KundeRecord, jetzt = new Date()): boolean {
  * Voraussetzungen: gültiger, unterschriebener Vertrag, kein Widerruf/keine Kündigung/
  * keine Sperre; bei Suchenden, die Verbraucher sind, zusätzlich Vertragsbestätigung
  * versandt (§ 312f BGB) und Widerrufsfrist abgelaufen oder ausdrücklicher
- * Beginnwunsch (§ 356 Abs. 5 BGB).
+ * Beginnwunsch (§ 356 Abs. 4 BGB).
  */
 export function freigabeBereit(k: KundeRecord | null | undefined, jetzt = new Date()): { bereit: boolean; grund: string } {
   if (!k) return { bereit: false, grund: "noch nicht eingeladen" };

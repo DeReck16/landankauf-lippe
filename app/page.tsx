@@ -9,7 +9,7 @@ export const metadata: Metadata = seitenMetadaten({
   title: "Ackerland & Wald verkaufen im Kreis Lippe – Lippe Forst",
   absolut: true,
   description:
-    "Fläche im Kreis Lippe verkaufen oder verpachten? Wir kaufen Ackerland, Wiesen und Wald direkt — fair bewertet, ohne Provision. Kostenlose Erstbewertung in 24 h.",
+    "Fläche im Kreis Lippe verkaufen oder verpachten? Wir kaufen Ackerland, Wiesen und Wald direkt — für Eigentümer ohne Provision. Erstbewertung in 24 h.",
   pfad: "/",
 });
 import QuickValuation from "@/components/QuickValuation";
@@ -26,7 +26,7 @@ const faq: { q: string; a: string; aJsx?: ReactNode }[] = [
   },
   {
     q: "Fallen Maklergebühren oder Provisionen an?",
-    a: "Nein. Wir kaufen direkt, ohne Maklerkette. Sie zahlen keine Provision, keine Bewertungsgebühr und keine versteckten Kosten. Die einzigen Kosten, die anfallen, sind die üblichen Notar- und Grundbuchkosten.",
+    a: "Für Eigentümer nicht. Wir kaufen direkt, ohne Maklerkette: Als Verkäufer oder Verpächter zahlen Sie keine Provision, keine Bewertungsgebühr und keine versteckten Kosten. Beim Verkauf fallen nur die üblichen Notar- und Grundbuchkosten an. Wer über uns eine Fläche pachtet oder kauft, zahlt nur im Erfolgsfall eine Provision — die Konditionen erhält er vorher schriftlich.",
   },
   {
     q: "Was ist, wenn die Fläche verpachtet ist?",
@@ -118,7 +118,7 @@ export default function Home() {
               Ihre Fläche verdient<br />einen guten Nachfolger.
             </h1>
             <p className="mt-6 text-lg md:text-xl text-white/85 max-w-xl leading-relaxed">
-              Wir kaufen, pachten und bewerten Ackerland, Wiesen und Wald im Kreis Lippe — fair, regional, persönlich. Ohne Makler, ohne Provision, ohne Druck. <strong className="text-white">Diskretion ist Standard, nicht Aufpreis.</strong>
+              Wir kaufen, pachten und bewerten Ackerland, Wiesen und Wald im Kreis Lippe — fair, regional, persönlich. Für Eigentümer ohne Provision, ohne Druck. <strong className="text-white">Diskretion ist Standard, nicht Aufpreis.</strong>
             </p>
             <div className="mt-5 inline-flex items-center gap-2 text-xs uppercase tracking-wider text-[color:var(--color-accent)] border border-white/15 rounded-full px-3 py-1.5">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-[color:var(--color-accent)]" />
@@ -152,7 +152,7 @@ export default function Home() {
               </div>
               <div>
                 <p className="font-serif text-2xl text-white">0 %</p>
-                <p>Provision</p>
+                <p>Provision für Eigentümer</p>
               </div>
               <div>
                 <p className="font-serif text-2xl text-white">100 %</p>

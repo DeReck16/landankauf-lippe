@@ -159,7 +159,8 @@ export function entwuerfeKunde(opts: {
         "",
         GRUSS,
       ];
-  liste.push({
+  // Nach der Unterschrift ist die Einladung erledigt — dann kein Entwurf mehr (Versand steht im Verlauf).
+  if (!unterschrieben) liste.push({
     id: `einladung:${lead.id}`,
     zweck: "einladung",
     rolle: rr.rolle,
@@ -172,7 +173,7 @@ export function entwuerfeKunde(opts: {
     wirkung: "Vermerkt „Einladung gesendet“ in der Kundenakte.",
     gesendetAm: kunde?.einladung?.gesendetAm,
     faellig: Boolean(link && !kunde?.einladung?.gesendetAm),
-    gesperrt: unterschrieben ? "Bereits unterschrieben." : !link ? "Erst „Einladung erstellen“ klicken — dann steht der persönliche Link im Text." : undefined,
+    gesperrt: !link ? "Erst „Einladung erstellen“ klicken — dann steht der persönliche Link im Text." : undefined,
   });
   if (kunde?.einladung && !unterschrieben && link) {
     liste.push({
@@ -298,7 +299,7 @@ export function entwuerfePaar(opts: {
             ? `gute Nachrichten: Der Eigentümer der Fläche (${eckdaten}) ist mit einem Kontakt einverstanden. Name, Telefonnummer, E-Mail-Adresse und die Flurstücke finden Sie ab sofort in Ihrem Kundenbereich.`
             : "gute Nachrichten: Der Interessent ist mit einem Kontakt einverstanden. Seinen Namen und seine Kontaktdaten finden Sie ab sofort in Ihrem Kundenbereich; er hat Ihre Kontaktdaten und die Flurstücke ebenfalls erhalten.",
           "",
-          `Direkt zum Kundenbereich (der Link gilt 14 Tage und einmal; danach melden Sie sich mit Ihrer E-Mail-Adresse an):`,
+          `Direkt zum Kundenbereich (der Link ist 14 Tage gültig und funktioniert einmal; danach melden Sie sich einfach mit Ihrer E-Mail-Adresse an):`,
           zugang,
           "",
           `Bitte nehmen Sie direkt miteinander Kontakt auf. Wenn Sie sich einig werden, können Sie den ${art === "kauf" ? "Kauf über den Notar vorbereiten" : "Pachtvertrag auf Wunsch online über Lippe Forst abschließen"}.${seite.rolle === "suchender" ? " Bitte melden Sie uns einen Vertragsschluss kurz im Kundenbereich („Vertragsschluss melden“)." : ""}`,
@@ -334,7 +335,7 @@ export function entwuerfePaar(opts: {
           "",
           "der Landpachtvertrag ist vorbereitet und liegt in Ihrem Kundenbereich zur Prüfung und Unterschrift bereit. Bitte lesen Sie ihn in Ruhe. Änderungswünsche können Sie uns dort über „Rückfrage“ schicken.",
           "",
-          "Direkt zum Kundenbereich (der Link gilt 14 Tage und einmal):",
+          "Direkt zum Kundenbereich (der Link ist 14 Tage gültig und funktioniert einmal):",
           zugangsLink(seite.k, basis),
           "",
           "Der Vertrag wird in Textform geschlossen (§ 585a BGB) und kommt zustande, sobald beide Seiten unterschrieben haben. Beide erhalten ihn dann als PDF.",
@@ -394,7 +395,7 @@ export function entwuerfePaar(opts: {
           "",
           "wir haben die besprochenen Eckdaten für den Kaufvertrag zusammengefasst. Bitte prüfen und bestätigen Sie sie in Ihrem Kundenbereich — die Bestätigung ist unverbindlich; der Kaufvertrag entsteht erst beim Notar.",
           "",
-          "Direkt zum Kundenbereich (der Link gilt 14 Tage und einmal):",
+          "Direkt zum Kundenbereich (der Link ist 14 Tage gültig und funktioniert einmal):",
           zugangsLink(seite.k, basis),
           "",
           GRUSS,
@@ -438,6 +439,16 @@ export function entwuerfePaar(opts: {
             ? `Frühestens ${opts.einstellungen.bewertung?.nachTagen ?? 3} Tage nach dem Abschluss.`
             : undefined,
       });
+    }
+  }
+  // Hat eine Seite ihren Vertrag widerrufen (und ist noch nichts geschlossen), gehen keine
+  // Freigabe-, Vertrags- oder Eckdaten-Mitteilungen mehr heraus.
+  if ((anbieter?.widerruf || suchender?.widerruf) && !vorgang?.abschluss) {
+    for (const e of liste) {
+      if (e.zweck === "freigabe" || e.zweck === "pachtvertrag" || e.zweck === "kaufabsicht") {
+        e.gesperrt = "Eine Seite hat ihren Vertrag mit Lippe Forst widerrufen — diese Mitteilung nicht mehr senden.";
+        e.faellig = false;
+      }
     }
   }
   return liste;

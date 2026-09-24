@@ -3,7 +3,7 @@ export const site = {
   domain: "lippeforst.de",
   url: "https://lippeforst.de",
   shortDescription:
-    "Lippe Forst — fairer Ankauf von Ackerland, Wiesen und Wald im Kreis Lippe. Persönlich, regional, ohne Maklergebühren.",
+    "Lippe Forst — fairer Ankauf von Ackerland, Wiesen und Wald im Kreis Lippe. Persönlich, regional, für Eigentümer ohne Maklergebühren.",
   longDescription:
     "Lippe Forst kauft, pachtet und bewertet Ackerland, Wiesen und Wald im Kreis Lippe und im Umland. Zusätzlich beraten wir bei Vertragsnaturschutz und Ökopunkten und vermitteln Lohnunternehmer für Mahd, Pflege und Forstarbeiten.",
   contact: {

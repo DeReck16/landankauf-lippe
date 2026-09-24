@@ -112,7 +112,7 @@ export default async function VorgaengePage(props: PageProps<"/admin/vorgaenge">
                   {e.slice(0, 3).map((x) => (
                     <div key={x.id} className="lfa-klein">{datumZeit(x.am)} · {x.text}</div>
                   ))}
-                  {e.length > 3 && <div className="lfa-klein">… und {e.length - 3} weitere</div>}
+                  {e.length > 3 && <div className="lfa-klein">… und {e.length - 3 === 1 ? "ein weiterer Eintrag" : `${e.length - 3} weitere Einträge`}</div>}
                 </li>
               ))}
               {neuVorgaenge.map(({ v, e }) => (
@@ -123,7 +123,7 @@ export default async function VorgaengePage(props: PageProps<"/admin/vorgaenge">
                   {e.slice(0, 3).map((x) => (
                     <div key={x.id} className="lfa-klein">{datumZeit(x.am)} · {x.text}</div>
                   ))}
-                  {e.length > 3 && <div className="lfa-klein">… und {e.length - 3} weitere</div>}
+                  {e.length > 3 && <div className="lfa-klein">… und {e.length - 3 === 1 ? "ein weiterer Eintrag" : `${e.length - 3} weitere Einträge`}</div>}
                 </li>
               ))}
             </ul>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { startTransition, useActionState } from "react";
 import { anmeldelinkAktion, type AnmeldeState } from "./actions";
 
 export default function AnmeldeFormular() {
@@ -13,7 +13,14 @@ export default function AnmeldeFormular() {
     );
   }
   return (
-    <form action={action} className="lfk-form">
+    <form
+      className="lfk-form"
+      onSubmit={(ev) => {
+        ev.preventDefault();
+        const fd = new FormData(ev.currentTarget);
+        startTransition(() => action(fd));
+      }}
+    >
       <label className="field-label" htmlFor="kunde-email">
         Ihre E-Mail-Adresse
       </label>

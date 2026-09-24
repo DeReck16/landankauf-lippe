@@ -26,6 +26,8 @@ export async function GET(request: NextRequest, ctx: RouteContext<"/kunde/dokume
     const partei = kunde.rolle === "anbieter" ? a === kunde.id : g === kunde.id;
     const v = partei ? await ladeVorgang(key) : null;
     if (!v || !M.aktiveFreigabe(v)) return new Response("Nicht gefunden", { status: 404 });
+    // Nach einem Widerruf ohne geschlossenen Vertrag keine Vorgangsdokumente mehr (wie in der Übersicht).
+    if (kunde.widerruf && !v.abschluss) return new Response("Nicht gefunden", { status: 404 });
     meta = findeDokument(v, id);
   } else {
     meta = findeDokument(kunde, id);

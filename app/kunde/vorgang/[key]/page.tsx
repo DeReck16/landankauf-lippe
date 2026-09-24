@@ -29,7 +29,10 @@ export default async function KundeVorgangPage(props: PageProps<"/kunde/vorgang/
   if (!v) redirect("/kunde");
   const m = typeof sp.m === "string" ? sp.m.slice(0, 400) : "";
   const anbieter = kunde.rolle === "anbieter";
-  const gegen = v.gegenueberRolle === "anbieter" ? "Eigentümer" : "Interessent";
+  // Deklination: „der Eigentümer / des Eigentümers“, aber „der Interessent / des Interessenten“.
+  const gegen = v.gegenueberRolle === "anbieter"
+    ? { nom: "Eigentümer", gen: "Eigentümers", dat: "Eigentümer", akk: "Eigentümer" }
+    : { nom: "Interessent", gen: "Interessenten", dat: "Interessenten", akk: "Interessenten" };
   const unterschrieben = Boolean(kunde.vertrag) && !kunde.widerruf;
   const beendet = Boolean(kunde.widerruf || kunde.kuendigung);
 
@@ -37,6 +40,14 @@ export default async function KundeVorgangPage(props: PageProps<"/kunde/vorgang/
   const ctx = v.freigegeben && (v.pacht || v.kauf) ? await ladeVorgangKontext(key) : null;
   const pv = ctx?.vorgang?.pachtvertrag;
   const kauf = ctx?.vorgang?.kauf;
+  // Transparenz für den Pächter: Mit seiner Unterschrift wird die Provision aus dem Nachweisvertrag fällig.
+  const konditionen = kunde.vertrag?.konditionen ?? null;
+  const pachtProvision = (() => {
+    if (anbieter || !pv || !konditionen) return null;
+    const p = M.provisionBerechnen("pacht", M.massgeblicheJahrespacht(pv.daten), konditionen);
+    if (p.brutto == null) return null;
+    return `${M.euro(p.brutto)} einschließlich ${M.zahlDe(konditionen.ustProzent)} % USt (${M.euro(p.netto)} netto) — wird nach Ihrem Nachweisvertrag mit Abschluss dieses Pachtvertrags fällig`;
+  })();
 
   return (
     <>
@@ -71,13 +82,13 @@ export default async function KundeVorgangPage(props: PageProps<"/kunde/vorgang/
             {v.meineZustimmung ? (
               <p className="lfk-hinweis lfk-hinweis-ok" style={{ marginBottom: 0 }}>
                 Sie haben dem Kontakt am {datumDe(v.meineZustimmung)} zugestimmt.{" "}
-                {v.andereZustimmung ? `Der ${gegen} ist ebenfalls einverstanden — wir geben die Kontaktdaten in Kürze frei.` : `Wir warten noch auf die Rückmeldung des ${gegen}s.`}
+                {v.andereZustimmung ? `Der ${gegen.nom} ist ebenfalls einverstanden — wir geben die Kontaktdaten in Kürze frei.` : `Wir warten noch auf die Rückmeldung des ${gegen.gen}.`}
               </p>
             ) : v.abgelehnt ? (
               <p className="lfk-hinweis" style={{ marginBottom: 0 }}>Sie haben „kein Interesse“ gemeldet. Falls Sie es sich anders überlegen, stimmen Sie einfach unten zu.</p>
             ) : (
               <p className="lfk-klein" style={{ marginBottom: "0.6rem" }}>
-                Möchten Sie mit dem {gegen} in Kontakt kommen? Namen und Kontaktdaten geben wir erst frei, wenn beide Seiten zugestimmt haben.
+                Möchten Sie mit dem {gegen.dat} in Kontakt kommen? Namen und Kontaktdaten geben wir erst frei, wenn beide Seiten zugestimmt haben.
               </p>
             )}
             {!v.meineZustimmung && (
@@ -85,7 +96,7 @@ export default async function KundeVorgangPage(props: PageProps<"/kunde/vorgang/
                 <form action={zustimmenAktion}>
                   <input type="hidden" name="k" value={kunde.id} />
                   <input type="hidden" name="key" value={key} />
-                  <button type="submit" className="btn-primary" title={`Sie stimmen zu, dass Lippe Forst Ihre Kontaktdaten an diesen ${gegen} weitergibt, sobald auch er zugestimmt hat`}>
+                  <button type="submit" className="btn-primary" title={`Sie stimmen zu, dass Lippe Forst Ihre Kontaktdaten an diesen ${gegen.akk} weitergibt, sobald auch er zugestimmt hat`}>
                     Ja, Kontakt herstellen
                   </button>
                 </form>
@@ -115,7 +126,7 @@ export default async function KundeVorgangPage(props: PageProps<"/kunde/vorgang/
 
       {v.freigegeben && v.kontakt && (
         <section className="lfk-karte lfk-karte-hervor">
-          <h2 className="lfk-h2">Kontaktdaten des {gegen}s</h2>
+          <h2 className="lfk-h2">Kontaktdaten des {gegen.gen}</h2>
           <p className="lfk-klein" style={{ marginBottom: "0.6rem" }}>Freigegeben am {datumDe(v.freigabeAm)}. Bitte nehmen Sie direkt Kontakt auf und behandeln Sie die Daten vertraulich.</p>
           <dl className="lfk-daten">
             <dt>Name</dt>
@@ -182,6 +193,12 @@ export default async function KundeVorgangPage(props: PageProps<"/kunde/vorgang/
                       <dd>{pv.daten.laufzeitJahre ? `${pv.daten.laufzeitJahre} Pachtjahre` : "unbestimmte Zeit"}</dd>
                       <dt>Volle Jahrespacht</dt>
                       <dd>{M.euro(M.jahrespacht(pv.daten))}{pv.daten.umsatzsteuer === "zuzueglich" ? " zzgl. USt" : ""}</dd>
+                      {pachtProvision && (
+                        <>
+                          <dt>Provision an Lippe Forst</dt>
+                          <dd>{pachtProvision}</dd>
+                        </>
+                      )}
                     </dl>
                   </div>
                 }

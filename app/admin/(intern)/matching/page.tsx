@@ -75,7 +75,7 @@ function Zustimmung({ k, rolle, zurueck }: { k: Kandidat; rolle: M.Rolle; zuruec
         title={
           am
             ? `${wer} hat am ${datum(am)} zugestimmt${quelle === "kunde" ? " (selbst im Kundenbereich)" : quelle ? ` (erfasst von ${quelle})` : ""}. Klick nimmt die Zustimmung zurück.`
-            : `Zustimmung des ${wer}s zu genau diesem Kontakt erfassen (z. B. telefonisch oder per Mail erteilt). Der Kunde kann auch selbst im Kundenbereich zustimmen.`
+            : `Zustimmung ${M.ROLLE_ARTIKEL[rolle].gen} zu genau diesem Kontakt erfassen (z. B. telefonisch oder per Mail erteilt). Der Kunde kann auch selbst im Kundenbereich zustimmen.`
         }
       >
         {am ? `✓ ${wer} stimmt zu (${datum(am)}${quelle === "kunde" ? ", selbst" : ""})` : abgelehnt ? `${wer}: kein Interesse gemeldet` : `Zustimmung ${wer} erfassen`}

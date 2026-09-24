@@ -146,7 +146,7 @@ export default async function KundePage(props: PageProps<"/kunde">) {
                     </summary>
                     <form action={beginnwunschAktion} className="lfk-form" style={{ marginTop: "0.6rem" }}>
                       <input type="hidden" name="k" value={k.id} />
-                      <label className="lfk-check">
+                      <label className="lfk-check" title="Freiwillig: Nur ankreuzen, wenn Sie Kontakte schon vor Ende der Widerrufsfrist erhalten möchten">
                         <input type="checkbox" name="bestaetigt" value="1" required />
                         <span>
                           Ich verlange ausdrücklich, dass Lippe Forst schon vor Ablauf der Widerrufsfrist mit der Leistung beginnt, mir also passende Flächen vorstellt und Kontakte freigibt. Mir ist bekannt, dass ich bei einem Widerruf einen angemessenen Betrag für die bis dahin erbrachten Leistungen zahlen muss und dass mein Widerrufsrecht erlischt, sobald Lippe Forst die Leistung vollständig erbracht hat.

@@ -723,7 +723,7 @@ export default async function VorgangPage(props: PageProps<"/admin/vorgang/[key]
                         <input type="hidden" name="an" value={am ? "0" : "1"} />
                         <input type="hidden" name="zurueck" value={zurueck} />
                         <button type="submit" className={`lfa-knopf lfa-knopf-klein ${am ? "" : "lfa-knopf-hell"}`} title={am ? "Zustimmung zurücknehmen" : "Zustimmung zu diesem Kontakt erfassen (z. B. telefonisch erteilt) — Kunden können auch selbst im Kundenbereich zustimmen"}>
-                          {am ? `✓ ${M.ROLLE_NAME[r]} stimmt zu (${datumDe(am)})` : `Zustimmung ${M.ROLLE_NAME[r]} erfassen`}
+                          {am ? `✓ ${M.ROLLE_NAME[r]} stimmt zu (${datumDe(am)})` : `Zustimmung ${M.ROLLE_ARTIKEL[r].gen} erfassen`}
                         </button>
                       </form>
                     );
@@ -756,6 +756,11 @@ export default async function VorgangPage(props: PageProps<"/admin/vorgang/[key]
             {frei && (
               <div className="lfa-abschnitt">
                 <p className="lfa-klein">Freigegeben am {datumZeit(v!.freigabe!.am)} von {v!.freigabe!.von}. Beide Seiten sehen die Kontaktdaten im Kundenbereich.</p>
+                {!v?.abschluss && (ctx.anbieter?.widerruf || ctx.suchender?.widerruf) && (
+                  <p className="lfa-hinweis lfa-hinweis-fehler" style={{ margin: "0.4rem 0 0" }} role="alert">
+                    Achtung: {ctx.suchender?.widerruf ? `Der Suchende hat am ${datumDe(ctx.suchender.widerruf.am)}` : `Der Anbieter hat am ${datumDe(ctx.anbieter!.widerruf!.am)}`} widerrufen. Der Kundenbereich zeigt die Kontaktdaten nicht mehr an; einen Pachtvertrag bzw. Eckdaten nicht mehr über die Plattform vorlegen. Freigabe bitte zurückziehen und — falls nötig — die Gegenseite informieren.
+                  </p>
+                )}
                 <details className="lfa-details" style={{ marginTop: "0.4rem" }}>
                   <summary title="Nur bei einem Versehen: Kontaktdaten im Kundenbereich wieder verbergen">Freigabe zurückziehen</summary>
                   <form action={freigabeZurueckziehenAktion} className="lfa-inline">

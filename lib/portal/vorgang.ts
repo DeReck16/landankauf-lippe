@@ -89,7 +89,7 @@ async function paarAendern(von: string, key: string, aendern: (m: MatchMeta) => 
 export async function hinweisVermerken(key: string, art: M.Art, rolle: M.Rolle, von: string): Promise<void> {
   const v = await aendereVorgang(key, art, (x) => {
     x.hinweise = { ...(x.hinweise ?? {}), [rolle]: jetzt() };
-    M.ereignis(x, von, "hinweis", `Anonymer Hinweis an ${M.ROLLE_NAME[rolle]} gesendet`);
+    M.ereignis(x, von, "hinweis", `Anonymer Hinweis an ${M.ROLLE_ARTIKEL[rolle].akk} gesendet`);
   });
   if (v.hinweise?.anbieter && v.hinweise?.suchender) {
     await paarAendern(von, key, (m) => {
@@ -116,7 +116,7 @@ export async function zustimmungSetzen(key: string, art: M.Art, rolle: M.Rolle, 
   });
   if (quelle === "kunde") {
     await adminInfo(`${erteilt ? "Zustimmung zum Kontakt" : "Zustimmung zurückgenommen"}: ${M.ROLLE_NAME[rolle]} (${key})`, [
-      `Der ${M.ROLLE_NAME[rolle]} hat im Kundenbereich ${erteilt ? "dem Kontakt zugestimmt" : "seine Zustimmung zurückgenommen"}.`,
+      `${rolle === "anbieter" ? "Der Anbieter" : "Der Suchende"} hat im Kundenbereich ${erteilt ? "dem Kontakt zugestimmt" : "seine Zustimmung zurückgenommen"}.`,
       "Die Freigabe ist möglich, sobald beide Seiten unterschrieben und zugestimmt haben.",
     ], verwaltungsLink(`/admin/vorgang/${key}`));
   }
@@ -133,7 +133,7 @@ export async function ablehnen(key: string, art: M.Art, rolle: M.Rolle, grund: s
     M.ereignis(x, "kunde", "ablehnung", `${M.ROLLE_NAME[rolle]} meldet kein Interesse${grund ? `: ${grund}` : ""}`);
   });
   await adminInfo(`Kein Interesse: ${M.ROLLE_NAME[rolle]} (${key})`, [
-    `Der ${M.ROLLE_NAME[rolle]} hat im Kundenbereich „kein Interesse“ gemeldet.`,
+    `${rolle === "anbieter" ? "Der Anbieter" : "Der Suchende"} hat im Kundenbereich „kein Interesse“ gemeldet.`,
     ...(grund ? [`Begründung: ${grund}`] : []),
     "Das Paar kann im Matching verworfen werden.",
   ], verwaltungsLink(`/admin/vorgang/${key}`));
@@ -317,10 +317,19 @@ export async function pachtSpeichern(key: string, art: M.Art, daten: M.PachtDate
   return fehler ? { ok: false, fehler } : { ok: true };
 }
 
+const WIDERRUFEN_FEHLER = "Eine Seite hat ihren Vertrag mit Lippe Forst widerrufen — über die Plattform wird nichts mehr zur Unterschrift vorgelegt.";
+
+async function parteiWiderrufen(key: string): Promise<boolean> {
+  const [aId, gId] = key.split("~");
+  const [a, g] = await Promise.all([ladeKunde(aId), ladeKunde(gId)]);
+  return Boolean(a?.widerruf || g?.widerruf);
+}
+
 export async function pachtZurUnterschrift(key: string, von: string): Promise<{ ok: boolean; fehler?: string }> {
   const [v, e] = await Promise.all([ladeVorgang(key), ladeEinstellungen()]);
   if (!v?.pachtvertrag || v.pachtvertrag.status !== "entwurf") return { ok: false, fehler: "Kein Entwurf vorhanden." };
   if (!M.aktiveFreigabe(v)) return { ok: false, fehler: "Erst nach der Freigabe möglich." };
+  if (await parteiWiderrufen(key)) return { ok: false, fehler: WIDERRUFEN_FEHLER };
   if (!istFreigegeben(e, "pachtvertrag")) return { ok: false, fehler: "Die Vorlage „Landpachtvertrag“ ist nicht freigegeben (Verwaltung → Vorlagen)." };
   const luecken = pachtLuecken(v.pachtvertrag.daten);
   if (luecken.length) return { ok: false, fehler: `Es fehlen: ${luecken.join(", ")}.` };
@@ -362,6 +371,9 @@ export async function pachtUnterschreiben(opts: {
   const v = await ladeVorgang(opts.key);
   const pv = v?.pachtvertrag;
   if (!v || !pv || pv.status !== "zur_unterschrift" || !pv.textHash) return { ok: false, fehler: "Der Pachtvertrag liegt nicht zur Unterschrift vor." };
+  if (!M.aktiveFreigabe(v) || (await parteiWiderrufen(opts.key))) {
+    return { ok: false, fehler: "Der Pachtvertrag kann über Lippe Forst derzeit nicht unterschrieben werden. Bitte sprechen Sie uns an." };
+  }
   if (pachtHash(opts.key, pv.daten) !== pv.textHash || opts.textHash !== pv.textHash) {
     return { ok: false, fehler: "Der Vertragstext hat sich geändert. Bitte die Seite neu laden und den Text erneut prüfen." };
   }
@@ -537,6 +549,7 @@ export async function kaufZurBestaetigung(key: string, von: string): Promise<{ o
   const k = ctx?.vorgang?.kauf;
   if (!ctx || !k || k.status !== "entwurf") return { ok: false, fehler: "Kein Entwurf vorhanden." };
   if (!M.aktiveFreigabe(ctx.vorgang)) return { ok: false, fehler: "Erst nach der Freigabe möglich." };
+  if (ctx.anbieter?.widerruf || ctx.suchender?.widerruf) return { ok: false, fehler: WIDERRUFEN_FEHLER };
   if (!istFreigegeben(e, "kaufabsicht")) return { ok: false, fehler: "Die Vorlage „Kaufabsicht“ ist nicht freigegeben (Verwaltung → Vorlagen)." };
   const hash = dokumentHash(kaufDokument(key, k.daten, ctx.suchender?.vertrag?.konditionen ?? null));
   await aendereVorgang(key, "kauf", (x) => {
@@ -573,6 +586,9 @@ export async function kaufBestaetigen(opts: {
   const ctx = await ladeVorgangKontext(opts.key);
   const k = ctx?.vorgang?.kauf;
   if (!ctx || !k || k.status !== "zur_bestaetigung" || !k.textHash) return { ok: false, fehler: "Die Kaufabsicht liegt nicht zur Bestätigung vor." };
+  if (!M.aktiveFreigabe(ctx.vorgang) || ctx.anbieter?.widerruf || ctx.suchender?.widerruf) {
+    return { ok: false, fehler: "Die Eckdaten können über Lippe Forst derzeit nicht bestätigt werden. Bitte sprechen Sie uns an." };
+  }
   const aktuell = dokumentHash(kaufDokument(opts.key, k.daten, ctx.suchender?.vertrag?.konditionen ?? null));
   if (aktuell !== k.textHash || opts.textHash !== k.textHash) return { ok: false, fehler: "Der Text hat sich geändert. Bitte die Seite neu laden." };
   const feld = opts.rolle === "anbieter" ? "verkaeufer" : "kaeufer";
@@ -967,7 +983,7 @@ export function bewertungsText(name: string, art: M.Art, url: string): { betreff
 export async function bewertungVermerken(key: string, art: M.Art, rolle: M.Rolle, von: string): Promise<void> {
   await aendereVorgang(key, art, (x) => {
     x.bewertung = { ...(x.bewertung ?? {}), [rolle]: jetzt() };
-    M.ereignis(x, von, "bewertung", `Bitte um Google-Bewertung an ${M.ROLLE_NAME[rolle]} gesendet`);
+    M.ereignis(x, von, "bewertung", `Bitte um Google-Bewertung an ${M.ROLLE_ARTIKEL[rolle].akk} gesendet`);
   });
 }
 
@@ -990,7 +1006,7 @@ export async function bewertungenAutomatisch(envUrl: string | undefined): Promis
         x.mails.unshift({ id: M.kurzId("M"), am: jetzt(), von: "cron", an: k.email, betreff, text, zweck: "bewertung", test: r.test, ok: r.ok, fehler: r.fehler });
         if (r.ok) {
           x.bewertung = { ...(x.bewertung ?? {}), [rolle]: jetzt() };
-          M.ereignis(x, "cron", "bewertung", `Bitte um Google-Bewertung automatisch an ${M.ROLLE_NAME[rolle]} gesendet`);
+          M.ereignis(x, "cron", "bewertung", `Bitte um Google-Bewertung automatisch an ${M.ROLLE_ARTIKEL[rolle].akk} gesendet`);
         }
       });
       if (r.ok) gesendet++;

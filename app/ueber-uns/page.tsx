@@ -35,7 +35,7 @@ export default function Page() {
 
           <h2>Unsere Grundregeln</h2>
           <ul>
-            <li><strong>Direkt</strong> — keine Maklerkette, kein Provisionsaufschlag, kein Inserat.</li>
+            <li><strong>Direkt</strong> — keine Maklerkette, für Eigentümer kein Provisionsaufschlag, kein Inserat.</li>
             <li><strong>Diskret</strong> — was Sie uns sagen, bleibt zwischen uns.</li>
             <li><strong>Ehrlich</strong> — wir nennen Preise, die wir auch begründen können.</li>
             <li><strong>Nachhaltig</strong> — was wir kaufen, bleibt im Lipper Land. Keine Spekulation, keine Versiegelung.</li>

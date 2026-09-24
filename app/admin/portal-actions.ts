@@ -10,7 +10,7 @@ import * as V from "@/lib/portal/vorgang";
 import * as M from "@/lib/portal/model";
 import { MAIL_ZWECKE, type MailZweck } from "@/lib/portal/entwuerfe";
 import { kundenMail } from "@/lib/portal/mail";
-import { aendereEinstellungen, aendereKunde, aendereVorgang, istKundeId, istPaarKey, ladeEinstellungen, ladeKunde, markiereGesehen } from "@/lib/portal/speicher";
+import { aendereEinstellungen, aendereKunde, aendereVorgang, istKundeId, istPaarKey, ladeEinstellungen, ladeKunde, ladeVorgang, markiereGesehen } from "@/lib/portal/speicher";
 
 // Server Actions der Verwaltung für Onboarding, Vorgänge, Verträge, Provision
 // und Einstellungen. Jede Action prüft die Anmeldung selbst (requireAdmin).
@@ -142,7 +142,7 @@ export async function zustimmungErfassenAktion(fd: FormData): Promise<void> {
   const an = feld(fd, "an", 2) === "1";
   const art: M.Art = feld(fd, "art", 10) === "kauf" ? "kauf" : "pacht";
   await V.zustimmungSetzen(key, art, r, email, an);
-  zurueck(fd, an ? `Zustimmung des ${M.ROLLE_NAME[r]}s erfasst.` : `Zustimmung des ${M.ROLLE_NAME[r]}s zurückgenommen.`, "ok", key);
+  zurueck(fd, an ? `Zustimmung ${M.ROLLE_ARTIKEL[r].gen} erfasst.` : `Zustimmung ${M.ROLLE_ARTIKEL[r].gen} zurückgenommen.`, "ok", key);
 }
 
 export async function freigebenAktion(fd: FormData): Promise<void> {
@@ -474,6 +474,19 @@ export async function mailSendenAktion(_prev: MailState, fd: FormData): Promise<
       kunde = await A.kundeSicherstellen(geladen.lead, email);
     } catch (err) {
       return { status: "fehler", text: err instanceof Error ? err.message : "Kundenakte nicht anlegbar." };
+    }
+  }
+
+  // Serverseitige Sperren (der Knopf ist im Entwurf schon deaktiviert — hier noch einmal prüfen):
+  // Bewertungsbitte nur mit Einwilligung (§ 7 UWG), Vorgangs-Mitteilungen nicht nach einem Widerruf.
+  if (zweck === "bewertung" && !M.bewertungsmailErlaubt(kunde)) {
+    return { status: "fehler", text: "Keine Einwilligung in Bewertungs-E-Mails (oder Widerspruch) — nicht gesendet." };
+  }
+  if (key && (zweck === "freigabe" || zweck === "pachtvertrag" || zweck === "kaufabsicht")) {
+    const [aId, gId] = key.split("~");
+    const [ka, kg, vg] = await Promise.all([ladeKunde(aId), ladeKunde(gId), ladeVorgang(key)]);
+    if ((ka?.widerruf || kg?.widerruf) && !vg?.abschluss) {
+      return { status: "fehler", text: "Eine Seite hat ihren Vertrag widerrufen — diese Mitteilung wird nicht mehr gesendet." };
     }
   }
 

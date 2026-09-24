@@ -313,7 +313,7 @@ export async function kundenvertragUnterschreiben(opts: {
     };
     x.dokumente.unshift(meta);
     M.ereignis(x, "kunde", "vertrag-unterschrieben", `${entwurf.dok.titel} online unterschrieben von „${opts.name}“`);
-    if (widerruf && opts.beginnwunsch) M.ereignis(x, "kunde", "beginnwunsch", "Ausdrücklicher Wunsch auf Beginn vor Ablauf der Widerrufsfrist erklärt (§ 356 Abs. 5 BGB)");
+    if (widerruf && opts.beginnwunsch) M.ereignis(x, "kunde", "beginnwunsch", "Ausdrücklicher Wunsch auf Beginn vor Ablauf der Widerrufsfrist erklärt (§ 356 Abs. 4 BGB)");
   });
   if (doppelt) return { ok: false, fehler: "Der Vertrag ist bereits unterschrieben." };
 
@@ -377,7 +377,7 @@ export async function beginnwunschErklaeren(kundeId: string): Promise<void> {
   const k = await aendereKunde(kundeId, (x) => {
     if (!x.vertrag || x.vertrag.beginnwunschAm || x.widerruf) return false;
     x.vertrag.beginnwunschAm = new Date().toISOString();
-    M.ereignis(x, "kunde", "beginnwunsch", "Ausdrücklicher Wunsch auf Beginn vor Ablauf der Widerrufsfrist im Kundenbereich erklärt (§ 356 Abs. 5 BGB)");
+    M.ereignis(x, "kunde", "beginnwunsch", "Ausdrücklicher Wunsch auf Beginn vor Ablauf der Widerrufsfrist im Kundenbereich erklärt (§ 356 Abs. 4 BGB)");
   });
   await adminInfo(`Beginnwunsch erklärt: ${k.stammdaten?.name || k.email} (${k.id})`, [
     "Der Kunde möchte, dass schon vor Ablauf der Widerrufsfrist begonnen wird. Eine Freigabe ist damit (bei Zustimmung beider Seiten) möglich.",

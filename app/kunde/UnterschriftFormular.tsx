@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { startTransition, useActionState } from "react";
 import type { ErklaerungDef } from "@/lib/portal/erklaerungen";
 import type { UnterschriftState } from "./actions";
 
@@ -31,7 +31,16 @@ export default function UnterschriftFormular({
   const [state, action, pending] = useActionState<UnterschriftState, FormData>(aktion, { status: "idle" });
   const fehlt = new Set(state.fehlt ?? []);
   return (
-    <form action={action} className="lfk-form">
+    <form
+      className="lfk-form"
+      onSubmit={(ev) => {
+        // Selbst abschicken statt <form action>: React würde das Formular sonst nach
+        // jeder Antwort zurücksetzen — bei einem Fehler wären Haken und Name weg.
+        ev.preventDefault();
+        const fd = new FormData(ev.currentTarget);
+        startTransition(() => action(fd));
+      }}
+    >
       {Object.entries(hidden).map(([n, v]) => (
         <input key={n} type="hidden" name={n} value={v} />
       ))}

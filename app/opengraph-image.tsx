@@ -106,7 +106,7 @@ export default async function OGImage() {
         {/* Bottom: badges */}
         <div style={{ display: "flex", gap: 28, alignItems: "center" }}>
           {[
-            "Ohne Provision",
+            "Für Eigentümer ohne Provision",
             "100 % Diskretion",
             "Antwort in 24 h",
           ].map((t) => (

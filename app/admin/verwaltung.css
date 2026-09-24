@@ -405,7 +405,7 @@ a.lfa-kachel:hover { border-color: var(--color-brand); }
 .lfa-entwurf-titel { flex: 1 1 12rem; min-width: 0; }
 .lfa-entwurf-form { display: grid; gap: 0.6rem; margin-top: 0.7rem; }
 .lfa-entwurf-form .field-input, .lfa-entwurf-form .field-textarea { padding: 0.5rem 0.7rem; font-size: 0.88rem; }
-.lfa-entwurf-text { min-height: 15rem; font-size: 0.85rem; line-height: 1.5; }
+.lfa-entwurf-form .lfa-entwurf-text { min-height: 15rem; font-size: 0.85rem; line-height: 1.5; }
 .lfa-hinweis-frage { background: #fff8e8; border-color: #eadbb4; }
 
 /* Link anzeigen + kopieren */

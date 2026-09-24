@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
+import { startTransition, useActionState, useRef, useState } from "react";
 import { mailSendenAktion, type MailState } from "../portal-actions";
 
 export type EntwurfDaten = {
@@ -71,7 +71,17 @@ export default function MailEntwurf({ e, offen }: { e: EntwurfDaten; offen?: boo
           <span className="lfa-badge lfa-badge-keine" title={e.gesperrt}>noch nicht möglich</span>
         ) : null}
       </summary>
-      <form action={action} className="lfa-entwurf-form" onSubmit={() => setFragen(null)}>
+      <form
+        className="lfa-entwurf-form"
+        onSubmit={(ev) => {
+          // Selbst abschicken: <form action> würde die Eingaben nach jeder Antwort
+          // zurücksetzen — bei einem Fehler wäre der bearbeitete Text verloren.
+          ev.preventDefault();
+          setFragen(null);
+          const fd = new FormData(ev.currentTarget);
+          startTransition(() => action(fd));
+        }}
+      >
         <input type="hidden" name="zweck" value={e.zweck} />
         <input type="hidden" name="kunde" value={e.kundeId} />
         {e.paarKey && <input type="hidden" name="key" value={e.paarKey} />}
