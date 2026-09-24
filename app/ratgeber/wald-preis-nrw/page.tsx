@@ -2,13 +2,18 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
+import { ratgeberSchema, seitenMetadaten } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Was kostet 1 Hektar Wald in NRW? Waldpreise 2026",
-  description:
-    "Waldpreise NRW: je nach Holzvorrat 8.000–50.000 €/ha, im Kreis Lippe wurden zuletzt Ø 13.400 €/ha gezahlt. Was Ihren Wald wirklich wertvoll macht — Bestand, Baumart, Erschließung, Jagd.",
-  alternates: { canonical: "/ratgeber/wald-preis-nrw" },
-};
+const TITEL = "Was kostet 1 Hektar Wald in NRW? Preise 2026";
+const BESCHREIBUNG =
+  "Waldpreise NRW: je nach Holzvorrat 8.000–50.000 €/ha. Im Kreis Lippe wurden 2025 im Schnitt rund 15.300 €/ha gezahlt. Was Ihren Wald wirklich wertvoll macht.";
+const PFAD = "/ratgeber/wald-preis-nrw";
+
+export const metadata: Metadata = seitenMetadaten({
+  title: TITEL,
+  description: BESCHREIBUNG,
+  pfad: PFAD,
+});
 
 export default function Page() {
   return (
@@ -21,16 +26,17 @@ export default function Page() {
 
       <section className="section">
         <div className="container-page grid gap-12 lg:grid-cols-[1.2fr_1fr]">
-          <article className="prose-lippe">
+          <article className="prose-lippe min-w-0">
             <h2>Die kurze Antwort</h2>
             <p>
-              Waldflächen kosten in Deutschland je nach Lage und Bestand etwa <strong>0,80 bis 5,00 € pro m²</strong> — also <strong>8.000 bis 50.000 € je Hektar</strong> inklusive Aufwuchs. Im Kreis Lippe wurden laut Grundstücksmarktbericht 2025 zuletzt im Schnitt <strong>1,34 €/m² (≈ 13.400 €/ha) inklusive Aufwuchs</strong> gezahlt. Der reine Waldboden ohne Bestand liegt deutlich darunter.
+              Waldflächen kosten in Deutschland je nach Lage und Bestand etwa <strong>0,80 bis 5,00 € pro m²</strong> — also <strong>8.000 bis 50.000 € je Hektar</strong> inklusive Aufwuchs. Im Kreis Lippe wurden laut Grundstücksmarktbericht 2026 zuletzt (2025, 28 Kauffälle über 45 ha) im Schnitt rund <strong>1,53 €/m² (≈ 15.300 €/ha) inklusive Aufwuchs</strong> gezahlt, nach 1,34 €/m² im Jahr 2024. Der reine Waldboden ohne Bestand liegt deutlich darunter.
             </p>
 
             <h2>Warum die Spanne so groß ist: Boden + Aufwuchs</h2>
             <p>
               Ein Waldpreis besteht aus zwei Komponenten: dem <strong>Bodenwert</strong> (in NRW meist 0,3–1 €/m²) und dem <strong>Bestandswert</strong> — dem stehenden Holz. Ein hiebsreifer 100-jähriger Buchen- oder Eichenbestand kann den Hektarpreis vervielfachen, während eine frisch geräumte Käferfläche kaum mehr als den Bodenwert bringt.
             </p>
+            <div className="overflow-x-auto">
             <table className="w-full mt-3 border-collapse text-sm">
               <thead>
                 <tr className="bg-[color:var(--color-brand-soft)] text-left">
@@ -57,8 +63,9 @@ export default function Page() {
                 </tr>
               </tbody>
             </table>
+            </div>
             <p className="text-sm text-[color:var(--color-muted)] mt-2">
-              Orientierungswerte aus Marktbeobachtung und Grundstücksmarktbericht Kreis Lippe 2025; der Einzelfall hängt am konkreten Bestand.
+              Orientierungswerte aus Marktbeobachtung und den Grundstücksmarktberichten Kreis Lippe 2025/2026; der Einzelfall hängt am konkreten Bestand.
             </p>
 
             <h2>Die sechs Werttreiber beim Waldverkauf</h2>
@@ -91,6 +98,20 @@ export default function Page() {
           </aside>
         </div>
       </section>
+
+      {ratgeberSchema({
+        titel: TITEL,
+        beschreibung: BESCHREIBUNG,
+        pfad: PFAD,
+        veroeffentlicht: "2026-07-04",
+        aktualisiert: "2026-09-24",
+      }).map((ld, i) => (
+        <script
+          key={i}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
+        />
+      ))}
     </>
   );
 }

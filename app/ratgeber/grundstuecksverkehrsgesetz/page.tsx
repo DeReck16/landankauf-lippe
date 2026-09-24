@@ -2,13 +2,18 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
+import { ratgeberSchema, seitenMetadaten } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Grundstücksverkehrsgesetz NRW — was Verkäufer wissen müssen",
-  description:
-    "Genehmigungspflicht, siedlungsrechtliches Vorkaufsrecht, Landwirtschaftskammer: Was beim Verkauf landwirtschaftlicher Flächen ab 1 ha in NRW zu beachten ist.",
-  alternates: { canonical: "/ratgeber/grundstuecksverkehrsgesetz" },
-};
+const TITEL = "Grundstücksverkehrsgesetz NRW für Verkäufer";
+const BESCHREIBUNG =
+  "Genehmigungspflicht, siedlungsrechtliches Vorkaufsrecht, Landwirtschaftskammer: Was beim Verkauf landwirtschaftlicher Flächen ab 1 ha in NRW zu beachten ist.";
+const PFAD = "/ratgeber/grundstuecksverkehrsgesetz";
+
+export const metadata: Metadata = seitenMetadaten({
+  title: TITEL,
+  description: BESCHREIBUNG,
+  pfad: PFAD,
+});
 
 export default function Page() {
   return (
@@ -55,7 +60,7 @@ export default function Page() {
             <ul>
               <li>Wir kennen den Ablauf und stimmen den Notarvertrag entsprechend ab</li>
               <li>Wir kommunizieren mit der Landwirtschaftskammer und ziehen die Genehmigung zügig durch</li>
-              <li>Wir tragen die behördliche Bearbeitungsdauer ein — keine Hängepartien</li>
+              <li>Wir planen die behördliche Bearbeitungsdauer von Anfang an ein — keine Hängepartien</li>
               <li>Bei verpachteten Flächen: Pächter wird transparent eingebunden</li>
             </ul>
 
@@ -64,7 +69,7 @@ export default function Page() {
               Sammeln Sie vorab alle Unterlagen zu Ihrer Fläche: Grundbuchauszug, Liegenschaftskarte, ggf. Pachtvertrag, ggf. Erbschein. Sprechen Sie uns gerne an — wir gehen den Ablauf gemeinsam mit Ihrem Notar durch, sodass keine Überraschungen entstehen.
             </p>
             <p>
-              Übrigens: Auch unter 1 Hektar lohnt sich Sorgfalt — denn Vorkaufsrechte (Pächter, Miteigentümer) können auch hier greifen.
+              Übrigens: Auch unter 1 Hektar lohnt sich Sorgfalt — denn andere Vorkaufsrechte können auch hier greifen: etwa das der Gemeinde nach dem Baugesetzbuch oder ein im Grundbuch eingetragenes bzw. im Pachtvertrag vereinbartes Vorkaufsrecht. Ein gesetzliches Vorkaufsrecht des Pächters gibt es dagegen nicht.
             </p>
           </article>
           <aside className="lg:sticky lg:top-24 self-start">
@@ -77,6 +82,20 @@ export default function Page() {
           </aside>
         </div>
       </section>
+
+      {ratgeberSchema({
+        titel: TITEL,
+        beschreibung: BESCHREIBUNG,
+        pfad: PFAD,
+        veroeffentlicht: "2026-05-01",
+        aktualisiert: "2026-09-24",
+      }).map((ld, i) => (
+        <script
+          key={i}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
+        />
+      ))}
     </>
   );
 }
