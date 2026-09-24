@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
-import { CITIES, FLAECHENTYPEN, cityTypeRoutes, getCity } from "@/lib/cities";
+import { CITIES, FLAECHENTYPEN, UMGEBUNG, cityTypeRoutes, getCity, type City } from "@/lib/cities";
 import { site } from "@/lib/site";
 import { seitenMetadaten } from "@/lib/seo";
 
@@ -55,7 +55,12 @@ export default async function Page({ params }: { params: Promise<Params> }) {
   const { type, city } = p;
 
   const otherTypes = FLAECHENTYPEN.filter((t) => t.slug !== type.slug);
-  const neighborCities = CITIES.filter((c) => c.slug !== city.slug).slice(0, 6);
+  const umgebung = (UMGEBUNG[city.slug] ?? [])
+    .map((s) => getCity(s))
+    .filter((c): c is City => Boolean(c));
+  const neighborCities = umgebung.length
+    ? umgebung
+    : CITIES.filter((c) => c.slug !== city.slug).slice(0, 6);
 
   const defaultFlaechentyp =
     type.slug === "ackerland" ? "Ackerland" :
@@ -118,7 +123,7 @@ export default async function Page({ params }: { params: Promise<Params> }) {
 
             <h2>Marktdaten {city.name}</h2>
             <p>
-              Bauland in mittlerer Lage liegt {city.display} laut Grundstücksmarktbericht 2025 bei rund <strong>{city.baulandMittlereLage} €/m²</strong>. Für landwirtschaftliche Flächen orientieren wir uns am Kreismittel: Ackerland ø ~5,26 €/m², Grünland ø ~1,89 €/m², Wald (mit Aufwuchs) ø ~1,34 €/m². Lokale Abweichungen je nach Bonität, Zuschnitt und Erschließung sind die Regel — wir bewerten Ihre Fläche konkret.
+              Bauland in mittlerer Lage liegt {city.display} laut Grundstücksmarktbericht 2026 bei rund <strong>{city.baulandMittlereLage} €/m²</strong>. Für landwirtschaftliche Flächen orientieren wir uns am Kreismittel der tatsächlich gezahlten Preise 2024: Ackerland ø ~5,26 €/m², Grünland ø ~1,89 €/m², Wald (mit Aufwuchs) ø ~1,34 €/m². Lokale Abweichungen je nach Bonität, Zuschnitt und Erschließung sind die Regel — wir bewerten Ihre Fläche konkret.
             </p>
             <p>
               <Link href="/ratgeber/bodenrichtwerte-lippe">Mehr Hintergrund: Bodenrichtwerte Kreis Lippe</Link>

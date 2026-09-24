@@ -50,11 +50,17 @@ export default function Footer() {
               </div>
             ))}
           </div>
+          {/* Als Links, damit auch diese Ortsseiten nicht nur über die Sitemap erreichbar sind */}
           <p className="mt-6 text-xs text-white/45">
             Weitere Gemeinden im Kreis Lippe:{" "}
-            {CITIES.filter((c) => !featuredCities.includes(c.slug))
-              .map((c) => c.name)
-              .join(", ")}
+            {CITIES.filter((c) => !featuredCities.includes(c.slug)).map((c, i, liste) => (
+              <span key={c.slug}>
+                <Link href={`/ackerland-verkaufen-${c.slug}`} className="hover:text-white">
+                  {c.name}
+                </Link>
+                {i < liste.length - 1 ? ", " : ""}
+              </span>
+            ))}
             . Sprechen Sie uns an, wir kaufen auch dort.
           </p>
         </div>
