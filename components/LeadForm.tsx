@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { submitLead } from "@/lib/lead";
 import { FLAECHENTYPEN, INTENTS, isGesuchIntent, type Flaechentyp, type Intent } from "@/lib/lead-options";
 
@@ -232,7 +233,7 @@ export default function LeadForm({
         <label className="checkbox-row sm:col-span-2">
           <input type="checkbox" name="consent" required />
           <span>
-            Ich stimme der Verarbeitung meiner Daten gemäß <a href="/datenschutz" className="underline">Datenschutzerklärung</a> zur Kontaktaufnahme zu. Keine Weitergabe an Dritte ohne Ihre ausdrückliche Freigabe.
+            Ich stimme der Verarbeitung meiner Daten gemäß <Link href="/datenschutz" target="_blank" className="underline" title="Datenschutzerklärung in einem neuen Tab öffnen – Ihre Eingaben bleiben erhalten">Datenschutzerklärung</Link> zur Kontaktaufnahme zu. Keine Weitergabe an Dritte ohne Ihre ausdrückliche Freigabe.
           </span>
         </label>
       </div>

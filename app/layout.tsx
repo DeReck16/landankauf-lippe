@@ -9,6 +9,7 @@ import WhatsAppFloat from "@/components/WhatsAppFloat";
 import AdsConversions from "@/components/AdsConversions";
 import PublicOnly from "@/components/PublicOnly";
 import TrackingOnly from "@/components/TrackingOnly";
+import BereichsGrenze from "@/components/BereichsGrenze";
 import "./globals.css";
 
 const inter = Inter({
@@ -167,6 +168,7 @@ export default function RootLayout({
             dangerouslySetInnerHTML={{ __html: JSON.stringify(ldOrg) }}
           />
         </PublicOnly>
+        <BereichsGrenze />
       </body>
     </html>
   );

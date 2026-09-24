@@ -141,9 +141,9 @@ export default function Footer() {
           <div className="flex flex-wrap justify-center gap-x-5 gap-y-2">
             <Link href="/impressum" className="hover:text-white">Impressum</Link>
             <Link href="/datenschutz" className="hover:text-white">Datenschutz</Link>
-            <Link href="/kunde" className="hover:text-white" title="Kundenbereich: Vertrag, Vorschläge und Dokumente">Kundenbereich</Link>
-            <Link href="/kunde/widerruf" className="hover:text-white" title="Widerrufsfunktion für online geschlossene Verträge">Vertrag widerrufen</Link>
-            <Link href="/kunde/kuendigung" className="hover:text-white" title="Verträge mit Lippe Forst online kündigen">Verträge hier kündigen</Link>
+            <Link href="/kunde" prefetch={false} className="hover:text-white" title="Kundenbereich: Vertrag, Vorschläge und Dokumente">Kundenbereich</Link>
+            <Link href="/kunde/widerruf" prefetch={false} className="hover:text-white" title="Widerrufsfunktion für online geschlossene Verträge">Vertrag widerrufen</Link>
+            <Link href="/kunde/kuendigung" prefetch={false} className="hover:text-white" title="Verträge mit Lippe Forst online kündigen">Verträge hier kündigen</Link>
           </div>
         </div>
       </div>
