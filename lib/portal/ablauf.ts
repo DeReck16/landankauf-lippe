@@ -442,7 +442,13 @@ export async function kuendigungErfassen(kundeId: string, eingang: M.Eingang, vo
     const text = [
       `Guten Tag ${name},`,
       "",
-      `wir bestätigen Ihre Kündigung vom ${T.datumZeitDe(k.kuendigung.am)} für „${k.vertrag?.titel}“. Wir stellen Ihnen ab sofort keine neuen Flächen bzw. Interessenten mehr vor.`,
+      "wir bestätigen den Eingang Ihrer Kündigung:",
+      "",
+      `Abgegeben am: ${T.datumZeitDe(k.kuendigung.am)}`,
+      `Inhalt Ihrer Erklärung: Kündigung des Vertrags „${k.vertrag?.titel}“ (Vorgang ${k.id}, online unterschrieben am ${T.datumDe(k.vertrag?.signatur.am)})${notiz ? ` — ${notiz}` : ""}`,
+      `Das Vertragsverhältnis endet: sofort, am ${T.datumZeitDe(k.kuendigung.am)}.`,
+      "",
+      "Wir stellen Ihnen ab sofort keine neuen Flächen bzw. Interessenten mehr vor.",
       k.rolle === "suchender"
         ? "Für Flächen, die wir Ihnen vor der Kündigung nachgewiesen haben, gelten die Regeln des Vertrags weiter (Provision nur, wenn Sie darüber einen Vertrag schließen)."
         : "Ihre Einwilligung in die Weitergabe Ihrer Daten endet mit der Kündigung; bereits erfolgte Weitergaben bleiben davon unberührt.",

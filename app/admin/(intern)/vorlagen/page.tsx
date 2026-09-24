@@ -56,7 +56,7 @@ export default async function VorlagenPage(props: PageProps<"/admin/vorlagen">) 
                   {id} · Version {v.version} · Prüfsumme <span title={hash}>{hash.slice(0, 16)}…</span> · {v.varianten.length} Textvariante{v.varianten.length === 1 ? "" : "n"}
                 </p>
               </div>
-              <span className={`lfa-badge ${frei ? "lfa-badge-ok" : "lfa-badge-rot"}`} title={frei ? "Diese Version darf unterschrieben werden" : "Nicht freigegeben — niemand kann diese Vorlage unterschreiben"}>
+              <span className={`lfa-badge lfa-badge-lang ${frei ? "lfa-badge-ok" : "lfa-badge-rot"}`} title={frei ? "Diese Version darf unterschrieben werden" : "Nicht freigegeben — niemand kann diese Vorlage unterschreiben"}>
                 {frei ? `freigegeben ${datumZeit(frei.am)} von ${frei.von}` : "nicht freigegeben"}
               </span>
             </div>

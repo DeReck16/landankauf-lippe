@@ -104,7 +104,7 @@
   flex-wrap: wrap;
   margin-bottom: 1.25rem;
 }
-.lfa-h1 { font-size: 1.7rem; line-height: 1.2; }
+.lfa-h1 { font-size: 1.7rem; line-height: 1.2; hyphens: auto; overflow-wrap: break-word; }
 .lfa-h2 { font-size: 1.2rem; margin-bottom: 0.75rem; }
 .lfa-unterzeile { color: var(--color-ink-soft); margin-top: 0.25rem; }
 
@@ -445,3 +445,7 @@ a.lfa-kachel:hover { border-color: var(--color-brand); }
 .lfa-vorschau { max-height: 34rem; overflow: auto; border: 1px solid var(--color-line); border-radius: 0.7rem; padding: 0.9rem 1rem; background: #fff; }
 .lfa-check { display: flex; gap: 0.5rem; align-items: flex-start; font-size: 0.86rem; color: var(--color-ink-soft); }
 .lfa-check input { margin-top: 0.25rem; flex: none; }
+
+/* Lange Badges (z. B. „freigegeben … von …“) dürfen auf schmalen Bildschirmen umbrechen. */
+.lfa-badge.lfa-badge-lang { white-space: normal; max-width: 100%; overflow-wrap: anywhere; }
+.lfa-hash { overflow-wrap: anywhere; word-break: break-all; }

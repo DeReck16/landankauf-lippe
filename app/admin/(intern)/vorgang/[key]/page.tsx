@@ -761,8 +761,11 @@ export default async function VorgangPage(props: PageProps<"/admin/vorgang/[key]
                     Achtung: {ctx.suchender?.widerruf ? `Der Suchende hat am ${datumDe(ctx.suchender.widerruf.am)}` : `Der Anbieter hat am ${datumDe(ctx.anbieter!.widerruf!.am)}`} widerrufen. Der Kundenbereich zeigt die Kontaktdaten nicht mehr an; einen Pachtvertrag bzw. Eckdaten nicht mehr über die Plattform vorlegen. Freigabe bitte zurückziehen und — falls nötig — die Gegenseite informieren.
                   </p>
                 )}
+                {v?.abschluss ? (
+                  <p className="lfa-klein" style={{ marginTop: "0.4rem" }}>Nach dem Vertragsschluss bleibt die Freigabe bestehen — beide Seiten brauchen Zugriff auf ihren Vertrag.</p>
+                ) : (
                 <details className="lfa-details" style={{ marginTop: "0.4rem" }}>
-                  <summary title="Nur bei einem Versehen: Kontaktdaten im Kundenbereich wieder verbergen">Freigabe zurückziehen</summary>
+                  <summary title="Nur bei einem Versehen oder nach einem Widerruf: Kontaktdaten im Kundenbereich wieder verbergen">Freigabe zurückziehen</summary>
                   <form action={freigabeZurueckziehenAktion} className="lfa-inline">
                     <input type="hidden" name="key" value={key} />
                     <input type="hidden" name="zurueck" value={zurueck} />
@@ -775,6 +778,7 @@ export default async function VorgangPage(props: PageProps<"/admin/vorgang/[key]
                     </BestaetigenKnopf>
                   </form>
                 </details>
+                )}
               </div>
             )}
           </section>

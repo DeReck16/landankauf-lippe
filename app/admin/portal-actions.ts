@@ -156,7 +156,8 @@ export async function freigebenAktion(fd: FormData): Promise<void> {
 export async function freigabeZurueckziehenAktion(fd: FormData): Promise<void> {
   const { email } = await requireAdmin();
   const key = paarKey(fd);
-  await V.freigabeZurueckziehen(key, email, feld(fd, "grund", 300));
+  const r = await V.freigabeZurueckziehen(key, email, feld(fd, "grund", 300));
+  if (!r.ok) zurueck(fd, r.fehler ?? "Nicht möglich.", "fehler", key);
   zurueck(fd, "Freigabe zurückgezogen — Kontaktdaten im Kundenbereich wieder verborgen.", "ok", key);
 }
 
@@ -330,14 +331,21 @@ export async function externErfassenAktion(fd: FormData): Promise<void> {
   const betrag = zahl(feld(fd, "betrag", 20));
   if (!datum || betrag == null) zurueck(fd, "Bitte Datum und Jahrespacht bzw. Kaufpreis angeben.", "fehler", "extern");
   const art: M.Art = feld(fd, "art", 10) === "kauf" ? "kauf" : "pacht";
-  await V.externErfassen(key, art, email, {
+  const r = await V.externErfassen(key, art, email, {
     datum,
     flaecheHa: zahl(feld(fd, "flaeche", 20)),
     betrag,
     quelle: feld(fd, "quelle", 200),
     notiz: feld(fd, "notiz", 1000),
   });
-  zurueck(fd, "Außerhalb geschlossenen Vertrag erfasst — Provision fällig.", "ok", "provision");
+  zurueck(
+    fd,
+    r.widerrufen
+      ? "Vertrag erfasst. Der Suchende hat widerrufen — die Provision ist nur vorgemerkt; bitte prüfen."
+      : "Außerhalb geschlossenen Vertrag erfasst — Provision fällig.",
+    r.widerrufen ? "fehler" : "ok",
+    "provision",
+  );
 }
 
 export async function provisionStatusAktion(fd: FormData): Promise<void> {

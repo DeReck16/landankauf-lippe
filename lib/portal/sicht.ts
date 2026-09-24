@@ -125,6 +125,6 @@ async function kundenVorgang(
     dokumente: freigegeben ? (v?.dokumente ?? []).filter((d) => d.sichtbarFuer.includes(rolle)) : [],
     abschluss: v?.abschluss ?? null,
     gutschein: rolle === "suchender" && v?.gutschein && !v.gutschein.storniert ? v.gutschein : null,
-    danke: Boolean(v?.abschluss && bewertungsUrl && !k.dankeGesehen?.[key]),
+    danke: Boolean(v?.abschluss && bewertungsUrl && !k.widerruf && !k.dankeGesehen?.[key]),
   };
 }

@@ -182,10 +182,11 @@ export async function freigeben(key: string, von: string): Promise<{ ok: boolean
   return { ok: true };
 }
 
-export async function freigabeZurueckziehen(key: string, von: string, grund: string): Promise<void> {
+export async function freigabeZurueckziehen(key: string, von: string, grund: string): Promise<{ ok: boolean; fehler?: string }> {
   const v = await ladeVorgang(key);
+  if (!v || !M.aktiveFreigabe(v)) return { ok: false, fehler: "Es besteht keine aktive Freigabe." };
   // Nach einem Abschluss bleibt die Freigabe bestehen — beide Seiten brauchen Zugriff auf ihren Vertrag.
-  if (!v || !M.aktiveFreigabe(v) || v.abschluss) return;
+  if (v.abschluss) return { ok: false, fehler: "Nach einem Vertragsschluss bleibt die Freigabe bestehen (beide Seiten brauchen Zugriff auf ihren Vertrag)." };
   await aendereVorgang(key, v.art, (x) => {
     if (!x.freigabe || x.freigabe.zurueckgezogen) return false;
     x.freigabe.zurueckgezogen = { am: jetzt(), von, grund };
@@ -196,6 +197,7 @@ export async function freigabeZurueckziehen(key: string, von: string, grund: str
     m.status = "angefragt";
     return "Freigabe zurückgezogen";
   });
+  return { ok: true };
 }
 
 // ---------------------------------------------------------------------------
@@ -779,11 +781,16 @@ export async function externErfassen(
   art: M.Art,
   von: string,
   daten: { datum: string; flaecheHa: number | null; betrag: number | null; quelle: string; notiz: string },
-): Promise<void> {
+): Promise<{ widerrufen: boolean }> {
   const [ctx, e] = await Promise.all([ladeVorgangKontext(key), ladeEinstellungen()]);
   const konditionen = ctx?.suchender?.vertrag?.konditionen ?? null;
-  const provision = provisionNeu("extern", art, daten.betrag, konditionen, "faellig", von, konditionen ? "Außerhalb der Plattform geschlossen" : "Außerhalb geschlossen; kein unterschriebener Nachweisvertrag gefunden — Anspruch prüfen.");
-  const gutschein = gutscheinNeu(e, ctx?.suchender ?? null, von);
+  // Hat der Suchende widerrufen, entsteht kein Provisionsanspruch aus dem Vertrag (allenfalls
+  // Wertersatz): dann nur vormerken, keinen Gutschein ausgeben und keine Abschluss-Mails senden.
+  const widerrufen = Boolean(ctx?.suchender?.widerruf);
+  const provision = widerrufen
+    ? provisionNeu("extern", art, daten.betrag, konditionen, "aufschiebend", von, "Der Suchende hat seinen Nachweisvertrag widerrufen — Anspruch (ggf. Wertersatz) prüfen, nicht ungeprüft abrechnen.")
+    : provisionNeu("extern", art, daten.betrag, konditionen, "faellig", von, konditionen ? "Außerhalb der Plattform geschlossen" : "Außerhalb geschlossen; kein unterschriebener Nachweisvertrag gefunden — Anspruch prüfen.");
+  const gutschein = widerrufen ? null : gutscheinNeu(e, ctx?.suchender ?? null, von);
   const ext: M.ExternerVertrag = {
     id: M.kurzId("EXT"),
     art,
@@ -799,21 +806,26 @@ export async function externErfassen(
   await aendereVorgang(key, art, (x) => {
     x.externeVertraege.unshift(ext);
     x.provisionen.unshift(provision);
-    x.abschluss ??= { am: jetzt(), grundlage: "extern" };
+    // Nach einem Widerruf wird der Vertrag nur zur Prüfung festgehalten — kein „Abschluss“
+    // (sonst würden Kundenbereich, Danke-Dialog und Bewertungsbitte wieder aktiv).
+    if (!widerrufen) x.abschluss ??= { am: jetzt(), grundlage: "extern" };
     if (gutschein && !x.gutschein) x.gutschein = gutschein;
     M.ereignis(x, von, "extern", `Außerhalb geschlossener ${art === "kauf" ? "Kaufvertrag" : "Pachtvertrag"} erfasst (${T.tagDe(daten.datum)}, Quelle: ${daten.quelle || "—"})`);
-    M.ereignis(x, von, "provision", `Provision fällig: ${M.euro(provision.netto)} netto / ${M.euro(provision.brutto)} brutto`);
+    M.ereignis(x, von, "provision", `Provision ${widerrufen ? "vorgemerkt (Suchender hat widerrufen — prüfen)" : "fällig"}: ${M.euro(provision.netto)} netto / ${M.euro(provision.brutto)} brutto`);
     if (gutschein && x.gutschein?.code === gutschein.code) M.ereignis(x, von, "gutschein", `Treue-Gutschein ${gutschein.code} ausgegeben`);
   });
-  await paarAendern(von, key, (m) => {
-    m.status = "abschluss";
-    return "Außerhalb geschlossener Vertrag erfasst — Provision erfasst";
-  });
-  if (ctx) await abschlussMails(ctx, "extern", null, gutschein);
-  await adminInfo(`Provision fällig (externer Abschluss): ${key}`, [
+  if (!widerrufen) {
+    await paarAendern(von, key, (m) => {
+      m.status = "abschluss";
+      return "Außerhalb geschlossener Vertrag erfasst — Provision erfasst";
+    });
+  }
+  if (ctx && !widerrufen) await abschlussMails(ctx, "extern", null, gutschein);
+  await adminInfo(`${widerrufen ? "Externer Abschluss nach Widerruf — Provision prüfen" : "Provision fällig (externer Abschluss)"}: ${key}`, [
     `Erfasst durch ${von}: ${art === "kauf" ? "Kaufvertrag" : "Pachtvertrag"} vom ${T.tagDe(daten.datum)}${daten.flaecheHa ? `, ${T.haText(daten.flaecheHa)}` : ""}.`,
     `Bemessung: ${M.euro(daten.betrag)} → Provision ${M.euro(provision.netto)} netto / ${M.euro(provision.brutto)} brutto.`,
   ], verwaltungsLink(`/admin/vorgang/${key}`));
+  return { widerrufen };
 }
 
 export async function provisionStatusSetzen(key: string, id: string, status: M.ProvisionStatus, notiz: string, von: string): Promise<void> {

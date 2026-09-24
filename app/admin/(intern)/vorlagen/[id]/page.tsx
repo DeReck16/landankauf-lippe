@@ -21,7 +21,7 @@ export default async function VorlagePage(props: PageProps<"/admin/vorlagen/[id]
         <div>
           <h1 className="lfa-h1">{v.titel}</h1>
           <p className="lfa-unterzeile">
-            Version {v.version} · Prüfsumme {vorlageHash(id)} — Platzhalter stehen in «spitzen Klammern». Diese Varianten werden gemeinsam freigegeben.
+            Version {v.version} · Prüfsumme <span className="lfa-hash" title="SHA-256 über alle Textvarianten — ändert sich bei jeder Textänderung">{vorlageHash(id)}</span> — Platzhalter stehen in «spitzen Klammern». Diese Varianten werden gemeinsam freigegeben.
           </p>
         </div>
       </div>
