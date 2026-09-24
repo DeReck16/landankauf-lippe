@@ -15,9 +15,8 @@ export const site = {
     region: "Kreis Lippe",
     state: "Nordrhein-Westfalen",
     country: "Deutschland",
-    // Telefon nur base64-kodiert (Anzeige per Klick, components/ClickToReveal) —
-    // Klartext ausschließlich serverseitig in lib/telefon.ts.
-    phoneEncoded: "KzQ5MTc2Mzg4MDMwNjQ=",
+    // Kein Telefon auf der Website (Dennis, 24.09.2026: Kontakt per E-Mail, Formular
+    // oder WhatsApp). Die Nummer steht nur serverseitig in lib/telefon.ts.
     email: "info@tr-immobilien.com",
     emailFallback: "info@tr-immobilien.com",
   },

@@ -232,7 +232,7 @@ export default function LeadForm({
           <input id="name" name="name" required className="field-input" />
         </div>
         <div>
-          <label className="field-label" htmlFor="phone">Telefon</label>
+          <label className="field-label" htmlFor="phone">Telefon (optional)</label>
           <input id="phone" name="phone" className="field-input" inputMode="tel" />
         </div>
         <div className="sm:col-span-2">

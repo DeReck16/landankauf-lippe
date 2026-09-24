@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
-import ClickToReveal from "@/components/ClickToReveal";
 import { site } from "@/lib/site";
 import { seitenMetadaten } from "@/lib/seo";
 
@@ -22,17 +21,6 @@ export default function Page() {
             Verantwortlicher im Sinne der DSGVO ist:<br />
             {site.contact.company}<br />
             {site.contact.street}, {site.contact.zip} {site.contact.city}<br />
-            {site.contact.phoneEncoded && (
-              <>
-                Telefon: <ClickToReveal
-                  encoded={site.contact.phoneEncoded}
-                  type="tel"
-                  label="Anzeigen"
-                  className="text-[color:var(--color-brand)] underline cursor-pointer"
-                  revealedClassName="text-[color:var(--color-brand)] underline"
-                /><br />
-              </>
-            )}
             E-Mail: {site.contact.email || site.contact.emailFallback}
           </p>
 
@@ -61,7 +49,7 @@ export default function Page() {
             <strong>Ortsbestimmung über OpenStreetMap:</strong> Um passende Flächen und Gesuche nach Entfernung abzugleichen, übermittelt unser Server die Ortsangabe aus Ihrer Anfrage (nur den Ortsnamen, z. B. „Kalletal-Westorf“ — ohne Namen, Kontaktdaten oder Flurstück) an den Geodienst Nominatim der OpenStreetMap Foundation (St John’s Innovation Centre, Cowley Road, Cambridge, CB4 0WS, Vereinigtes Königreich) und speichert die gefundenen Koordinaten. Die Anfrage stellt unser Server; Ihre IP-Adresse wird dabei nicht übermittelt. Rechtsgrundlage ist unser berechtigtes Interesse an einem zutreffenden Abgleich (Art. 6 Abs. 1 lit. f DSGVO); für das Vereinigte Königreich besteht ein Angemessenheitsbeschluss der EU-Kommission.
           </p>
           <p>
-            <strong>Kontakt über WhatsApp und Telefon:</strong> Unsere Seiten enthalten einen Link zu WhatsApp (WhatsApp Ireland Limited, Merrion Road, Dublin 4, D04 X2K5, Irland). Daten fließen erst, wenn Sie den Link anklicken — dann öffnet sich WhatsApp, und WhatsApp verarbeitet Ihre Telefonnummer, die Nachricht und Nutzungsdaten nach seinen eigenen Datenschutzbestimmungen; eine Übermittlung in die USA ist dabei möglich (Meta ist nach dem EU-US Data Privacy Framework zertifiziert). Schreiben Sie uns über WhatsApp oder rufen Sie uns an, nutzen wir Ihre Angaben zur Bearbeitung Ihres Anliegens (Art. 6 Abs. 1 lit. b DSGVO). Ein Klick auf den WhatsApp- oder Telefon-Link wird außerdem als Conversion an Google Ads gemeldet (siehe Abschnitt 7). Wenn Sie WhatsApp nicht nutzen möchten, erreichen Sie uns per E-Mail oder über das Formular.
+            <strong>Kontakt über WhatsApp:</strong> Unsere Seiten enthalten einen Link zu WhatsApp (WhatsApp Ireland Limited, Merrion Road, Dublin 4, D04 X2K5, Irland). Daten fließen erst, wenn Sie den Link anklicken — dann öffnet sich WhatsApp, und WhatsApp verarbeitet Ihre Telefonnummer, die Nachricht und Nutzungsdaten nach seinen eigenen Datenschutzbestimmungen; eine Übermittlung in die USA ist dabei möglich (Meta ist nach dem EU-US Data Privacy Framework zertifiziert). Schreiben Sie uns über WhatsApp, nutzen wir Ihre Angaben zur Bearbeitung Ihres Anliegens (Art. 6 Abs. 1 lit. b DSGVO). Ein Klick auf den WhatsApp-Link wird außerdem als Conversion an Google Ads gemeldet (siehe Abschnitt 7). Wenn Sie WhatsApp nicht nutzen möchten, erreichen Sie uns per E-Mail oder über das Formular.
           </p>
 
           <p>

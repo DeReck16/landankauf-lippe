@@ -2,14 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
-import ClickToReveal from "@/components/ClickToReveal";
 import { site, whatsappLink } from "@/lib/site";
 import { seitenMetadaten } from "@/lib/seo";
 
 export const metadata: Metadata = seitenMetadaten({
   title: "Kontakt",
   description:
-    "Telefon, WhatsApp oder Formular: Sprechen Sie uns an, wenn Sie Ackerland, Wiese oder Wald im Kreis Lippe verkaufen, verpachten oder bewerten lassen möchten.",
+    "E-Mail, WhatsApp oder Formular: Schreiben Sie uns, wenn Sie Ackerland, Wiese oder Wald im Kreis Lippe verkaufen, verpachten oder bewerten lassen möchten.",
   pfad: "/kontakt",
 });
 
@@ -19,7 +18,7 @@ export default function Page() {
       <PageHero
         eyebrow="Kontakt"
         title="Sprechen Sie mit uns — direkt, persönlich, ohne Umwege."
-        subtitle="Telefon, WhatsApp oder Formular — egal welchen Weg Sie wählen, wir antworten innerhalb von 24 Stunden. Erstgespräche sind immer kostenlos und unverbindlich."
+        subtitle="E-Mail, WhatsApp oder Formular — egal welchen Weg Sie wählen, wir antworten innerhalb von 24 Stunden. Erstgespräche sind immer kostenlos und unverbindlich."
       />
 
       <section className="section">
@@ -28,17 +27,6 @@ export default function Page() {
             <span className="eyebrow">Direkt erreichbar</span>
             <hr className="divider mt-3" />
             <h2 className="text-3xl font-serif">So erreichen Sie uns</h2>
-
-            <div className="mt-6">
-              <p className="text-sm text-[color:var(--color-muted)]">Telefon</p>
-              <ClickToReveal
-                encoded={site.contact.phoneEncoded}
-                type="tel"
-                label="Telefon anzeigen"
-                className="font-serif text-2xl text-[color:var(--color-brand-dark)] hover:text-[color:var(--color-brand)] cursor-pointer"
-                revealedClassName="font-serif text-2xl text-[color:var(--color-brand-dark)] hover:text-[color:var(--color-brand)]"
-              />
-            </div>
 
             <div className="mt-6">
               <p className="text-sm text-[color:var(--color-muted)]">WhatsApp</p>
@@ -90,7 +78,7 @@ export default function Page() {
               <p className="font-semibold text-[color:var(--color-ink)] mb-2">Was passiert nach Ihrer Anfrage?</p>
               <ol className="list-decimal pl-5 space-y-1">
                 <li>Ihre Anfrage geht per E-Mail an <span className="font-mono text-xs">{site.contact.email}</span> und wird zusätzlich in unserem geschützten Speicher gesichert.</li>
-                <li>Wir bestätigen Eingang innerhalb weniger Stunden, in der Regel persönlich per Mail oder Anruf.</li>
+                <li>Wir bestätigen Eingang innerhalb weniger Stunden, in der Regel persönlich per E-Mail.</li>
                 <li>Innerhalb von 24 Stunden bekommen Sie eine erste Wert- oder Beratungsindikation.</li>
                 <li>Bei Interesse vereinbaren wir einen unverbindlichen Vor-Ort-Termin oder ein Telefonat.</li>
               </ol>
