@@ -5,7 +5,7 @@ import { useEffect } from "react";
 /**
  * Google-Ads-Conversion-Tracking (AW-18000118202).
  * Zentraler, delegierter Klick-Listener: feuert eine Conversion bei Klick auf
- * WhatsApp- (wa.me / api.whatsapp / whatsapp:) und Telefon- (tel:) Links —
+ * WhatsApp- (/whatsapp-Weiterleitung, wa.me / api.whatsapp / whatsapp:) und Telefon- (tel:) Links —
  * ohne dass jeder einzelne Link angefasst werden muss.
  *
  * Robust: nutzt dataLayer direkt (funktioniert auch bevor gtag.js fertig lädt)
@@ -63,6 +63,7 @@ export default function AdsConversions({
       const href = (a.getAttribute("href") || "").toLowerCase();
       if (!href) return;
       if (
+        href.startsWith("/whatsapp") ||
         href.includes("wa.me") ||
         href.includes("api.whatsapp") ||
         href.startsWith("whatsapp:")

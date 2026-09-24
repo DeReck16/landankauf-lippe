@@ -1,7 +1,7 @@
 import Link from "next/link";
 import SisterSites from "@/components/SisterSites";
 import ClickToReveal from "@/components/ClickToReveal";
-import { site, services } from "@/lib/site";
+import { site, services, whatsappLink } from "@/lib/site";
 import { CITIES, FLAECHENTYPEN } from "@/lib/cities";
 
 export default function Footer() {
@@ -91,9 +91,10 @@ export default function Footer() {
             />
             <span className="opacity-50">·</span>
             <a
-              href={`https://wa.me/${site.contact.whatsapp.replace(/[^0-9]/g, "")}`}
+              href={whatsappLink()}
               target="_blank"
-              rel="noopener"
+              rel="noopener nofollow"
+              title="Öffnet einen WhatsApp-Chat mit Lippe Forst"
               className="hover:text-white"
             >
               WhatsApp

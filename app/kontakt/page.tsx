@@ -3,7 +3,7 @@ import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
 import ClickToReveal from "@/components/ClickToReveal";
-import { site } from "@/lib/site";
+import { site, whatsappLink } from "@/lib/site";
 import { seitenMetadaten } from "@/lib/seo";
 
 export const metadata: Metadata = seitenMetadaten({
@@ -43,12 +43,13 @@ export default function Page() {
             <div className="mt-6">
               <p className="text-sm text-[color:var(--color-muted)]">WhatsApp</p>
               <a
-                href={`https://wa.me/${site.contact.whatsapp.replace(/[^0-9]/g, "")}`}
+                href={whatsappLink()}
                 target="_blank"
-                rel="noopener"
+                rel="noopener nofollow"
+                title="Öffnet einen WhatsApp-Chat mit Lippe Forst"
                 className="text-base font-medium text-[color:var(--color-brand)] underline"
               >
-                WhatsApp-Chat starten ({site.contact.phoneDisplay})
+                WhatsApp-Chat starten
               </a>
             </div>
 

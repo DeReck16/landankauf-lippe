@@ -3,7 +3,7 @@ import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
 import QuickValuation from "@/components/QuickValuation";
-import { site } from "@/lib/site";
+import { whatsappLink } from "@/lib/site";
 import { seitenMetadaten } from "@/lib/seo";
 
 export const metadata: Metadata = seitenMetadaten({
@@ -22,7 +22,7 @@ export default function Page() {
         subtitle="Misch- oder Nadelholzbestände, Käferflächen, Sturmwurfflächen, alte Eichenbestände — wir kaufen Privatwald in allen Größen ab ca. 0,5 Hektar im Teutoburger Wald, in der Egge, im Sauerländer Vorland und in den angrenzenden Kreisen."
         primaryCta={{ href: "#anfrage", label: "Unverbindlich bewerten" }}
         whatsappCta={{
-          href: `https://wa.me/${site.contact.whatsapp.replace(/[^0-9]/g, "")}?text=${encodeURIComponent("Guten Tag, ich möchte meinen Wald im Kreis Lippe verkaufen — bitte um eine diskrete Erstbewertung.")}`,
+          href: whatsappLink("Guten Tag, ich möchte meinen Wald im Kreis Lippe verkaufen — bitte um eine diskrete Erstbewertung."),
           label: "WhatsApp",
         }}
       />
@@ -85,7 +85,7 @@ export default function Page() {
             <h2>Was wir nicht tun</h2>
             <ul>
               <li>Keine Pauschalangebote ohne Bestandsbesichtigung</li>
-              <li>Keine "Investorenversprechen", die später nicht eingehalten werden</li>
+              <li>Keine „Investorenversprechen“, die später nicht eingehalten werden</li>
               <li>Keine Kahlschlag-Strategien — wir bewirtschaften nachhaltig</li>
             </ul>
           </article>

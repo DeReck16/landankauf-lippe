@@ -3,7 +3,7 @@ import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
 import QuickValuation from "@/components/QuickValuation";
-import { site } from "@/lib/site";
+import { whatsappLink } from "@/lib/site";
 import { seitenMetadaten } from "@/lib/seo";
 
 export const metadata: Metadata = seitenMetadaten({
@@ -22,7 +22,7 @@ export default function Page() {
         subtitle="Wir kaufen Ackerland in allen 16 Lipper Kommunen und im angrenzenden Umland — auch verpachtet, auch aus einer Erbengemeinschaft."
         primaryCta={{ href: "#anfrage", label: "Unverbindlich bewerten" }}
         whatsappCta={{
-          href: `https://wa.me/${site.contact.whatsapp.replace(/[^0-9]/g, "")}?text=${encodeURIComponent("Guten Tag, ich möchte mein Ackerland im Kreis Lippe verkaufen — bitte um eine diskrete Erstbewertung.")}`,
+          href: whatsappLink("Guten Tag, ich möchte mein Ackerland im Kreis Lippe verkaufen — bitte um eine diskrete Erstbewertung."),
           label: "WhatsApp",
         }}
       />

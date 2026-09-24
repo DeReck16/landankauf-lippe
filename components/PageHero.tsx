@@ -52,6 +52,7 @@ export default function PageHero({ eyebrow, title, subtitle, primaryCta, seconda
                 href={whatsappCta.href}
                 target="_blank"
                 rel="noopener nofollow"
+                title="Öffnet einen WhatsApp-Chat mit Lippe Forst"
                 className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-semibold text-white shadow-lg hover:bg-[#1ebe57] transition-colors"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>

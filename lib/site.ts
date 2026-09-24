@@ -15,11 +15,9 @@ export const site = {
     region: "Kreis Lippe",
     state: "Nordrhein-Westfalen",
     country: "Deutschland",
-    phone: "+49 176 38803064",
-    phoneDisplay: "0176 38803064",
-    whatsapp: "+4917638803064",
+    // Telefon nur base64-kodiert (Anzeige per Klick, components/ClickToReveal) —
+    // Klartext ausschließlich serverseitig in lib/telefon.ts.
     phoneEncoded: "KzQ5MTc2Mzg4MDMwNjQ=",
-    whatsappEncoded: "KzQ5MTc2Mzg4MDMwNjQ=",
     email: "info@tr-immobilien.com",
     emailFallback: "info@tr-immobilien.com",
   },
@@ -119,3 +117,8 @@ export const flaechenTypen = [
   { slug: "wiese-verkaufen", label: "Wiese / Grünland", description: "Inkl. extensiver Mähwiesen und Streuobstwiesen", image: "/wiese.webp" },
   { slug: "wald-verkaufen", label: "Wald / Forst", description: "Privatwald, Mischbestand, Nadelholz, Laubholz", image: "/wald.webp" },
 ] as const;
+
+/** WhatsApp-Link ohne Nummer im HTML: /whatsapp leitet serverseitig zu wa.me weiter. */
+export function whatsappLink(text?: string): string {
+  return text ? `/whatsapp?text=${encodeURIComponent(text)}` : "/whatsapp";
+}

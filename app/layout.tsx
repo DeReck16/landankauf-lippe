@@ -89,7 +89,6 @@ export default function RootLayout({
       })),
     ],
     description: site.longDescription,
-    telephone: site.contact.phone,
     email: site.contact.email,
     vatID: site.legal.vatId,
     knowsAbout: [
@@ -109,7 +108,7 @@ export default function RootLayout({
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "customer service",
-      telephone: site.contact.phone,
+      email: site.contact.email,
       url: `${site.url}/kontakt`,
       areaServed: "DE",
       availableLanguage: "de",

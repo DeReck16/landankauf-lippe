@@ -15,7 +15,7 @@ export const metadata: Metadata = seitenMetadaten({
 import QuickValuation from "@/components/QuickValuation";
 import VideoEmbed from "@/components/VideoEmbed";
 import ClickToReveal from "@/components/ClickToReveal";
-import { site, services, flaechenTypen } from "@/lib/site";
+import { site, services, flaechenTypen, whatsappLink } from "@/lib/site";
 
 const faq: { q: string; a: string; aJsx?: ReactNode }[] = [
   {
@@ -125,9 +125,10 @@ export default function Home() {
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/flaeche-bewerten" className="btn-on-dark">Kostenlose Wertindikation</Link>
               <a
-                href={`https://wa.me/${site.contact.whatsapp.replace(/[^0-9]/g, "")}?text=${encodeURIComponent("Guten Tag, ich möchte meine Fläche im Kreis Lippe verkaufen — bitte um eine diskrete Erstbewertung.")}`}
+                href={whatsappLink("Guten Tag, ich möchte meine Fläche im Kreis Lippe verkaufen — bitte um eine diskrete Erstbewertung.")}
                 target="_blank"
                 rel="noopener nofollow"
+                title="Öffnet einen WhatsApp-Chat mit Lippe Forst"
                 className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-semibold text-white shadow-lg hover:bg-[#1ebe57] transition-colors"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>

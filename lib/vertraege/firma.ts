@@ -1,4 +1,5 @@
 import { site } from "@/lib/site";
+import { TELEFON } from "@/lib/telefon";
 
 // Pflichtangaben der TR Vertriebs GmbH für alle Vertragsdokumente.
 // Bewusst ohne Stammkapital und ohne Umsatzzahlen.
@@ -9,7 +10,7 @@ export const FIRMA = {
   strasse: site.contact.street,
   plz: site.contact.zip,
   ort: site.contact.city,
-  telefon: site.contact.phoneDisplay,
+  telefon: TELEFON.anzeige,
   email: site.contact.email,
   web: site.domain,
   registergericht: site.legal.registerCourt,
