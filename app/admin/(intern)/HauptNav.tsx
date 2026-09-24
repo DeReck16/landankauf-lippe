@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export type NavZahlen = {
+  /** Vorgänge, bei denen die Verwaltung am Zug ist (Dashboard „Jetzt dran“). */
+  jetztDran: number;
   neueAnfragen: number;
   offeneVorschlaege: number;
   neueVorschlaege: number;
@@ -22,12 +24,21 @@ function Zaehler({ n, puls, tipp }: { n: number; puls: boolean; tipp: string }) 
 
 export default function HauptNav({ z }: { z: NavZahlen }) {
   const pathname = usePathname();
+  const dashboardAktiv = pathname.startsWith("/admin/dashboard");
   const anfragenAktiv = pathname === "/admin" || pathname.startsWith("/admin/anfrage/");
   const matchingAktiv = pathname.startsWith("/admin/matching");
   const vorgaengeAktiv = pathname.startsWith("/admin/vorgaenge") || pathname.startsWith("/admin/vorgang/");
   const vorlagenAktiv = pathname.startsWith("/admin/vorlagen");
   return (
     <nav className="lfa-hauptnav" aria-label="Verwaltung">
+      <Link
+        href="/admin/dashboard"
+        aria-current={dashboardAktiv ? "page" : undefined}
+        title="Alles, was jetzt zu tun ist — je Vorgang ein Knopf: einladen, anonym anfragen, freigeben, Verträge, Erinnerungen, Provision"
+      >
+        Dashboard
+        <Zaehler n={z.jetztDran} puls tipp={`${z.jetztDran} Vorgänge, bei denen Sie jetzt dran sind`} />
+      </Link>
       <Link href="/admin" aria-current={anfragenAktiv ? "page" : undefined} title="Alle Anfragen aus dem Formular auf lippeforst.de, neueste zuerst">
         Anfragen
         <Zaehler n={z.neueAnfragen} puls tipp={`${z.neueAnfragen} neue Anfragen, noch nicht geöffnet`} />

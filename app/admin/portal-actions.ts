@@ -8,10 +8,8 @@ import { VORLAGEN, VORLAGEN_REIHENFOLGE, istVorlageId, kundenVorlage, istFreigeg
 import * as A from "@/lib/portal/ablauf";
 import * as V from "@/lib/portal/vorgang";
 import * as M from "@/lib/portal/model";
-import { SPERRE_UNTERSCHRIFT, beideUnterschrieben } from "@/lib/portal/schritte";
-import { MAIL_ZWECKE, type MailZweck } from "@/lib/portal/entwuerfe";
-import { kundenMail } from "@/lib/portal/mail";
-import { aendereEinstellungen, aendereKunde, aendereVorgang, istKundeId, istPaarKey, ladeEinstellungen, ladeKunde, ladeVorgang, markiereGesehen } from "@/lib/portal/speicher";
+import { verwaltungsMailSenden } from "@/lib/portal/versand";
+import { aendereEinstellungen, aendereKunde, aendereVorgang, istKundeId, istPaarKey, ladeEinstellungen, markiereGesehen } from "@/lib/portal/speicher";
 
 // Server Actions der Verwaltung für Onboarding, Vorgänge, Verträge, Provision
 // und Einstellungen. Jede Action prüft die Anmeldung selbst (requireAdmin).
@@ -494,82 +492,18 @@ export type MailState = { status: "idle" | "ok" | "fehler"; text?: string; am?: 
 
 export async function mailSendenAktion(_prev: MailState, fd: FormData): Promise<MailState> {
   const { email } = await requireAdmin();
-  const zweck = feld(fd, "zweck", 30) as MailZweck;
-  if (!MAIL_ZWECKE.includes(zweck)) return { status: "fehler", text: "Unbekannter Zweck." };
-  const id = feld(fd, "kunde", 40);
-  if (!istKundeId(id)) return { status: "fehler", text: "Ungültige Anfrage." };
-  const key = feld(fd, "key", 80);
-  if (key && (!istPaarKey(key) || !key.split("~").includes(id))) return { status: "fehler", text: "Ungültiger Vorgang." };
-  const an = feld(fd, "an", 200).toLowerCase();
-  if (!/^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/.test(an)) return { status: "fehler", text: "Bitte genau eine gültige Empfängeradresse angeben." };
-  const betreff = feld(fd, "betreff", 200);
-  const text = feld(fd, "text", 20000);
-  if (!betreff || !text) return { status: "fehler", text: "Betreff und Text dürfen nicht leer sein." };
-  if (/\[Link erscheint/.test(text)) return { status: "fehler", text: "Im Text fehlt noch der persönliche Link — erst „Einladung erstellen“." };
-  const r = rolle(fd);
-
-  const geladen = await A.ladeLead(id);
-  if (!geladen) return { status: "fehler", text: "Anfrage nicht gefunden." };
-  let kunde = await ladeKunde(id);
-  if (!kunde) {
-    try {
-      kunde = await A.kundeSicherstellen(geladen.lead, email);
-    } catch (err) {
-      return { status: "fehler", text: err instanceof Error ? err.message : "Kundenakte nicht anlegbar." };
-    }
-  }
-
-  // Serverseitige Sperren (der Knopf ist im Entwurf schon deaktiviert — hier noch einmal prüfen):
-  // Anonyme Hinweise erst, wenn beide unterschrieben haben (Schritt 3 vor Schritt 4).
-  if (zweck === "hinweis") {
-    if (!key) return { status: "fehler", text: "Hinweise gehören zu einem Vorgang." };
-    const [aId, gId] = key.split("~");
-    const [ka, kg] = await Promise.all([ladeKunde(aId), ladeKunde(gId)]);
-    if (!beideUnterschrieben(ka, kg)) return { status: "fehler", text: SPERRE_UNTERSCHRIFT };
-  }
-  // Bewertungsbitte nur mit Einwilligung (§ 7 UWG), Vorgangs-Mitteilungen nicht nach einem Widerruf.
-  if (zweck === "bewertung" && !M.bewertungsmailErlaubt(kunde)) {
-    return { status: "fehler", text: "Keine Einwilligung in Bewertungs-E-Mails (oder Widerspruch) — nicht gesendet." };
-  }
-  if (key && (zweck === "freigabe" || zweck === "pachtvertrag" || zweck === "kaufabsicht")) {
-    const [aId, gId] = key.split("~");
-    const [ka, kg, vg] = await Promise.all([ladeKunde(aId), ladeKunde(gId), ladeVorgang(key)]);
-    if ((ka?.widerruf || kg?.widerruf) && !vg?.abschluss) {
-      return { status: "fehler", text: "Eine Seite hat ihren Vertrag widerrufen — diese Mitteilung wird nicht mehr gesendet." };
-    }
-  }
-
-  const res = await kundenMail({ an, betreff, text });
-  const jetzt = new Date().toISOString();
-  const eintrag: M.GesendeteMail = { id: M.kurzId("M"), am: jetzt, von: email, an, betreff, text, zweck, test: res.test, ok: res.ok, fehler: res.fehler };
-
-  await aendereKunde(id, (k) => {
-    k.mails.unshift(eintrag);
-    if (zweck === "einladung" && res.ok && k.einladung) k.einladung.gesendetAm = jetzt;
-    M.ereignis(k, email, "mail", `${res.ok ? "E-Mail gesendet" : "E-Mail NICHT gesendet"}: „${betreff}“ an ${an}${res.test ? " (Testmodus)" : ""}`);
+  // Prüfen, senden und protokollieren: lib/portal/versand.ts (auch vom Assistenten genutzt).
+  const r = await verwaltungsMailSenden(email, {
+    zweck: feld(fd, "zweck", 30),
+    kundeId: feld(fd, "kunde", 40),
+    key: feld(fd, "key", 80),
+    rolle: rolle(fd),
+    an: feld(fd, "an", 200),
+    betreff: feld(fd, "betreff", 200),
+    text: feld(fd, "text", 20000),
   });
-  if (key) {
-    const art: M.Art = geladen.lead.art === "kauf" ? "kauf" : "pacht";
-    await aendereVorgang(key, art, (v) => {
-      v.mails.unshift(eintrag);
-    });
-    if (res.ok && zweck === "hinweis") await V.hinweisVermerken(key, art, r, email);
-    if (res.ok && zweck === "bewertung") await V.bewertungVermerken(key, art, r, email);
-  }
-  // Eine neue Anfrage gilt nach der ersten Antwort als beantwortet.
-  if (res.ok && (geladen.lead.status === "neu")) {
-    await mutateZustand(email, (z) => {
-      const meta = { ...(z.anfragen[id] ?? {}) };
-      if ((meta.status ?? "neu") !== "neu") return;
-      meta.status = "beantwortet";
-      meta.geaendert = { am: jetzt, von: email };
-      z.anfragen[id] = meta;
-      return { was: "Status → Beantwortet (E-Mail gesendet)", ref: id };
-    });
-  }
-  revalidatePath("/admin", "layout");
-  if (!res.ok) return { status: "fehler", text: `Nicht gesendet: ${res.fehler ?? "unbekannter Fehler"}` };
-  return { status: "ok", text: res.test ? "Testmodus: nicht versendet, nur protokolliert." : `Gesendet an ${an}.`, am: jetzt };
+  if (r.versucht) revalidatePath("/admin", "layout");
+  return r.ok ? { status: "ok", text: r.text, am: r.am } : { status: "fehler", text: r.text };
 }
 
 // ---------------------------------------------------------------------------

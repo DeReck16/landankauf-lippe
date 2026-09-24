@@ -11,7 +11,8 @@ export const metadata: Metadata = { title: "Anmeldung bestätigen" };
 export default async function BestaetigenPage(props: PageProps<"/admin/anmelden/bestaetigen">) {
   const sp = await props.searchParams;
   const t = typeof sp.t === "string" ? sp.t : "";
-  const weiter = typeof sp.weiter === "string" ? sp.weiter : "";
+  // Ohne Ziel (z. B. ältere Links) nach der Anmeldung ins Dashboard.
+  const weiter = typeof sp.weiter === "string" ? sp.weiter : "/admin/dashboard";
   const gueltig = verifyLoginToken(t);
 
   return (

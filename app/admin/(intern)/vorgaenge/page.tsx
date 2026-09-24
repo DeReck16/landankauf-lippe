@@ -57,10 +57,10 @@ export default async function VorgaengePage(props: PageProps<"/admin/vorgaenge">
     if (!x.v) continue;
     const widerrufen = (x.a?.widerruf || x.s?.widerruf) && !x.v.abschluss;
     if (M.aktiveFreigabe(x.v) && widerrufen) faellig.push({ text: `Widerruf nach Freigabe — Freigabe zurückziehen: ${name(x.v.angebotId)} ↔ ${name(x.v.gesuchId)}`, href: `/admin/vorgang/${x.key}`, tipp: "Eine Seite hat ihren Vertrag widerrufen; der Kundenbereich zeigt die Kontaktdaten schon nicht mehr an" });
-    else if (M.aktiveFreigabe(x.v) && !x.v.abschluss && !x.v.mails.some((m) => m.zweck === "freigabe" && m.ok)) faellig.push({ text: `Freigabe-Mitteilungen senden: ${name(x.v.angebotId)} ↔ ${name(x.v.gesuchId)}`, href: `/admin/vorgang/${x.key}#entwuerfe`, tipp: "Die Kontaktdaten sind freigegeben, aber noch keine Mitteilung ist rausgegangen" });
+    else if (M.aktiveFreigabe(x.v) && !x.v.abschluss && !x.v.mails.some((m) => m.zweck === "freigabe" && m.ok)) faellig.push({ text: `Freigabe-Mitteilungen senden: ${name(x.v.angebotId)} ↔ ${name(x.v.gesuchId)}`, href: `/admin/vorgang/${x.key}#assistent`, tipp: "Die Kontaktdaten sind freigegeben, aber noch keine Mitteilung ist rausgegangen — im Vorgang über den Assistenten senden" });
     if (x.v.pachtvertrag?.status === "zur_unterschrift") faellig.push({ text: `Pachtvertrag wartet auf Unterschrift: ${name(x.v.angebotId)} ↔ ${name(x.v.gesuchId)}`, href: `/admin/vorgang/${x.key}#pachtvertrag`, tipp: "Beide Seiten müssen im Kundenbereich unterschreiben" });
     if (x.v.pachtvertrag?.status === "abgeschlossen" && !x.v.pachtvertrag.anzeigeErledigtAm) faellig.push({ text: `Pachtanzeige (§ 2 LPachtVG) nicht als erledigt vermerkt: ${x.key}`, href: `/admin/vorgang/${x.key}#pachtvertrag`, tipp: "Der Verpächter muss binnen eines Monats anzeigen — Erinnerungsentwurf im Vorgang" });
-    if (bewertungsUrl && bewertungFaellig(x.v, portal.einstellungen).length) faellig.push({ text: `Bitte um Google-Bewertung fällig: ${name(x.v.angebotId)} ↔ ${name(x.v.gesuchId)}`, href: `/admin/vorgang/${x.key}#entwuerfe`, tipp: "Entwurf ohne Anreiz — Ein-Klick-Versand im Vorgang" });
+    if (bewertungsUrl && bewertungFaellig(x.v, portal.einstellungen).length) faellig.push({ text: `Bitte um Google-Bewertung fällig: ${name(x.v.angebotId)} ↔ ${name(x.v.gesuchId)}`, href: `/admin/vorgang/${x.key}#weitere`, tipp: "Entwurf ohne Anreiz — im Vorgang unter „Weitere Aktionen → Einzelne E-Mails“" });
   }
 
   const kacheln = [

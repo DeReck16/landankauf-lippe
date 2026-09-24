@@ -55,8 +55,9 @@ function anrede(name: string): string {
   return n ? `Guten Tag ${n},` : "Guten Tag,";
 }
 
-function zuletzt(mails: M.GesendeteMail[] | undefined, zweck: string, an?: string): string | undefined {
-  return mails?.find((m) => m.zweck === zweck && m.ok && (!an || m.an === an))?.am;
+/** Zuletzt erfolgreich gesendet — mit `seit` nur Mails der aktuellen Runde (z. B. seit der Freigabe). */
+function zuletzt(mails: M.GesendeteMail[] | undefined, zweck: string, an?: string, seit?: string): string | undefined {
+  return mails?.find((m) => m.zweck === zweck && m.ok && (!an || m.an === an) && (!seit || m.am >= seit))?.am;
 }
 
 function name(k: M.KundeRecord | null, l: LeadView): string {
@@ -121,6 +122,11 @@ export function entwuerfeKunde(opts: {
   const k = M.aktuelleKonditionen(einstellungen);
   const provision = suchender ? M.konditionenText(rr.art, k) : "";
   const bis = kunde?.einladung ? T.datumDe(kunde.einladung.bis) : "";
+  // Ein abgelaufener Link darf nicht mehr verschickt werden (der Server lehnt ihn ebenfalls ab).
+  const abgelaufen = Boolean(kunde?.einladung && Date.parse(kunde.einladung.bis) < Date.now());
+  const linkAbgelaufen = abgelaufen
+    ? `Der Einladungslink ist am ${bis} abgelaufen — erst in der Anfrage „Neuen Link erstellen“ oder im Assistenten des Vorgangs „Erinnerung senden“ (erstellt den neuen Link automatisch).`
+    : undefined;
   const einladungText = suchender
     ? [
         anrede(nm),
@@ -173,8 +179,8 @@ export function entwuerfeKunde(opts: {
     tipp: "Schickt den persönlichen Einladungslink zum Kundenbereich (Angaben, Vertrag lesen, online unterschreiben).",
     wirkung: "Vermerkt „Einladung gesendet“ in der Kundenakte.",
     gesendetAm: kunde?.einladung?.gesendetAm,
-    faellig: Boolean(link && !kunde?.einladung?.gesendetAm),
-    gesperrt: !link ? "Erst „Einladung erstellen“ klicken — dann steht der persönliche Link im Text." : undefined,
+    faellig: Boolean(link && !abgelaufen && !kunde?.einladung?.gesendetAm),
+    gesperrt: !link ? "Erst „Einladung erstellen“ klicken — dann steht der persönliche Link im Text." : linkAbgelaufen,
   });
   if (kunde?.einladung && !unterschrieben && link) {
     liste.push({
@@ -200,6 +206,7 @@ export function entwuerfeKunde(opts: {
       tipp: "Freundliche Erinnerung mit demselben Einladungslink.",
       wirkung: "Wird im Verlauf der Anfrage gespeichert.",
       gesendetAm: zuletzt(kunde.mails, "erinnerung"),
+      gesperrt: linkAbgelaufen,
     });
   }
   return liste;
@@ -240,6 +247,8 @@ export function entwuerfePaar(opts: {
 
   // Anonyme Hinweise erst nach Schritt 3: beide haben unterschrieben (Suchender: Provisionsvereinbarung).
   const hinweisSperre = beideUnterschrieben(anbieter, suchender) ? undefined : SPERRE_UNTERSCHRIFT;
+  // Schon einmal gesendet? Dann geht derselbe Text als Erinnerung raus.
+  const nochmal = (gesendet: string | undefined) => (gesendet ? "Erinnerung: " : "");
   if (status === "vorschlag" || status === "vorgemerkt" || status === "angefragt") {
     if (anS) {
       liste.push({
@@ -250,7 +259,7 @@ export function entwuerfePaar(opts: {
         paarKey: key,
         titel: `Anonymer Hinweis an ${T.wert(gesuch.name) || "Suchenden"}`,
         an: anS,
-        betreff: "Passende Fläche zu Ihrem Gesuch — Lippe Forst",
+        betreff: `${nochmal(vorgang?.hinweise?.suchender)}Passende Fläche zu Ihrem Gesuch — Lippe Forst`,
         text: hinweisAnSuchenden(angebot, gesuch, lageA) + portalHinweis(suchender),
         tipp: "Anonymer Hinweis an den Suchenden: nur Gemeinde, Typ, Größe, Art — kein Name, kein Flurstück.",
         wirkung: "Vermerkt den Hinweis im Vorgang; sind beide Hinweise gesendet, wechselt das Paar auf „Angefragt“.",
@@ -268,7 +277,7 @@ export function entwuerfePaar(opts: {
         paarKey: key,
         titel: `Anonymer Hinweis an ${T.wert(angebot.name) || "Anbieter"}`,
         an: anA,
-        betreff: "Interessent für Ihre Fläche — Lippe Forst",
+        betreff: `${nochmal(vorgang?.hinweise?.anbieter)}Interessent für Ihre Fläche — Lippe Forst`,
         text: hinweisAnAnbieter(angebot, gesuch, lageG) + portalHinweis(anbieter),
         tipp: "Anonymer Hinweis an den Anbieter: nur Gemeinde, Typ, Größe, Art des Gesuchs — kein Name.",
         wirkung: "Vermerkt den Hinweis im Vorgang; sind beide Hinweise gesendet, wechselt das Paar auf „Angefragt“.",
@@ -313,8 +322,9 @@ export function entwuerfePaar(opts: {
         ].join("\n"),
         tipp: "Teilt mit, dass die Kontaktdaten im Kundenbereich freigegeben sind (die Daten selbst stehen nicht in der Mail).",
         wirkung: "Wird im Verlauf des Vorgangs gespeichert.",
-        gesendetAm: zuletzt(vorgang?.mails, "freigabe", seite.an),
-        faellig: !zuletzt(vorgang?.mails, "freigabe", seite.an),
+        // Nur Mitteilungen seit der aktuellen Freigabe zählen (nach „Freigabe zurückziehen“ beginnt eine neue Runde).
+        gesendetAm: zuletzt(vorgang?.mails, "freigabe", seite.an, vorgang?.freigabe?.am),
+        faellig: !zuletzt(vorgang?.mails, "freigabe", seite.an, vorgang?.freigabe?.am),
       });
     }
   }
@@ -326,6 +336,8 @@ export function entwuerfePaar(opts: {
       { k: suchender, l: gesuch, an: anS, rolle: "suchender" as const, feld: "paechter" as const, wer: "Pächter" },
     ]) {
       if (!seite.k || !seite.an || pv.unterschriften[seite.feld]) continue;
+      // Runde = seit „Zur Unterschrift freigeben“ (geaendertAm); frühere Runden zählen nicht.
+      const gesendet = zuletzt(vorgang?.mails, "pachtvertrag", seite.an, pv.geaendertAm);
       liste.push({
         id: `pacht-${seite.rolle}:${key}`,
         zweck: "pachtvertrag",
@@ -334,11 +346,11 @@ export function entwuerfePaar(opts: {
         paarKey: key,
         titel: `Pachtvertrag zur Unterschrift an ${name(seite.k, seite.l)} (${seite.wer})`,
         an: seite.an,
-        betreff: "Ihr Landpachtvertrag liegt zur Unterschrift bereit",
+        betreff: `${nochmal(gesendet)}Ihr Landpachtvertrag liegt zur Unterschrift bereit`,
         text: [
           anrede(name(seite.k, seite.l)),
           "",
-          "der Landpachtvertrag ist vorbereitet und liegt in Ihrem Kundenbereich zur Prüfung und Unterschrift bereit. Bitte lesen Sie ihn in Ruhe. Änderungswünsche können Sie uns dort über „Rückfrage“ schicken.",
+          `${gesendet ? "eine kurze Erinnerung: Der Landpachtvertrag liegt" : "der Landpachtvertrag ist vorbereitet und liegt"} in Ihrem Kundenbereich zur Prüfung und Unterschrift bereit. Bitte lesen Sie ihn in Ruhe. Änderungswünsche können Sie uns dort über „Rückfrage“ schicken.`,
           "",
           "Direkt zum Kundenbereich (der Link ist 14 Tage gültig und funktioniert einmal):",
           zugangsLink(seite.k, basis),
@@ -349,8 +361,8 @@ export function entwuerfePaar(opts: {
         ].join("\n"),
         tipp: `Bittet den ${seite.wer} um die Online-Unterschrift des Pachtvertrags.`,
         wirkung: "Wird im Verlauf des Vorgangs gespeichert.",
-        gesendetAm: zuletzt(vorgang?.mails, "pachtvertrag", seite.an),
-        faellig: !zuletzt(vorgang?.mails, "pachtvertrag", seite.an),
+        gesendetAm: gesendet,
+        faellig: !gesendet,
       });
     }
   }
@@ -386,6 +398,7 @@ export function entwuerfePaar(opts: {
       { k: suchender, l: gesuch, an: anS, rolle: "suchender" as const, feld: "kaeufer" as const, wer: "Käufer" },
     ]) {
       if (!seite.k || !seite.an || kauf.bestaetigungen[seite.feld]) continue;
+      const gesendet = zuletzt(vorgang?.mails, "kaufabsicht", seite.an, kauf.geaendertAm);
       liste.push({
         id: `kauf-${seite.rolle}:${key}`,
         zweck: "kaufabsicht",
@@ -394,11 +407,13 @@ export function entwuerfePaar(opts: {
         paarKey: key,
         titel: `Kaufabsicht bestätigen: ${name(seite.k, seite.l)} (${seite.wer})`,
         an: seite.an,
-        betreff: "Eckdaten für den Notar — bitte kurz bestätigen",
+        betreff: `${nochmal(gesendet)}Eckdaten für den Notar — bitte kurz bestätigen`,
         text: [
           anrede(name(seite.k, seite.l)),
           "",
-          "wir haben die besprochenen Eckdaten für den Kaufvertrag zusammengefasst. Bitte prüfen und bestätigen Sie sie in Ihrem Kundenbereich — die Bestätigung ist unverbindlich; der Kaufvertrag entsteht erst beim Notar.",
+          gesendet
+            ? "eine kurze Erinnerung: Die Eckdaten für den Kaufvertrag liegen in Ihrem Kundenbereich zur Bestätigung bereit — die Bestätigung ist unverbindlich; der Kaufvertrag entsteht erst beim Notar."
+            : "wir haben die besprochenen Eckdaten für den Kaufvertrag zusammengefasst. Bitte prüfen und bestätigen Sie sie in Ihrem Kundenbereich — die Bestätigung ist unverbindlich; der Kaufvertrag entsteht erst beim Notar.",
           "",
           "Direkt zum Kundenbereich (der Link ist 14 Tage gültig und funktioniert einmal):",
           zugangsLink(seite.k, basis),
@@ -407,8 +422,8 @@ export function entwuerfePaar(opts: {
         ].join("\n"),
         tipp: `Bittet den ${seite.wer}, die unverbindlichen Eckdaten für den Notar zu bestätigen.`,
         wirkung: "Wird im Verlauf des Vorgangs gespeichert.",
-        gesendetAm: zuletzt(vorgang?.mails, "kaufabsicht", seite.an),
-        faellig: !zuletzt(vorgang?.mails, "kaufabsicht", seite.an),
+        gesendetAm: gesendet,
+        faellig: !gesendet,
       });
     }
   }

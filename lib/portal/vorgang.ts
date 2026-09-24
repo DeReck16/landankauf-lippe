@@ -683,6 +683,8 @@ export async function kaufBeurkundet(
 ): Promise<{ ok: boolean; fehler?: string }> {
   const [ctx, e] = await Promise.all([ladeVorgangKontext(key), ladeEinstellungen()]);
   if (!ctx?.vorgang) return { ok: false, fehler: "Vorgang nicht gefunden" };
+  // Wie bei externen Abschlüssen: Provision nur mit Nachweis über Lippe Forst (Freigabe, auch wenn später zurückgezogen).
+  if (!ctx.vorgang.freigabe) return { ok: false, fehler: SPERRE_FREIGABE };
   if (ctx.vorgang.provisionen.some((p) => p.grundlage === "kaufvertrag" && p.status !== "storniert")) return { ok: false, fehler: "Beurkundung ist bereits erfasst." };
   const wirksam = daten.genehmigung === "nicht_noetig" || daten.genehmigung === "erteilt";
   const konditionen = ctx.suchender?.vertrag?.konditionen ?? null;

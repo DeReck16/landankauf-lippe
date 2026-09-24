@@ -318,7 +318,7 @@ a.lfa-kachel:hover { border-color: var(--color-brand); }
 .lfa-paar-fuss { grid-column: 1 / -1; border-top: 1px solid var(--color-line); padding-top: 0.8rem; display: flex; flex-direction: column; gap: 0.7rem; }
 @media (max-width: 760px) {
   .lfa-paar { grid-template-columns: minmax(0, 1fr); }
-  .lfa-paar-mitte { flex-direction: row; justify-content: flex-start; }
+  .lfa-paar-mitte { flex-direction: row; flex-wrap: wrap; justify-content: flex-start; }
 }
 .lfa-score { font-size: 1.5rem; font-weight: 700; font-family: var(--font-serif), Georgia, serif; color: var(--color-brand-dark); }
 .lfa-scorebalken { width: 100%; max-width: 7rem; height: 6px; border-radius: 9999px; background: var(--color-line); overflow: hidden; }
@@ -474,7 +474,6 @@ a.lfa-kachel:hover { border-color: var(--color-brand); }
 .lfa-schritte-verworfen .lfa-schritt { opacity: 0.55; }
 @media (max-width: 1100px) { .lfa-schritte { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 @media (max-width: 640px) { .lfa-schritte { grid-template-columns: minmax(0, 1fr); } }
-.lfa-jetzt { display: grid; gap: 0.25rem; border-color: var(--color-accent); }
 
 .lfa-schritt-kurz { display: inline-flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
 .lfa-schritt-segmente { display: inline-flex; gap: 2px; }
@@ -528,3 +527,122 @@ a.lfa-kachel:hover { border-color: var(--color-brand); }
 /* Lange Badges (z. B. „freigegeben … von …“) dürfen auf schmalen Bildschirmen umbrechen. */
 .lfa-badge.lfa-badge-lang { white-space: normal; max-width: 100%; overflow-wrap: anywhere; }
 .lfa-hash { overflow-wrap: anywhere; word-break: break-all; }
+
+/* ---------------------------------------------------------------------------
+   Klick-Assistent je Vorgang (app/admin/(intern)/Assistent.tsx): ein Kasten mit
+   Stand, Wartepunkten und genau einem Hauptknopf; Rückfrage direkt im Kasten. */
+.lfa-assistent {
+  display: grid;
+  gap: 0.55rem;
+  min-width: 0;
+  margin-bottom: 1rem;
+  padding: 1rem 1.1rem;
+  border: 2px solid var(--color-accent);
+  border-radius: 0.9rem;
+  background: #fffcf3;
+}
+.lfa-assistent-ruhig { border-width: 1px; border-color: #eadbb4; background: var(--color-surface); }
+.lfa-assistent-kompakt { margin-bottom: 0; padding: 0.7rem 0.8rem; gap: 0.45rem; }
+.lfa-assistent-kopf { display: flex; flex-wrap: wrap; align-items: center; gap: 0.15rem 0.35rem; min-width: 0; }
+.lfa-assistent-marke {
+  padding: 0.05rem 0.5rem;
+  border-radius: 9999px;
+  background: var(--color-accent-soft);
+  color: #7a5410;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: help;
+}
+.lfa-assistent-titel { font-weight: 650; font-size: 1.02rem; line-height: 1.3; overflow-wrap: anywhere; }
+.lfa-assistent-kompakt .lfa-assistent-titel { font-size: 0.92rem; }
+.lfa-assistent-stand { margin: 0; font-size: 0.9rem; color: var(--color-ink-soft); overflow-wrap: anywhere; }
+.lfa-assistent-kompakt .lfa-assistent-stand { font-size: 0.85rem; }
+.lfa-assistent-zwischen { display: block; font-size: 0.76rem; font-weight: 600; letter-spacing: 0.04em; color: var(--color-muted); }
+.lfa-assistent-liste { margin: 0.15rem 0 0; padding-left: 1.1rem; list-style: disc; display: grid; gap: 0.15rem; font-size: 0.86rem; overflow-wrap: anywhere; }
+.lfa-assistent-warten .lfa-assistent-liste { color: var(--color-ink-soft); }
+.lfa-assistent-hinweis { margin: 0; overflow-wrap: anywhere; }
+.lfa-assistent-form { display: grid; gap: 0.55rem; min-width: 0; }
+.lfa-assistent-felder { max-width: 40rem; }
+/* Lange Beschriftungen dürfen im Assistenten umbrechen (Handy, 375 px). */
+.lfa-assistent .lfa-knopf { white-space: normal; text-align: center; max-width: 100%; }
+.lfa-assistent-knopf { min-height: 44px; padding: 0.5rem 1.3rem; font-size: 0.97rem; font-weight: 600; }
+.lfa-assistent-kompakt .lfa-assistent-knopf { min-height: 38px; padding: 0.4rem 1.05rem; font-size: 0.9rem; }
+.lfa-assistent-sperre { margin: 0; font-size: 0.84rem; color: #8a2a1d; overflow-wrap: anywhere; }
+.lfa-assistent-frage {
+  display: grid;
+  gap: 0.6rem;
+  min-width: 0;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid #eadbb4;
+  border-radius: 0.7rem;
+  background: #fff8e8;
+  color: #5e4410;
+  font-size: 0.88rem;
+}
+.lfa-assistent-mails { list-style: none; margin: 0.25rem 0 0; padding: 0; display: grid; gap: 0.35rem; }
+.lfa-assistent-mails > li { min-width: 0; padding: 0.4rem 0.6rem; border: 1px solid var(--color-line); border-radius: 0.55rem; background: #fff; color: var(--color-ink); }
+.lfa-assistent-mails summary { cursor: pointer; color: var(--color-brand-dark); overflow-wrap: anywhere; }
+.lfa-assistent-neben { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
+.lfa-assistent-ergebnis { display: grid; gap: 0.3rem; margin: 0; overflow-wrap: anywhere; }
+.lfa-assistent-zeilen { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.15rem; font-size: 0.85rem; }
+.lfa-assistent-zeilen li { display: flex; gap: 0.45rem; align-items: baseline; }
+.lfa-assistent-zeilen li::before { flex: none; width: 1rem; font-weight: 700; }
+.lfa-assistent-zeile-ok::before { content: "✓"; color: var(--color-brand); }
+.lfa-assistent-zeile-fehler::before { content: "✗"; color: #8a2a1d; }
+.lfa-assistent-zeile-info::before { content: "•"; color: var(--color-muted); }
+
+/* „Weitere Aktionen“: alles Zweitrangige zum Aufklappen (Vorgang und Matching-Karte). */
+.lfa-weitere {
+  margin-bottom: 1rem;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--color-line);
+  border-radius: 0.8rem;
+  background: var(--color-surface);
+  min-width: 0;
+}
+.lfa-weitere > summary { cursor: pointer; font-weight: 600; font-size: 0.9rem; color: var(--color-ink-soft); overflow-wrap: anywhere; }
+.lfa-weitere[open] > summary { margin-bottom: 0.7rem; }
+.lfa-weitere-inhalt { display: grid; gap: 0.9rem; min-width: 0; }
+.lfa-weitere-teil { min-width: 0; padding-top: 0.8rem; border-top: 1px dashed var(--color-line); }
+.lfa-weitere-teil:first-child { padding-top: 0; border-top: 0; }
+.lfa-weitere-klein { margin-bottom: 0; padding: 0.45rem 0.7rem; background: #fcfbf7; }
+.lfa-weitere-klein > summary { font-size: 0.85rem; }
+
+/* ---------------------------------------------------------------------------
+   Dashboard (app/admin/(intern)/dashboard/page.tsx): Kacheln, Karten je Vorgang
+   mit Status-Chips je Seite und dem Knopf des Assistenten, neue Vorschläge. */
+.lfa-dash-abschnitt { margin-top: 1.25rem; }
+.lfa-dash-karte {
+  display: grid;
+  gap: 0.6rem;
+  min-width: 0;
+  margin-bottom: 0.9rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--color-line);
+  border-radius: 0.9rem;
+  background: var(--color-surface);
+}
+.lfa-dash-kopf { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 0.6rem; min-width: 0; }
+.lfa-dash-kopf .lfa-link-name { font-size: 1.02rem; overflow-wrap: anywhere; }
+.lfa-dash-fortschritt { margin-left: auto; }
+.lfa-dash-seiten { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem 1rem; }
+@media (max-width: 760px) { .lfa-dash-seiten { grid-template-columns: minmax(0, 1fr); } .lfa-dash-fortschritt { margin-left: 0; } }
+.lfa-dash-seite { display: grid; gap: 0.25rem; min-width: 0; font-size: 0.86rem; }
+.lfa-dash-wer { overflow-wrap: anywhere; }
+.lfa-dash-chips { display: flex; flex-wrap: wrap; gap: 0.25rem; min-width: 0; }
+.lfa-dash-vorschlaege { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+.lfa-dash-vorschlag {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  min-width: 0;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--color-line);
+  border-radius: 0.8rem;
+  background: var(--color-surface);
+}
+.lfa-dash-vorschlag-text { display: grid; gap: 0.15rem; flex: 1 1 20rem; min-width: 0; font-size: 0.88rem; overflow-wrap: anywhere; }

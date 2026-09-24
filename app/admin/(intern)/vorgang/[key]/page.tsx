@@ -23,6 +23,9 @@ import {
 } from "@/lib/portal/vorgang";
 import { istFreigegeben } from "@/lib/vertraege/vorlagen";
 import { SPERRE_FREIGABE, SPERRE_UNTERSCHRIFT, beideUnterschrieben, vorgangSchritte } from "@/lib/portal/schritte";
+import { assistentPlan, type AssistentPlan } from "@/lib/portal/assistent";
+import type { Entwurf } from "@/lib/portal/entwuerfe";
+import { paarAktion } from "../../../actions";
 import {
   externErfassenAktion,
   freigabeZurueckziehenAktion,
@@ -47,8 +50,9 @@ import {
 import BestaetigenKnopf from "../../BestaetigenKnopf";
 import GesehenMarker from "../../GesehenMarker";
 import MailEntwurf from "../../MailEntwurf";
+import Assistent from "../../Assistent";
 import { DokumentListe, KundenStand, Meldung, Verlauf } from "../../teile";
-import { JetztDran, SchrittLeiste } from "../../Schritte";
+import { SchrittLeiste } from "../../Schritte";
 
 export const metadata: Metadata = { title: "Vorgang" };
 
@@ -281,12 +285,12 @@ function PachtPanel({ ctx, portal, zurueck }: { ctx: VorgangKontext; portal: Por
         <form action={pachtZurUnterschriftAktion} style={{ marginTop: "0.75rem" }}>
           <Hidden ctx={ctx} zurueck={zurueck} />
           <BestaetigenKnopf
-            className="lfa-knopf"
+            className="lfa-knopf lfa-knopf-hell lfa-knopf-klein"
             disabled={!frei || !vorlageFrei || luecken.length > 0}
-            frage="Pachtvertrag jetzt beiden Seiten zur Unterschrift vorlegen? Danach ist der Text gesperrt (Änderungen nur über „Zurück zum Entwurf“)."
-            tipp={!frei ? "Erst nach der Freigabe" : !vorlageFrei ? "Vorlage erst freigeben" : luecken.length ? `Es fehlen: ${luecken.join(", ")}` : "Sperrt den Text und zeigt den Vertrag beiden Seiten im Kundenbereich zur Unterschrift"}
+            frage="Pachtvertrag jetzt beiden Seiten zur Unterschrift vorlegen — ohne Mitteilung? Danach ist der Text gesperrt (Änderungen nur über „Zurück zum Entwurf“)."
+            tipp={!frei ? "Erst nach der Freigabe" : !vorlageFrei ? "Vorlage erst freigeben" : luecken.length ? `Es fehlen: ${luecken.join(", ")}` : "Sperrt den Text und zeigt den Vertrag beiden im Kundenbereich zur Unterschrift — ohne Mail. Mit Mitteilung an beide: oben im Assistenten."}
           >
-            Zur Unterschrift freigeben
+            Zur Unterschrift freigeben (ohne Mitteilung)
           </BestaetigenKnopf>
         </form>
       )}
@@ -388,8 +392,8 @@ function KaufPanel({ ctx, portal, zurueck }: { ctx: VorgangKontext; portal: Port
         {k?.status === "entwurf" && (
           <form action={kaufZurBestaetigungAktion}>
             <Hidden ctx={ctx} zurueck={zurueck} />
-            <BestaetigenKnopf disabled={!frei || !vorlageFrei} className="lfa-knopf lfa-knopf-klein" frage="Eckdaten beiden Seiten zur (unverbindlichen) Bestätigung vorlegen?" tipp={frei ? "Zeigt die Eckdaten beiden Seiten im Kundenbereich zur Bestätigung" : "Erst nach der Freigabe"}>
-              Zur Bestätigung vorlegen
+            <BestaetigenKnopf disabled={!frei || !vorlageFrei} className="lfa-knopf lfa-knopf-hell lfa-knopf-klein" frage="Eckdaten beiden Seiten zur (unverbindlichen) Bestätigung vorlegen — ohne Mitteilung?" tipp={frei ? "Zeigt die Eckdaten beiden im Kundenbereich zur Bestätigung — ohne Mail. Mit Mitteilung an beide: oben im Assistenten." : "Erst nach der Freigabe"}>
+              Zur Bestätigung vorlegen (ohne Mitteilung)
             </BestaetigenKnopf>
           </form>
         )}
@@ -449,7 +453,7 @@ function KaufPanel({ ctx, portal, zurueck }: { ctx: VorgangKontext; portal: Port
               </select>
             </label>
             <BestaetigenKnopf
-              className="lfa-knopf lfa-knopf-klein"
+              className="lfa-knopf lfa-knopf-hell lfa-knopf-klein"
               frage="Beurkundung erfassen? Die Provision wird angelegt (fällig erst mit Wirksamkeit)."
               tipp={`Erfasst die Beurkundung und legt die Provision an (${konditionen ? `Konditionen Nr. ${konditionen.version}` : "kein unterschriebener Nachweisvertrag des Käufers gefunden!"})`}
             >
@@ -465,7 +469,7 @@ function KaufPanel({ ctx, portal, zurueck }: { ctx: VorgangKontext; portal: Port
             Wirksam seit (Genehmigung erteilt)
             <input name="datum" type="date" className="field-input" title="Datum, an dem die Genehmigung erteilt wurde" />
           </label>
-          <BestaetigenKnopf className="lfa-knopf lfa-knopf-klein" frage="Kaufvertrag als wirksam erfassen? Die Provision wird fällig." tipp="Genehmigung ist da — Provision wird fällig (Admin-Mail „Provision fällig“)">
+          <BestaetigenKnopf className="lfa-knopf lfa-knopf-hell lfa-knopf-klein" frage="Kaufvertrag als wirksam erfassen? Die Provision wird fällig." tipp="Genehmigung ist da — Provision wird fällig (Admin-Mail „Provision fällig“)">
             Kauf wirksam
           </BestaetigenKnopf>
         </form>
@@ -590,11 +594,12 @@ function ProvisionPanel({ ctx, zurueck }: { ctx: VorgangKontext; zurueck: string
   );
 }
 
-function ExternPanel({ ctx, zurueck }: { ctx: VorgangKontext; zurueck: string }) {
+/** Außerhalb geschlossenen Vertrag erfassen — Teil der „Weiteren Aktionen“. */
+function ExternTeil({ ctx, zurueck }: { ctx: VorgangKontext; zurueck: string }) {
   const v = ctx.vorgang;
   return (
-    <section className="lfa-panel" id="extern">
-      <h2 className="lfa-h2">Außerhalb geschlossener Vertrag</h2>
+    <section className="lfa-weitere-teil" id="extern">
+      <h3 className="lfa-h3">Außerhalb geschlossener Vertrag</h3>
       <p className="lfa-klein" style={{ marginBottom: "0.6rem" }}>
         Haben die Parteien den Pacht- oder Kaufvertrag ohne die Plattform geschlossen (z. B. auf Papier), hier erfassen — der Provisionsanspruch entsteht genauso. Den Vertrag als Scan unten bei „Dokumente“ hochladen.
       </p>
@@ -613,7 +618,7 @@ function ExternPanel({ ctx, zurueck }: { ctx: VorgangKontext; zurueck: string })
         </ul>
       ) : null}
       {!v?.freigabe ? (
-        <p className="lfa-hinweis" title={SPERRE_FREIGABE}>{SPERRE_FREIGABE}</p>
+        <p className="lfa-hinweis" style={{ margin: 0 }} title={SPERRE_FREIGABE}>{SPERRE_FREIGABE}</p>
       ) : (
       <form action={externErfassenAktion} className="lfa-inline">
         <input type="hidden" name="key" value={ctx.key} />
@@ -645,12 +650,178 @@ function ExternPanel({ ctx, zurueck }: { ctx: VorgangKontext; zurueck: string })
           Notiz
           <input name="notiz" className="field-input" title="Weitere Angaben" />
         </label>
-        <BestaetigenKnopf className="lfa-knopf lfa-knopf-klein" frage="Außerhalb geschlossenen Vertrag erfassen? Die Provision wird als fällig angelegt." tipp="Legt den Vertrag und einen fälligen Provisionsanspruch gegen den Suchenden an">
+        <BestaetigenKnopf className="lfa-knopf lfa-knopf-hell lfa-knopf-klein" frage="Außerhalb geschlossenen Vertrag erfassen? Die Provision wird als fällig angelegt." tipp="Legt den Vertrag und einen fälligen Provisionsanspruch gegen den Suchenden an">
           Erfassen
         </BestaetigenKnopf>
       </form>
       )}
     </section>
+  );
+}
+
+/**
+ * Alles Zweitrangige zum Aufklappen: einzelne E-Mails, Zustimmungen, Freigabe ohne
+ * Mitteilung bzw. zurückziehen, außerhalb geschlossener Vertrag, verwerfen, Notiz.
+ */
+function WeitereAktionen({ ctx, zurueck, entwuerfe, plan }: { ctx: VorgangKontext; zurueck: string; entwuerfe: Entwurf[]; plan: AssistentPlan }) {
+  const status = ctx.meta?.status ?? "vorschlag";
+  const v = ctx.vorgang;
+  const frei = M.aktiveFreigabe(v);
+  const beide = beideUnterschrieben(ctx.anbieter, ctx.suchender);
+  const pr = freigabePruefung(ctx);
+  const vorFreigabe = !frei && status !== "kontakt" && status !== "abschluss";
+  // Fällige Einzel-Mails, die der Assistent gerade nicht selbst anbietet (z. B. die Bewertungsbitte).
+  const imAssistenten = new Set((plan.aktion?.mails ?? []).map((m) => `${m.zweck}:${m.rolle}`));
+  const faellig = entwuerfe.filter((e) => e.faellig && !e.gesendetAm && !e.gesperrt && !imAssistenten.has(`${e.zweck}:${e.rolle}`)).length;
+  return (
+    <details className="lfa-weitere" id="weitere" open={status === "verworfen" || undefined}>
+      <summary title="Alles, was der Assistent gerade nicht als nächsten Schritt vorschlägt: einzelne E-Mails, Zustimmungen, Freigabe ohne Mitteilung oder zurückziehen, außerhalb geschlossener Vertrag, verwerfen, Notiz">
+        {faellig > 0 && <span className="lfa-puls" title={`${faellig} einzelne E-Mail${faellig === 1 ? "" : "s"} jetzt fällig`} />}
+        Weitere Aktionen
+        <span className="lfa-klein" style={{ fontWeight: 400 }}>
+          {" "}— einzelne E-Mails{faellig > 0 ? ` (${faellig} fällig)` : ""}, Zustimmungen, außerhalb geschlossen, verwerfen, Notiz
+        </span>
+      </summary>
+      <div className="lfa-weitere-inhalt">
+        {entwuerfe.length > 0 && (
+          <section className="lfa-weitere-teil" id="entwuerfe">
+            <h3 className="lfa-h3">Einzelne E-Mails</h3>
+            <p className="lfa-klein" style={{ marginBottom: "0.5rem" }}>
+              Für Sonderfälle: jede Mail einzeln, vor dem Senden änderbar. „Senden …“ fragt noch einmal nach; der Text wird im Verlauf gespeichert.
+            </p>
+            <div className="lfa-entwuerfe">
+              {entwuerfe.map((e) => (
+                <MailEntwurf key={e.id} e={e} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {vorFreigabe && status !== "verworfen" && (
+          <section className="lfa-weitere-teil">
+            <h3 className="lfa-h3">Zustimmungen und Freigabe</h3>
+            <div className="lfa-knopfreihe" style={{ marginBottom: "0.5rem" }}>
+              {(["anbieter", "suchender"] as M.Rolle[]).map((r) => {
+                const am = r === "anbieter" ? ctx.meta?.zustimmungAnbieter : ctx.meta?.zustimmungSuchender;
+                return (
+                  <form key={r} action={zustimmungErfassenAktion}>
+                    <input type="hidden" name="key" value={ctx.key} />
+                    <input type="hidden" name="rolle" value={r} />
+                    <input type="hidden" name="art" value={ctx.art} />
+                    <input type="hidden" name="an" value={am ? "0" : "1"} />
+                    <input type="hidden" name="zurueck" value={zurueck} />
+                    <button
+                      type="submit"
+                      disabled={!am && !beide}
+                      className="lfa-knopf lfa-knopf-hell lfa-knopf-klein"
+                      title={am ? "Zustimmung zurücknehmen (z. B. versehentlich erfasst)" : !beide ? SPERRE_UNTERSCHRIFT : "Zustimmung zu diesem Kontakt erfassen (z. B. telefonisch erteilt) — Kunden können auch selbst im Kundenbereich zustimmen"}
+                    >
+                      {am ? `Zustimmung ${M.ROLLE_ARTIKEL[r].gen} zurücknehmen` : `Zustimmung ${M.ROLLE_ARTIKEL[r].gen} erfassen`}
+                    </button>
+                  </form>
+                );
+              })}
+            </div>
+            <form action={freigebenAktion}>
+              <input type="hidden" name="key" value={ctx.key} />
+              <input type="hidden" name="zurueck" value={zurueck} />
+              <BestaetigenKnopf
+                className="lfa-knopf lfa-knopf-hell lfa-knopf-klein"
+                disabled={!pr.bereit}
+                frage="Kontakt nur freigeben, ohne Mitteilung an die beiden? Sie sehen danach im Kundenbereich Namen, Kontaktdaten und Flurstücke des Gegenübers."
+                tipp={pr.bereit ? "Gibt die Kontaktdaten frei, ohne Mail — mit Mitteilung an beide geht es oben im Assistenten" : "Erst möglich, wenn beide unterschrieben und zugestimmt haben (siehe Assistent)"}
+              >
+                Nur freigeben (ohne Mitteilung)
+              </BestaetigenKnopf>
+            </form>
+          </section>
+        )}
+
+        {frei && !v?.abschluss && (
+          <section className="lfa-weitere-teil">
+            <h3 className="lfa-h3">Freigabe zurückziehen</h3>
+            <p className="lfa-klein" style={{ marginBottom: "0.4rem" }}>
+              Nur bei einem Versehen oder nach einem Widerruf: Die Kontaktdaten werden im Kundenbereich wieder verborgen (der Nachweis bleibt bestehen).
+            </p>
+            <form action={freigabeZurueckziehenAktion} className="lfa-inline">
+              <input type="hidden" name="key" value={ctx.key} />
+              <input type="hidden" name="zurueck" value={zurueck} />
+              <label>
+                Grund
+                <input name="grund" required className="field-input" title="Warum die Freigabe zurückgezogen wird (wird protokolliert)" />
+              </label>
+              <BestaetigenKnopf className="lfa-knopf lfa-knopf-leise lfa-knopf-klein" frage="Freigabe zurückziehen? Die Kontaktdaten werden im Kundenbereich wieder verborgen — bereits gesehene Daten bleiben natürlich bekannt." tipp="Verbirgt die Kontaktdaten wieder (der Nachweis bleibt bestehen)">
+                Zurückziehen
+              </BestaetigenKnopf>
+            </form>
+          </section>
+        )}
+
+        <ExternTeil ctx={ctx} zurueck={zurueck} />
+
+        {status !== "kontakt" && status !== "abschluss" && (
+          <section className="lfa-weitere-teil">
+            <h3 className="lfa-h3">Paar</h3>
+            <div className="lfa-knopfreihe">
+              {status === "verworfen" ? (
+                <form action={paarAktion}>
+                  <input type="hidden" name="key" value={ctx.key} />
+                  <input type="hidden" name="aktion" value="zuruecksetzen" />
+                  <button type="submit" className="lfa-knopf lfa-knopf-hell lfa-knopf-klein" title="Verwerfen rückgängig machen — das Paar wird wieder als Vorschlag geführt">
+                    Wieder vorschlagen
+                  </button>
+                </form>
+              ) : (
+                <>
+                  <form action={paarAktion}>
+                    <input type="hidden" name="key" value={ctx.key} />
+                    <input type="hidden" name="aktion" value="verwerfen" />
+                    <BestaetigenKnopf className="lfa-knopf lfa-knopf-leise lfa-knopf-klein" frage="Paar verwerfen? Es wird nicht mehr vorgeschlagen (lässt sich unter „Weitere Aktionen“ bzw. im Matching zurückholen)." tipp="Eine Seite hat abgesagt oder das Paar passt nicht — verwerfen">
+                      Paar verwerfen
+                    </BestaetigenKnopf>
+                  </form>
+                  {status === "vorgemerkt" && (
+                    <form action={paarAktion}>
+                      <input type="hidden" name="key" value={ctx.key} />
+                      <input type="hidden" name="aktion" value="zuruecksetzen" />
+                      <BestaetigenKnopf className="lfa-knopf lfa-knopf-leise lfa-knopf-klein" frage="Zurück zum unbearbeiteten Vorschlag? Die Notiz zum Paar wird gelöscht." tipp="Zurück zum unbearbeiteten Vorschlag; die Notiz wird gelöscht">
+                        Zurücksetzen
+                      </BestaetigenKnopf>
+                    </form>
+                  )}
+                  {status === "vorgemerkt" && (
+                    <form action={paarAktion}>
+                      <input type="hidden" name="key" value={ctx.key} />
+                      <input type="hidden" name="aktion" value="angefragt" />
+                      <button
+                        type="submit"
+                        className="lfa-knopf lfa-knopf-leise lfa-knopf-klein"
+                        disabled={!beide}
+                        title={beide ? "Nur klicken, wenn beide anonymen Hinweise außerhalb der Verwaltung (Telefon, eigenes Postfach) gesendet wurden — setzt den Status auf „Angefragt“" : SPERRE_UNTERSCHRIFT}
+                      >
+                        Hinweise extern verschickt
+                      </button>
+                    </form>
+                  )}
+                </>
+              )}
+            </div>
+          </section>
+        )}
+
+        <section className="lfa-weitere-teil">
+          <h3 className="lfa-h3">Notiz zum Paar</h3>
+          <form action={paarAktion}>
+            <input type="hidden" name="key" value={ctx.key} />
+            <input type="hidden" name="aktion" value="notiz" />
+            <textarea name="notiz" defaultValue={ctx.meta?.notiz ?? ""} className="field-textarea" style={{ minHeight: "4rem" }} title="Interne Notiz zu diesem Paar, z. B. Gesprächsstand — nur in der Verwaltung sichtbar" />
+            <button type="submit" className="lfa-knopf lfa-knopf-hell lfa-knopf-klein" style={{ marginTop: "0.5rem" }} title="Notiz zu diesem Paar speichern">
+              Notiz speichern
+            </button>
+          </form>
+        </section>
+      </div>
+    </details>
   );
 }
 
@@ -670,10 +841,10 @@ export default async function VorgangPage(props: PageProps<"/admin/vorgang/[key]
   const frei = M.aktiveFreigabe(v);
   const pr = freigabePruefung(ctx);
   const sch = vorgangSchritte({ art: ctx.art, meta: ctx.meta, vorgang: v, anbieter: ctx.anbieter, suchender: ctx.suchender });
-  const beide = beideUnterschrieben(ctx.anbieter, ctx.suchender);
   const neueEreignisse = neu.vorgang(v);
   const neuIds = new Set(neueEreignisse.map((e) => e.id));
   const bewertungsUrl = M.bewertungsUrl(portal.einstellungen, process.env.GOOGLE_REVIEW_URL);
+  const plan = assistentPlan(ctx, { einstellungen: portal.einstellungen, basis, bewertungsUrl });
   const entwuerfe = [
     ...entwuerfePaar({ key, angebot: ctx.angebot, gesuch: ctx.gesuch, anbieter: ctx.anbieter, suchender: ctx.suchender, vorgang: v, meta: ctx.meta, zustand: ctx.zustand, einstellungen: portal.einstellungen, basis, bewertungsUrl }),
     ...(status === "vorgemerkt" || status === "angefragt"
@@ -711,7 +882,10 @@ export default async function VorgangPage(props: PageProps<"/admin/vorgang/[key]
       </div>
 
       <SchrittLeiste schritte={sch.schritte} verworfen={sch.verworfen} />
-      <JetztDran aktuell={sch.aktuell} gesamt={sch.schritte.length} verworfen={sch.verworfen} />
+      <div id="assistent">
+        <Assistent plan={plan} zurueck={zurueck} />
+      </div>
+      <WeitereAktionen ctx={ctx} zurueck={zurueck} entwuerfe={entwuerfe} plan={plan} />
 
       <div className="lfa-raster">
         <div>
@@ -723,45 +897,17 @@ export default async function VorgangPage(props: PageProps<"/admin/vorgang/[key]
             </div>
             {!frei && status !== "verworfen" && (
               <>
-                <div className="lfa-knopfreihe" style={{ marginBottom: "0.5rem" }}>
-                  {(["anbieter", "suchender"] as M.Rolle[]).map((r) => {
-                    const am = r === "anbieter" ? ctx.meta?.zustimmungAnbieter : ctx.meta?.zustimmungSuchender;
-                    return (
-                      <form key={r} action={zustimmungErfassenAktion}>
-                        <input type="hidden" name="key" value={key} />
-                        <input type="hidden" name="rolle" value={r} />
-                        <input type="hidden" name="art" value={ctx.art} />
-                        <input type="hidden" name="an" value={am ? "0" : "1"} />
-                        <input type="hidden" name="zurueck" value={zurueck} />
-                        <button type="submit" disabled={!am && !beide} className={`lfa-knopf lfa-knopf-klein ${am ? "" : "lfa-knopf-hell"}`} title={am ? "Zustimmung zurücknehmen" : !beide ? SPERRE_UNTERSCHRIFT : "Zustimmung zu diesem Kontakt erfassen (z. B. telefonisch erteilt) — Kunden können auch selbst im Kundenbereich zustimmen"}>
-                          {am ? `✓ ${M.ROLLE_NAME[r]} stimmt zu (${datumDe(am)})` : `Zustimmung ${M.ROLLE_ARTIKEL[r].gen} erfassen`}
-                        </button>
-                      </form>
-                    );
-                  })}
-                </div>
                 {ctx.meta?.ablehnung && (
                   <p className="lfa-hinweis lfa-hinweis-fehler">
                     {M.ROLLE_NAME[ctx.meta.ablehnung.rolle]} hat am {datumDe(ctx.meta.ablehnung.am)} „kein Interesse“ gemeldet{ctx.meta.ablehnung.grund ? `: ${ctx.meta.ablehnung.grund}` : ""}.
                   </p>
                 )}
+                <span className="lfa-klein" title="Erst wenn alle Punkte erfüllt sind, gibt der Assistent die Kontaktdaten frei">Voraussetzungen der Freigabe:</span>
                 <ul className="lfa-pruefliste">
                   {pr.punkte.map((p) => (
                     <li key={p.text} className={p.ok ? "lfa-ok" : undefined}>{p.text}</li>
                   ))}
                 </ul>
-                <form action={freigebenAktion}>
-                  <input type="hidden" name="key" value={key} />
-                  <input type="hidden" name="zurueck" value={zurueck} />
-                  <BestaetigenKnopf
-                    className="lfa-knopf"
-                    disabled={!pr.bereit}
-                    frage="Kontakt jetzt freigeben? Beide Seiten sehen danach im Kundenbereich Namen, Kontaktdaten und Flurstücke des Gegenübers."
-                    tipp={pr.bereit ? "Gibt die Kontaktdaten beider Seiten frei; danach die Freigabe-Mitteilungen senden" : "Erst möglich, wenn alle Punkte oben erfüllt sind"}
-                  >
-                    Kontakt freigeben
-                  </BestaetigenKnopf>
-                </form>
               </>
             )}
             {frei && (
@@ -769,26 +915,11 @@ export default async function VorgangPage(props: PageProps<"/admin/vorgang/[key]
                 <p className="lfa-klein">Freigegeben am {datumZeit(v!.freigabe!.am)} von {v!.freigabe!.von}. Beide Seiten sehen die Kontaktdaten im Kundenbereich.</p>
                 {!v?.abschluss && (ctx.anbieter?.widerruf || ctx.suchender?.widerruf) && (
                   <p className="lfa-hinweis lfa-hinweis-fehler" style={{ margin: "0.4rem 0 0" }} role="alert">
-                    Achtung: {ctx.suchender?.widerruf ? `Der Suchende hat am ${datumDe(ctx.suchender.widerruf.am)}` : `Der Anbieter hat am ${datumDe(ctx.anbieter!.widerruf!.am)}`} widerrufen. Der Kundenbereich zeigt die Kontaktdaten nicht mehr an; einen Pachtvertrag bzw. Eckdaten nicht mehr über die Plattform vorlegen. Freigabe bitte zurückziehen und — falls nötig — die Gegenseite informieren.
+                    Achtung: {ctx.suchender?.widerruf ? `Der Suchende hat am ${datumDe(ctx.suchender.widerruf.am)}` : `Der Anbieter hat am ${datumDe(ctx.anbieter!.widerruf!.am)}`} widerrufen. Der Kundenbereich zeigt die Kontaktdaten nicht mehr an; einen Pachtvertrag bzw. Eckdaten nicht mehr über die Plattform vorlegen. Freigabe bitte zurückziehen (unter „Weitere Aktionen“) und — falls nötig — die Gegenseite informieren.
                   </p>
                 )}
-                {v?.abschluss ? (
+                {v?.abschluss && (
                   <p className="lfa-klein" style={{ marginTop: "0.4rem" }}>Nach dem Vertragsschluss bleibt die Freigabe bestehen — beide Seiten brauchen Zugriff auf ihren Vertrag.</p>
-                ) : (
-                <details className="lfa-details" style={{ marginTop: "0.4rem" }}>
-                  <summary title="Nur bei einem Versehen oder nach einem Widerruf: Kontaktdaten im Kundenbereich wieder verbergen">Freigabe zurückziehen</summary>
-                  <form action={freigabeZurueckziehenAktion} className="lfa-inline">
-                    <input type="hidden" name="key" value={key} />
-                    <input type="hidden" name="zurueck" value={zurueck} />
-                    <label>
-                      Grund
-                      <input name="grund" required className="field-input" title="Warum die Freigabe zurückgezogen wird (wird protokolliert)" />
-                    </label>
-                    <BestaetigenKnopf className="lfa-knopf lfa-knopf-leise lfa-knopf-klein" frage="Freigabe zurückziehen? Die Kontaktdaten werden im Kundenbereich wieder verborgen — bereits gesehene Daten bleiben natürlich bekannt." tipp="Verbirgt die Kontaktdaten wieder (der Nachweis bleibt bestehen)">
-                      Zurückziehen
-                    </BestaetigenKnopf>
-                  </form>
-                </details>
                 )}
               </div>
             )}
@@ -796,21 +927,9 @@ export default async function VorgangPage(props: PageProps<"/admin/vorgang/[key]
 
           {ctx.art === "pacht" ? <PachtPanel ctx={ctx} portal={portal} zurueck={zurueck} /> : <KaufPanel ctx={ctx} portal={portal} zurueck={zurueck} />}
           <ProvisionPanel ctx={ctx} zurueck={zurueck} />
-          <ExternPanel ctx={ctx} zurueck={zurueck} />
         </div>
 
         <div>
-          {entwuerfe.length > 0 && (
-            <section className="lfa-panel" id="entwuerfe">
-              <h2 className="lfa-h2">E-Mail-Entwürfe</h2>
-              <div className="lfa-entwuerfe">
-                {entwuerfe.map((e) => (
-                  <MailEntwurf key={e.id} e={e} offen={Boolean(e.faellig && !e.gesendetAm)} />
-                ))}
-              </div>
-            </section>
-          )}
-
           {v?.meldungen.length ? (
             <section className="lfa-panel">
               <h2 className="lfa-h2">Meldungen aus dem Kundenbereich</h2>

@@ -109,7 +109,7 @@ export function vorgangSchritte(x: SchrittEingabe, jetzt = new Date()): { schrit
       id: "paar",
       titel: "Paar gebildet",
       detail: verworfen ? "Paar verworfen" : status === "vorschlag" ? "Vorschlag aus dem Matching" : "Angebot und Gesuch sind vorgemerkt",
-      naechstes: "Im Matching „Vormerken“ klicken.",
+      naechstes: "Im Assistenten „Paar vormerken“ klicken.",
     },
     !verworfen && status !== "vorschlag",
   );
@@ -119,7 +119,7 @@ export function vorgangSchritte(x: SchrittEingabe, jetzt = new Date()): { schrit
       id: "einladung",
       titel: "Eingeladen",
       detail: `${stufeText("anbieter", x.anbieter)} · ${stufeText("suchender", x.suchender)}`,
-      naechstes: "Bei beiden Seiten „Einladung erstellen“ und die Einladungs-Mail senden (Anbieter- bzw. Anfrage-Seite).",
+      naechstes: "Im Assistenten „Beide einladen“ klicken — er erstellt die persönlichen Links und sendet beide Einladungs-Mails.",
     },
     M.stufe(x.anbieter) !== "neu" && M.stufe(x.suchender) !== "neu",
   );
@@ -132,7 +132,7 @@ export function vorgangSchritte(x: SchrittEingabe, jetzt = new Date()): { schrit
         vertragGueltig(x.suchender) ? `Provisionsvereinbarung (Suchender) unterschrieben am ${tag(x.suchender?.vertrag?.signatur.am)}` : `Provisionsvereinbarung (Suchender): ${M.STUFE_INFO[M.stufe(x.suchender)].label.toLowerCase()}`,
         vertragGueltig(x.anbieter) ? `Vereinbarung (Anbieter) unterschrieben am ${tag(x.anbieter?.vertrag?.signatur.am)}` : `Vereinbarung (Anbieter): ${M.STUFE_INFO[M.stufe(x.anbieter)].label.toLowerCase()}`,
       ].join(" · "),
-      naechstes: "Auf die Unterschriften warten — bei Bedarf die Erinnerungs-Mail senden.",
+      naechstes: "Auf die Unterschriften warten — bei Bedarf im Assistenten „Erinnerung senden“.",
     },
     beideUnterschrieben(x.anbieter, x.suchender),
   );
@@ -145,7 +145,7 @@ export function vorgangSchritte(x: SchrittEingabe, jetzt = new Date()): { schrit
         zA ? `Anbieter stimmt zu (${tag(zA)})` : v?.hinweise?.anbieter ? `Hinweis an Anbieter gesendet (${tag(v.hinweise.anbieter)}), Zustimmung fehlt` : "Anbieter noch nicht angefragt",
         zS ? `Suchender stimmt zu (${tag(zS)})` : v?.hinweise?.suchender ? `Hinweis an Suchenden gesendet (${tag(v.hinweise.suchender)}), Zustimmung fehlt` : "Suchender noch nicht angefragt",
       ].join(" · "),
-      naechstes: "Die beiden anonymen Hinweise senden (mit Link zum Zustimmen) oder eine telefonische Zustimmung erfassen.",
+      naechstes: "Im Assistenten „Beide anonym anfragen“ (Hinweise mit Link zum Zustimmen) oder eine telefonische Zustimmung erfassen.",
     },
     Boolean(zA && zS),
   );
@@ -161,7 +161,7 @@ export function vorgangSchritte(x: SchrittEingabe, jetzt = new Date()): { schrit
         : v?.freigabe?.zurueckgezogen
           ? `Freigabe zurückgezogen am ${tag(v.freigabe.zurueckgezogen.am)}`
           : wartenAuf || "Bereit zur Freigabe",
-      naechstes: wartenAuf ? `Noch warten — ${wartenAuf}.` : "„Kontakt freigeben“ klicken, danach die beiden Freigabe-Mitteilungen senden.",
+      naechstes: wartenAuf ? `Noch warten — ${wartenAuf}.` : "Im Assistenten „Kontakt freigeben & beide informieren“ klicken.",
     },
     freigegeben,
   );
@@ -173,8 +173,8 @@ export function vorgangSchritte(x: SchrittEingabe, jetzt = new Date()): { schrit
       detail: vertragText(x.art, v),
       naechstes:
         x.art === "kauf"
-          ? "Eckdaten für den Notar vorbereiten und bestätigen lassen; Beurkundung erfassen. Außerhalb geschlossen? Unten „Außerhalb geschlossener Vertrag“."
-          : "Pachtvertrag vorbereiten → „Zur Unterschrift freigeben“ → Mitteilungen senden. Außerhalb geschlossen? Unten „Außerhalb geschlossener Vertrag“.",
+          ? "Im Assistenten: „Eckdaten vorbereiten“ (Kaufpreis) → „Zur Bestätigung geben & beide informieren“ → nach dem Notar „Beurkundung erfassen“. Außerhalb geschlossen? Unter „Weitere Aktionen“."
+          : "Im Assistenten: „Pachtvertrag vorbereiten“ (Pachtzins) → „Zur Unterschrift geben & beide informieren“. Außerhalb geschlossen? Unter „Weitere Aktionen“.",
     },
     Boolean(v?.abschluss),
   );
@@ -188,8 +188,8 @@ export function vorgangSchritte(x: SchrittEingabe, jetzt = new Date()): { schrit
         ? provisionen.map((p) => `${M.PROVISION_STATUS[p.status].label}: ${M.euro(p.brutto)} brutto`).join(" · ")
         : "Entsteht mit dem Vertragsschluss",
       naechstes: offeneProv.some((p) => p.status === "aufschiebend")
-        ? "Wirksamkeit abwarten (z. B. Genehmigung nach GrdstVG) — dann auf „Fällig“ setzen."
-        : "Rechnung durch die Buchhaltung; Status auf „Abgerechnet“ und nach Zahlungseingang auf „Bezahlt“ setzen.",
+        ? "Wirksamkeit abwarten (z. B. Genehmigung nach GrdstVG) — dann im Assistenten „Kauf ist wirksam“."
+        : "Rechnung durch die Buchhaltung; dann „Als abgerechnet markieren“ und nach Zahlungseingang „Als bezahlt markieren“.",
     },
     provisionen.length > 0 && offeneProv.length === 0,
   );

@@ -2,6 +2,7 @@ import type { Schritt } from "@/lib/portal/schritte";
 
 // Fortschritt eines Vorgangs in sieben festen Schritten (lib/portal/schritte.ts).
 // Erledigt = grün mit Haken, aktuell = Akzentfarbe und pulsierend, offen = grau.
+// Den nächsten Handgriff erledigt der Assistent (Assistent.tsx).
 
 /** Volle Leiste mit Titel und Stand je Schritt (Vorgangsseite). */
 export function SchrittLeiste({ schritte, verworfen }: { schritte: Schritt[]; verworfen?: boolean }) {
@@ -24,26 +25,6 @@ export function SchrittLeiste({ schritte, verworfen }: { schritte: Schritt[]; ve
         </li>
       ))}
     </ol>
-  );
-}
-
-/** Kasten „Jetzt dran“ mit dem nächsten Handgriff. */
-export function JetztDran({ aktuell, gesamt, verworfen }: { aktuell: Schritt | null; gesamt: number; verworfen?: boolean }) {
-  if (verworfen) {
-    return <p className="lfa-hinweis lfa-hinweis-fehler">Dieses Paar ist verworfen — im Matching lässt es sich wieder vorschlagen.</p>;
-  }
-  if (!aktuell) {
-    return <p className="lfa-hinweis lfa-hinweis-ok">Alle {gesamt} Schritte erledigt — Vorgang abgeschlossen und Provision bezahlt.</p>;
-  }
-  return (
-    <div className="lfa-hinweis lfa-jetzt" role="status">
-      <strong>
-        <span className="lfa-puls" />
-        Jetzt dran — Schritt {aktuell.nr} von {gesamt}: {aktuell.titel}
-      </strong>
-      <div>{aktuell.naechstes}</div>
-      <div className="lfa-klein">Stand: {aktuell.detail}</div>
-    </div>
   );
 }
 

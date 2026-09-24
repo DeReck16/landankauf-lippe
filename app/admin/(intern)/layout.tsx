@@ -5,6 +5,7 @@ import { findeKandidaten } from "@/lib/admin/matching";
 import { ladeNeu, ladePortal } from "@/lib/admin/neu";
 import { VORLAGEN_REIHENFOLGE, istFreigegeben } from "@/lib/vertraege/vorlagen";
 import { testModus } from "@/lib/admin/config";
+import { ladeDashboard } from "@/lib/portal/dashboard";
 import { abmelden } from "../actions";
 import HauptNav from "./HauptNav";
 
@@ -12,7 +13,15 @@ export default async function InternLayout({ children }: { children: React.React
   const { email } = await requireAdmin();
   const [{ leads, zustand }, portal, neu] = await Promise.all([ladeVerwaltung(), ladePortal(), ladeNeu(email)]);
   const kandidaten = findeKandidaten(leads, zustand).kandidaten.filter((k) => !k.meta);
+  // Zähler fürs Dashboard (dieselbe Berechnung wie die Seite — pro Aufruf zwischengespeichert).
+  let jetztDran = 0;
+  try {
+    jetztDran = (await ladeDashboard(email)).jetzt.length;
+  } catch (err) {
+    console.error("[verwaltung] Dashboard-Zähler nicht berechenbar", err);
+  }
   const z = {
+    jetztDran,
     neueAnfragen: leads.filter((l) => l.status !== "archiv" && neu.anfrage(l)).length,
     offeneVorschlaege: kandidaten.length,
     neueVorschlaege: kandidaten.filter((k) => neu.vorschlag(k.key)).length,
@@ -26,7 +35,7 @@ export default async function InternLayout({ children }: { children: React.React
     <>
       <header className="lfa-kopf">
         <div className="lfa-kopf-zeile">
-          <Link href="/admin" className="lfa-marke" title="Zur Übersicht aller Anfragen">
+          <Link href="/admin/dashboard" className="lfa-marke" title="Zum Dashboard: alles, was jetzt zu tun ist">
             Lippe Forst <small>Verwaltung</small>
           </Link>
           <HauptNav z={z} />

@@ -11,12 +11,16 @@ const MELDUNGEN: Record<string, { text: string; art: "ok" | "fehler" }> = {
   abgemeldet: { text: "Sie sind abgemeldet.", art: "ok" },
 };
 
+/** Nach der Anmeldung: das gewünschte Ziel in der Verwaltung, sonst das Dashboard. */
+const STANDARD_ZIEL = "/admin/dashboard";
+const ZIEL = /^\/admin(\/[A-Za-z0-9_~-]+)*\/?(\?[A-Za-z0-9_=&%~.-]*)?$/;
+
 export default async function AnmeldenPage(props: PageProps<"/admin/anmelden">) {
-  if (await getAdminSession()) redirect("/admin");
   const sp = await props.searchParams;
+  const weiter = typeof sp.weiter === "string" && ZIEL.test(sp.weiter) ? sp.weiter : STANDARD_ZIEL;
+  if (await getAdminSession()) redirect(weiter);
   const fehler = typeof sp.fehler === "string" ? MELDUNGEN[sp.fehler] : undefined;
   const meldung = fehler ?? (sp.abgemeldet ? MELDUNGEN.abgemeldet : undefined);
-  const weiter = typeof sp.weiter === "string" && sp.weiter.startsWith("/admin") ? sp.weiter : undefined;
 
   return (
     <div className="lfa-anmeldung">
