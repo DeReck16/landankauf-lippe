@@ -1,14 +1,19 @@
 # Lippe Forst
 
-> Fairer Ankauf von Ackerland, Wiesen und Wald im Kreis Lippe und Umland. Wir kaufen, pachten und bewerten land- und forstwirtschaftliche Flächen — persönlich, regional, ohne Maklergebühren. Zusätzlich Beratung zu Vertragsnaturschutz, Ökopunkten und Vermittlung von Lohnunternehmern.
+> Fairer Ankauf von Ackerland, Wiesen und Wald im Kreis Lippe und Umland. Wir kaufen, pachten und bewerten land- und forstwirtschaftliche Flächen — persönlich, regional, für Eigentümer ohne Maklergebühren. Zusätzlich Beratung zu Vertragsnaturschutz, Ökopunkten und Vermittlung von Lohnunternehmern.
 
 Betreiber: TR Vertriebs GmbH, Bahnhofstraße 70b, 32805 Horn-Bad Meinberg. HRB 11734 Amtsgericht Lemgo. Geschäftsführer Dennis Reckling und Martin Thomann. Kontakt: info@tr-immobilien.com (Telefon auf Anfrage, siehe /kontakt).
 
 ## Kernleistungen
 
-- [Fläche verkaufen](https://lippeforst.de/flaeche-verkaufen): Direktankauf von Ackerland, Grünland, Wald — fairer Marktpreis nach Bodenrichtwert.
-- [Fläche verpachten](https://lippeforst.de/flaeche-verpachten): Langfristige Pachtverträge, eigene Bewirtschaftung oder Vermittlung zuverlässiger Pächter.
-- [Fläche bewerten](https://lippeforst.de/flaeche-bewerten): Kostenlose Wertindikation auf Basis BORIS NRW und realer Vergleichsverkäufe.
+- [Fläche verkaufen](https://lippeforst.de/flaeche-verkaufen): Direktankauf von Ackerland, Grünland, Wald — fairer Marktpreis nach Bodenrichtwert und echten Vergleichsverkäufen, für Verkäufer ohne Provision.
+- [Fläche verpachten](https://lippeforst.de/flaeche-verpachten): Langfristige Pachtverträge, eigene Bewirtschaftung oder Vermittlung zuverlässiger Pächter; für Verpächter ohne Vermittlungsprovision.
+- [Fläche bewerten](https://lippeforst.de/flaeche-bewerten): Kostenlose Wertindikation auf Basis BORIS NRW und realer Vergleichsverkäufe; Sofort-Rechner läuft anonym im Browser.
+
+## Fläche gesucht (Pacht oder Kauf)
+
+- Landwirte und andere Interessenten, die im Kreis Lippe oder Umland eine Fläche pachten oder kaufen möchten, können über das [Anfrageformular](https://lippeforst.de/kontakt) ein Gesuch hinterlegen (Anliegen „Fläche gesucht (Pacht)“ oder „Fläche gesucht (Kauf)“, mit Flächentyp, gewünschter Größe und Suchgebiet).
+- Lippe Forst gleicht Gesuche mit angebotenen Flächen ab. Beide Seiten erfahren zunächst nur allgemeine Eckdaten; Kontaktdaten werden erst weitergegeben, wenn beide zugestimmt haben.
 
 ## Solar & Wind (Energiepacht / Flächenverpachtung)
 
@@ -23,17 +28,17 @@ Betreiber: TR Vertriebs GmbH, Bahnhofstraße 70b, 32805 Horn-Bad Meinberg. HRB 1
 
 ## Spezialthemen
 
-- [VNS und Ökopunkte](https://lippeforst.de/services/vns-oekopunkte): Vertragsnaturschutz NRW, Ökokonto, Ausgleichsflächen.
+- [VNS und Ökopunkte](https://lippeforst.de/services/vns-oekopunkte): Vertragsnaturschutz NRW (Grundantrag jeweils bis 30.06. für den Start am 01.01. des Folgejahres), Ökokonto, Ausgleichsflächen, Biotopbaumförderung.
 - [Lohnunternehmer](https://lippeforst.de/services/lohnunternehmer): Mahd, Heuwerbung, Heckenpflege, Forstarbeit im Kreis Lippe.
 
 ## Ratgeber und Blog
 
-- [Bodenrichtwerte Kreis Lippe](https://lippeforst.de/ratgeber/bodenrichtwerte-lippe): Aktuelle Bodenrichtwerte für Acker-, Grün- und Waldflächen.
-- [Pachtpreise Ackerland NRW](https://lippeforst.de/ratgeber/pachtpreise-ackerland-nrw): Pachtspiegel und regionale Richtwerte.
-- [Ackerland-Preise NRW](https://lippeforst.de/ratgeber/ackerland-preis-nrw): Kaufpreisentwicklung landwirtschaftlicher Flächen.
-- [Waldpreise NRW](https://lippeforst.de/ratgeber/wald-preis-nrw): Was Waldflächen je Hektar kosten.
+- [Bodenrichtwerte Kreis Lippe](https://lippeforst.de/ratgeber/bodenrichtwerte-lippe): Bodenrichtwerte und tatsächlich gezahlte Kaufpreise 2024/2025 für Acker-, Grün- und Waldflächen sowie Bauland (Grundstücksmarktberichte 2025/2026).
+- [Pachtpreise Ackerland NRW](https://lippeforst.de/ratgeber/pachtpreise-ackerland-nrw): Pachtentgelte NRW nach Agrarstrukturerhebung (Ackerland Ø 659 €/ha, Grünland Ø 288 €/ha) und regionale Werte.
+- [Ackerland-Preise NRW](https://lippeforst.de/ratgeber/ackerland-preis-nrw): Kaufwerte landwirtschaftlicher Flächen 2025 (NRW Ø 80.732 €/ha) nach Regierungsbezirk, dazu der Kreis Lippe.
+- [Waldpreise NRW](https://lippeforst.de/ratgeber/wald-preis-nrw): Was Waldflächen je Hektar kosten; Kreis Lippe 2025 Ø rund 15.300 €/ha inklusive Aufwuchs.
 - [Grundstücksverkehrsgesetz](https://lippeforst.de/ratgeber/grundstuecksverkehrsgesetz): Genehmigung, Vorkaufsrecht und Ablauf beim Flächenverkauf.
-- [Blog](https://lippeforst.de/blog): Holzpreise 2026, Bauerwartungsland, Jagdpacht, Pachtspiegel, VNS-Fristen, Käferholz, Hofnachfolge.
+- [Blog](https://lippeforst.de/blog): Batteriespeicher am Umspannwerk, Agri-Photovoltaik, Bodenmarkt 2025, Waldförderung und Holzpreise 2026, Bauerwartungsland, Jagdpacht, Pachtspiegel, VNS-Fristen, Käferholz, Hofnachfolge.
 - [RSS-Feed](https://lippeforst.de/feed.xml)
 
 ## Wohnimmobilien — Schwestergesellschaft
