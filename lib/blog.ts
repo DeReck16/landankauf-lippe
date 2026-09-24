@@ -22,9 +22,9 @@ export const ARTICLES: Article[] = [
   {
     slug: "batteriespeicher-ackerland-pacht-lippe",
     title:
-      "Batteriespeicher statt Solarpark: Warum eine halbe Hektar am Umspannwerk 2026 mehr Pacht bringt als 5 ha Ackerland",
+      "Batteriespeicher statt Solarpark: Warum ein halber Hektar am Umspannwerk 2026 mehr Pacht bringt als 5 ha Ackerland",
     description:
-      "Großbatteriespeicher sind der neue Boom im Stromnetz: Ende 2025 lagen über 720 GW Netzanschlussanfragen vor, und seit Ende 2025 sind netznahe Speicher im Außenbereich baurechtlich privilegiert. Für Flächeneigentümer in Lippe zählt jetzt die Netznähe mehr als Größe oder Bodenqualität — mit Pachten, die weit über PV und Ackerpacht liegen.",
+      "Großbatteriespeicher sind der neue Boom im Stromnetz: Ende 2025 lagen über 720 GW Netzanschlussanfragen vor, und seit Anfang 2026 sind netznahe Speicher im Außenbereich baurechtlich privilegiert. Für Flächeneigentümer in Lippe zählt jetzt die Netznähe mehr als Größe oder Bodenqualität — mit Pachten, die weit über PV und Ackerpacht liegen.",
     category: "Markt",
     publishedAt: "2026-08-19",
     readingMinutes: 8,
@@ -44,7 +44,7 @@ export const ARTICLES: Article[] = [
       },
       {
         q: "Bringt ein Batteriespeicher wirklich mehr als ein Solarpark oder Ackerpacht?",
-        a: "In der Regel deutlich: Für Batteriespeicherflächen werden häufig 15.000 bis über 50.000 € pro Hektar und Jahr genannt, gegenüber etwa 2.500 bis 4.500 € bei Solarparks und rund 614 € Ackerpacht im NRW-Durchschnitt. Voraussetzung ist die netznahe Lage mit freier Netzkapazität — ohne die ist der Standort für einen Speicher wertlos.",
+        a: "In der Regel deutlich: Für Batteriespeicherflächen werden häufig 15.000 bis über 50.000 € pro Hektar und Jahr genannt, gegenüber etwa 2.500 bis 4.500 € bei Solarparks und rund 659 € Ackerpacht im NRW-Durchschnitt. Voraussetzung ist die netznahe Lage mit freier Netzkapazität — ohne die ist der Standort für einen Speicher wertlos.",
       },
       {
         q: "Muss ich meine Fläche verkaufen oder kann ich sie verpachten?",
@@ -62,11 +62,11 @@ export const ARTICLES: Article[] = [
 <h2>Der Netz-Boom, den kaum jemand auf dem Schirm hat</h2>
 <p>Das Stromnetz braucht dringend Puffer, die Sonnen- und Windstrom zwischenspeichern und dann abgeben, wenn er gebraucht wird. Der Ansturm ist enorm: Ende 2025 lagen bundesweit <strong>über 720 GW an Netzanschlussanfragen</strong> für Großspeicher vor, während erst rund 2,9 GW an Anlagen über 1 MW tatsächlich in Betrieb waren. Allein im ersten Quartal 2026 gingen mehr als 2 GW neu ans Netz — ein Zuwachs im Großspeicher-Segment von rund <strong>290 % gegenüber dem Vorjahr</strong>. Der Engpass ist nicht die Nachfrage, sondern die Zahl geeigneter, netznaher Standorte.</p>
 
-<h2>Neu seit Ende 2025: Batteriespeicher sind baurechtlich privilegiert</h2>
-<p>Lange war der Bau im Außenbereich die Hürde. Das hat sich geändert: Über ein Ende 2025 beschlossenes Beschleunigungsgesetz wurden Standalone-Batteriespeicher unter bestimmten Voraussetzungen im Außenbereich <strong>privilegiert</strong> (§ 35 Abs. 1 Nr. 12 BauGB). Die zentralen Schwellen: mindestens <strong>4 MW Nennleistung</strong>, höchstens <strong>rund 200 m</strong> Abstand zu einer Umspannanlage (oder einem Kraftwerk ab 50 MW) und eine Deckelung auf 0,5 % der Gemeindefläche bzw. maximal 50.000 m². Daneben können Speicher auch im räumlich-funktionalen Zusammenhang mit bestehenden Erneuerbaren-Anlagen privilegiert sein (§ 35 Abs. 1 Nr. 11 BauGB). Die genaue Zuordnung und Genehmigungsfähigkeit ist immer im Einzelfall mit Gemeinde und Bauamt zu klären.</p>
+<h2>Neu seit 2026: Batteriespeicher sind baurechtlich privilegiert</h2>
+<p>Lange war der Bau im Außenbereich die Hürde. Das hat sich geändert: Über ein Ende 2025 beschlossenes Beschleunigungsgesetz sind seit dem 1. Januar 2026 Standalone-Batteriespeicher unter bestimmten Voraussetzungen im Außenbereich <strong>privilegiert</strong> (§ 35 Abs. 1 Nr. 12 BauGB). Die zentralen Schwellen: mindestens <strong>4 MW Nennleistung</strong>, höchstens <strong>rund 200 m</strong> Abstand zu einer Umspannanlage (oder einem Kraftwerk ab 50 MW) und eine Deckelung auf 0,5 % der Gemeindefläche bzw. maximal 50.000 m². Daneben können Speicher auch im räumlich-funktionalen Zusammenhang mit bestehenden Erneuerbaren-Anlagen privilegiert sein (§ 35 Abs. 1 Nr. 11 BauGB). Die genaue Zuordnung und Genehmigungsfähigkeit ist immer im Einzelfall mit Gemeinde und Bauamt zu klären.</p>
 
 <h2>Warum die Pacht ein Vielfaches beträgt</h2>
-<p>Der wirtschaftliche Reiz ist erheblich. Für Batteriespeicherflächen werden häufig <strong>15.000 bis über 50.000 € pro Hektar und Jahr</strong> genannt — zum Vergleich: Solarparks liegen eher bei 2.500 bis 4.500 €/ha, und die Ackerpacht erreicht selbst im bundesweit teuersten NRW im Schnitt nur rund 614 €/ha. Dabei braucht ein Speicher wenig Platz: Für eine Anlage in der Größenordnung von 10 MW genügen oft <strong>0,2 bis 0,5 ha</strong>. Eine kleine, unscheinbare Fläche direkt am Netzknoten kann so mehr abwerfen als mehrere Hektar bester Ackerboden.</p>
+<p>Der wirtschaftliche Reiz ist erheblich. Für Batteriespeicherflächen werden häufig <strong>15.000 bis über 50.000 € pro Hektar und Jahr</strong> genannt — zum Vergleich: Solarparks liegen eher bei 2.500 bis 4.500 €/ha, und die Ackerpacht erreicht selbst im bundesweit teuersten NRW im Schnitt nur rund 659 €/ha. Dabei braucht ein Speicher wenig Platz: Für eine Anlage in der Größenordnung von 10 MW genügen oft <strong>0,2 bis 0,5 ha</strong>. Eine kleine, unscheinbare Fläche direkt am Netzknoten kann so mehr abwerfen als mehrere Hektar bester Ackerboden.</p>
 
 <h2>Lage schlägt Größe und Bodenqualität</h2>
 <p>Das ist der entscheidende Unterschied zu allem, was Flächeneigentümer bisher kannten. Bei Ackerland zählen Bodenzahl, Zuschnitt und Größe; beim Solarpark die Ausrichtung und die Fläche. Beim Batteriespeicher zählt fast nur eines: die <strong>Nähe zum Umspannwerk und freie Netzkapazität</strong>. Eine ertragsschwache Restfläche neben einem Netzknoten kann damit plötzlich der wertvollste Quadratmeter im ganzen Betrieb sein — während eine erstklassige, aber netzferne Ackerfläche für einen Speicher wertlos ist. Wie unterschiedlich Marktpreis und Nutzungswert auseinanderlaufen können, zeigt auch unser Beitrag <a href="/blog/hektar-ackerland-lippe-wertbestimmende-faktoren">Was einen Hektar Ackerland in Lippe wirklich wert macht</a>.</p>
@@ -97,7 +97,7 @@ export const ARTICLES: Article[] = [
     faq: [
       {
         q: "Was kostet 2024/25 ein Hektar Ackerland im Kreis Lippe?",
-        a: "Der Gutachterausschuss Kreis Lippe/Stadt Detmold weist für Ackerland einen Mittelwert von rund 5,26 €/m² aus — also etwa 52.600 €/ha. Das liegt deutlich unter dem Spitzenniveau im Regierungsbezirk Münster (rund 119.600 €/ha) und ordnet OWL am unteren Ende der teuersten Bodenregion Deutschlands ein. Der tatsächliche Preis Ihrer Fläche hängt stark von Bodenzahl, Zuschnitt, Pachtstatus und lokaler Nachfrage ab — die genannten Werte sind Richtwerte, keine Einzelpreise.",
+        a: "Laut Grundstücksmarktbericht des Gutachterausschusses Kreis Lippe/Stadt Detmold wurden für Ackerland 2024 im Mittel rund 5,26 €/m² gezahlt — also etwa 52.600 €/ha; 2025 ergibt sich aus Umsatz und Fläche rechnerisch rund 3,80 €/m², bei laut Gutachterausschuss konstantem Preisniveau. Das liegt deutlich unter dem Spitzenniveau im Regierungsbezirk Münster (rund 119.600 €/ha) und ordnet OWL am unteren Ende der teuersten Bodenregion Deutschlands ein. Der tatsächliche Preis Ihrer Fläche hängt stark von Bodenzahl, Zuschnitt, Pachtstatus und lokaler Nachfrage ab — die genannten Werte sind Richtwerte, keine Einzelpreise.",
       },
       {
         q: "Fallen die Bodenpreise jetzt — lohnt sich Warten oder Verkaufen?",
@@ -121,7 +121,7 @@ export const ARTICLES: Article[] = [
 <p>Noch aussagekräftiger als der Preis ist das Volumen: In ganz NRW wurden 2024 nur <strong>1.483 Kaufverträge</strong> über landwirtschaftliche Flächen registriert — nach Einordnung der Statistiker so wenige wie in den letzten rund 50 Jahren nicht. Innerhalb des Landes ist die Spanne groß: Der Regierungsbezirk Münster führt mit rund 119.600 €/ha, während der Regierungsbezirk Detmold (also OWL mit dem Kreis Lippe) mit rund 62.000 €/ha am unteren Ende liegt.</p>
 
 <h2>Kreis Lippe 2025: der Markt zog gegen den Landestrend an</h2>
-<p>Der frisch veröffentlichte Grundstücksmarktbericht des Gutachterausschusses Kreis Lippe/Stadt Detmold (Daten 2025) zeichnet für die Region ein anderes Bild als die Landesstatistik. Statt Rückgang: mehr Bewegung. Die land- und forstwirtschaftlichen Kauffälle stiegen von <strong>114 auf 141 (+24 %)</strong>, die gehandelte Fläche von rund <strong>220 auf 300 ha (+36 %)</strong>. Bei den Preisen unterscheidet der Bericht nach Nutzungsart: <strong>Ackerland konstant</strong> (Mittelwert rund 5,26 €/m², also etwa 52.600 €/ha), <strong>Grünlandpreise gestiegen</strong>. Diese €/ha-Angaben sind Umsatz-je-Fläche-Mittelwerte und als Richtwerte zu lesen, nicht als Einzelpreise — die tatsächliche Bandbreite ist groß, wie wir im Ratgeber <a href="/blog/hektar-ackerland-lippe-wertbestimmende-faktoren">Was einen Hektar Ackerland in Lippe wirklich wert macht</a> beschreiben.</p>
+<p>Der frisch veröffentlichte Grundstücksmarktbericht des Gutachterausschusses Kreis Lippe/Stadt Detmold (Daten 2025) zeichnet für die Region ein anderes Bild als die Landesstatistik. Statt Rückgang: mehr Bewegung. Die land- und forstwirtschaftlichen Kauffälle stiegen von <strong>114 auf 141 (+24 %)</strong>, die gehandelte Fläche von rund <strong>220 auf 300 ha (+36 %)</strong>. Bei den Preisen unterscheidet der Bericht nach Nutzungsart: <strong>Ackerland konstant</strong> (Preisindex 99 nach 100; aus 8,43 Mio. € Umsatz auf 221,58 ha ergeben sich rechnerisch rund 3,80 €/m², nach 5,26 €/m² im Jahr 2024), <strong>Grünlandpreise gestiegen</strong> (Index 112, rund 2,16 €/m²). Diese €/ha-Angaben sind Umsatz-je-Fläche-Mittelwerte und als Richtwerte zu lesen, nicht als Einzelpreise — die tatsächliche Bandbreite ist groß, wie wir im Ratgeber <a href="/blog/hektar-ackerland-lippe-wertbestimmende-faktoren">Was einen Hektar Ackerland in Lippe wirklich wert macht</a> beschreiben.</p>
 
 <h2>Waldverkäufe in Lippe: nahezu verdoppelt</h2>
 <p>Der auffälligste Einzelbefund betrifft den Wald — und damit unser Kerngeschäft. Die forstwirtschaftlichen Kauffälle im Kreis Lippe stiegen 2025 von <strong>15 auf 28</strong>, die gehandelte Waldfläche von <strong>22 auf 45 ha</strong>, der Geldumsatz von rund <strong>0,30 auf 0,69 Mio. €</strong>. Der Durchschnittspreis lag inklusive Aufwuchs bei rund 1,53 €/m² — mit erheblicher Spanne je nach Alter und Baumart des Bestandes.</p>
@@ -432,7 +432,7 @@ export const ARTICLES: Article[] = [
 <p>Niemand kann den Sommer vorhersagen. Aber die Asymmetrie sollte jedem Eigentümer klar sein: Vom heutigen Rekordniveau aus ist das Abwärtsrisiko größer als das verbleibende Aufwärtspotenzial. Wer hiebsreife oder käfergefährdete Fichte hat, verkauft in einen historisch starken Markt — wer wartet, wettet auf einen kühlen, nassen Sommer.</p>
 
 <h2>Drei Wege für Lipper Waldbesitzer</h2>
-<p><strong>1. Einschlagen und vermarkten.</strong> Für hiebsreife Fichte ist das Preisfenster so gut wie seit Jahren nicht. Wichtig: Mengen bündeln (Forstbetriebsgemeinschaft oder Lohnunternehmer), Sortimente sauber aushalten lassen und Angebote vergleichen — bei 145 €/Fm machen 5 € Unterschied pro Festmeter auf 500 Fm bereits 2.500 € aus. Bei der Vermittlung von Lohnunternehmern und Abnehmern unterstützen wir: <a href="/services">unsere Services</a>.</p>
+<p><strong>1. Einschlagen und vermarkten.</strong> Für hiebsreife Fichte ist das Preisfenster so gut wie seit Jahren nicht. Wichtig: Mengen bündeln (Forstbetriebsgemeinschaft oder Lohnunternehmer), Sortimente sauber aushalten lassen und Angebote vergleichen — bei 145 €/Fm machen 5 € Unterschied pro Festmeter auf 500 Fm bereits 2.500 € aus. Bei der Vermittlung von Lohnunternehmern und Abnehmern unterstützen wir: <a href="/services/lohnunternehmer">Lohnunternehmer-Vermittlung</a>.</p>
 <p><strong>2. Halten und pflegen.</strong> Wer stabile, gemischte oder junge Bestände hat, muss nicht in den Markt hinein verkaufen. Dann gilt: Käferkontrolle ab jetzt alle zwei Wochen, befallene Stämme schnell raus — bei 112 €/Fm für Käferholz ist selbst die Zwangsnutzung derzeit kein Verlustgeschäft. Welche Förderkulisse parallel läuft, zeigt der Beitrag <a href="/blog/privatwald-lippe-halten-foerdern-verkaufen">Privatwald halten, fördern oder verkaufen</a>.</p>
 <p><strong>3. Die Fläche als Ganzes verkaufen.</strong> Oft übersehen: Rekord-Holzpreise heben nicht nur den Erlös aus dem Einschlag, sondern den <strong>Verkehrswert des stehenden Bestandes</strong> — und damit den Preis, den ein Käufer für die gesamte Waldfläche zahlt. Wer ohnehin über einen Ausstieg nachdenkt (Alter, Entfernung zur Fläche, Erbengemeinschaft, kein Interesse an der Bewirtschaftung), verkauft 2026 in eine deutlich bessere Bewertungslage als noch vor zwei Jahren. Wie Waldwerte zustande kommen, erklärt <a href="/blog/wald-als-vermoegensanlage-lippe">Wald als Vermögensanlage</a>.</p>
 
@@ -448,7 +448,7 @@ export const ARTICLES: Article[] = [
     title:
       "Wohnungsbau am Tiefpunkt: Was der Neubau-Einbruch 2025 für Ackerland und Bauerwartungsland im Kreis Lippe bedeutet",
     description:
-      "2025 wurden nur 206.600 Wohnungen fertiggestellt — 18 % weniger und der niedrigste Stand seit 2012. Gleichzeitig steigen die Baugenehmigungen. Was diese Schere für Lipper Flächeneigentümer bedeutet: vom Acker (8–18 €/m²) zum Bauerwartungsland (80–150 €/m²), wann sich der Verkauf lohnt und welche Flächen wirklich profitieren.",
+      "2025 wurden nur 206.600 Wohnungen fertiggestellt — 18 % weniger und der niedrigste Stand seit 2012. Gleichzeitig steigen die Baugenehmigungen. Was diese Schere für Lipper Flächeneigentümer bedeutet: vom Acker (rund 4–5 €/m²) zum Bauerwartungsland (im Mittel rund 24 €/m²), wann sich der Verkauf lohnt und welche Flächen wirklich profitieren.",
     category: "Markt",
     publishedAt: "2026-06-04",
     readingMinutes: 9,
@@ -465,7 +465,7 @@ export const ARTICLES: Article[] = [
     faq: [
       {
         q: "Was ist der Preisunterschied zwischen Ackerland und Bauerwartungsland?",
-        a: "Reiner Ackerboden bewegt sich im Kreis Lippe je nach Lage und Bonität zwischen 8 und 18 €/m². Sobald eine Fläche als Bauerwartungsland eingestuft wird, springt der Wert auf 80 bis 150 €/m² und mehr — eine Verzehnfachung, die über sechsstellige Unterschiede beim Verkaufserlös entscheidet.",
+        a: "Ackerland wurde im Kreis Lippe zuletzt im Mittel für rund 4 bis 5 €/m² gehandelt. Bauerwartungsland — Flächen mit realistischer Aussicht auf Bebauung — kostete 2024 im Mittel rund 24 €/m²; laut Grundstücksmarktbericht sind das durchschnittlich 17 % des Wohnbau-Bodenrichtwerts (Spanne 5–58 %). Schon dieser Sprung ist ein Vielfaches und kann bei größeren Flächen über sechsstellige Unterschiede beim Verkaufserlös entscheiden.",
       },
       {
         q: "Wird mein Acker automatisch Bauland, weil Wohnraum fehlt?",
@@ -473,7 +473,7 @@ export const ARTICLES: Article[] = [
       },
       {
         q: "Sollte ich auf volles Baurecht warten oder als Bauerwartungsland verkaufen?",
-        a: "Eine Baulandentwicklung dauert im Kreis Lippe oft 5 bis 10 Jahre, die Gemeinde kann das Verfahren jederzeit stoppen, und im Umlegungsverfahren gehen 25 bis 30 Prozent der Fläche verloren. Der pragmatische Mittelweg ist häufig der Verkauf als Bauerwartungsland: Der größte Wertsprung ist realisiert, das jahrelange Entwicklungsrisiko übernimmt der Käufer.",
+        a: "Eine Baulandentwicklung dauert im Kreis Lippe oft 5 bis 10 Jahre, die Gemeinde kann das Verfahren jederzeit stoppen, und im Umlegungsverfahren gehen 25 bis 30 Prozent der Fläche verloren. Der pragmatische Mittelweg ist häufig der Verkauf als Bauerwartungsland: Ein erster deutlicher Wertsprung ist realisiert, das jahrelange Entwicklungsrisiko übernimmt der Käufer.",
       },
       {
         q: "Was bedeutet der Wohnungsbau-Tiefstand für Flächeneigentümer?",
@@ -481,7 +481,7 @@ export const ARTICLES: Article[] = [
       },
       {
         q: "Gilt das Grundstücksverkehrsgesetz auch für Bauerwartungsland?",
-        a: "Für landwirtschaftliche Flächen ist der Verkauf genehmigungspflichtig und Landwirte können ein Vorkaufsrecht haben. Sobald eine Fläche als Bauerwartungs- oder Bauland gilt, greift das Grundstücksverkehrsgesetz nicht mehr — der Übergang ist allerdings fließend und in der Praxis streitanfällig.",
+        a: "Für landwirtschaftliche Flächen ab 1 ha ist der Verkauf in NRW genehmigungspflichtig, und das siedlungsrechtliche Vorkaufsrecht kann zugunsten eines Landwirts ausgeübt werden. Genehmigungsfrei sind erst Flächen im Geltungsbereich eines Bebauungsplans (§ 4 Nr. 4 GrdstVG) — Bauerwartungsland ohne Bebauungsplan bleibt in der Regel genehmigungspflichtig.",
       },
     ],
     content: `
@@ -499,7 +499,7 @@ export const ARTICLES: Article[] = [
 
 <h2>Warum das den Bodenwert treibt — nicht den Baupreis</h2>
 <p>Ein Detail aus der amtlichen Statistik wird oft überlesen: Die <strong>Baulandpreise sind stärker gestiegen als die Preise für Neubauwohnungen selbst</strong>. Der Boden ist der größte Einzel-Preistreiber beim Wohnungsbau geworden — im Bundesdurchschnitt kostet baureifes Land inzwischen rund 273 €/m², gegenüber etwa 144 €/m² vor zehn Jahren.</p>
-<p>Für Flächeneigentümer im Kreis Lippe liegt der eigentliche Hebel im Sprung vom Acker zum Bauerwartungsland. Reiner Ackerboden bewegt sich hier je nach Lage und Bonität zwischen <strong>8 und 18 €/m²</strong>. Sobald eine Fläche als Bauerwartungsland eingestuft wird — also eine realistische Aussicht auf künftiges Baurecht besteht — springt der Wert auf <strong>80 bis 150 €/m²</strong> und mehr. Das ist kein Aufschlag, das ist eine Verzehnfachung. Genau diese Schwelle entscheidet über sechsstellige Unterschiede beim Verkaufserlös.</p>
+<p>Für Flächeneigentümer im Kreis Lippe liegt der eigentliche Hebel im Sprung vom Acker zum Bauerwartungsland. Reiner Ackerboden wurde hier zuletzt im Mittel für rund <strong>4 bis 5 €/m²</strong> gehandelt (Grundstücksmarktbericht 2026: 2024 rund 5,26 €/m², 2025 rechnerisch rund 3,80 €/m²). Sobald eine Fläche als Bauerwartungsland gilt — also eine realistische Aussicht auf künftiges Baurecht besteht —, liegt ihr Wert laut Gutachterausschuss im Mittel bei rund <strong>17 % des Wohnbau-Bodenrichtwerts</strong>; 2024 wurden im Schnitt rund <strong>24 €/m²</strong> gezahlt. Das ist kein Aufschlag, das ist ein Vielfaches — und mit jedem weiteren Planungsschritt steigt der Wert weiter (Rohbauland 2025 im Mittel rund 71 €/m²). Genau diese Schwellen entscheiden über den Verkaufserlös.</p>
 
 <h2>Welche Lipper Flächen profitieren — und welche nicht</h2>
 <p>Ehrlich bleiben: Nicht jeder Acker wird Bauland. Entscheidend sind drei Faktoren, die alle erfüllt sein müssen:</p>
@@ -517,7 +517,7 @@ export const ARTICLES: Article[] = [
 <h2>Steuern und Recht — die zwei Stolpersteine</h2>
 <p>Zwei Punkte werden regelmäßig unterschätzt:</p>
 <ul>
-<li><strong>Grundstücksverkehrsgesetz (GrdstVG):</strong> Der Verkauf landwirtschaftlicher Flächen ist genehmigungspflichtig, und Landwirte haben unter Umständen ein Vorkaufsrecht. Sobald eine Fläche aber als Bauerwartungs- oder Bauland gilt, greift das GrdstVG nicht mehr — der Übergang ist fließend und streitanfällig. Mehr dazu: <a href="/blog/grundstuecksverkehrsgesetz-praxis-nrw">Grundstücksverkehrsgesetz in der Praxis</a>.</li>
+<li><strong>Grundstücksverkehrsgesetz (GrdstVG):</strong> Der Verkauf landwirtschaftlicher Flächen ist genehmigungspflichtig, und das siedlungsrechtliche Vorkaufsrecht kann zugunsten eines Landwirts ausgeübt werden. Genehmigungsfrei sind erst Flächen im Geltungsbereich eines Bebauungsplans (§ 4 Nr. 4 GrdstVG) — reines Bauerwartungsland bleibt meist genehmigungspflichtig, der Übergang ist in der Praxis streitanfällig. Mehr dazu: <a href="/blog/grundstuecksverkehrsgesetz-praxis-nrw">Grundstücksverkehrsgesetz in der Praxis</a>.</li>
 <li><strong>Besteuerung des Gewinns:</strong> Bei Betriebsvermögen ist der Veräußerungsgewinn grundsätzlich steuerpflichtig — eine Reinvestitionsrücklage nach § 6b EStG oder die Behaltefristen können die Last erheblich senken. Den Überblick gibt unser Beitrag zu <a href="/blog/steuern-verkauf-landwirtschaft-behaltefrist">Steuern und Behaltefristen beim Flächenverkauf</a>.</li>
 </ul>
 
@@ -585,7 +585,7 @@ export const ARTICLES: Article[] = [
 </ul>
 
 <h2>ASP — was 2026 in Lippe aktuell gilt</h2>
-<p>Die Afrikanische Schweinepest ist 2024/2025 in Westfalen nicht aufgetreten, aber das Risiko bleibt. Der Kreis Lippe gilt nicht als Restriktions­gebiet, die Pflichten für Jagdpächter sind aber:</p>
+<p>Die Afrikanische Schweinepest ist seit Juni 2025 auch in Westfalen angekommen: Nachweise bei Wildschweinen gibt es in den Kreisen Olpe und Siegen-Wittgenstein sowie im Hochsauerlandkreis. Der Kreis Lippe gehört nicht zu den Sperrzonen, das Risiko ist aber real. Die Pflichten für Jagdpächter:</p>
 <ul>
 <li>Verstärkte Bejagung von Schwarzwild — Streckenziele werden von der UJB Kreis Lippe vorgegeben</li>
 <li>Tupferproben-Pflicht bei jedem Stück Schwarzwild im Rahmen der Monitoring-Programme</li>
@@ -594,8 +594,8 @@ export const ARTICLES: Article[] = [
 <p>Für Verpächter: Im neuen Pachtvertrag sollte stehen, dass der Pächter die ASP-Monitoring-Pflichten erfüllt und Wildkammer mit Kühlung vorhält. Wer das nicht regelt, hat im Ernstfall ein Haftungsproblem.</p>
 
 <h2>Bleimunition-Verbot — Stand 2026</h2>
-<p>Bleimunition ist in NRW <strong>seit dem 1. April 2024</strong> in Wasservogel-Lebensräumen und Feuchtgebieten verboten (EU-Verordnung 2021/57, REACH-Anhang XVII). Für reine Büchsenmunition (Hochwild, Rehe, Sauen) ist bundesweit kein flächendeckendes Verbot in Kraft — die einzelnen Landesjagdgesetze regeln Übergangsfristen.</p>
-<p>In NRW ist <strong>bleifreie Büchsenmunition</strong> bei Drückjagden im Staatswald seit 2014 verpflichtend. Im Privatwald und auf landwirtschaftlichen Flächen ist sie noch nicht durchgängig vorgeschrieben — aber die Diskussion läuft. Vorausschauende Pachtverträge 2026 enthalten bereits eine Klausel, die den Pächter zur Verwendung bleifreier Munition verpflichtet, sobald gesetzlich vorgeschrieben.</p>
+<p>In NRW ist bleihaltige <strong>Büchsenmunition</strong> bei der Jagd bereits <strong>seit dem 1. April 2016</strong> verboten (§ 19 Abs. 1 LJG-NRW; ausgenommen Kleinkaliber bis 5,6 mm), ebenso bleihaltige Flintenlaufgeschosse — im Staats-, Privat- und Genossenschaftsrevier gleichermaßen. Für <strong>Bleischrot</strong> gilt zusätzlich seit dem 15. Februar 2023 EU-weit ein Verbot in und bis 100 m um Feuchtgebiete (Verordnung (EU) 2021/57, REACH-Anhang XVII).</p>
+<p>Für Verpächter heißt das: Eine Klausel, die den Pächter ausdrücklich auf die geltenden Munitionsvorschriften verpflichtet, schadet nicht — ein Zukunftsthema ist bleifreie Büchsenmunition in NRW aber nicht mehr.</p>
 
 <h2>Fünf Klauseln, die in keinen Pachtvertrag 2026 mehr fehlen sollten</h2>
 <ol>
@@ -730,7 +730,7 @@ export const ARTICLES: Article[] = [
 <p class="lead">Ökopunkte sind eines der missverständlichsten Förderinstrumente im Kreis Lippe. Wer sie versteht, kann aus einer scheinbar wertlosen Hangwiese eine vier- bis fünfstellige Einmalzahlung machen — bei vollem Eigentum. Hier der Praxis-Leitfaden für Lipper Flächen.</p>
 
 <h2>Was Ökopunkte sind und woher sie kommen</h2>
-<p>Wenn ein Bauträger in Lippe ein neues Wohngebiet plant, muss er den Eingriff in die Natur ausgleichen. Das schreibt das Bundesnaturschutzgesetz (§§ 13–17) vor. Die Frage ist nur: wo und wie? Genau hier kommt das <strong>Ökokonto</strong> ins Spiel: ein Eigentümer wertet seine Fläche freiwillig ökologisch auf — pflanzt eine Hecke, wandelt Acker in extensives Grünland, legt einen Tümpel an — und die Aufwertung wird in <strong>Ökopunkten</strong> bemessen. Diese Punkte werden später an Bauträger verkauft, die ihren Ausgleichspflicht damit erfüllen.</p>
+<p>Wenn ein Bauträger in Lippe ein neues Wohngebiet plant, muss er den Eingriff in die Natur ausgleichen. Das schreibt das Bundesnaturschutzgesetz (§§ 13–17) vor. Die Frage ist nur: wo und wie? Genau hier kommt das <strong>Ökokonto</strong> ins Spiel: ein Eigentümer wertet seine Fläche freiwillig ökologisch auf — pflanzt eine Hecke, wandelt Acker in extensives Grünland, legt einen Tümpel an — und die Aufwertung wird in <strong>Ökopunkten</strong> bemessen. Diese Punkte werden später an Bauträger verkauft, die ihre Ausgleichspflicht damit erfüllen.</p>
 <p>Eigentum bleibt vollständig erhalten. Es entsteht eine Grunddienstbarkeit, die im Grundbuch eingetragen wird und die Aufwertung dauerhaft sichert. Die Pflege übernimmt entweder der Eigentümer selbst (oft via Lohnunternehmer) oder ein beauftragter Pflegebetrieb.</p>
 
 <h2>Welche Lipper Flächen sich besonders eignen</h2>
@@ -810,7 +810,7 @@ export const ARTICLES: Article[] = [
 <li><strong>Genehmigungspflicht</strong> für Verkäufe landwirtschaftlicher Flächen ab einer bestimmten Schwelle (in NRW: 1 Hektar)</li>
 <li><strong>Siedlungsrechtliches Vorkaufsrecht</strong> der Landgesellschaft NRW (NRW.URBAN), wenn der Käufer kein Landwirt ist und ein örtlicher Landwirt Bedarf anmeldet</li>
 </ul>
-<p>Die Genehmigungsbehörde in NRW ist die Landwirtschaftskammer, in der Praxis für Lippe die <strong>Kreisstelle Lippe-Höxter</strong> (Felix-Fechenbach-Straße 5, 32756 Detmold).</p>
+<p>Die Genehmigungsbehörde in NRW ist die Landwirtschaftskammer, in der Praxis für Lippe die <strong>Kreisstellen Höxter, Lippe, Paderborn</strong> der Landwirtschaftskammer (Bohlenweg 3, 33034 Brakel).</p>
 
 <h2>Wie der Ablauf in der Praxis aussieht</h2>
 <ol>
@@ -836,14 +836,14 @@ export const ARTICLES: Article[] = [
 
 <h2>Häufige Stolpersteine — und wie man sie umgeht</h2>
 <ul>
-<li><strong>Kaufpreis-Diskussion mit der Behörde</strong>: Die Landwirtschaftskammer bewertet den Preis vorab. Wer 80.000 €/ha für eine 25.000 €/ha-Fläche aufruft, bekommt Versagung wegen ungesunder Bodenverteilung. Lösung: Bewertung nach Bodenrichtwert + Vergleichsverkäufen, nicht nach Wunschpreis.</li>
-<li><strong>Pachtvertrag wird ignoriert</strong>: Pächter haben gesetzliche Vorkaufsrechte (§ 587 ff. BGB für Landpacht). Diese sind <em>vor</em> dem siedlungsrechtlichen zu berücksichtigen. Sauberer Notar-Vertrag adressiert beides.</li>
+<li><strong>Kaufpreis-Diskussion mit der Behörde</strong>: Die Landwirtschaftskammer bewertet den Preis vorab. Wer 80.000 €/ha für eine 25.000 €/ha-Fläche aufruft, riskiert die Versagung wegen eines groben Missverhältnisses zwischen Preis und Wert (§ 9 Abs. 1 Nr. 3 GrdstVG). Lösung: Bewertung nach Bodenrichtwert + Vergleichsverkäufen, nicht nach Wunschpreis.</li>
+<li><strong>Pachtvertrag wird ignoriert</strong>: Ein gesetzliches Vorkaufsrecht haben Pächter nicht — manchmal aber ein im Pachtvertrag vereinbartes. Das muss neben dem siedlungsrechtlichen berücksichtigt werden. Ein sauberer Notar-Vertrag adressiert beides.</li>
 <li><strong>Mehrere Miteigentümer</strong>: Bei Erbengemeinschaft zählt jede Person — alle müssen mitziehen, sonst ist der Vertrag nicht wirksam. Das verlängert die Genehmigung manchmal.</li>
 <li><strong>Käufer-Status ist unklar</strong>: Manchmal kauft eine GmbH oder Stiftung. Die Behörde prüft genau, wer dahinter steht und ob die Käuferseite landwirtschaftlich strukturiert ist.</li>
 </ul>
 
 <h2>Was wir konkret tun</h2>
-<p>Bei jedem Direktankauf koordinieren wir mit dem Notar Ihrer Wahl die Genehmigungsphase. Wir kennen die Lipper Behörden, wissen welche Argumente überzeugen und welche Pakete der Verkauf brauchen darf. Bisher ist uns kein Vertrag versagt worden — weil wir realistische Preise zahlen, eigene landwirtschaftliche Strukturen vorweisen können und Pacht-Vorkaufsrechte sauber adressieren.</p>
+<p>Bei jedem Direktankauf koordinieren wir mit dem Notar Ihrer Wahl die Genehmigungsphase. Wir kennen die Lipper Behörden, wissen welche Argumente überzeugen und welche Pakete der Verkauf brauchen darf. Bisher ist uns kein Vertrag versagt worden — weil wir realistische Preise zahlen, eigene landwirtschaftliche Strukturen vorweisen können und vertragliche Vorkaufsrechte aus Pachtverträgen sauber adressieren.</p>
 <p>Das Wichtigste: Sie als Verkäuferin oder Verkäufer haben mit der Behörde nichts direkt zu tun. Ihr einziger Anker bleibt der Notar. Wir kümmern uns um den Rest.</p>
 `,
   },
@@ -1141,20 +1141,20 @@ export const ARTICLES: Article[] = [
 <li><strong>Grünland</strong>: ca. 1,0 ha Größe</li>
 <li><strong>Wald</strong>: Bodenwert ohne Aufwuchs</li>
 </ul>
-<p>Wenn Ihre Fläche andere Eigenschaften hat — höhere Bonität, besserer Zuschnitt, hofnähe — kann der Verkehrswert deutlich abweichen.</p>
+<p>Wenn Ihre Fläche andere Eigenschaften hat — höhere Bonität, besserer Zuschnitt, Hofnähe — kann der Verkehrswert deutlich abweichen.</p>
 
 <h2>Der Marktpreis: was tatsächlich gezahlt wird</h2>
 <p>Der Marktpreis ergibt sich aus Angebot und Nachfrage. Im Kreis Lippe haben sich 2024 reale Kaufpreise eingestellt, die bei Ackerland im Durchschnitt deutlich über dem Bodenrichtwert lagen:</p>
 <ul>
 <li><strong>Ackerland Mittelwert 2024 in Lippe</strong>: 5,26 €/m² (etwa 52.600 €/ha)</li>
-<li><strong>Bodenrichtwert Ackerland Lippe</strong> (typische Zone): 1,40–4,50 €/m²</li>
+<li><strong>Bodenrichtwerte Ackerland Lippe</strong> (Stichtag 01.01.2025, je nach Zone): rund 2,40–5,90 €/m²</li>
 </ul>
 <p>Der Markt zahlt also rund <strong>20–30 % über dem Bodenrichtwert</strong>. Diese Differenz ist nicht ungewöhnlich — sie spiegelt die starke Nachfrage durch Vollerwerbsbetriebe, Investoren und Stiftungen wider, die in den vergangenen Jahren um Lipper Flächen konkurrieren.</p>
 
 <h2>Was den Marktpreis nach oben oder unten zieht</h2>
 <p>Faktoren, die einen konkreten Verkaufspreis vom Bodenrichtwert abweichen lassen:</p>
 <ul>
-<li><strong>Bonität (Ackerzahl)</strong>: jedes Bonitätspunkt über 55 bringt im Schnitt 1,5–2 % Aufschlag</li>
+<li><strong>Bonität (Ackerzahl)</strong>: jeder Bonitätspunkt über 55 bringt im Schnitt 1,5–2 % Aufschlag</li>
 <li><strong>Zuschnitt und Größe</strong>: zusammenhängende 5-ha-Schläge erzielen mehr als drei Splitter à 1,7 ha</li>
 <li><strong>Hofnähe</strong>: bei Vollerwerbsbetrieben ist die Distanz zum Hof ein harter Faktor — 5 km zu viel kostet 10 % Pacht/Verkaufspreis</li>
 <li><strong>Erschließung</strong>: ohne befestigten Wirtschaftsweg sinkt der Wert deutlich</li>
@@ -1433,7 +1433,7 @@ export const ARTICLES: Article[] = [
 <ul>
 <li>Bis zu 80 €/neu gepflanztem Hochstamm (inkl. Pflanzung, Pflock, Verbissschutz)</li>
 <li>Voraussetzung: Mindestabstand zwischen Bäumen, vorgegebene Sortenvielfalt</li>
-<li>Antrag über die Kreisstelle Lippe-Höxter</li>
+<li>Antrag über die Kreisstellen Höxter, Lippe, Paderborn der Landwirtschaftskammer (Brakel)</li>
 </ul>
 <p>Wer also eine bestehende Streuobstwiese hat, in der über die Jahre 20 Bäume eingegangen sind, kann mit 1.600 € Förderung neu pflanzen und gleichzeitig die VNS-Förderbasis wieder anheben.</p>
 
@@ -1455,7 +1455,7 @@ export const ARTICLES: Article[] = [
 <p>Die Förderung allein hilft nicht, wenn niemand die Wiese pflegt. Im Kreis Lippe arbeiten wir mit spezialisierten Lohnunternehmern aus dem Heimat- und Streuobst-Bereich zusammen, die Baumschnitt, Mahd und Ernte übernehmen. Die Kosten dafür liegen typisch bei 800–1.200 €/ha/Jahr — deutlich unter der VNS-Förderung. Netto bleibt Geld übrig.</p>
 
 <h2>Was wir tun</h2>
-<p>Wir prüfen Ihre Streuobstwiese kostenlos auf alle drei Förderwege, koordinieren mit der Bio-Station Lippe und der LWK Kreisstelle Lippe-Höxter den Antragsweg und vermitteln auf Wunsch den Lohnunternehmer für die Pflege. Bei größerer Neuanlage (über 2 ha) prüfen wir das Ökopunkten-Konzept zusammen mit der UNB Kreis Lippe.</p>
+<p>Wir prüfen Ihre Streuobstwiese kostenlos auf alle drei Förderwege, koordinieren mit der Bio-Station Lippe und den LWK-Kreisstellen Höxter, Lippe, Paderborn den Antragsweg und vermitteln auf Wunsch den Lohnunternehmer für die Pflege. Bei größerer Neuanlage (über 2 ha) prüfen wir das Ökopunkten-Konzept zusammen mit der UNB Kreis Lippe.</p>
 `,
   },
   {
@@ -1734,7 +1734,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
 <p>Das kommt häufiger vor, als viele denken:</p>
 <ul>
 <li><strong>Vorkaufsrecht eines Pächters</strong> — bei Erbpacht (sehr selten) oder bei vertraglich vereinbartem Vorkaufsrecht im Landpachtvertrag</li>
-<li><strong>Vorkaufsrecht von Miteigentümern</strong> bei Bruchteilseigentum</li>
+<li><strong>Vorkaufsrecht von Miterben</strong>, wenn ein Miterbe seinen Erbteil verkauft (§ 2034 BGB) — bei Bruchteilseigentum nur, wenn es vereinbart und eingetragen ist</li>
 <li><strong>Vorkaufsrecht der Gemeinde</strong> — bei bestimmten Schutzgebieten oder geplanten B-Plan-Flächen</li>
 <li><strong>Vorkaufsrecht naher Verwandter</strong> aus Erbverträgen — selten, aber im Lipper Land bei alten Erbhof-Konstellationen vorhanden</li>
 </ul>
@@ -1858,7 +1858,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
     title:
       "Was ein Hektar Ackerland in Lippe wert ist — die 6 wertbestimmenden Faktoren",
     description:
-      "Zwei Acker im selben Dorf, gleiche Größe, völlig unterschiedlicher Verkaufspreis. Welche sechs Faktoren bei landwirtschaftlichen Flächen in Lippe wirklich den Preis machen — und welche Eigentümer überschätzen oder ignorieren.",
+      "Zwei Äcker im selben Dorf, gleiche Größe, völlig unterschiedlicher Verkaufspreis. Welche sechs Faktoren bei landwirtschaftlichen Flächen in Lippe wirklich den Preis machen — und welche Eigentümer überschätzen oder ignorieren.",
     category: "Markt",
     publishedAt: "2024-05-22",
     readingMinutes: 7,
@@ -1916,7 +1916,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
 <li><strong>„Der Bodenrichtwert sagt 1,80 €/m², das ist mein Verkaufspreis"</strong> — Bodenrichtwert ist Mittelwert, echter Verkehrswert weicht nach oben oder unten ab</li>
 <li><strong>„Die Fläche grenzt an Bauland, kann jederzeit umgewidmet werden"</strong> — Bauerwartung ist die Ausnahme, nicht die Regel</li>
 <li><strong>„Mein Pächter zahlt seit 12 Jahren 400 €/ha — das ist der Marktpreis"</strong> — alter Pachtvertrag ist meist 25–35 % unter Markt</li>
-<li><strong>„Wald ist heute viel wert"</strong> — kommt extrem auf Bestand und Alter an, Junge Aufforstung ist günstig</li>
+<li><strong>„Wald ist heute viel wert"</strong> — kommt extrem auf Bestand und Alter an, junge Aufforstung ist günstig</li>
 </ul>
 
 <h2>Beispielrechnung: 2 ha im Werretal-Übergang</h2>
@@ -2286,7 +2286,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
 <ul>
 <li>Hat die Fläche direkten Zugang zu einem befestigten Wirtschaftsweg? Wenn nein: 5–10 % Abschlag.</li>
 <li>Ist die nächste Hofstelle in Sichtweite (unter 2 km)? — neutral oder leichter Aufschlag.</li>
-<li>Liegt die Fläche im FFH-Gebiet, NSG oder einem anderen Schutzgebiet? — Schauen Sie auf <a href="https://www.naturschutzinformationen.nrw.de" target="_blank" rel="noopener">LINFOS NRW</a>. Schutzgebiet kann Abschlag (klassische Pacht) oder Aufschlag (Förderpotenzial) bedeuten.</li>
+<li>Liegt die Fläche im FFH-Gebiet, NSG oder einem anderen Schutzgebiet? — Schauen Sie auf <a href="https://linfos.naturschutzinformationen.nrw.de/atlinfos/de/start" target="_blank" rel="noopener">LINFOS NRW</a>. Schutzgebiet kann Abschlag (klassische Pacht) oder Aufschlag (Förderpotenzial) bedeuten.</li>
 </ul>
 
 <h2>Schritt 5: Pachtstatus berücksichtigen</h2>
@@ -2381,7 +2381,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
 <ol>
 <li><strong>Erstgespräch mit der Biologischen Station Lippe e. V.</strong> — Domäne 2, 32816 Schieder-Schwalenberg, Telefon 05282 462. Mitbringen: Liegenschaftsauszug, Grundbuchauszug, ggf. Pachtvertrag. Die Bio-Station prüft, ob die Fläche in einer förderfähigen Kulisse liegt und schlägt geeignete Pakete vor.</li>
 <li><strong>Bestandserfassung vor Ort</strong> — die Bio-Station kommt zu einem festen Termin auf die Fläche, dokumentiert Kennarten und Strukturen. Daraus entsteht der Maßnahmenplan.</li>
-<li><strong>Antragstellung über ELAN</strong> — der Bewirtschafter (oft der Pächter, nicht der Eigentümer) reicht den Antrag elektronisch über die Landwirtschaftskammer NRW ein. Wenn keine eigene Betriebsnummer (BNR-ZD) vorliegt, wird sie vorher über die LWK Kreisstelle Lippe-Höxter (Felix-Fechenbach-Str. 5, Detmold) beantragt.</li>
+<li><strong>Antragstellung über ELAN</strong> — der Bewirtschafter (oft der Pächter, nicht der Eigentümer) reicht den Antrag elektronisch über die Landwirtschaftskammer NRW ein. Wenn keine eigene Betriebsnummer (BNR-ZD) vorliegt, wird sie vorher über die LWK-Kreisstellen Höxter, Lippe, Paderborn (Bohlenweg 3, Brakel) beantragt.</li>
 <li><strong>Bewilligung durch UNB Kreis Lippe</strong> — Tobias Kleingödinghaus (Telefon 05231 62 6390) prüft den Antrag, schließt den 5-Jahres-Vertrag und meldet zur Auszahlung an die LWK.</li>
 <li><strong>Jährliche Auszahlung über ELAN</strong> — die Bewirtschaftung wird stichprobenartig kontrolliert.</li>
 </ol>
@@ -2396,7 +2396,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
 <li><strong>Zu spät anrufen.</strong> Wer im Juni anruft, ist meist zu spät — die Bio-Station ist im Frühjahr ausgelastet, Bestandserfassungen brauchen Vorlauf.</li>
 <li><strong>Falsche Pakete wählen.</strong> Hohe Pakete bringen hohe Förderung, aber auch hohe Auflagen. Wenn der Pächter die nicht einhalten will, fliegt der Vertrag bei der Kontrolle und Sie zahlen die Förderung zurück.</li>
 <li><strong>Pachtvertrag nicht angepasst.</strong> Der laufende Pachtvertrag muss VNS-konform sein — sonst Konflikt zwischen Pflicht und Vertrag.</li>
-<li><strong>Doppelförderung übersehen.</strong> VNS und ELER-Greening können sich teilweise ausschließen. Die Bio-Station weiß im Detail, was kombinierbar ist.</li>
+<li><strong>Doppelförderung übersehen.</strong> VNS und Öko-Regelungen der GAP-Direktzahlungen können sich teilweise ausschließen. Die Bio-Station weiß im Detail, was kombinierbar ist.</li>
 <li><strong>Mehrjahres-Effekt ignorieren.</strong> Wer eine 5-Jahres-Verpflichtung eingeht, kann vor Ablauf nur unter Strafe rauskommen. Bei geplantem Verkauf 2027 oder 2028 unbedingt Pakete mit kürzerer Laufzeit oder Übertragbarkeit wählen.</li>
 </ul>
 
