@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
 import { ratgeberSchema, seitenMetadaten } from "@/lib/seo";
@@ -27,9 +26,9 @@ export default function Page() {
       <section className="section">
         <div className="container-page grid gap-12 lg:grid-cols-[1.2fr_1fr]">
           <article className="prose-lippe">
-            <h2>Worum geht's?</h2>
+            <h2>Worum geht’s?</h2>
             <p>
-              Das Grundstücksverkehrsgesetz (GrdstVG) regelt den Verkauf landwirtschaftlich genutzter Flächen. Ziel: Erhalt der Agrarstruktur, Vermeidung der Zersplitterung von Betrieben und Verhinderung "ungesunder" Bodenverteilung. In NRW gilt eine <strong>Genehmigungsschwelle von 1 Hektar</strong> — Flächen ab dieser Größe brauchen eine Genehmigung der Landwirtschaftskammer.
+              Das Grundstücksverkehrsgesetz (GrdstVG) regelt den Verkauf landwirtschaftlich genutzter Flächen. Ziel: Erhalt der Agrarstruktur, Vermeidung der Zersplitterung von Betrieben und Verhinderung „ungesunder“ Bodenverteilung. In NRW gilt eine <strong>Genehmigungsschwelle von 1 Hektar</strong> — Flächen ab dieser Größe brauchen eine Genehmigung der Landwirtschaftskammer.
             </p>
 
             <h2>Was bedeutet das konkret?</h2>
@@ -37,13 +36,13 @@ export default function Page() {
               <li>Sie und der Käufer schließen einen notariellen Kaufvertrag.</li>
               <li>Der Notar leitet den Vertrag der Landwirtschaftskammer NRW (Genehmigungsbehörde) zu.</li>
               <li>Die Behörde prüft innerhalb von max. 3 Monaten, ob die Voraussetzungen für eine Genehmigung vorliegen.</li>
-              <li>Parallel wird das siedlungsrechtliche Vorkaufsrecht der NRW.URBAN bzw. eines beliehenen Siedlungsunternehmens (in NRW: Landgesellschaft) geprüft. Übt es das Vorkaufsrecht aus, "schlüpft" es in den Vertrag und wird zum Käufer.</li>
+              <li>Parallel wird das siedlungsrechtliche Vorkaufsrecht der NRW.URBAN bzw. eines beliehenen Siedlungsunternehmens (in NRW: Landgesellschaft) geprüft. Übt es das Vorkaufsrecht aus, „schlüpft“ es in den Vertrag und wird zum Käufer.</li>
               <li>Bei Genehmigung: Eigentumsübergang läuft normal über das Grundbuch.</li>
             </ol>
 
             <h2>Wann wird die Genehmigung versagt?</h2>
             <p>
-              Wenn der Verkauf "ungesund" wäre — also typischerweise:
+              Wenn der Verkauf „ungesund“ wäre — also typischerweise:
             </p>
             <ul>
               <li>Käufer ist nicht-landwirtschaftlich und ein ortsansässiger Landwirt hätte konkret Bedarf</li>

@@ -102,7 +102,7 @@ export default function Page() {
               Der Gutachterausschuss veröffentlicht Bodenrichtwerte in <strong>€/m²</strong> bezogen auf ein <strong>Richtwertgrundstück</strong> mit definierten Eigenschaften:
             </p>
             <ul>
-              <li><strong>Ackerland (A):</strong> Bezugsfläche ca. 2,0 ha, Ackerzahl 55. Beispielnotation „2,10 / A 55" = 2,10 €/m² für eine 2-ha-Fläche mit Bonität 55.</li>
+              <li><strong>Ackerland (A):</strong> Bezugsfläche ca. 2,0 ha, Ackerzahl 55. Beispielnotation „2,10 / A 55“ = 2,10 €/m² für eine 2-ha-Fläche mit Bonität 55.</li>
               <li><strong>Grünland (GR):</strong> Bezugsfläche ca. 1,0 ha.</li>
               <li><strong>Forst (F):</strong> Bodenwert <em>ohne</em> Aufwuchs (im Gegensatz zu obiger Tabelle).</li>
             </ul>

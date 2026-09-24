@@ -263,7 +263,7 @@ export default function Home() {
             <hr className="divider mt-3 bg-[color:var(--color-accent)]" />
             <h2 className="text-3xl md:text-4xl text-white">Was Sie uns sagen, bleibt zwischen uns.</h2>
             <p className="mt-4 text-white/80 leading-relaxed">
-              Verkauf, Erbauseinandersetzung, Pachtwechsel — das sind sensible Themen. Bei uns gibt es keine Aushängung, kein Inserat, kein „Schaufenster". Nachbarn, Pächter, andere Landwirte erfahren nichts, ohne Ihre ausdrückliche Zustimmung.
+              Verkauf, Erbauseinandersetzung, Pachtwechsel — das sind sensible Themen. Bei uns gibt es keine Aushängung, kein Inserat, kein „Schaufenster“. Nachbarn, Pächter, andere Landwirte erfahren nichts, ohne Ihre ausdrückliche Zustimmung.
             </p>
           </div>
           <ul className="space-y-3 text-white/85">
