@@ -4,7 +4,7 @@ import { ladeVerwaltung } from "@/lib/admin/daten";
 import { findeKandidaten } from "@/lib/admin/matching";
 import type { LeadView } from "@/lib/admin/model";
 import { ladeNeu, ladePortal } from "@/lib/admin/neu";
-import { assistentPlan, type AssistentPlan } from "./assistent";
+import { assistentPlan, type AssistentChip, type AssistentPlan } from "./assistent";
 import * as M from "./model";
 import { vorgangSchritte, type Schritt } from "./schritte";
 import { basisUrl } from "./sitzung";
@@ -13,12 +13,12 @@ import type { VorgangKontext } from "./vorgang";
 
 // Daten für das Dashboard (/admin/dashboard): jeder Vorgang mit dem Plan des
 // Assistenten (lib/portal/assistent.ts), einsortiert nach „Jetzt dran“ (die
-// Verwaltung ist am Zug), „Warten auf Kunden“ und „Abgeschlossen“, dazu die
-// unbearbeiteten Vorschläge aus dem Matching. Keine eigene Ablauf-Logik — die
-// Knöpfe führen die Aktionen des Assistenten aus.
+// Verwaltung ist am Zug), „Warten“ und „Abgeschlossen & beendet“, dazu die
+// unbearbeiteten Vorschläge aus dem Matching und neue Anfragen ohne Paar. Keine
+// eigene Ablauf-Logik — die Knöpfe führen die Aktionen des Assistenten aus.
 
-export type Chip = { text: string; art: "ok" | "warn" | "rot" | "grau"; tipp: string };
-export type DashSeite = { rolle: M.Rolle; name: string; chips: Chip[] };
+export type DashSeite = { rolle: M.Rolle; name: string; chips: AssistentChip[] };
+export type DashEreignis = { id: string; am: string; text: string; wer: string; neu: boolean };
 
 export type DashVorgang = {
   key: string;
@@ -29,27 +29,36 @@ export type DashVorgang = {
   schritte: Schritt[];
   aktuell: Schritt | null;
   plan: AssistentPlan;
+  /** Die neuesten Ereignisse (neue zuerst markiert) — höchstens drei. */
+  ereignisse: DashEreignis[];
   /** Neue Kundenereignisse seit dem letzten Besuch. */
   neu: number;
-  abschluss: string | null;
-  provision: Chip | null;
+  /** Gesuch kam über die Flächenbörse (Kennung des Angebots). */
+  boerse: string | null;
   /** Zuletzt etwas passiert (zum Sortieren). */
   zuletzt: string;
 };
 
-export type DashVorschlag = { key: string; angebot: LeadView; gesuch: LeadView; score: number | null; distanzKm: number | null; gruende: string[]; neu: boolean };
+export type DashVorschlag = { key: string; angebot: LeadView; gesuch: LeadView; score: number | null; distanzKm: number | null; gruende: string[]; hinweise: string[]; neu: boolean; boerse: string | null };
+
+export type DashAnfrage = { id: string; name: string; anliegen: string; ort: string; eingang: string; neu: boolean };
 
 export type Dashboard = {
   jetzt: DashVorgang[];
   warten: DashVorgang[];
   abgeschlossen: DashVorgang[];
   vorschlaege: DashVorschlag[];
-  /** Provision netto, noch nicht bezahlt (fällig, aufschiebend, abgerechnet). */
+  anfragen: DashAnfrage[];
+  /** Provision netto, noch nicht bezahlt: fällig + abgerechnet. */
   provisionOffen: number;
-  provisionFaellig: number;
+  /** Davon aufschiebend (noch nicht fällig, z. B. Genehmigung ausstehend). */
+  provisionAufschiebend: number;
+  /** Fällige oder überfällige Provisionen (Handlungsbedarf). */
+  provisionDran: number;
   /** Diese Einträge gelten nach dem Anzeigen als gesehen (Pulsieren). */
   gesehen: string[];
   einstellungen: M.Einstellungen;
+  am: string;
 };
 
 function tag(iso: string | null | undefined): string {
@@ -57,79 +66,90 @@ function tag(iso: string | null | undefined): string {
   return new Date(iso).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "Europe/Berlin" });
 }
 
-/** Status-Chips einer Seite mit Zeitstempel: Einladung → geöffnet → unterschrieben → Zustimmung → Vertrag. */
-function chipsFuer(ctx: VorgangKontext, rolle: M.Rolle, jetzt: Date): Chip[] {
+function wer(von: string): string {
+  if (von === "kunde" || von.startsWith("kunde:")) return "Kunde";
+  if (von === "system") return "System";
+  if (von === "cron") return "Automatik";
+  return von.split("@")[0];
+}
+
+/** Status-Chips einer Seite mit Datum: Einladung → Link geöffnet → Vertrag mit Lippe Forst → Zustimmung → Pachtvertrag. */
+function chipsFuer(ctx: VorgangKontext, rolle: M.Rolle, jetzt: Date): AssistentChip[] {
   const k = rolle === "anbieter" ? ctx.anbieter : ctx.suchender;
-  const out: Chip[] = [];
+  const out: AssistentChip[] = [];
   if (!k) return [{ text: "nicht eingeladen", art: "grau", tipp: "Noch keine Kundenakte — der Assistent lädt ein" }];
-  if (k.widerruf) out.push({ text: `widerrufen ${tag(k.widerruf.am)}`, art: "rot", tipp: "Vertrag widerrufen — keine Freigabe, keine Weitergabe von Daten" });
-  if (k.kuendigung) out.push({ text: `gekündigt ${tag(k.kuendigung.am)}`, art: "rot", tipp: "Vertrag gekündigt — keine neuen Vorstellungen" });
+  if (k.widerruf) out.push({ text: `Vertrag widerrufen am ${tag(k.widerruf.am)}`, art: "rot", tipp: "Vertrag mit Lippe Forst widerrufen — keine Freigabe, keine Weitergabe von Daten" });
+  if (k.kuendigung) out.push({ text: `Vertrag gekündigt am ${tag(k.kuendigung.am)}`, art: "rot", tipp: "Vertrag mit Lippe Forst gekündigt — keine neuen Vorstellungen" });
   if (k.gesperrt) out.push({ text: "Zugang gesperrt", art: "rot", tipp: "Zugang zum Kundenbereich gesperrt — in der Anfrage entsperren" });
 
   if (k.vertrag) {
-    out.push({ text: `unterschrieben ${tag(k.vertrag.signatur.am)}`, art: "ok", tipp: `„${k.vertrag.titel}“ online unterschrieben von „${k.vertrag.signatur.name}“` });
+    out.push({ text: `Vertrag mit Lippe Forst unterschrieben am ${tag(k.vertrag.signatur.am)}`, art: "ok", tipp: `„${k.vertrag.titel}“ online unterschrieben von „${k.vertrag.signatur.name}“` });
   } else {
     const e = k.einladung;
     const erinnert = k.mails.find((m) => m.zweck === "erinnerung" && m.ok)?.am;
     if (!e) {
-      out.push({ text: k.stammdaten ? "kein gültiger Link" : "nicht eingeladen", art: k.stammdaten ? "warn" : "grau", tipp: "Kein gültiger Einladungslink — der Assistent erstellt beim Einladen bzw. Erinnern einen neuen" });
+      out.push({ text: k.stammdaten ? "kein gültiger Einladungslink" : "nicht eingeladen", art: k.stammdaten ? "warn" : "grau", tipp: "Kein gültiger Einladungslink — der Assistent erstellt beim Einladen bzw. Erinnern einen neuen" });
     } else {
       const gesendet = e.gesendetAm ?? k.mails.find((m) => (m.zweck === "einladung" || m.zweck === "erinnerung") && m.ok)?.am;
       out.push(
         gesendet
-          ? { text: `Einladung gesendet ${tag(gesendet)}`, art: "ok", tipp: "Einladungs-Mail mit dem persönlichen Link ist raus" }
+          ? { text: `Einladung gesendet am ${tag(gesendet)}`, art: "ok", tipp: "Einladungs-Mail mit dem persönlichen Link ist raus" }
           : { text: "Link erstellt, nicht gesendet", art: "warn", tipp: "Der Einladungslink besteht, die Einladungs-Mail ist aber noch nicht raus" },
       );
-      if (Date.parse(e.bis) < jetzt.getTime()) out.push({ text: `Link abgelaufen ${tag(e.bis)}`, art: "rot", tipp: "Der Einladungslink ist abgelaufen — „Erinnerung senden“ erstellt automatisch einen neuen" });
-      if (erinnert) out.push({ text: `erinnert ${tag(erinnert)}`, art: "grau", tipp: "Letzte Erinnerungs-Mail" });
-      if (e.angenommenAm) out.push({ text: `Link geöffnet ${tag(e.angenommenAm)}`, art: "ok", tipp: "Der Kunde hat den Kundenbereich über den Link betreten" });
+      if (Date.parse(e.bis) < jetzt.getTime()) out.push({ text: `Link abgelaufen am ${tag(e.bis)}`, art: "rot", tipp: "Der Einladungslink ist abgelaufen — „Erinnerung senden“ erstellt automatisch einen neuen" });
+      if (erinnert) out.push({ text: `erinnert am ${tag(erinnert)}`, art: "grau", tipp: "Letzte Erinnerungs-Mail" });
+      if (e.angenommenAm) out.push({ text: `Link geöffnet am ${tag(e.angenommenAm)}`, art: "ok", tipp: "Der Kunde hat den Kundenbereich über den Link betreten" });
     }
-    if (k.stammdaten) out.push({ text: "Angaben gemacht", art: "ok", tipp: "Name und Anschrift sind erfasst — die Unterschrift fehlt noch" });
+    if (k.stammdaten) out.push({ text: "Angaben gemacht", art: "ok", tipp: "Name und Anschrift sind erfasst — die Unterschrift unter dem Vertrag mit Lippe Forst fehlt noch" });
   }
 
   // Widerrufsfrist (nur Suchende als Verbraucher) — bis zur Freigabe.
   if (k.vertrag && !k.widerruf && M.hatWiderrufsrecht(k) && !M.aktiveFreigabe(ctx.vorgang) && !ctx.vorgang?.abschluss) {
     if (k.vertrag.beginnwunschAm) {
-      out.push({ text: "Beginnwunsch ✓", art: "ok", tipp: "Der Kunde möchte schon vor Ablauf der Widerrufsfrist Kontakte erhalten (§ 356 Abs. 4 BGB)" });
+      out.push({ text: `Beginnwunsch am ${tag(k.vertrag.beginnwunschAm)}`, art: "ok", tipp: "Der Kunde möchte schon vor Ablauf der Widerrufsfrist Kontakte erhalten (§ 356 Abs. 4 BGB)" });
     } else if (!k.vertrag.bestaetigungGesendetAm) {
-      out.push({ text: "Bestätigung fehlt", art: "rot", tipp: "Die Vertragsbestätigung mit PDF ist nicht versandt — Voraussetzung der Freigabe (Kundenakte → „Bestätigung erneut senden“)" });
+      out.push({ text: "Vertragsbestätigung fehlt", art: "rot", tipp: "Die Vertragsbestätigung mit PDF ist nicht versandt — Voraussetzung der Freigabe (Kundenakte → „Bestätigung erneut senden“)" });
     } else {
       const ab = (k.vertrag.widerrufsfristEnde ? Date.parse(k.vertrag.widerrufsfristEnde) : 0) + M.WIDERRUF_PUFFER_TAGE * 86_400_000;
       if (ab > jetzt.getTime()) out.push({ text: `Freigabe ab ${tag(new Date(ab).toISOString())}`, art: "warn", tipp: "Widerrufsfrist + 4 Tage Puffer — oder früher, wenn der Kunde im Kundenbereich den Beginnwunsch erklärt" });
     }
   }
 
-  // Zustimmung zum Kontakt (nur sinnvoll, sobald beide unterschrieben haben bzw. angefragt ist).
+  // Zustimmung zum Kontakt.
   const meta = ctx.meta;
   const zust = rolle === "anbieter" ? meta?.zustimmungAnbieter : meta?.zustimmungSuchender;
   const hinweis = ctx.vorgang?.hinweise?.[rolle];
-  if (zust) out.push({ text: `Zustimmung ✓ ${tag(zust)}`, art: "ok", tipp: meta?.zustimmungQuelle?.[rolle] === "kunde" ? "Selbst im Kundenbereich zugestimmt" : `Zustimmung erfasst von ${meta?.zustimmungQuelle?.[rolle] ?? "der Verwaltung"}` });
-  else if (meta?.ablehnung?.rolle === rolle) out.push({ text: `kein Interesse ${tag(meta.ablehnung.am)}`, art: "rot", tipp: meta.ablehnung.grund ? `Begründung: ${meta.ablehnung.grund}` : "Im Kundenbereich „kein Interesse“ gemeldet" });
-  else if (hinweis) out.push({ text: `anonym angefragt ${tag(hinweis)}`, art: "warn", tipp: "Anonymer Hinweis gesendet — die Zustimmung fehlt noch" });
+  if (zust) {
+    const q = meta?.zustimmungQuelle?.[rolle];
+    out.push({ text: `Zustimmung ✓ am ${tag(zust)}`, art: "ok", tipp: q === "kunde" ? "Selbst im Kundenbereich zugestimmt" : `Zustimmung erfasst von ${q ?? "der Verwaltung"} (Telefon/E-Mail)` });
+  } else if (meta?.ablehnung?.rolle === rolle) {
+    out.push({ text: `kein Interesse am ${tag(meta.ablehnung.am)}`, art: "rot", tipp: meta.ablehnung.grund ? `Begründung: ${meta.ablehnung.grund}` : "Im Kundenbereich „kein Interesse“ gemeldet" });
+  } else if (hinweis) {
+    out.push({ text: `anonym angefragt am ${tag(hinweis)}`, art: "warn", tipp: "Anonymer Hinweis mit Zustimmungslink gesendet — die Zustimmung fehlt noch" });
+  }
 
   // Pacht- bzw. Kaufvertrag in der Unterschrift / Bestätigung.
   const pv = ctx.vorgang?.pachtvertrag;
   if (pv?.status === "zur_unterschrift") {
     const s = pv.unterschriften[rolle === "anbieter" ? "verpaechter" : "paechter"];
-    out.push(s ? { text: `Pachtvertrag ✓ ${tag(s.am)}`, art: "ok", tipp: "Pachtvertrag online unterschrieben" } : { text: "Pachtvertrag offen", art: "warn", tipp: "Die Unterschrift unter dem Pachtvertrag fehlt noch" });
+    out.push(s ? { text: `Pachtvertrag unterschrieben am ${tag(s.am)}`, art: "ok", tipp: "Den Landpachtvertrag online unterschrieben" } : { text: "Pachtvertrag: Unterschrift fehlt", art: "warn", tipp: "Die Unterschrift unter dem Landpachtvertrag fehlt noch" });
   }
   const kauf = ctx.vorgang?.kauf;
   if (kauf?.status === "zur_bestaetigung") {
     const s = kauf.bestaetigungen[rolle === "anbieter" ? "verkaeufer" : "kaeufer"];
-    out.push(s ? { text: `Eckdaten ✓ ${tag(s.am)}`, art: "ok", tipp: "Eckdaten für den Notar bestätigt" } : { text: "Eckdaten offen", art: "warn", tipp: "Die Bestätigung der Eckdaten fehlt noch" });
+    out.push(s ? { text: `Eckdaten bestätigt am ${tag(s.am)}`, art: "ok", tipp: "Eckdaten für den Notar bestätigt" } : { text: "Eckdaten: Bestätigung fehlt", art: "warn", tipp: "Die Bestätigung der Eckdaten fehlt noch" });
   }
   return out;
 }
 
-function provisionChip(v: M.VorgangRecord | null): Chip | null {
-  const p = v?.provisionen.find((x) => x.status !== "storniert" && x.status !== "bezahlt") ?? v?.provisionen.find((x) => x.status !== "storniert");
-  if (!p) return null;
-  const netto = M.provisionNachGutschein(p).netto;
-  return {
-    text: `Provision ${M.PROVISION_STATUS[p.status].label}: ${M.euro(netto)} netto`,
-    art: p.status === "bezahlt" ? "ok" : p.status === "aufschiebend" ? "grau" : "warn",
-    tipp: M.PROVISION_STATUS[p.status].tipp,
-  };
+/** Die neuesten Ereignisse des Vorgangs und beider Kundenakten: neue (ungesehene) zuerst, sonst das letzte. */
+function ereignisseFuer(v: M.VorgangRecord | null, a: M.KundeRecord | null, s: M.KundeRecord | null, neuIds: Set<string>): DashEreignis[] {
+  const alle = [...(v?.ereignisse ?? []), ...(a?.ereignisse ?? []), ...(s?.ereignisse ?? [])]
+    .filter((e) => e.art !== "mail")
+    .sort((x, y) => y.am.localeCompare(x.am));
+  const neue = alle.filter((e) => neuIds.has(e.id)).slice(0, 3);
+  const liste = neue.length ? neue : alle.slice(0, 1);
+  return liste.map((e) => ({ id: e.id, am: e.am, text: e.text, wer: wer(e.von), neu: neuIds.has(e.id) }));
 }
 
 /** Das Dashboard einmal pro Seitenaufruf laden (Layout und Seite teilen sich das Ergebnis). */
@@ -164,6 +184,7 @@ export const ladeDashboard = cache(async (email: string): Promise<Dashboard> => 
       continue;
     }
     const sch = vorgangSchritte({ art, meta, vorgang, anbieter, suchender }, jetzt);
+    const neuIds = new Set([...neu.vorgang(vorgang), ...neu.kunde(anbieter), ...neu.kunde(suchender)].map((e) => e.id));
     const x: DashVorgang = {
       key,
       art,
@@ -176,18 +197,17 @@ export const ladeDashboard = cache(async (email: string): Promise<Dashboard> => 
       schritte: sch.schritte,
       aktuell: sch.aktuell,
       plan,
-      neu: neu.vorgang(vorgang).length + neu.kunde(anbieter).length + neu.kunde(suchender).length,
-      abschluss: vorgang?.abschluss?.am ?? null,
-      provision: provisionChip(vorgang),
+      ereignisse: ereignisseFuer(vorgang, anbieter, suchender, neuIds),
+      neu: neuIds.size,
+      boerse: gesuch.boerse && gesuch.boerse !== "—" ? gesuch.boerse : null,
       zuletzt: [vorgang?.ereignisse[0]?.am, anbieter?.ereignisse[0]?.am, suchender?.ereignisse[0]?.am, meta.geaendert?.am].filter(Boolean).sort().at(-1) ?? "",
     };
-    // Einsortieren: Ist die Verwaltung am Zug, steht der Vorgang unter „Jetzt dran“ —
-    // auch nach dem Abschluss (z. B. fällige Provision abrechnen).
-    if (plan.amZug !== "admin" && (x.abschluss || plan.fertig)) {
+    if (plan.amZug === "admin") jetztDran.push(x);
+    else if (plan.amZug === "kunde") warten.push(x);
+    else {
       abgeschlossen.push(x);
       continue;
     }
-    (plan.amZug === "admin" ? jetztDran : warten).push(x);
     // Sichtbare Karten gelten nach dem Anzeigen als gesehen (die aktuelle Ansicht pulsiert weiter).
     if (vorgang) gesehen.push(`vorgang:${key}`);
     if (anbieter) gesehen.push(`kunde:${aId}`);
@@ -195,23 +215,62 @@ export const ladeDashboard = cache(async (email: string): Promise<Dashboard> => 
   }
   const neueste = (a: DashVorgang, b: DashVorgang) => b.zuletzt.localeCompare(a.zuletzt);
   jetztDran.sort(neueste);
-  warten.sort(neueste);
+  // Beim Warten zuerst, was am längsten wartet.
+  warten.sort((a, b) => (a.plan.wartetSeit ?? "9").localeCompare(b.plan.wartetSeit ?? "9"));
   abgeschlossen.sort(neueste);
 
-  const vorschlaege: DashVorschlag[] = findeKandidaten(leads, zustand)
-    .kandidaten.filter((k) => !k.meta || k.meta.status === "vorschlag")
-    .map((k) => ({ key: k.key, angebot: k.angebot, gesuch: k.gesuch, score: k.score, distanzKm: k.distanzKm, gruende: k.gruende, neu: neu.vorschlag(k.key) }));
+  const { kandidaten } = findeKandidaten(leads, zustand);
+  const vorschlaege: DashVorschlag[] = kandidaten
+    .filter((k) => !k.meta || k.meta.status === "vorschlag")
+    .map((k) => ({
+      key: k.key,
+      angebot: k.angebot,
+      gesuch: k.gesuch,
+      score: k.score,
+      distanzKm: k.distanzKm,
+      gruende: k.gruende,
+      hinweise: k.hinweise,
+      neu: neu.vorschlag(k.key),
+      boerse: k.gesuch.boerse && k.gesuch.boerse !== "—" ? k.gesuch.boerse : null,
+    }));
   for (const v of vorschlaege) gesehen.push(`paar:${v.key}`);
 
+  // Neue Anfragen, die in keinem Paar und keinem Vorschlag vorkommen.
+  const imPaar = new Set<string>();
+  for (const key of Object.keys(zustand.paare)) for (const id of key.split("~")) imPaar.add(id);
+  for (const k of kandidaten) {
+    imPaar.add(k.angebot.id);
+    imPaar.add(k.gesuch.id);
+  }
+  const anfragen: DashAnfrage[] = leads
+    .filter((l) => l.status === "neu" && !imPaar.has(l.id))
+    .map((l) => ({ id: l.id, name: T.wert(l.name) || l.id, anliegen: T.wert(l.intent) || "—", ort: l.ortText || T.wert(l.ort) || "Ort offen", eingang: l.receivedAt, neu: neu.anfrage(l) }));
+  for (const a of anfragen) gesehen.push(`anfrage:${a.id}`);
+
   let provisionOffen = 0;
-  let provisionFaellig = 0;
+  let provisionAufschiebend = 0;
+  let provisionDran = 0;
+  const heuteStr = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Berlin", year: "numeric", month: "2-digit", day: "2-digit" }).format(jetzt);
   for (const v of portal.vorgaenge.values()) {
     for (const p of v.provisionen) {
-      if (p.status === "storniert" || p.status === "bezahlt") continue;
-      provisionOffen += M.provisionNachGutschein(p).netto ?? 0;
-      if (p.status === "faellig") provisionFaellig++;
+      const netto = M.provisionNachGutschein(p).netto ?? 0;
+      if (p.status === "faellig" || p.status === "abgerechnet") provisionOffen += netto;
+      if (p.status === "aufschiebend") provisionAufschiebend += netto;
+      if (p.status === "faellig" || (p.status === "abgerechnet" && (M.provisionZahlungBis(p) ?? "9999-12-31") < heuteStr)) provisionDran++;
     }
   }
 
-  return { jetzt: jetztDran, warten, abgeschlossen, vorschlaege, provisionOffen: M.runde2(provisionOffen), provisionFaellig, gesehen, einstellungen: portal.einstellungen };
+  return {
+    jetzt: jetztDran,
+    warten,
+    abgeschlossen,
+    vorschlaege,
+    anfragen,
+    provisionOffen: M.runde2(provisionOffen),
+    provisionAufschiebend: M.runde2(provisionAufschiebend),
+    provisionDran,
+    gesehen,
+    einstellungen: portal.einstellungen,
+    am: jetzt.toISOString(),
+  };
 });

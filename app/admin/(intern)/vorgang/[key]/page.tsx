@@ -74,7 +74,7 @@ function zahl(n: number | null | undefined): string {
 
 // ---------------------------------------------------------------------------
 
-function PachtPanel({ ctx, portal, zurueck }: { ctx: VorgangKontext; portal: Portal; zurueck: string }) {
+function PachtPanel({ ctx, portal, zurueck, vorschau }: { ctx: VorgangKontext; portal: Portal; zurueck: string; vorschau: boolean }) {
   const v = ctx.vorgang;
   const pv = v?.pachtvertrag;
   const frei = M.aktiveFreigabe(v);
@@ -296,7 +296,7 @@ function PachtPanel({ ctx, portal, zurueck }: { ctx: VorgangKontext; portal: Por
       )}
 
       {(pv || bearbeitbar) && (
-        <details className="lfa-details" style={{ marginTop: "0.9rem" }}>
+        <details className="lfa-details" style={{ marginTop: "0.9rem" }} open={vorschau || undefined}>
           <summary title="Zeigt den vollständigen Vertragstext mit den aktuellen Angaben — genau so sehen ihn die Parteien">Vorschau des Vertragstexts</summary>
           <div className="lfa-vorschau">
             <VertragsText dok={pachtDokument(ctx.key, daten)} kompakt />
@@ -307,7 +307,7 @@ function PachtPanel({ ctx, portal, zurueck }: { ctx: VorgangKontext; portal: Por
   );
 }
 
-function KaufPanel({ ctx, portal, zurueck }: { ctx: VorgangKontext; portal: Portal; zurueck: string }) {
+function KaufPanel({ ctx, portal, zurueck, vorschau }: { ctx: VorgangKontext; portal: Portal; zurueck: string; vorschau: boolean }) {
   const k = ctx.vorgang?.kauf;
   const frei = M.aktiveFreigabe(ctx.vorgang);
   const daten = k && k.status !== "abgebrochen" ? k.daten : kaufVorschlag(ctx);
@@ -475,7 +475,7 @@ function KaufPanel({ ctx, portal, zurueck }: { ctx: VorgangKontext; portal: Port
         </form>
       )}
       {k && (
-        <details className="lfa-details" style={{ marginTop: "0.9rem" }}>
+        <details className="lfa-details" style={{ marginTop: "0.9rem" }} open={vorschau || undefined}>
           <summary title="Zeigt die Eckdaten so, wie beide Seiten sie sehen">Vorschau der Kaufabsicht</summary>
           <div className="lfa-vorschau">
             <VertragsText dok={kaufDokument(ctx.key, daten, konditionen)} kompakt />
@@ -594,14 +594,19 @@ function ProvisionPanel({ ctx, zurueck }: { ctx: VorgangKontext; zurueck: string
   );
 }
 
-/** Außerhalb geschlossenen Vertrag erfassen — Teil der „Weiteren Aktionen“. */
+/**
+ * Außerhalb geschlossene Verträge: Liste der erfassten Verträge. Bis zum ersten Abschluss
+ * erfasst der Assistent („Weitere Aktionen“ → „Außerhalb geschlossen erfassen“); hier nur
+ * weitere Verträge nach einem Abschluss (Sonderfall).
+ */
 function ExternTeil({ ctx, zurueck }: { ctx: VorgangKontext; zurueck: string }) {
   const v = ctx.vorgang;
+  if (!v?.externeVertraege.length && !v?.abschluss) return null;
   return (
     <section className="lfa-weitere-teil" id="extern">
-      <h3 className="lfa-h3">Außerhalb geschlossener Vertrag</h3>
+      <h3 className="lfa-h3">Außerhalb geschlossene Verträge</h3>
       <p className="lfa-klein" style={{ marginBottom: "0.6rem" }}>
-        Haben die Parteien den Pacht- oder Kaufvertrag ohne die Plattform geschlossen (z. B. auf Papier), hier erfassen — der Provisionsanspruch entsteht genauso. Den Vertrag als Scan unten bei „Dokumente“ hochladen.
+        Verträge, die die Parteien ohne die Plattform geschlossen haben (z. B. auf Papier) — der Provisionsanspruch entsteht genauso. Den Vertrag als Scan unten bei „Dokumente“ hochladen.
       </p>
       {v?.externeVertraege.length ? (
         <ul className="lfa-verlauf" style={{ marginBottom: "0.6rem" }}>
@@ -617,7 +622,7 @@ function ExternTeil({ ctx, zurueck }: { ctx: VorgangKontext; zurueck: string }) 
           ))}
         </ul>
       ) : null}
-      {!v?.freigabe ? (
+      {!v?.abschluss ? null : !v.freigabe ? (
         <p className="lfa-hinweis" style={{ margin: 0 }} title={SPERRE_FREIGABE}>{SPERRE_FREIGABE}</p>
       ) : (
       <form action={externErfassenAktion} className="lfa-inline">
@@ -660,8 +665,10 @@ function ExternTeil({ ctx, zurueck }: { ctx: VorgangKontext; zurueck: string }) 
 }
 
 /**
- * Alles Zweitrangige zum Aufklappen: einzelne E-Mails, Zustimmungen, Freigabe ohne
- * Mitteilung bzw. zurückziehen, außerhalb geschlossener Vertrag, verwerfen, Notiz.
+ * Sonderfälle zum Aufklappen: einzelne E-Mails, Zustimmung zurücknehmen, Freigabe
+ * ohne Mitteilung bzw. zurückziehen, weitere außerhalb geschlossene Verträge, Notiz.
+ * Paar beenden, außerhalb geschlossen erfassen und „Zurück zum Entwurf“ stehen im
+ * Assistenten unter „Weitere Aktionen“.
  */
 function WeitereAktionen({ ctx, zurueck, entwuerfe, plan }: { ctx: VorgangKontext; zurueck: string; entwuerfe: Entwurf[]; plan: AssistentPlan }) {
   const status = ctx.meta?.status ?? "vorschlag";
@@ -674,12 +681,12 @@ function WeitereAktionen({ ctx, zurueck, entwuerfe, plan }: { ctx: VorgangKontex
   const imAssistenten = new Set((plan.aktion?.mails ?? []).map((m) => `${m.zweck}:${m.rolle}`));
   const faellig = entwuerfe.filter((e) => e.faellig && !e.gesendetAm && !e.gesperrt && !imAssistenten.has(`${e.zweck}:${e.rolle}`)).length;
   return (
-    <details className="lfa-weitere" id="weitere" open={status === "verworfen" || undefined}>
-      <summary title="Alles, was der Assistent gerade nicht als nächsten Schritt vorschlägt: einzelne E-Mails, Zustimmungen, Freigabe ohne Mitteilung oder zurückziehen, außerhalb geschlossener Vertrag, verwerfen, Notiz">
+    <details className="lfa-weitere" id="weitere">
+      <summary title="Für Sonderfälle: einzelne E-Mails, Zustimmung zurücknehmen, Freigabe ohne Mitteilung oder zurückziehen, Notiz">
         {faellig > 0 && <span className="lfa-puls" title={`${faellig} einzelne E-Mail${faellig === 1 ? "" : "s"} jetzt fällig`} />}
-        Weitere Aktionen
+        Einzelne E-Mails und Sonderfälle
         <span className="lfa-klein" style={{ fontWeight: 400 }}>
-          {" "}— einzelne E-Mails{faellig > 0 ? ` (${faellig} fällig)` : ""}, Zustimmungen, außerhalb geschlossen, verwerfen, Notiz
+          {" "}— E-Mails{faellig > 0 ? ` (${faellig} fällig)` : ""}, Zustimmung zurücknehmen, Freigabe ohne Mitteilung, Notiz
         </span>
       </summary>
       <div className="lfa-weitere-inhalt">
@@ -700,23 +707,20 @@ function WeitereAktionen({ ctx, zurueck, entwuerfe, plan }: { ctx: VorgangKontex
         {vorFreigabe && status !== "verworfen" && (
           <section className="lfa-weitere-teil">
             <h3 className="lfa-h3">Zustimmungen und Freigabe</h3>
+            <p className="lfa-klein" style={{ marginBottom: "0.4rem" }}>Zustimmungen erfassen: im Assistenten („Zustimmung erhalten (Telefon/E-Mail)“). Hier nur zurücknehmen, z. B. wenn versehentlich erfasst.</p>
             <div className="lfa-knopfreihe" style={{ marginBottom: "0.5rem" }}>
               {(["anbieter", "suchender"] as M.Rolle[]).map((r) => {
                 const am = r === "anbieter" ? ctx.meta?.zustimmungAnbieter : ctx.meta?.zustimmungSuchender;
+                if (!am) return null;
                 return (
                   <form key={r} action={zustimmungErfassenAktion}>
                     <input type="hidden" name="key" value={ctx.key} />
                     <input type="hidden" name="rolle" value={r} />
                     <input type="hidden" name="art" value={ctx.art} />
-                    <input type="hidden" name="an" value={am ? "0" : "1"} />
+                    <input type="hidden" name="an" value="0" />
                     <input type="hidden" name="zurueck" value={zurueck} />
-                    <button
-                      type="submit"
-                      disabled={!am && !beide}
-                      className="lfa-knopf lfa-knopf-hell lfa-knopf-klein"
-                      title={am ? "Zustimmung zurücknehmen (z. B. versehentlich erfasst)" : !beide ? SPERRE_UNTERSCHRIFT : "Zustimmung zu diesem Kontakt erfassen (z. B. telefonisch erteilt) — Kunden können auch selbst im Kundenbereich zustimmen"}
-                    >
-                      {am ? `Zustimmung ${M.ROLLE_ARTIKEL[r].gen} zurücknehmen` : `Zustimmung ${M.ROLLE_ARTIKEL[r].gen} erfassen`}
+                    <button type="submit" className="lfa-knopf lfa-knopf-leise lfa-knopf-klein" title={`Zustimmung vom ${datumDe(am)} zurücknehmen (z. B. versehentlich erfasst)`}>
+                      Zustimmung {M.ROLLE_ARTIKEL[r].gen} zurücknehmen
                     </button>
                   </form>
                 );
@@ -759,52 +763,29 @@ function WeitereAktionen({ ctx, zurueck, entwuerfe, plan }: { ctx: VorgangKontex
 
         <ExternTeil ctx={ctx} zurueck={zurueck} />
 
-        {status !== "kontakt" && status !== "abschluss" && (
+        {status === "vorgemerkt" && (
           <section className="lfa-weitere-teil">
             <h3 className="lfa-h3">Paar</h3>
             <div className="lfa-knopfreihe">
-              {status === "verworfen" ? (
-                <form action={paarAktion}>
-                  <input type="hidden" name="key" value={ctx.key} />
-                  <input type="hidden" name="aktion" value="zuruecksetzen" />
-                  <button type="submit" className="lfa-knopf lfa-knopf-hell lfa-knopf-klein" title="Verwerfen rückgängig machen — das Paar wird wieder als Vorschlag geführt">
-                    Wieder vorschlagen
-                  </button>
-                </form>
-              ) : (
-                <>
-                  <form action={paarAktion}>
-                    <input type="hidden" name="key" value={ctx.key} />
-                    <input type="hidden" name="aktion" value="verwerfen" />
-                    <BestaetigenKnopf className="lfa-knopf lfa-knopf-leise lfa-knopf-klein" frage="Paar verwerfen? Es wird nicht mehr vorgeschlagen (lässt sich unter „Weitere Aktionen“ bzw. im Matching zurückholen)." tipp="Eine Seite hat abgesagt oder das Paar passt nicht — verwerfen">
-                      Paar verwerfen
-                    </BestaetigenKnopf>
-                  </form>
-                  {status === "vorgemerkt" && (
-                    <form action={paarAktion}>
-                      <input type="hidden" name="key" value={ctx.key} />
-                      <input type="hidden" name="aktion" value="zuruecksetzen" />
-                      <BestaetigenKnopf className="lfa-knopf lfa-knopf-leise lfa-knopf-klein" frage="Zurück zum unbearbeiteten Vorschlag? Die Notiz zum Paar wird gelöscht." tipp="Zurück zum unbearbeiteten Vorschlag; die Notiz wird gelöscht">
-                        Zurücksetzen
-                      </BestaetigenKnopf>
-                    </form>
-                  )}
-                  {status === "vorgemerkt" && (
-                    <form action={paarAktion}>
-                      <input type="hidden" name="key" value={ctx.key} />
-                      <input type="hidden" name="aktion" value="angefragt" />
-                      <button
-                        type="submit"
-                        className="lfa-knopf lfa-knopf-leise lfa-knopf-klein"
-                        disabled={!beide}
-                        title={beide ? "Nur klicken, wenn beide anonymen Hinweise außerhalb der Verwaltung (Telefon, eigenes Postfach) gesendet wurden — setzt den Status auf „Angefragt“" : SPERRE_UNTERSCHRIFT}
-                      >
-                        Hinweise extern verschickt
-                      </button>
-                    </form>
-                  )}
-                </>
-              )}
+              <form action={paarAktion}>
+                <input type="hidden" name="key" value={ctx.key} />
+                <input type="hidden" name="aktion" value="zuruecksetzen" />
+                <BestaetigenKnopf className="lfa-knopf lfa-knopf-leise lfa-knopf-klein" frage="Zurück zum unbearbeiteten Vorschlag? Die Notiz zum Paar wird gelöscht." tipp="Zurück zum unbearbeiteten Vorschlag; die Notiz wird gelöscht">
+                  Zurücksetzen
+                </BestaetigenKnopf>
+              </form>
+              <form action={paarAktion}>
+                <input type="hidden" name="key" value={ctx.key} />
+                <input type="hidden" name="aktion" value="angefragt" />
+                <button
+                  type="submit"
+                  className="lfa-knopf lfa-knopf-leise lfa-knopf-klein"
+                  disabled={!beide}
+                  title={beide ? "Nur klicken, wenn beide anonymen Hinweise außerhalb der Verwaltung (Telefon, eigenes Postfach) gesendet wurden — setzt den Status auf „Angefragt“" : SPERRE_UNTERSCHRIFT}
+                >
+                  Hinweise extern verschickt
+                </button>
+              </form>
             </div>
           </section>
         )}
@@ -832,6 +813,8 @@ export default async function VorgangPage(props: PageProps<"/admin/vorgang/[key]
   const { key: roh } = await props.params;
   const key = decodeURIComponent(roh);
   const sp = await props.searchParams;
+  // „Vertragstext ansehen“ aus dem Assistenten öffnet die Vorschau gleich aufgeklappt.
+  const vorschau = sp.vorschau === "1";
   if (!/^LL-[A-Z0-9]+~LL-[A-Z0-9]+$/.test(key)) notFound();
   const [ctx, portal, neu, basis] = await Promise.all([ladeVorgangKontext(key), ladePortal(), ladeNeu(email), basisUrl()]);
   if (!ctx) notFound();
@@ -883,7 +866,7 @@ export default async function VorgangPage(props: PageProps<"/admin/vorgang/[key]
 
       <SchrittLeiste schritte={sch.schritte} verworfen={sch.verworfen} />
       <div id="assistent">
-        <Assistent plan={plan} zurueck={zurueck} />
+        <Assistent plan={plan} />
       </div>
       <WeitereAktionen ctx={ctx} zurueck={zurueck} entwuerfe={entwuerfe} plan={plan} />
 
@@ -925,7 +908,7 @@ export default async function VorgangPage(props: PageProps<"/admin/vorgang/[key]
             )}
           </section>
 
-          {ctx.art === "pacht" ? <PachtPanel ctx={ctx} portal={portal} zurueck={zurueck} /> : <KaufPanel ctx={ctx} portal={portal} zurueck={zurueck} />}
+          {ctx.art === "pacht" ? <PachtPanel ctx={ctx} portal={portal} zurueck={zurueck} vorschau={vorschau} /> : <KaufPanel ctx={ctx} portal={portal} zurueck={zurueck} vorschau={vorschau} />}
           <ProvisionPanel ctx={ctx} zurueck={zurueck} />
         </div>
 
@@ -936,7 +919,18 @@ export default async function VorgangPage(props: PageProps<"/admin/vorgang/[key]
               <ul className="lfa-verlauf">
                 {v.meldungen.map((m) => (
                   <li key={m.id}>
-                    <span className="lfa-klein">{datumZeit(m.am)} · {M.ROLLE_NAME[m.rolle]} · {m.art === "abschluss" ? "meldet Vertragsschluss" : "Rückfrage"}</span>
+                    <span className="lfa-klein">
+                      {datumZeit(m.am)} · {M.ROLLE_NAME[m.rolle]} · {m.art === "abschluss" ? "meldet Vertragsschluss" : "Rückfrage"} ·{" "}
+                      {m.erledigt ? (
+                        <span className="lfa-badge lfa-badge-ok" title={`Als erledigt markiert von ${m.erledigt.von}${m.erledigt.wie ? ` (${m.erledigt.wie})` : ""}`}>
+                          erledigt {datumDe(m.erledigt.am)}
+                        </span>
+                      ) : (
+                        <span className="lfa-badge lfa-badge-warn" title="Noch offen — oben im Assistenten „Erledigt“ klicken, wenn bearbeitet">
+                          offen
+                        </span>
+                      )}
+                    </span>
                     <div style={{ whiteSpace: "pre-wrap" }}>{m.text}</div>
                   </li>
                 ))}

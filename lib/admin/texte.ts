@@ -25,7 +25,16 @@ Bahnhofstraße 70b · 32805 Horn-Bad Meinberg
 TR Vertriebs GmbH · Amtsgericht Lemgo HRB 11734
 Geschäftsführer: Dennis Reckling, Martin Thomann`;
 
-export function hinweisAnSuchenden(angebot: LeadView, gesuch: LeadView, gemeindeAngebot: string): string {
+/** Absatz mit dem Link zum Zustimmen (direkt in den Kundenbereich) — ohne Link: Antwort per E-Mail. */
+function zustimmungsAbsatz(link: string | null | undefined, frage: string): string {
+  if (!link) return `${frage} Dann antworten Sie bitte kurz auf diese E-Mail.`;
+  return `${frage} Dann stimmen Sie bitte über diesen Link zu — er führt direkt in Ihren Kundenbereich (14 Tage gültig; danach melden Sie sich einfach mit Ihrer E-Mail-Adresse an):
+${link}
+
+Kein Interesse? Das können Sie dort ebenfalls mit einem Klick mitteilen — oder Sie antworten einfach auf diese E-Mail.`;
+}
+
+export function hinweisAnSuchenden(angebot: LeadView, gesuch: LeadView, gemeindeAngebot: string, link?: string | null): string {
   const groesse = formatGroesse(angebot.groesseWert);
   const art = angebot.art === "kauf" ? "zum Verkauf" : "zur Verpachtung";
   const ort = gemeindeAngebot || "Ihrer Suchregion";
@@ -33,12 +42,14 @@ export function hinweisAnSuchenden(angebot: LeadView, gesuch: LeadView, gemeinde
 
 zu Ihrem Gesuch haben wir ein passendes Angebot: ${typText(angebot.typ)}${groesse !== "Größe offen" ? `, ca. ${groesse}` : ""}, im Raum ${ort}, ${art}.
 
-Wenn Sie Interesse haben, geben Sie uns bitte kurz Bescheid. Wir fragen dann den Eigentümer, ob wir Sie miteinander in Kontakt bringen dürfen. Ihre Kontaktdaten geben wir erst weiter, wenn Sie beide zugestimmt haben.
+Den Eigentümer fragen wir gleichzeitig, ob er mit einem Kontakt einverstanden ist. Ihre Kontaktdaten geben wir erst weiter, wenn Sie beide zugestimmt haben.
+
+${zustimmungsAbsatz(link, "Haben Sie Interesse?")}
 
 ${ABSCHLUSS}`;
 }
 
-export function hinweisAnAnbieter(angebot: LeadView, gesuch: LeadView, gemeindeGesuch: string): string {
+export function hinweisAnAnbieter(angebot: LeadView, gesuch: LeadView, gemeindeGesuch: string, link?: string | null): string {
   const groesse = formatGroesse(gesuch.groesseWert);
   const wunsch = gesuch.art === "kauf" ? "kaufen" : "pachten";
   const ort = gemeindeGesuch || "Ihrer Nähe";
@@ -46,7 +57,9 @@ export function hinweisAnAnbieter(angebot: LeadView, gesuch: LeadView, gemeindeG
 
 für Ihre Fläche haben wir eine passende Anfrage: Ein Interessent möchte im Raum ${ort} ${typText(gesuch.typ)}${groesse !== "Größe offen" ? ` (${groesse})` : ""} ${wunsch}.
 
-Dürfen wir Ihre Kontaktdaten an den Interessenten weitergeben? Ohne Ihre Zustimmung nennen wir weder Ihren Namen noch die genaue Lage der Fläche.
+Den Interessenten fragen wir gleichzeitig, ob er mit einem Kontakt einverstanden ist. Ohne Ihre Zustimmung nennen wir weder Ihren Namen noch die genaue Lage der Fläche.
+
+${zustimmungsAbsatz(link, "Dürfen wir Sie miteinander in Kontakt bringen?")}
 
 ${ABSCHLUSS}`;
 }

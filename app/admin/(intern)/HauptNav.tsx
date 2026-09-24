@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation";
 export type NavZahlen = {
   /** Vorgänge, bei denen die Verwaltung am Zug ist (Dashboard „Jetzt dran“). */
   jetztDran: number;
+  /** Davon mit Neuem seit dem letzten Besuch (nur dann pulsiert der Zähler). */
+  jetztNeu: number;
   neueAnfragen: number;
   offeneVorschlaege: number;
   neueVorschlaege: number;
@@ -37,7 +39,11 @@ export default function HauptNav({ z }: { z: NavZahlen }) {
         title="Alles, was jetzt zu tun ist — je Vorgang ein Knopf: einladen, anonym anfragen, freigeben, Verträge, Erinnerungen, Provision"
       >
         Dashboard
-        <Zaehler n={z.jetztDran} puls tipp={`${z.jetztDran} Vorgänge, bei denen Sie jetzt dran sind`} />
+        <Zaehler
+          n={z.jetztDran}
+          puls={z.jetztNeu > 0}
+          tipp={`${z.jetztDran} Vorgänge, bei denen Sie jetzt dran sind${z.jetztNeu ? `, davon ${z.jetztNeu} mit Neuem seit Ihrem letzten Besuch` : ""}`}
+        />
       </Link>
       <Link href="/admin" aria-current={anfragenAktiv ? "page" : undefined} title="Alle Anfragen aus dem Formular auf lippeforst.de, neueste zuerst">
         Anfragen

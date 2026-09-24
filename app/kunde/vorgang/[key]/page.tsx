@@ -82,7 +82,13 @@ export default async function KundeVorgangPage(props: PageProps<"/kunde/vorgang/
             {v.meineZustimmung ? (
               <p className="lfk-hinweis lfk-hinweis-ok" style={{ marginBottom: 0 }}>
                 Sie haben dem Kontakt am {datumDe(v.meineZustimmung)} zugestimmt.{" "}
-                {v.andereZustimmung ? `Der ${gegen.nom} ist ebenfalls einverstanden — wir geben die Kontaktdaten in Kürze frei.` : `Wir warten noch auf die Rückmeldung des ${gegen.gen}.`}
+                {!v.andereZustimmung
+                  ? `Wir warten noch auf die Rückmeldung des ${gegen.gen}.`
+                  : v.freigabe?.moeglich
+                    ? `Der ${gegen.nom} ist ebenfalls einverstanden — wir geben die Kontaktdaten in Kürze frei.`
+                    : v.freigabe?.eigeneFristBis
+                      ? `Der ${gegen.nom} ist ebenfalls einverstanden. Die Kontaktdaten geben wir nach Ablauf Ihrer Widerrufsfrist frei (ab ${v.freigabe.eigeneFristBis}) — oder schon früher, wenn Sie das in Ihrer Übersicht ausdrücklich wünschen.`
+                      : `Der ${gegen.nom} ist ebenfalls einverstanden. Die Kontaktdaten geben wir frei, sobald alle Voraussetzungen erfüllt sind — wir melden uns dann per E-Mail.`}
               </p>
             ) : v.abgelehnt ? (
               <p className="lfk-hinweis" style={{ marginBottom: 0 }}>Sie haben „kein Interesse“ gemeldet. Falls Sie es sich anders überlegen, stimmen Sie einfach unten zu.</p>

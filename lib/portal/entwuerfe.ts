@@ -236,12 +236,9 @@ export function entwuerfePaar(opts: {
   const lageA = grobeLage(angebot, zustand.orte);
   const lageG = grobeLage(gesuch, zustand.orte);
 
-  function portalHinweis(k: M.KundeRecord | null): string {
-    if (!k) return "";
-    const einl = einladungsLink(k, basis);
-    if (einl) return `\n\nPS: Über Ihren persönlichen Zugang können Sie dem Kontakt direkt zustimmen: ${einl}`;
-    if (k.vertrag) return `\n\nPS: Sie können dem Kontakt auch direkt in Ihrem Kundenbereich zustimmen: ${zugangsLink(k, basis)}`;
-    return "";
+  /** Link zum Zustimmen im anonymen Hinweis: Direktzugang zum Kundenbereich (14 Tage, einmal). Hinweise gehen erst nach beiden Unterschriften raus. */
+  function zustimmungsLink(k: M.KundeRecord | null): string | null {
+    return k?.vertrag ? zugangsLink(k, basis) : null;
   }
 
   // Anonyme Hinweise erst nach Schritt 3: beide haben unterschrieben (Suchender: Provisionsvereinbarung).
@@ -259,7 +256,7 @@ export function entwuerfePaar(opts: {
         titel: `Anonymer Hinweis an ${T.wert(gesuch.name) || "Suchenden"}`,
         an: anS,
         betreff: `${nochmal(vorgang?.hinweise?.suchender)}Passende Fläche zu Ihrem Gesuch — Lippe Forst`,
-        text: hinweisAnSuchenden(angebot, gesuch, lageA) + portalHinweis(suchender),
+        text: hinweisAnSuchenden(angebot, gesuch, lageA, zustimmungsLink(suchender)),
         tipp: "Anonymer Hinweis an den Suchenden: nur Gemeinde, Typ, Größe, Art — kein Name, kein Flurstück.",
         wirkung: "Vermerkt den Hinweis im Vorgang; sind beide Hinweise gesendet, wechselt das Paar auf „Angefragt“.",
         gesendetAm: vorgang?.hinweise?.suchender,
@@ -277,7 +274,7 @@ export function entwuerfePaar(opts: {
         titel: `Anonymer Hinweis an ${T.wert(angebot.name) || "Anbieter"}`,
         an: anA,
         betreff: `${nochmal(vorgang?.hinweise?.anbieter)}Interessent für Ihre Fläche — Lippe Forst`,
-        text: hinweisAnAnbieter(angebot, gesuch, lageG) + portalHinweis(anbieter),
+        text: hinweisAnAnbieter(angebot, gesuch, lageG, zustimmungsLink(anbieter)),
         tipp: "Anonymer Hinweis an den Anbieter: nur Gemeinde, Typ, Größe, Art des Gesuchs — kein Name.",
         wirkung: "Vermerkt den Hinweis im Vorgang; sind beide Hinweise gesendet, wechselt das Paar auf „Angefragt“.",
         gesendetAm: vorgang?.hinweise?.anbieter,

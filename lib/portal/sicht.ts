@@ -25,6 +25,11 @@ export type KundenVorgang = {
   kontakt: Kontakt | null;
   meineZustimmung: string | null;
   andereZustimmung: boolean;
+  /**
+   * Beide stimmen zu: kann die Verwaltung jetzt freigeben? Dazu nur eigene Umstände
+   * (die eigene Widerrufsfrist) — solche der Gegenseite werden nicht verraten.
+   */
+  freigabe: { moeglich: boolean; eigeneFristBis: string | null } | null;
   abgelehnt: boolean;
   pacht: { status: M.PachtvertragStand["status"]; meine: string | null; andere: boolean } | null;
   kauf: { status: M.KaufStand["status"]; meine: string | null; andere: boolean } | null;
@@ -101,6 +106,14 @@ async function kundenVorgang(
     };
   }
   const rolle = k.rolle;
+  // Stimmen beide zu (noch keine Freigabe), ob die Freigabe jetzt möglich ist — für ehrliche Texte im Kundenbereich.
+  let freigabe: KundenVorgang["freigabe"] = null;
+  if (!freigegeben && meta.zustimmungAnbieter && meta.zustimmungSuchender) {
+    const ich = M.freigabeBereit(k);
+    const gegenseite = M.freigabeBereit(await ladeKunde(andereId));
+    const frist = ich.bereit ? null : (ich.grund.match(/Freigabe ab (\d{2}\.\d{2}\.\d{4})/)?.[1] ?? null);
+    freigabe = { moeglich: ich.bereit && gegenseite.bereit, eigeneFristBis: frist };
+  }
   const pv = v?.pachtvertrag && v.pachtvertrag.status !== "entwurf" && v.pachtvertrag.status !== "verworfen" ? v.pachtvertrag : null;
   const kauf = v?.kauf && v.kauf.status !== "entwurf" ? v.kauf : null;
   const meinFeldPacht = rolle === "anbieter" ? "verpaechter" : "paechter";
@@ -119,6 +132,7 @@ async function kundenVorgang(
     kontakt,
     meineZustimmung: (rolle === "anbieter" ? meta.zustimmungAnbieter : meta.zustimmungSuchender) ?? null,
     andereZustimmung: Boolean(rolle === "anbieter" ? meta.zustimmungSuchender : meta.zustimmungAnbieter),
+    freigabe,
     abgelehnt: meta.ablehnung?.rolle === rolle,
     pacht: pv ? { status: pv.status, meine: pv.unterschriften[meinFeldPacht]?.am ?? null, andere: Boolean(pv.unterschriften[anderesFeldPacht]) } : null,
     kauf: kauf ? { status: kauf.status, meine: kauf.bestaetigungen[meinFeldKauf]?.am ?? null, andere: Boolean(kauf.bestaetigungen[anderesFeldKauf]) } : null,

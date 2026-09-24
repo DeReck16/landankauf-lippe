@@ -646,3 +646,66 @@ a.lfa-kachel:hover { border-color: var(--color-brand); }
   background: var(--color-surface);
 }
 .lfa-dash-vorschlag-text { display: grid; gap: 0.15rem; flex: 1 1 20rem; min-width: 0; font-size: 0.88rem; overflow-wrap: anywhere; }
+
+/* Assistent: Meldungen aus dem Kundenbereich, Rückmeldung nach dem Klick, kleine Knöpfe */
+.lfa-assistent-form-klein { display: inline-grid; gap: 0.45rem; }
+.lfa-assistent-meldung {
+  display: grid;
+  gap: 0.45rem;
+  min-width: 0;
+  padding: 0.65rem 0.8rem;
+  border: 2px solid var(--color-accent);
+  border-radius: 0.7rem;
+  background: #fff;
+}
+.lfa-assistent-meldung-ablehnung { border-color: #f5c6c0; background: #fffafa; }
+.lfa-assistent-meldung-kopf { display: flex; flex-wrap: wrap; align-items: center; gap: 0.2rem 0.5rem; overflow-wrap: anywhere; }
+.lfa-assistent-meldungstext { white-space: pre-wrap; font-size: 0.88rem; padding: 0.45rem 0.6rem; border-radius: 0.5rem; background: #fcfbf7; border: 1px solid var(--color-line); overflow-wrap: anywhere; }
+.lfa-assistent-ergebnis-kopf { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+.lfa-assistent-zu {
+  flex: none;
+  min-width: 32px;
+  min-height: 32px;
+  border: 0;
+  border-radius: 9999px;
+  background: transparent;
+  color: inherit;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.lfa-assistent-zu:hover { background: rgba(0, 0, 0, 0.06); }
+
+/* Dashboard: neueste Ereignisse, Warnhinweise, Knöpfe der Vorschläge */
+.lfa-dash-ereignisse { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.15rem; font-size: 0.84rem; overflow-wrap: anywhere; }
+.lfa-dash-ereignis-neu { color: var(--color-ink); }
+.lfa-dash-warnung { color: #8a2a1d; }
+.lfa-dash-vorschlag-knoepfe { gap: 0.5rem 0.9rem; }
+/* Leiser Textknopf (z. B. „Passt nicht“) — deutlich vom Hauptknopf abgesetzt */
+.lfa-link-knopf {
+  min-height: 32px;
+  padding: 0.2rem 0.3rem;
+  border: 0;
+  background: transparent;
+  color: var(--color-ink-soft);
+  font-size: 0.82rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.lfa-link-knopf:hover { color: #8a2a1d; }
+.lfa-link-knopf:disabled { opacity: 0.5; cursor: wait; }
+
+/* Handy (bis 560 px): klebender Kopf nur mit der Navigation (höchstens ~60 px) —
+   Marke und Abmelden scrollen weg; Knöpfe mindestens 40 px hoch. */
+@media (max-width: 560px) {
+  .lfa-kopf { top: -3.2rem; }
+  .lfa-kopf-zeile { padding: 0.4rem 1rem; row-gap: 0.4rem; min-height: 0; }
+  .lfa-kopf-zeile > .lfa-marke, .lfa-kopf-zeile > form { height: 2.5rem; display: flex; align-items: center; }
+  .lfa-hauptnav { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; margin: 0 -1rem; padding: 0 1rem 0.1rem; }
+  .lfa-hauptnav::-webkit-scrollbar { display: none; }
+  .lfa-hauptnav > a { flex: none; white-space: nowrap; }
+  .lfa-knopf, .lfa-knopf-klein, .lfa-assistent-kompakt .lfa-assistent-knopf { min-height: 40px; }
+  .lfa-link-knopf { min-height: 40px; }
+  .lfa-assistent-zu { min-width: 40px; min-height: 40px; }
+}

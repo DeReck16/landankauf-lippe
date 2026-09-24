@@ -1,28 +1,32 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect, unstable_rethrow } from "next/navigation";
+import { testModus } from "@/lib/admin/config";
+import { unstable_rethrow } from "next/navigation";
 import { requireAdmin } from "@/lib/admin/session";
 import * as A from "@/lib/portal/ablauf";
-import { ASSISTENT_AKTIONEN, assistentEntwurf, assistentPlan, type AssistentAktionId, type AssistentMail, type AssistentUmgebung } from "@/lib/portal/assistent";
+import { ASSISTENT_AKTIONEN, alleAktionen, assistentEntwurf, assistentPlan, type AssistentAktionId, type AssistentMail, type AssistentUmgebung } from "@/lib/portal/assistent";
 import * as M from "@/lib/portal/model";
+import * as N from "@/lib/portal/nacharbeit";
 import { SPERRE_FREIGABE } from "@/lib/portal/schritte";
 import { basisUrl } from "@/lib/portal/sitzung";
-import { istPaarKey, ladeEinstellungen, ladeVorgang } from "@/lib/portal/speicher";
-import { rolleVonLead, tagDe } from "@/lib/portal/texte";
+import { istKundeId, istPaarKey, ladeEinstellungen, ladeVorgang } from "@/lib/portal/speicher";
+import { rolleVonLead, tagDe, wert } from "@/lib/portal/texte";
 import { verwaltungsMailSenden } from "@/lib/portal/versand";
 import * as V from "@/lib/portal/vorgang";
 import { VORLAGEN, istFreigegeben, kundenVorlage } from "@/lib/vertraege/vorlagen";
-import { paarAktion } from "./actions";
+import { anfrageSpeichern, paarAktion } from "./actions";
 
-// Klick-Assistent (app/admin/(intern)/Assistent.tsx): führt genau die Aktion aus,
-// die der Admin in der Sicherheitsabfrage bestätigt hat. Der Plan wird hier frisch
-// berechnet — weicht er vom bestätigten ab (Signatur), passiert nichts. Jede
-// Teilaktion ruft die bestehenden Funktionen mit ihren Sperren auf; Mails gehen
-// über verwaltungsMailSenden (Sperren, Versand, Volltext im Verlauf).
+// Klick-Assistent (app/admin/(intern)/Assistent.tsx, Dashboard): führt genau die
+// Aktion aus, die der Admin in der Sicherheitsabfrage bestätigt hat. Der Plan wird
+// hier frisch berechnet — weicht er vom bestätigten ab (Signatur), passiert nichts.
+// Jede Teilaktion ruft die bestehenden Funktionen mit ihren Sperren auf; Mails gehen
+// über verwaltungsMailSenden (Sperren, Versand, Volltext im Verlauf). Das Ergebnis
+// geht an die Karte zurück (kein Redirect, keine Meldung in der Adresse).
 
 export type AssistentZeile = { art: "ok" | "fehler" | "info"; text: string };
-export type AssistentState = { status: "idle" | "ok" | "teil" | "fehler"; titel?: string; zeilen?: AssistentZeile[]; am?: string };
+/** `weg`: Die Karte verschwindet aus dem Dashboard (Paar verworfen) — die Rückmeldung erscheint dann oben. */
+export type AssistentState = { status: "ok" | "teil" | "fehler"; titel: string; zeilen: AssistentZeile[]; am: string; weg?: boolean };
 
 function feld(fd: FormData, key: string, max = 400): string {
   return String(fd.get(key) ?? "").trim().slice(0, max);
@@ -40,12 +44,34 @@ function datumFeld(fd: FormData, key: string): string {
   return /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : "";
 }
 
+function plusTage(ymd: string, tage: number): string {
+  const [y, m, d] = ymd.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d + tage)).toISOString().slice(0, 10);
+}
+
 async function umgebung(): Promise<AssistentUmgebung> {
   const einstellungen = await ladeEinstellungen();
   return { einstellungen, basis: await basisUrl(), bewertungsUrl: M.bewertungsUrl(einstellungen, process.env.GOOGLE_REVIEW_URL) };
 }
 
-/** Mails nach dem aktuellen Stand erzeugen (echte Links) und einzeln senden. */
+function ergebnis(knopf: string, zeilen: AssistentZeile[]): AssistentState {
+  // Im Testmodus einmal am Ende sagen, dass keine E-Mail wirklich rausging.
+  if (testModus() && zeilen.some((z) => z.art === "ok" && z.text.startsWith("E-Mail an"))) {
+    zeilen = [...zeilen, { art: "info", text: "Testmodus: Die E-Mails wurden nicht verschickt, nur protokolliert." }];
+  }
+  const fehler = zeilen.filter((z) => z.art === "fehler").length;
+  const ok = zeilen.filter((z) => z.art === "ok").length;
+  const status: AssistentState["status"] = fehler === 0 ? "ok" : ok > 0 ? "teil" : "fehler";
+  return {
+    status,
+    // „Erledigt: Erledigt (beantwortet)“ vermeiden — Knöpfe mit „erledigt“ sprechen für sich.
+    titel: status === "ok" ? (/erledigt/i.test(knopf) ? knopf : `Erledigt: ${knopf}`) : status === "teil" ? `Teilweise erledigt: ${knopf}` : `Nicht erledigt: ${knopf}`,
+    zeilen,
+    am: new Date().toISOString(),
+  };
+}
+
+/** Mails nach dem aktuellen Stand erzeugen (echte Links) und einzeln senden — je Mail eine Zeile ✓/✗. */
 async function mailsSenden(von: string, key: string, u: AssistentUmgebung, geplant: AssistentMail[], zeilen: AssistentZeile[]): Promise<void> {
   if (geplant.length === 0) return;
   const ctx = await V.ladeVorgangKontext(key);
@@ -55,20 +81,12 @@ async function mailsSenden(von: string, key: string, u: AssistentUmgebung, gepla
   }
   for (const m of geplant) {
     const e = assistentEntwurf(ctx, u, m.zweck, m.rolle);
-    if (!e) {
-      zeilen.push({ art: "fehler", text: `${m.wer}: Die E-Mail ist nicht mehr vorgesehen — nichts gesendet.` });
-      continue;
-    }
-    if (e.gesperrt) {
-      zeilen.push({ art: "fehler", text: `${m.wer}: nicht gesendet — ${e.gesperrt}` });
+    if (!e || e.gesperrt) {
+      zeilen.push({ art: "fehler", text: `E-Mail an ${m.wer}: nicht gesendet — ${e?.gesperrt ?? "nicht mehr vorgesehen"}` });
       continue;
     }
     const r = await verwaltungsMailSenden(von, { zweck: e.zweck, kundeId: e.kundeId, key, rolle: m.rolle, an: e.an, betreff: e.betreff, text: e.text });
-    zeilen.push(
-      r.ok
-        ? { art: "ok", text: `E-Mail „${e.betreff}“ an ${e.an} ${r.test ? "protokolliert (Testmodus — nicht verschickt)" : "gesendet"}` }
-        : { art: "fehler", text: `E-Mail an ${e.an} (${m.wer}) nicht gesendet: ${r.text}` },
-    );
+    zeilen.push(r.ok ? { art: "ok", text: `E-Mail an ${m.wer} (${e.an}): „${e.betreff}“` } : { art: "fehler", text: `E-Mail an ${m.wer} (${e.an}) nicht gesendet: ${r.text}` });
   }
 }
 
@@ -86,7 +104,7 @@ async function linkErstellen(von: string, m: AssistentMail, u: AssistentUmgebung
   }
   const vorlage = kundenVorlage(rr.rolle, rr.art);
   if (!istFreigegeben(u.einstellungen, vorlage)) {
-    zeilen.push({ art: "fehler", text: `Die Vorlage „${VORLAGEN[vorlage].titel}“ ist noch nicht freigegeben (Verwaltung → Vorlagen) — kein Link für ${m.wer}.` });
+    zeilen.push({ art: "fehler", text: `Die Vorlage „${VORLAGEN[vorlage].titel}“ ist noch nicht freigegeben (Verwaltung → Vorlagen) — kein Link für ${m.werAkk}.` });
     return false;
   }
   try {
@@ -100,64 +118,28 @@ async function linkErstellen(von: string, m: AssistentMail, u: AssistentUmgebung
   return true;
 }
 
-/** Nur Ziele innerhalb der Verwaltung (kein offener Redirect). */
-function zurueckZiel(fd: FormData): string | null {
-  const s = feld(fd, "zurueck", 200);
-  return /^\/admin(\/[A-Za-z0-9_~%-]+)*$/.test(s) ? s : null;
+/** Den automatisch verschickten Treue-Gutschein offen ausweisen (Beurkundung, externer Abschluss). */
+async function gutscheinZeile(key: string, seit: string, zeilen: AssistentZeile[]): Promise<void> {
+  const gm = (await ladeVorgang(key))?.mails.find((x) => x.zweck === "gutschein" && x.am >= seit);
+  if (gm) zeilen.push({ art: gm.ok ? "ok" : "fehler", text: `E-Mail an ${gm.an}: „${gm.betreff}“${gm.ok ? "" : ` — nicht gesendet: ${gm.fehler ?? "Fehler"}`}` });
 }
 
-/** Zurück zur Liste (Dashboard, Matching): Rückmeldung oben (?m=…), `k` und Anker auf die Karte. */
-function meldungsZiel(ziel: string, st: AssistentState, key: string): string {
-  const text = [st.titel, ...(st.zeilen ?? []).map((z) => (z.art === "fehler" ? `✗ ${z.text}` : z.text))]
-    .filter(Boolean)
-    .join(" · ")
-    .slice(0, 390);
-  const karte = istPaarKey(key) ? `&k=${encodeURIComponent(key)}#${key}` : "";
-  return `${ziel}?m=${encodeURIComponent(text)}&mt=${st.status === "ok" ? "ok" : "fehler"}${karte}`;
-}
-
-export async function assistentAktion(_prev: AssistentState, fd: FormData): Promise<AssistentState> {
+export async function assistentAktion(fd: FormData): Promise<AssistentState> {
   const { email } = await requireAdmin();
-  const key = feld(fd, "key", 80);
-  const ergebnis = await ausfuehren(email, key, fd);
-  // Aus Listen (Dashboard, Matching) zurück zur Liste — die Karte kann dort den Abschnitt wechseln.
-  const ziel = zurueckZiel(fd);
-  if (ziel) redirect(meldungsZiel(ziel, ergebnis, key));
-  return ergebnis;
-}
-
-/** „Vormerken“ bzw. „Passt nicht“ für neue Vorschläge im Dashboard — ein Klick, ohne Mail, jederzeit umkehrbar. */
-export async function dashboardPaarAktion(fd: FormData): Promise<void> {
-  await requireAdmin();
-  const key = feld(fd, "key", 80);
-  const aktion = feld(fd, "aktion", 20);
-  if (!istPaarKey(key) || (aktion !== "vormerken" && aktion !== "verwerfen")) {
-    redirect(`/admin/dashboard?m=${encodeURIComponent("Ungültige Anfrage.")}&mt=fehler`);
-  }
-  const f = new FormData();
-  f.set("key", key);
-  f.set("aktion", aktion);
-  await paarAktion(f);
-  const text =
-    aktion === "vormerken"
-      ? "Paar vorgemerkt — steht jetzt unter „Jetzt dran“; nächster Schritt: „Beide einladen“."
-      : "Paar verworfen — es wird nicht mehr vorgeschlagen (im Matching unter „Verworfen“ zurückholbar).";
-  redirect(`/admin/dashboard?m=${encodeURIComponent(text)}&mt=ok${aktion === "vormerken" ? `&k=${encodeURIComponent(key)}#${key}` : "#vorschlaege"}`);
-}
-
-async function ausfuehren(email: string, key: string, fd: FormData): Promise<AssistentState> {
   const am = new Date().toISOString();
-  const aktion = feld(fd, "aktion", 40) as AssistentAktionId;
+  const key = feld(fd, "key", 80);
+  const id = feld(fd, "aktion", 40) as AssistentAktionId;
+  const ziel = feld(fd, "ziel", 80);
   const signatur = feld(fd, "signatur", 64);
-  if (!istPaarKey(key) || !ASSISTENT_AKTIONEN.includes(aktion)) return { status: "fehler", titel: "Ungültige Anfrage.", am };
+  if (!istPaarKey(key) || !ASSISTENT_AKTIONEN.includes(id)) return { status: "fehler", titel: "Ungültige Anfrage.", zeilen: [], am };
 
   const ctx = await V.ladeVorgangKontext(key);
-  if (!ctx) return { status: "fehler", titel: "Vorgang nicht gefunden.", am };
+  if (!ctx) return { status: "fehler", titel: "Vorgang nicht gefunden.", zeilen: [], am };
   const u = await umgebung();
-  const a = assistentPlan(ctx, u).aktion;
+  const a = alleAktionen(assistentPlan(ctx, u)).find((x) => x.id === id && (x.ziel ?? "") === ziel);
   // Nur ausführen, was bestätigt wurde: Hat sich der Stand inzwischen geändert (z. B. hat ein
   // Kunde unterschrieben oder jemand anderes schon geklickt), nichts tun und neu anzeigen.
-  if (!a || a.id !== aktion || a.signatur !== signatur) {
+  if (!a || a.signatur !== signatur) {
     revalidatePath("/admin", "layout");
     return {
       status: "fehler",
@@ -169,9 +151,10 @@ async function ausfuehren(email: string, key: string, fd: FormData): Promise<Ass
   if (a.gesperrt) return { status: "fehler", titel: `Nicht möglich: ${a.knopf}`, zeilen: [{ art: "fehler", text: a.gesperrt }], am };
 
   const zeilen: AssistentZeile[] = [];
+  let weg = false;
   const abbruch = (text: string): AssistentState => {
     revalidatePath("/admin", "layout");
-    return { status: zeilen.some((z) => z.art === "ok") ? "teil" : "fehler", titel: `Nicht erledigt: ${a.knopf}`, zeilen: [...zeilen, { art: "fehler", text }], am };
+    return ergebnis(a.knopf, [...zeilen, { art: "fehler", text }]);
   };
 
   try {
@@ -181,7 +164,7 @@ async function ausfuehren(email: string, key: string, fd: FormData): Promise<Ass
         f.set("key", key);
         f.set("aktion", "vormerken");
         await paarAktion(f);
-        zeilen.push({ art: "ok", text: "Paar vorgemerkt — als Nächstes lädt der Assistent beide Seiten ein." });
+        zeilen.push({ art: "ok", text: "Paar vorgemerkt — als Nächstes „Beide einladen“." });
         break;
       }
       case "einladen":
@@ -196,13 +179,34 @@ async function ausfuehren(email: string, key: string, fd: FormData): Promise<Ass
       case "freigabe-mitteilen":
       case "pacht-erinnern":
       case "kauf-erinnern":
+      case "anzeige-erinnern":
+      case "bewertung-bitten":
         await mailsSenden(email, key, u, a.mails, zeilen);
         break;
+      case "bewertung-verzicht":
+        await N.bewertungVerzichten(key, ctx.art, email);
+        zeilen.push({ art: "ok", text: "Vermerkt: bei diesem Vorgang keine Bitte um eine Bewertung" });
+        break;
+      case "zustimmung": {
+        const rolle: M.Rolle = ziel === "anbieter" ? "anbieter" : "suchender";
+        const r = await V.zustimmungSetzen(key, ctx.art, rolle, email, true);
+        if (!r.ok) return abbruch(r.fehler ?? "Nicht möglich.");
+        zeilen.push({ art: "ok", text: `Zustimmung ${M.ROLLE_ARTIKEL[rolle].gen} erfasst` });
+        break;
+      }
       case "freigeben": {
         const r = await V.freigeben(key, email);
         if (!r.ok) return abbruch(`Freigabe nicht möglich: ${r.fehler}`);
         zeilen.push({ art: "ok", text: "Kontakt freigegeben — beide sehen die Kontaktdaten jetzt im Kundenbereich" });
         await mailsSenden(email, key, u, a.mails, zeilen);
+        break;
+      }
+      case "freigabe-zurueckziehen": {
+        const grund = feld(fd, "grund", 300);
+        if (!grund) return abbruch("Bitte einen Grund angeben.");
+        const r = await V.freigabeZurueckziehen(key, email, grund);
+        if (!r.ok) return abbruch(r.fehler ?? "Nicht möglich.");
+        zeilen.push({ art: "ok", text: "Freigabe zurückgezogen — die Kontaktdaten sind im Kundenbereich wieder verborgen" });
         break;
       }
       case "pacht-vorbereiten": {
@@ -214,7 +218,7 @@ async function ausfuehren(email: string, key: string, fd: FormData): Promise<Ass
         const daten: M.PachtDaten = { ...basis, pachtzinsJeHa: jeJahr ? null : zins, pachtzinsJahr: jeJahr ? zins : null };
         const r = await V.pachtSpeichern(key, ctx.art, daten, email);
         if (!r.ok) return abbruch(r.fehler ?? "Speichern nicht möglich.");
-        zeilen.push({ art: "ok", text: `Pachtvertrag-Entwurf gespeichert — Jahrespacht ${M.euro(M.jahrespacht(daten))}` });
+        zeilen.push({ art: "ok", text: `Pachtvertrag-Entwurf gespeichert — Jahrespacht ${M.euro(M.jahrespacht(daten))} (netto)` });
         const luecken = V.pachtLuecken(daten);
         zeilen.push(
           luecken.length
@@ -230,6 +234,10 @@ async function ausfuehren(email: string, key: string, fd: FormData): Promise<Ass
         await mailsSenden(email, key, u, a.mails, zeilen);
         break;
       }
+      case "pacht-zurueck":
+        await V.pachtZurueck(key, email, false);
+        zeilen.push({ art: "ok", text: "Pachtvertrag zurück zum Entwurf — jetzt im Formular ändern und erneut zur Unterschrift geben" });
+        break;
       case "kauf-vorbereiten": {
         const preis = zahl(feld(fd, "kaufpreis", 20));
         if (preis == null || preis <= 0) return abbruch("Bitte einen Kaufpreis größer als 0 eingeben.");
@@ -238,7 +246,7 @@ async function ausfuehren(email: string, key: string, fd: FormData): Promise<Ass
         const r = await V.kaufSpeichern(key, { ...basis, kaufpreis: preis }, email);
         if (!r.ok) return abbruch(r.fehler ?? "Speichern nicht möglich.");
         zeilen.push({ art: "ok", text: `Eckdaten gespeichert — Kaufpreis-Vorstellung ${M.euro(preis)}` });
-        zeilen.push({ art: "info", text: "Weitere Angaben (Übergabe, bestehende Pacht, Notar) im Bereich „Kauf“ — als Nächstes „Zur Bestätigung geben & beide informieren“." });
+        zeilen.push({ art: "info", text: "Weitere Angaben (Übergabe, bestehende Pacht, Notar) im Formular — als Nächstes „Zur Bestätigung geben & beide informieren“." });
         break;
       }
       case "kauf-bestaetigung": {
@@ -248,6 +256,10 @@ async function ausfuehren(email: string, key: string, fd: FormData): Promise<Ass
         await mailsSenden(email, key, u, a.mails, zeilen);
         break;
       }
+      case "kauf-zurueck":
+        await V.kaufZurueck(key, email);
+        zeilen.push({ art: "ok", text: "Eckdaten zurück zum Entwurf — Bestätigungen sind verfallen" });
+        break;
       case "kauf-beurkundet": {
         const datum = datumFeld(fd, "datum");
         const kaufpreis = zahl(feld(fd, "kaufpreis", 20));
@@ -259,9 +271,7 @@ async function ausfuehren(email: string, key: string, fd: FormData): Promise<Ass
         if (!r.ok) return abbruch(r.fehler ?? "Nicht möglich.");
         const wirksam = genehmigung === "nicht_noetig" || genehmigung === "erteilt";
         zeilen.push({ art: "ok", text: `Beurkundung vom ${tagDe(datum)} erfasst, Kaufpreis ${M.euro(kaufpreis)} — Provision angelegt (${wirksam ? "fällig" : "aufschiebend bis zur Genehmigung"})` });
-        // Den automatisch verschickten Treue-Gutschein offen ausweisen.
-        const gm = (await ladeVorgang(key))?.mails.find((x) => x.zweck === "gutschein" && x.am >= am);
-        if (gm) zeilen.push({ art: gm.ok ? "ok" : "fehler", text: `Treue-Gutschein-Mail „${gm.betreff}“ an ${gm.an} ${gm.ok ? (gm.test ? "protokolliert (Testmodus — nicht verschickt)" : "gesendet") : `nicht gesendet: ${gm.fehler ?? "Fehler"}`}` });
+        await gutscheinZeile(key, am, zeilen);
         break;
       }
       case "kauf-wirksam": {
@@ -271,12 +281,79 @@ async function ausfuehren(email: string, key: string, fd: FormData): Promise<Ass
         zeilen.push({ art: "ok", text: `Kaufvertrag wirksam seit ${tagDe(datum)} — Provision fällig (Rechnung durch die Buchhaltung)` });
         break;
       }
-      case "provision-abgerechnet":
-      case "provision-bezahlt": {
-        const status: M.ProvisionStatus = a.id === "provision-bezahlt" ? "bezahlt" : "abgerechnet";
+      case "extern": {
+        const datum = datumFeld(fd, "datum");
+        const betrag = zahl(feld(fd, "betrag", 20));
+        if (!datum || betrag == null || betrag <= 0) return abbruch("Bitte Datum und Jahrespacht bzw. Kaufpreis angeben.");
+        const art: M.Art = feld(fd, "art", 10) === "kauf" ? "kauf" : "pacht";
+        const r = await V.externErfassen(key, art, email, { datum, flaecheHa: zahl(feld(fd, "flaeche", 20)), betrag, quelle: feld(fd, "quelle", 200), notiz: "" });
+        if (!r.ok) return abbruch(r.fehler ?? "Nicht möglich.");
+        zeilen.push({
+          art: r.widerrufen ? "fehler" : "ok",
+          text: r.widerrufen
+            ? "Vertrag erfasst — der Suchende hat widerrufen, die Provision ist nur vorgemerkt (bitte prüfen)"
+            : `${art === "kauf" ? "Kaufvertrag" : "Pachtvertrag"} vom ${tagDe(datum)} erfasst — Provision fällig`,
+        });
+        if (ziel && (await N.meldungErledigen(key, ziel, email, "als außerhalb geschlossener Vertrag erfasst"))) zeilen.push({ art: "ok", text: "Die Meldung des Kunden ist als erledigt markiert" });
+        await gutscheinZeile(key, am, zeilen);
+        break;
+      }
+      case "provision-abgerechnet": {
+        const datum = datumFeld(fd, "rechnungsdatum");
+        const tage = zahl(feld(fd, "zahlungsziel", 4));
+        if (!datum || tage == null || tage < 1 || tage > 120) return abbruch("Bitte Rechnungsdatum und ein Zahlungsziel zwischen 1 und 120 Tagen angeben.");
+        const faelligAm = plusTage(datum, Math.round(tage));
+        if (!a.ziel || !(await N.provisionAbrechnen(key, a.ziel, { datum, faelligAm }, feld(fd, "notiz", 300), email))) return abbruch("Keine fällige Provision gefunden.");
+        zeilen.push({ art: "ok", text: `Provision als abgerechnet vermerkt — Rechnung vom ${tagDe(datum)}, zahlbar bis ${tagDe(faelligAm)}` });
+        break;
+      }
+      case "provision-bezahlt":
         if (!a.ziel) return abbruch("Keine offene Provision gefunden.");
-        await V.provisionStatusSetzen(key, a.ziel, status, feld(fd, "notiz", 500), email);
-        zeilen.push({ art: "ok", text: `Provision als „${M.PROVISION_STATUS[status].label}“ vermerkt` });
+        await V.provisionStatusSetzen(key, a.ziel, "bezahlt", feld(fd, "notiz", 300), email);
+        zeilen.push({ art: "ok", text: "Provision als bezahlt vermerkt" });
+        break;
+      case "anzeige-vermerken":
+        await N.pachtAnzeigeVermerken(key, email);
+        zeilen.push({ art: "ok", text: "Pachtanzeige als erledigt vermerkt" });
+        break;
+      case "meldung-erledigt":
+        if (!a.ziel || !(await N.meldungErledigen(key, a.ziel, email))) return abbruch("Meldung nicht gefunden oder schon erledigt.");
+        zeilen.push({ art: "ok", text: "Meldung als erledigt markiert" });
+        break;
+      case "ablehnung-erledigt": {
+        const abl = ctx.meta?.ablehnung;
+        if (!abl) return abbruch("Keine Meldung „kein Interesse“ gefunden.");
+        await N.ablehnungErledigen(key, ctx.art, email, abl.am, abl.rolle);
+        zeilen.push({ art: "ok", text: "Zur Kenntnis genommen — das Paar ruht (keine Erinnerungen an die Gegenseite)" });
+        break;
+      }
+      case "paar-beenden": {
+        const status = ctx.meta?.status ?? "vorschlag";
+        // Wie im Plan: nach der Freigabe nur aus den Listen nehmen (Nachweis bleibt), vorher verwerfen.
+        if (status === "kontakt" || M.aktiveFreigabe(ctx.vorgang)) {
+          await N.vorgangBeenden(key, ctx.art, email, feld(fd, "grund", 300));
+          zeilen.push({ art: "ok", text: "Vorgang ohne Abschluss beendet — steht jetzt unter „Abgeschlossen & beendet“ (Freigabe und Nachweis bleiben)" });
+        } else {
+          const f = new FormData();
+          f.set("key", key);
+          f.set("aktion", "verwerfen");
+          await paarAktion(f);
+          weg = true;
+          zeilen.push({ art: "ok", text: `Paar ${wert(ctx.angebot.name) || ctx.angebot.id} ↔ ${wert(ctx.gesuch.name) || ctx.gesuch.id} verworfen — es steht nicht mehr im Dashboard; im Matching unter „Verworfen“ zurückholbar` });
+        }
+        break;
+      }
+      case "wieder-aufnehmen": {
+        if ((ctx.meta?.status ?? "vorschlag") === "verworfen") {
+          const f = new FormData();
+          f.set("key", key);
+          f.set("aktion", "zuruecksetzen");
+          await paarAktion(f);
+          zeilen.push({ art: "ok", text: "Paar wieder als Vorschlag geführt" });
+        } else {
+          await N.vorgangWiederAufnehmen(key, ctx.art, email);
+          zeilen.push({ art: "ok", text: "Vorgang wieder aufgenommen" });
+        }
         break;
       }
     }
@@ -286,13 +363,48 @@ async function ausfuehren(email: string, key: string, fd: FormData): Promise<Ass
   }
 
   revalidatePath("/admin", "layout");
-  const fehler = zeilen.filter((z) => z.art === "fehler").length;
-  const ok = zeilen.filter((z) => z.art === "ok").length;
-  const status: AssistentState["status"] = fehler === 0 ? "ok" : ok > 0 ? "teil" : "fehler";
-  return {
-    status,
-    titel: status === "ok" ? `Erledigt: ${a.knopf}` : status === "teil" ? `Teilweise erledigt: ${a.knopf}` : `Nicht erledigt: ${a.knopf}`,
-    zeilen,
-    am,
-  };
+  const r = ergebnis(a.knopf, zeilen);
+  return weg ? { ...r, weg } : r;
+}
+
+/** Neue Vorschläge im Dashboard: „Vormerken“ bzw. „Passt nicht“ — ein Klick, ohne Mail, jederzeit umkehrbar. */
+export async function vorschlagAktion(fd: FormData): Promise<AssistentState> {
+  await requireAdmin();
+  const key = feld(fd, "key", 80);
+  const aktion = feld(fd, "aktion", 20);
+  if (!istPaarKey(key) || (aktion !== "vormerken" && aktion !== "verwerfen")) {
+    return { status: "fehler", titel: "Ungültige Anfrage.", zeilen: [], am: new Date().toISOString() };
+  }
+  const ids = key.split("~");
+  const namen = await Promise.all(ids.map(async (id) => wert((await A.ladeLead(id))?.lead.name) || id));
+  const f = new FormData();
+  f.set("key", key);
+  f.set("aktion", aktion);
+  await paarAktion(f);
+  revalidatePath("/admin", "layout");
+  return ergebnis(aktion === "vormerken" ? "Vormerken" : "Passt nicht", [
+    aktion === "vormerken"
+      ? { art: "ok", text: `Paar ${namen.join(" ↔ ")} vorgemerkt — nächster Schritt: „Beide einladen“` }
+      : { art: "ok", text: `Paar ${namen.join(" ↔ ")} verworfen — es wird nicht mehr vorgeschlagen (im Matching unter „Verworfen“ zurückholbar)` },
+  ]);
+}
+
+/** Neue Anfragen ohne Paar: Status mit einem Klick auf „In Arbeit“ oder „Archiv“. */
+export async function anfrageStatusAktion(fd: FormData): Promise<AssistentState> {
+  await requireAdmin();
+  const id = feld(fd, "id", 40);
+  const status = feld(fd, "status", 20);
+  if (!istKundeId(id) || (status !== "in_arbeit" && status !== "archiv")) {
+    return { status: "fehler", titel: "Ungültige Anfrage.", zeilen: [], am: new Date().toISOString() };
+  }
+  const name = wert((await A.ladeLead(id))?.lead.name) || id;
+  const f = new FormData();
+  f.set("id", id);
+  f.set("bereich", "status");
+  f.set("status", status);
+  await anfrageSpeichern(f);
+  revalidatePath("/admin", "layout");
+  return ergebnis(status === "archiv" ? "Archiv" : "In Arbeit", [
+    { art: "ok", text: status === "archiv" ? `Anfrage von ${name} archiviert — sie erscheint nicht mehr im Dashboard und nicht im Matching` : `Anfrage von ${name} auf „In Arbeit“ gesetzt — weiter unter „Anfragen“` },
+  ]);
 }

@@ -247,9 +247,23 @@ export type Provision = {
   status: ProvisionStatus;
   /** Angerechneter Treue-Gutschein (Preisnachlass auf diese Provision, Bruttobetrag). */
   gutschein?: { code: string; abzugBrutto: number };
+  /** Rechnung der Buchhaltung (nur zur Nachverfolgung, keine Rechnungsnummer): Datum und Zahlungsziel. */
+  rechnung?: { datum: string; faelligAm: string };
   notiz?: string;
   verlauf: { am: string; von: string; was: string }[];
 };
+
+/** Standard-Zahlungsziel einer Provisionsrechnung in Tagen. */
+export const ZAHLUNGSZIEL_TAGE = 14;
+
+/** Bis wann eine abgerechnete Provision zu zahlen ist (YYYY-MM-DD); ältere Einträge ohne Rechnungsdatum: Abrechnung + 14 Tage. */
+export function provisionZahlungBis(p: Provision): string | null {
+  if (p.status !== "abgerechnet") return null;
+  if (p.rechnung?.faelligAm) return p.rechnung.faelligAm;
+  const ab = p.verlauf.find((x) => x.was.startsWith(PROVISION_STATUS.abgerechnet.label))?.am;
+  if (!ab) return null;
+  return new Date(Date.parse(ab) + ZAHLUNGSZIEL_TAGE * 86_400_000).toISOString().slice(0, 10);
+}
 
 /** Beträge nach Anrechnung eines Gutscheins (Preisnachlass, USt-Anteil sinkt mit). */
 export function provisionNachGutschein(p: Provision): { netto: number | null; brutto: number | null } {
@@ -278,6 +292,8 @@ export type KundenMeldung = {
   rolle: Rolle;
   art: "abschluss" | "rueckfrage";
   text: string;
+  /** Von der Verwaltung als bearbeitet markiert (sonst steht der Vorgang unter „Jetzt dran“). */
+  erledigt?: { am: string; von: string; wie?: string };
 };
 
 export type Gutschein = {
@@ -311,8 +327,17 @@ export type VorgangRecord = {
   abschluss?: { am: string; grundlage: "pachtvertrag" | "kaufvertrag" | "extern" };
   /** Bitte um Google-Bewertung: Follow-up-Mail je Seite gesendet am. */
   bewertung?: { anbieter?: string; suchender?: string };
+  /** Die Verwaltung hat entschieden, bei diesem Vorgang nicht um eine Bewertung zu bitten. */
+  bewertungVerzicht?: { am: string; von: string };
   /** Treue-Gutschein fürs nächste Geschäft (unabhängig von Bewertungen). */
   gutschein?: Gutschein;
+  /** „Kein Interesse“ einer Seite zur Kenntnis genommen — das Paar ruht (`fuer` = Zeitpunkt der Ablehnung). */
+  ablehnungErledigt?: { am: string; von: string; fuer: string };
+  /**
+   * Nach der Freigabe ohne Abschluss beendet (z. B. keine Einigung) — betrifft nur die
+   * Übersicht der Verwaltung; Freigabe und Nachweis bleiben unverändert bestehen.
+   */
+  beendet?: { am: string; von: string; grund: string };
   dokumente: DokumentMeta[];
   ereignisse: Ereignis[];
   mails: GesendeteMail[];

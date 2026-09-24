@@ -72,6 +72,16 @@ function kundenName(k: M.KundeRecord | null, l: LeadView): string {
   return k?.stammdaten?.name || k?.vertrag?.signatur.name || T.wert(l.name) || l.id;
 }
 
+/** „Anbieter ↔ Suchender“ mit Namen — für Betreffzeilen der Verwaltungs-Mails (statt LL-…~LL-…). */
+function paarTitel(ctx: VorgangKontext | null, key: string): string {
+  return ctx ? `${kundenName(ctx.anbieter, ctx.angebot)} ↔ ${kundenName(ctx.suchender, ctx.gesuch)}` : key;
+}
+
+/** Link aus Verwaltungs-Mails direkt auf die Karte im Dashboard. */
+function dashboardLink(key: string): string {
+  return verwaltungsLink(`/admin/dashboard?k=${encodeURIComponent(key)}#${key}`);
+}
+
 async function paarAendern(von: string, key: string, aendern: (m: MatchMeta) => string | void): Promise<void> {
   await mutateZustand(von, (z) => {
     const m: MatchMeta = z.paare[key] ? { ...z.paare[key] } : { status: "vorschlag" };
@@ -123,10 +133,24 @@ export async function zustimmungSetzen(key: string, art: M.Art, rolle: M.Rolle, 
     M.ereignis(x, quelle, "zustimmung", `${M.ROLLE_NAME[rolle]} ${erteilt ? "stimmt dem Kontakt zu" : "nimmt die Zustimmung zurück"}${quelle === "kunde" ? " (im Kundenbereich)" : ""}`);
   });
   if (quelle === "kunde") {
-    await adminInfo(`${erteilt ? "Zustimmung zum Kontakt" : "Zustimmung zurückgenommen"}: ${M.ROLLE_NAME[rolle]} (${key})`, [
+    const ctx = await ladeVorgangKontext(key);
+    const andere: M.Rolle = rolle === "anbieter" ? "suchender" : "anbieter";
+    const andereZu = Boolean(andere === "anbieter" ? ctx?.meta?.zustimmungAnbieter : ctx?.meta?.zustimmungSuchender);
+    let weiter = "";
+    if (erteilt && ctx) {
+      if (!andereZu) weiter = `Die Zustimmung ${M.ROLLE_ARTIKEL[andere].gen} fehlt noch.`;
+      else {
+        const pr = freigabePruefung(ctx);
+        const fehlt = pr.punkte.filter((x) => !x.ok).map((x) => x.text);
+        weiter = pr.bereit
+          ? "Beide haben zugestimmt — die Freigabe ist jetzt möglich (Dashboard: „Kontakt freigeben & beide informieren“)."
+          : `Beide haben zugestimmt, die Freigabe ist aber noch nicht möglich: ${fehlt.join(" · ")}.`;
+      }
+    }
+    await adminInfo(`${erteilt ? "Zustimmung zum Kontakt" : "Zustimmung zurückgenommen"}: ${M.ROLLE_NAME[rolle]} — ${paarTitel(ctx, key)}`, [
       `${rolle === "anbieter" ? "Der Anbieter" : "Der Suchende"} hat im Kundenbereich ${erteilt ? "dem Kontakt zugestimmt" : "seine Zustimmung zurückgenommen"}.`,
-      "Die Freigabe ist möglich, sobald beide Seiten unterschrieben und zugestimmt haben.",
-    ], verwaltungsLink(`/admin/vorgang/${key}`));
+      ...(weiter ? [weiter] : []),
+    ], dashboardLink(key));
   }
   return { ok: true };
 }
@@ -141,11 +165,11 @@ export async function ablehnen(key: string, art: M.Art, rolle: M.Rolle, grund: s
   await aendereVorgang(key, art, (x) => {
     M.ereignis(x, "kunde", "ablehnung", `${M.ROLLE_NAME[rolle]} meldet kein Interesse${grund ? `: ${grund}` : ""}`);
   });
-  await adminInfo(`Kein Interesse: ${M.ROLLE_NAME[rolle]} (${key})`, [
+  await adminInfo(`Kein Interesse: ${M.ROLLE_NAME[rolle]} — ${paarTitel(await ladeVorgangKontext(key), key)}`, [
     `${rolle === "anbieter" ? "Der Anbieter" : "Der Suchende"} hat im Kundenbereich „kein Interesse“ gemeldet.`,
     ...(grund ? [`Begründung: ${grund}`] : []),
-    "Das Paar kann im Matching verworfen werden.",
-  ], verwaltungsLink(`/admin/vorgang/${key}`));
+    "Im Dashboard steht der Vorgang unter „Jetzt dran“: „Paar beenden“ oder „Zur Kenntnis — Paar ruhen lassen“.",
+  ], dashboardLink(key));
 }
 
 export type Pruefpunkt = { ok: boolean; text: string };
@@ -186,8 +210,8 @@ export async function freigeben(key: string, von: string): Promise<{ ok: boolean
   }
   await adminInfo(`Freigabe erteilt: ${kundenName(ctx.anbieter, ctx.angebot)} ↔ ${kundenName(ctx.suchender, ctx.gesuch)}`, [
     `Vorgang ${key}: Die Kontaktdaten sind freigegeben (durch ${von}).`,
-    "Beide Seiten sehen sie im Kundenbereich. Die Freigabe-Mitteilungen können im Vorgang gesendet werden.",
-  ], verwaltungsLink(`/admin/vorgang/${key}`));
+    "Beide Seiten sehen sie im Kundenbereich.",
+  ], dashboardLink(key));
   return { ok: true };
 }
 
@@ -426,9 +450,9 @@ export async function pachtUnterschreiben(opts: {
     M.ereignis(k, "kunde", "pacht-unterschrift", `Pachtvertrag unterschrieben (Vorgang ${opts.key})`);
   });
   if (!schliesseAb) {
-    await adminInfo(`Pachtvertrag: ${opts.rolle === "anbieter" ? "Verpächter" : "Pächter"} hat unterschrieben (${opts.key})`, [
+    await adminInfo(`Pachtvertrag: ${opts.rolle === "anbieter" ? "Verpächter" : "Pächter"} hat unterschrieben — ${paarTitel(await ladeVorgangKontext(opts.key), opts.key)}`, [
       `„${opts.name}“ hat den Pachtvertrag online unterschrieben. Die Unterschrift der anderen Seite steht noch aus.`,
-    ], verwaltungsLink(`/admin/vorgang/${opts.key}`));
+    ], dashboardLink(opts.key));
     return { ok: true, abgeschlossen: false };
   }
   await pachtAbschliessen(opts.key, reserviert);
@@ -489,7 +513,7 @@ export async function pachtAbschliessen(key: string, dokumentId: string): Promis
     "Rechnung bitte über die Buchhaltung stellen (hier wird keine Rechnungsnummer vergeben).",
     ...(gutschein ? [`Treue-Gutschein ${gutschein.code} (${M.euro(gutschein.betrag)}) an den Pächter ausgegeben.`] : []),
     "Erinnerung: Der Verpächter muss den Vertrag binnen eines Monats nach § 2 LPachtVG anzeigen.",
-  ], verwaltungsLink(`/admin/vorgang/${key}`));
+  ], dashboardLink(key));
 }
 
 // ---------------------------------------------------------------------------
@@ -661,10 +685,10 @@ export async function kaufBestaetigen(opts: {
       });
     }
   }
-  await adminInfo(`Kaufabsicht bestätigt${beide ? " (beide Seiten)" : ""}: ${opts.key}`, [
+  await adminInfo(`Kaufabsicht bestätigt${beide ? " (beide Seiten)" : ""}: ${paarTitel(ctx, opts.key)}`, [
     `„${opts.name}“ hat die Eckdaten als ${feld === "verkaeufer" ? "Verkäufer" : "Käufer"} bestätigt.`,
     beide ? "Beide Seiten haben bestätigt — die Eckdaten können an den Notar." : "Die Bestätigung der anderen Seite steht noch aus.",
-  ], verwaltungsLink(`/admin/vorgang/${opts.key}`));
+  ], dashboardLink(opts.key));
   return { ok: true };
 }
 
@@ -707,11 +731,11 @@ export async function kaufBeurkundet(
     return "Kaufvertrag beurkundet — Provision erfasst";
   });
   await abschlussMails(ctx, "kaufvertrag", null, gutschein);
-  await adminInfo(`${wirksam ? "Provision fällig" : "Provision entstanden (aufschiebend)"}: Kauf ${key}`, [
+  await adminInfo(`${wirksam ? "Provision fällig" : "Provision entstanden (aufschiebend)"}: Kauf ${paarTitel(ctx, key)}`, [
     `Kaufvertrag beurkundet am ${T.tagDe(daten.datum)}, Kaufpreis ${M.euro(daten.kaufpreis)}.`,
     `Provision (Konditionen Nr. ${konditionen?.version ?? "?"}): ${M.euro(provision.netto)} netto, ${M.euro(provision.brutto)} brutto — Schuldner: Käufer.`,
-    wirksam ? "Rechnung bitte über die Buchhaltung stellen." : "Fällig erst mit Wirksamkeit (Genehmigung nach GrdstVG) — bitte dann „Kauf wirksam“ erfassen.",
-  ], verwaltungsLink(`/admin/vorgang/${key}`));
+    wirksam ? "Rechnung bitte über die Buchhaltung stellen." : "Fällig erst mit Wirksamkeit (Genehmigung nach GrdstVG) — bitte dann im Dashboard „Kauf ist wirksam“ erfassen.",
+  ], dashboardLink(key));
   return { ok: true };
 }
 
@@ -729,7 +753,7 @@ export async function kaufWirksam(key: string, von: string, datum: string): Prom
     }
     M.ereignis(x, von, "kauf-wirksam", `Kaufvertrag wirksam (Genehmigung erteilt) am ${T.tagDe(datum)} — Provision fällig`);
   });
-  await adminInfo(`Provision fällig: Kauf ${key} ist wirksam`, [`Der Kaufvertrag ist seit ${T.tagDe(datum)} wirksam. Rechnung bitte über die Buchhaltung stellen.`], verwaltungsLink(`/admin/vorgang/${key}`));
+  await adminInfo(`Provision fällig: Kauf ${paarTitel(await ladeVorgangKontext(key), key)} ist wirksam`, [`Der Kaufvertrag ist seit ${T.tagDe(datum)} wirksam. Rechnung bitte über die Buchhaltung stellen.`], dashboardLink(key));
 }
 
 export async function kaufAbbrechen(key: string, von: string, grund: string): Promise<void> {
@@ -837,10 +861,10 @@ export async function externErfassen(
     });
   }
   if (ctx && !widerrufen) await abschlussMails(ctx, "extern", null, gutschein);
-  await adminInfo(`${widerrufen ? "Externer Abschluss nach Widerruf — Provision prüfen" : "Provision fällig (externer Abschluss)"}: ${key}`, [
+  await adminInfo(`${widerrufen ? "Externer Abschluss nach Widerruf — Provision prüfen" : "Provision fällig (externer Abschluss)"}: ${paarTitel(ctx, key)}`, [
     `Erfasst durch ${von}: ${art === "kauf" ? "Kaufvertrag" : "Pachtvertrag"} vom ${T.tagDe(daten.datum)}${daten.flaecheHa ? `, ${T.haText(daten.flaecheHa)}` : ""}.`,
     `Bemessung: ${M.euro(daten.betrag)} → Provision ${M.euro(provision.netto)} netto / ${M.euro(provision.brutto)} brutto.`,
-  ], verwaltungsLink(`/admin/vorgang/${key}`));
+  ], dashboardLink(key));
   return { ok: true, widerrufen };
 }
 
@@ -917,12 +941,12 @@ export async function kundenMeldung(key: string, art: M.Art, rolle: M.Rolle, typ
     x.meldungen.unshift({ id: M.kurzId("MLD"), am: jetzt(), rolle, art: typ, text });
     M.ereignis(x, "kunde", typ === "abschluss" ? "meldung-abschluss" : "meldung-rueckfrage", `${M.ROLLE_NAME[rolle]}: ${typ === "abschluss" ? "meldet einen Vertragsschluss" : "Rückfrage"} — ${text.slice(0, 140)}`);
   });
-  await adminInfo(`${typ === "abschluss" ? "Kunde meldet Vertragsschluss" : "Rückfrage aus dem Kundenbereich"}: ${key}`, [
+  await adminInfo(`${typ === "abschluss" ? "Kunde meldet Vertragsschluss" : "Rückfrage aus dem Kundenbereich"}: ${paarTitel(await ladeVorgangKontext(key), key)}`, [
     `Von: ${M.ROLLE_NAME[rolle]}`,
     "",
     text,
-    ...(typ === "abschluss" ? ["", "Bitte prüfen und im Vorgang als „außerhalb geschlossenen Vertrag“ erfassen (Provision)."] : []),
-  ], verwaltungsLink(`/admin/vorgang/${key}`));
+    ...(typ === "abschluss" ? ["", "Bitte prüfen: Im Dashboard steht der Vorgang unter „Jetzt dran“ mit „Außerhalb geschlossen erfassen“ (Provision)."] : ["", "Im Dashboard steht der Vorgang unter „Jetzt dran“ — nach der Antwort „Erledigt“ klicken."]),
+  ], dashboardLink(key));
 }
 
 // ---------------------------------------------------------------------------

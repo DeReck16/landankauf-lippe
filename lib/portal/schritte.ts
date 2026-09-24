@@ -14,7 +14,12 @@ export type SchrittStatus = "erledigt" | "aktuell" | "offen";
 export type Schritt = {
   nr: number;
   id: SchrittId;
+  /** Anzeige je nach Stand: erledigt im Perfekt („Kontakt freigegeben“), sonst als Aufgabe („Kontakt freigeben“). */
   titel: string;
+  /** Die Aufgabe, solange der Schritt nicht erledigt ist. */
+  aufgabe: string;
+  /** Der erledigte Schritt im Perfekt. */
+  erledigtTitel: string;
   status: SchrittStatus;
   /** Stand in einem Satz (was erledigt ist bzw. was fehlt). */
   detail: string;
@@ -95,10 +100,10 @@ export function vorgangSchritte(x: SchrittEingabe, jetzt = new Date()): { schrit
   const bereitA = M.freigabeBereit(x.anbieter, jetzt);
   const bereitS = M.freigabeBereit(x.suchender, jetzt);
 
-  const roh: Omit<Schritt, "status">[] = [];
+  const roh: Omit<Schritt, "status" | "titel">[] = [];
   const fertig: boolean[] = [];
 
-  const add = (s: Omit<Schritt, "status">, ok: boolean) => {
+  const add = (s: Omit<Schritt, "status" | "titel">, ok: boolean) => {
     roh.push(s);
     fertig.push(ok);
   };
@@ -107,7 +112,8 @@ export function vorgangSchritte(x: SchrittEingabe, jetzt = new Date()): { schrit
     {
       nr: 1,
       id: "paar",
-      titel: "Paar gebildet",
+      aufgabe: "Paar vormerken",
+      erledigtTitel: "Paar vorgemerkt",
       detail: verworfen ? "Paar verworfen" : status === "vorschlag" ? "Vorschlag aus dem Matching" : "Angebot und Gesuch sind vorgemerkt",
       naechstes: "Im Assistenten „Paar vormerken“ klicken.",
     },
@@ -117,7 +123,8 @@ export function vorgangSchritte(x: SchrittEingabe, jetzt = new Date()): { schrit
     {
       nr: 2,
       id: "einladung",
-      titel: "Eingeladen",
+      aufgabe: "Beide einladen",
+      erledigtTitel: "Beide eingeladen",
       detail: `${stufeText("anbieter", x.anbieter)} · ${stufeText("suchender", x.suchender)}`,
       naechstes: "Im Assistenten „Beide einladen“ klicken — er erstellt die persönlichen Links und sendet beide Einladungs-Mails.",
     },
@@ -127,7 +134,8 @@ export function vorgangSchritte(x: SchrittEingabe, jetzt = new Date()): { schrit
     {
       nr: 3,
       id: "unterschrift",
-      titel: "Verträge unterschrieben",
+      aufgabe: "Unterschriften einholen",
+      erledigtTitel: "Verträge unterschrieben",
       detail: [
         vertragGueltig(x.suchender) ? `Provisionsvereinbarung (Suchender) unterschrieben am ${tag(x.suchender?.vertrag?.signatur.am)}` : `Provisionsvereinbarung (Suchender): ${M.STUFE_INFO[M.stufe(x.suchender)].label.toLowerCase()}`,
         vertragGueltig(x.anbieter) ? `Vereinbarung (Anbieter) unterschrieben am ${tag(x.anbieter?.vertrag?.signatur.am)}` : `Vereinbarung (Anbieter): ${M.STUFE_INFO[M.stufe(x.anbieter)].label.toLowerCase()}`,
@@ -140,7 +148,8 @@ export function vorgangSchritte(x: SchrittEingabe, jetzt = new Date()): { schrit
     {
       nr: 4,
       id: "zustimmung",
-      titel: "Anonym vorgestellt & Zustimmung",
+      aufgabe: "Anonym anfragen & Zustimmung einholen",
+      erledigtTitel: "Beide stimmen dem Kontakt zu",
       detail: [
         zA ? `Anbieter stimmt zu (${tag(zA)})` : v?.hinweise?.anbieter ? `Hinweis an Anbieter gesendet (${tag(v.hinweise.anbieter)}), Zustimmung fehlt` : "Anbieter noch nicht angefragt",
         zS ? `Suchender stimmt zu (${tag(zS)})` : v?.hinweise?.suchender ? `Hinweis an Suchenden gesendet (${tag(v.hinweise.suchender)}), Zustimmung fehlt` : "Suchender noch nicht angefragt",
@@ -155,7 +164,8 @@ export function vorgangSchritte(x: SchrittEingabe, jetzt = new Date()): { schrit
     {
       nr: 5,
       id: "freigabe",
-      titel: "Kontakt freigegeben",
+      aufgabe: "Kontakt freigeben",
+      erledigtTitel: "Kontakt freigegeben",
       detail: freigegeben
         ? `Freigegeben am ${tag(v?.freigabe?.am)} — beide sehen Namen, Kontaktdaten und Flurstücke (= Nachweis)`
         : v?.freigabe?.zurueckgezogen
@@ -169,7 +179,8 @@ export function vorgangSchritte(x: SchrittEingabe, jetzt = new Date()): { schrit
     {
       nr: 6,
       id: "vertrag",
-      titel: x.art === "kauf" ? "Kaufvertrag" : "Pachtvertrag",
+      aufgabe: x.art === "kauf" ? "Kaufvertrag beurkunden lassen" : "Pachtvertrag schließen",
+      erledigtTitel: x.art === "kauf" ? "Kaufvertrag beurkundet" : "Pachtvertrag geschlossen",
       detail: vertragText(x.art, v),
       naechstes:
         x.art === "kauf"
@@ -179,11 +190,23 @@ export function vorgangSchritte(x: SchrittEingabe, jetzt = new Date()): { schrit
     Boolean(v?.abschluss),
   );
   const offeneProv = provisionen.filter((p) => p.status !== "bezahlt");
+  const heuteDe = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Berlin", year: "numeric", month: "2-digit", day: "2-digit" }).format(jetzt);
+  const ueberfaellig = offeneProv.some((p) => p.status === "abgerechnet" && (M.provisionZahlungBis(p) ?? "9999-12-31") < heuteDe);
   add(
     {
       nr: 7,
       id: "provision",
-      titel: "Provision",
+      // Was gerade offen ist: abrechnen (fällig), auf die Zahlung warten (abgerechnet) oder auf die Wirksamkeit.
+      aufgabe: offeneProv.some((p) => p.status === "faellig")
+        ? "Provision abrechnen"
+        : ueberfaellig
+          ? "Provision überfällig — nachhaken"
+          : offeneProv.some((p) => p.status === "abgerechnet")
+            ? "Zahlung der Provision abwarten"
+            : offeneProv.some((p) => p.status === "aufschiebend")
+              ? "Wirksamkeit abwarten, dann abrechnen"
+              : "Provision abrechnen",
+      erledigtTitel: "Provision bezahlt",
       detail: provisionen.length
         ? provisionen.map((p) => `${M.PROVISION_STATUS[p.status].label}: ${M.euro(p.brutto)} brutto`).join(" · ")
         : "Entsteht mit dem Vertragsschluss",
@@ -197,7 +220,7 @@ export function vorgangSchritte(x: SchrittEingabe, jetzt = new Date()): { schrit
   const idx = verworfen ? -1 : fertig.findIndex((f) => !f);
   const schritte: Schritt[] = roh.map((s, i) => {
     const st: SchrittStatus = fertig[i] ? "erledigt" : i === idx ? "aktuell" : "offen";
-    return { ...s, status: st, naechstes: st === "aktuell" ? s.naechstes : undefined };
+    return { ...s, titel: fertig[i] ? s.erledigtTitel : s.aufgabe, status: st, naechstes: st === "aktuell" ? s.naechstes : undefined };
   });
   return { schritte, aktuell: idx >= 0 ? schritte[idx] : null, erledigt: fertig.filter(Boolean).length, verworfen };
 }

@@ -9,7 +9,7 @@ import { vorgangSchritte } from "@/lib/portal/schritte";
 import { SchrittKurz } from "../Schritte";
 import * as M from "@/lib/portal/model";
 import { datumDe, tagDe } from "@/lib/portal/texte";
-import { bewertungFaellig } from "@/lib/portal/vorgang";
+import { ladeDashboard } from "@/lib/portal/dashboard";
 import { alleGesehenAktion } from "../../portal-actions";
 import { Meldung } from "../teile";
 
@@ -52,16 +52,8 @@ export default async function VorgaengePage(props: PageProps<"/admin/vorgaenge">
   const neuVorgaenge = [...portal.vorgaenge.values()].map((v) => ({ v, e: neu.vorgang(v) })).filter((x) => x.e.length);
   const alleNeuKeys = [...neuKunden.map((x) => `kunde:${x.k.id}`), ...neuVorgaenge.map((x) => `vorgang:${x.v.key}`)];
 
-  const faellig: { text: string; href: string; tipp: string }[] = [];
-  for (const x of vorgaenge) {
-    if (!x.v) continue;
-    const widerrufen = (x.a?.widerruf || x.s?.widerruf) && !x.v.abschluss;
-    if (M.aktiveFreigabe(x.v) && widerrufen) faellig.push({ text: `Widerruf nach Freigabe — Freigabe zurückziehen: ${name(x.v.angebotId)} ↔ ${name(x.v.gesuchId)}`, href: `/admin/vorgang/${x.key}`, tipp: "Eine Seite hat ihren Vertrag widerrufen; der Kundenbereich zeigt die Kontaktdaten schon nicht mehr an" });
-    else if (M.aktiveFreigabe(x.v) && !x.v.abschluss && !x.v.mails.some((m) => m.zweck === "freigabe" && m.ok)) faellig.push({ text: `Freigabe-Mitteilungen senden: ${name(x.v.angebotId)} ↔ ${name(x.v.gesuchId)}`, href: `/admin/vorgang/${x.key}#assistent`, tipp: "Die Kontaktdaten sind freigegeben, aber noch keine Mitteilung ist rausgegangen — im Vorgang über den Assistenten senden" });
-    if (x.v.pachtvertrag?.status === "zur_unterschrift") faellig.push({ text: `Pachtvertrag wartet auf Unterschrift: ${name(x.v.angebotId)} ↔ ${name(x.v.gesuchId)}`, href: `/admin/vorgang/${x.key}#pachtvertrag`, tipp: "Beide Seiten müssen im Kundenbereich unterschreiben" });
-    if (x.v.pachtvertrag?.status === "abgeschlossen" && !x.v.pachtvertrag.anzeigeErledigtAm) faellig.push({ text: `Pachtanzeige (§ 2 LPachtVG) nicht als erledigt vermerkt: ${x.key}`, href: `/admin/vorgang/${x.key}#pachtvertrag`, tipp: "Der Verpächter muss binnen eines Monats anzeigen — Erinnerungsentwurf im Vorgang" });
-    if (bewertungsUrl && bewertungFaellig(x.v, portal.einstellungen).length) faellig.push({ text: `Bitte um Google-Bewertung fällig: ${name(x.v.angebotId)} ↔ ${name(x.v.gesuchId)}`, href: `/admin/vorgang/${x.key}#weitere`, tipp: "Entwurf ohne Anreiz — im Vorgang unter „Weitere Aktionen → Einzelne E-Mails“" });
-  }
+  // „Jetzt dran“ kommt aus derselben Logik wie das Dashboard (Assistent je Vorgang).
+  const dash = await ladeDashboard(email);
 
   const kacheln = [
     { wert: kunden.filter((k) => M.stufe(k) === "eingeladen" || M.stufe(k) === "geoeffnet" || M.stufe(k) === "angaben").length, name: "Onboarding offen", tipp: "Eingeladen, aber noch nicht unterschrieben" },
@@ -142,13 +134,21 @@ export default async function VorgaengePage(props: PageProps<"/admin/vorgaenge">
         )}
       </section>
 
-      {faellig.length > 0 && (
+      {dash.jetzt.length > 0 && (
         <section className="lfa-panel">
-          <h2 className="lfa-h2"><span className="lfa-puls" />Jetzt dran</h2>
+          <h2 className="lfa-h2" title="Dieselbe Liste wie im Dashboard: Vorgänge, bei denen Sie am Zug sind">
+            <span className="lfa-puls" />Jetzt dran ({dash.jetzt.length}) — erledigen im Dashboard
+          </h2>
           <ul className="lfa-verlauf">
-            {faellig.map((f) => (
-              <li key={f.text}>
-                <Link href={f.href} className="lfa-link-name" title={f.tipp}>{f.text}</Link>
+            {dash.jetzt.map((x) => (
+              <li key={x.key}>
+                <Link href={`/admin/dashboard?k=${encodeURIComponent(x.key)}#${x.key}`} className="lfa-link-name" title="Im Dashboard öffnen — dort mit einem Knopf erledigen">
+                  {x.anbieter} ↔ {x.suchender}
+                </Link>
+                <div className="lfa-klein">
+                  {x.plan.meldungen.length ? `${x.plan.meldungen.map((m) => m.titel).join(" · ")} — ` : ""}
+                  {x.plan.aktion ? `nächster Knopf: „${x.plan.aktion.knopf}“` : x.plan.stand}
+                </div>
               </li>
             ))}
           </ul>
@@ -195,7 +195,7 @@ export default async function VorgaengePage(props: PageProps<"/admin/vorgaenge">
                       <span className="lfa-badge lfa-badge-keine" title={MATCH_STATUS[x.meta?.status ?? "vorschlag"].tipp}>{MATCH_STATUS[x.meta?.status ?? "vorschlag"].label}</span>
                       {(() => {
                         const sch = vorgangSchritte({ art: x.v?.art ?? (byId.get(x.key.split("~")[0])?.art === "kauf" ? "kauf" : "pacht"), meta: x.meta, vorgang: x.v, anbieter: x.a, suchender: x.s });
-                        return <div style={{ marginTop: "0.3rem" }}><SchrittKurz schritte={sch.schritte} aktuell={sch.aktuell} verworfen={sch.verworfen} /></div>;
+                        return <div style={{ marginTop: "0.3rem" }}><SchrittKurz schritte={sch.schritte} aktuell={sch.aktuell} verworfen={sch.verworfen} beendet={Boolean(x.v?.beendet)} /></div>;
                       })()}
                     </td>
                     <td data-label="Anbieter">{stufeBadge(x.a, "anbieter")}</td>

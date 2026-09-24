@@ -61,31 +61,24 @@ function AktionsKnopf({ k, aktion, text, tipp, leise, disabled }: { k: Kandidat;
   );
 }
 
-function Zustimmung({ k, rolle, zurueck, gesperrt }: { k: Kandidat; rolle: M.Rolle; zurueck: string; gesperrt?: boolean }) {
+/** Erfasste Zustimmung zurücknehmen (z. B. versehentlich erfasst) — erteilt wird sie über den Assistenten. */
+function ZustimmungZuruecknehmen({ k, rolle, zurueck }: { k: Kandidat; rolle: M.Rolle; zurueck: string }) {
   const am = rolle === "anbieter" ? k.meta?.zustimmungAnbieter : k.meta?.zustimmungSuchender;
   const quelle = k.meta?.zustimmungQuelle?.[rolle];
-  const wer = rolle === "anbieter" ? "Anbieter" : "Suchender";
-  const abgelehnt = k.meta?.ablehnung?.rolle === rolle;
+  if (!am) return null;
   return (
     <form action={zustimmungErfassenAktion} className="lfa-zustimmung">
       <input type="hidden" name="key" value={k.key} />
       <input type="hidden" name="rolle" value={rolle} />
       <input type="hidden" name="art" value={k.angebot.art ?? "pacht"} />
-      <input type="hidden" name="an" value={am ? "0" : "1"} />
+      <input type="hidden" name="an" value="0" />
       <input type="hidden" name="zurueck" value={zurueck} />
       <button
         type="submit"
-        disabled={!am && gesperrt}
-        className={`lfa-knopf lfa-knopf-klein ${am ? "" : "lfa-knopf-hell"}`}
-        title={
-          !am && gesperrt
-            ? SPERRE_UNTERSCHRIFT
-            : am
-            ? `${wer} hat am ${datum(am)} zugestimmt${quelle === "kunde" ? " (selbst im Kundenbereich)" : quelle ? ` (erfasst von ${quelle})` : ""}. Klick nimmt die Zustimmung zurück.`
-            : `Zustimmung ${M.ROLLE_ARTIKEL[rolle].gen} zu genau diesem Kontakt erfassen (z. B. telefonisch oder per Mail erteilt). Der Kunde kann auch selbst im Kundenbereich zustimmen.`
-        }
+        className="lfa-knopf lfa-knopf-leise lfa-knopf-klein"
+        title={`${M.ROLLE_NAME[rolle]} hat am ${datum(am)} zugestimmt${quelle === "kunde" ? " (selbst im Kundenbereich)" : quelle ? ` (erfasst von ${quelle})` : ""}. Klick nimmt die Zustimmung zurück.`}
       >
-        {am ? `✓ ${wer} stimmt zu (${datum(am)}${quelle === "kunde" ? ", selbst" : ""})` : abgelehnt ? `${wer}: kein Interesse gemeldet` : `Zustimmung ${wer} erfassen`}
+        Zustimmung {M.ROLLE_ARTIKEL[rolle].gen} zurücknehmen
       </button>
     </form>
   );
@@ -99,7 +92,6 @@ function PaarKarte({
   basis,
   zurueck,
   bewertungsUrl,
-  meldung,
 }: {
   k: Kandidat;
   zustand: Zustand;
@@ -108,7 +100,6 @@ function PaarKarte({
   basis: string;
   zurueck: string;
   bewertungsUrl: string | null;
-  meldung: { text: string; fehler: boolean } | null;
 }) {
   const status = k.meta?.status ?? "vorschlag";
   const anbieter = portal.kunden.get(k.angebot.id) ?? null;
@@ -170,7 +161,7 @@ function PaarKarte({
           </div>
         )}
 
-        {plan && <Assistent plan={plan} zurueck={zurueck} kompakt umleiten meldung={meldung} />}
+        {plan && <Assistent plan={plan} kompakt />}
 
         <div className="lfa-knopfreihe">
           {(status === "kontakt" || status === "abschluss") && (
@@ -185,33 +176,25 @@ function PaarKarte({
           {neueEreignisse > 0 && <span className="lfa-neu-text" title="Neue Ereignisse bei diesem Paar oder seinen Kunden"><span className="lfa-puls" />{neueEreignisse} neu</span>}
         </div>
 
-        {status !== "verworfen" && (
+        {status !== "verworfen" && (entwuerfe.length > 0 || aktiv) && (
           <details className="lfa-weitere lfa-weitere-klein">
-            <summary title="Alles, was der Assistent gerade nicht als nächsten Schritt vorschlägt: verwerfen, Zustimmungen erfassen oder zurücknehmen, Freigabe ohne Mitteilung, einzelne E-Mails">
+            <summary title="Für Sonderfälle: einzelne E-Mails, Hinweise außerhalb verschickt, Zustimmung zurücknehmen, Freigabe ohne Mitteilung">
               {faellig > 0 && <span className="lfa-puls" title={`${faellig} einzelne E-Mail${faellig === 1 ? "" : "s"} jetzt fällig`} />}
-              Weitere Aktionen
+              Einzelne E-Mails und Sonderfälle
               <span className="lfa-klein" style={{ fontWeight: 400 }}>
-                {" "}— {status === "vorschlag" ? "passt nicht, " : aktiv ? "absagen, Zustimmungen, " : ""}einzelne E-Mails ({entwuerfe.length}{faellig > 0 ? `, ${faellig} fällig` : ""})
+                {" "}({entwuerfe.length} E-Mail{entwuerfe.length === 1 ? "" : "s"}{faellig > 0 ? `, ${faellig} fällig` : ""})
               </span>
             </summary>
             <div className="lfa-weitere-inhalt">
-              {(status === "vorschlag" || aktiv) && (
+              {aktiv && (
                 <div className="lfa-weitere-teil">
                   <div className="lfa-knopfreihe">
-                    {status === "vorschlag" && (
-                      <AktionsKnopf k={k} aktion="verwerfen" text="Passt nicht" leise tipp="Paar verwerfen — wird nicht mehr vorgeschlagen (lässt sich unten unter „Verworfen“ zurückholen)" />
+                    {status === "vorgemerkt" && (
+                      <AktionsKnopf k={k} aktion="angefragt" text="Hinweise extern verschickt" leise disabled={!beide} tipp={beide ? "Nur klicken, wenn beide anonymen Hinweise außerhalb der Verwaltung (Telefon, eigenes Postfach) gesendet wurden — setzt den Status auf „Angefragt“" : SPERRE_UNTERSCHRIFT} />
                     )}
-                    {aktiv && (
-                      <>
-                        {status === "vorgemerkt" && (
-                          <AktionsKnopf k={k} aktion="angefragt" text="Hinweise extern verschickt" leise disabled={!beide} tipp={beide ? "Nur klicken, wenn beide anonymen Hinweise außerhalb der Verwaltung (Telefon, eigenes Postfach) gesendet wurden — setzt den Status auf „Angefragt“" : SPERRE_UNTERSCHRIFT} />
-                        )}
-                        <Zustimmung k={k} rolle="anbieter" zurueck={zurueck} gesperrt={!beide} />
-                        <Zustimmung k={k} rolle="suchender" zurueck={zurueck} gesperrt={!beide} />
-                        <AktionsKnopf k={k} aktion="verwerfen" text={status === "angefragt" ? "Abgesagt" : "Passt nicht"} leise tipp="Eine Seite hat abgelehnt oder das Paar passt nicht — verwerfen" />
-                        {status === "vorgemerkt" && <AktionsKnopf k={k} aktion="zuruecksetzen" text="Zurücksetzen" leise tipp="Zurück zum unbearbeiteten Vorschlag; Zustimmungen und Notiz werden gelöscht" />}
-                      </>
-                    )}
+                    <ZustimmungZuruecknehmen k={k} rolle="anbieter" zurueck={zurueck} />
+                    <ZustimmungZuruecknehmen k={k} rolle="suchender" zurueck={zurueck} />
+                    {status === "vorgemerkt" && <AktionsKnopf k={k} aktion="zuruecksetzen" text="Zurücksetzen" leise tipp="Zurück zum unbearbeiteten Vorschlag; Zustimmungen und Notiz werden gelöscht" />}
                   </div>
                 </div>
               )}
@@ -279,9 +262,6 @@ export default async function MatchingPage(props: PageProps<"/admin/matching">) 
   const nurLead = nur ? leads.find((l) => l.id === nur) : undefined;
   const zurueck = "/admin/matching";
   const bewertungsUrl = M.bewertungsUrl(portal.einstellungen, process.env.GOOGLE_REVIEW_URL);
-  // Rückmeldung des Assistenten zusätzlich an der Karte, zu der die Seite springt (?k=…).
-  const meldungText = typeof sp.m === "string" ? sp.m.slice(0, 400) : "";
-  const meldung = (key: string) => (meldungText && sp.k === key ? { text: meldungText, fehler: sp.mt === "fehler" } : null);
 
   const gruppen: { titel: string; tipp: string; paare: Kandidat[]; zu?: boolean }[] = [
     { titel: "In Arbeit", tipp: "Vorgemerkte und angefragte Paare — Hinweise, Einladungen, Zustimmungen, Freigabe", paare: auswahl.filter((k) => k.meta?.status === "vorgemerkt" || k.meta?.status === "angefragt") },
@@ -334,7 +314,7 @@ export default async function MatchingPage(props: PageProps<"/admin/matching">) 
         g.paare.length === 0 ? null : g.zu ? (
           <details key={g.titel} className="lfa-details" style={{ marginTop: "1.25rem" }}>
             <summary title={g.tipp}>{g.titel} ({g.paare.length})</summary>
-            {g.paare.map((k) => <PaarKarte key={k.key} k={k} zustand={zustand} portal={portal} neu={neu} basis={basis} zurueck={zurueck} bewertungsUrl={bewertungsUrl} meldung={meldung(k.key)} />)}
+            {g.paare.map((k) => <PaarKarte key={k.key} k={k} zustand={zustand} portal={portal} neu={neu} basis={basis} zurueck={zurueck} bewertungsUrl={bewertungsUrl} />)}
           </details>
         ) : (
           <section key={g.titel} style={{ marginTop: "1.25rem" }}>
@@ -342,7 +322,7 @@ export default async function MatchingPage(props: PageProps<"/admin/matching">) 
               <Puls an={g.titel === "Neue Vorschläge" && g.paare.some((k) => !k.meta && neu.vorschlag(k.key))} tipp="Neue Vorschläge seit Ihrem letzten Besuch" />
               {g.titel} ({g.paare.length})
             </h2>
-            {g.paare.map((k) => <PaarKarte key={k.key} k={k} zustand={zustand} portal={portal} neu={neu} basis={basis} zurueck={zurueck} bewertungsUrl={bewertungsUrl} meldung={meldung(k.key)} />)}
+            {g.paare.map((k) => <PaarKarte key={k.key} k={k} zustand={zustand} portal={portal} neu={neu} basis={basis} zurueck={zurueck} bewertungsUrl={bewertungsUrl} />)}
           </section>
         ),
       )}

@@ -9,36 +9,62 @@ export type AssistentAktionId =
   | "einladen"
   | "erinnern"
   | "hinweise"
+  | "zustimmung"
   | "freigeben"
   | "freigabe-mitteilen"
+  | "freigabe-zurueckziehen"
   | "pacht-vorbereiten"
   | "pacht-unterschrift"
   | "pacht-erinnern"
+  | "pacht-zurueck"
   | "kauf-vorbereiten"
   | "kauf-bestaetigung"
   | "kauf-erinnern"
+  | "kauf-zurueck"
   | "kauf-beurkundet"
   | "kauf-wirksam"
+  | "extern"
   | "provision-abgerechnet"
-  | "provision-bezahlt";
+  | "provision-bezahlt"
+  | "anzeige-vermerken"
+  | "anzeige-erinnern"
+  | "bewertung-bitten"
+  | "bewertung-verzicht"
+  | "meldung-erledigt"
+  | "ablehnung-erledigt"
+  | "paar-beenden"
+  | "wieder-aufnehmen";
 
 export const ASSISTENT_AKTIONEN: readonly AssistentAktionId[] = [
   "vormerken",
   "einladen",
   "erinnern",
   "hinweise",
+  "zustimmung",
   "freigeben",
   "freigabe-mitteilen",
+  "freigabe-zurueckziehen",
   "pacht-vorbereiten",
   "pacht-unterschrift",
   "pacht-erinnern",
+  "pacht-zurueck",
   "kauf-vorbereiten",
   "kauf-bestaetigung",
   "kauf-erinnern",
+  "kauf-zurueck",
   "kauf-beurkundet",
   "kauf-wirksam",
+  "extern",
   "provision-abgerechnet",
   "provision-bezahlt",
+  "anzeige-vermerken",
+  "anzeige-erinnern",
+  "bewertung-bitten",
+  "bewertung-verzicht",
+  "meldung-erledigt",
+  "ablehnung-erledigt",
+  "paar-beenden",
+  "wieder-aufnehmen",
 ];
 
 /** Eine E-Mail, die mit der Aktion rausgeht — so, wie sie in der Sicherheitsabfrage gezeigt wird. */
@@ -73,9 +99,13 @@ export type AssistentFeld = {
   optionen?: { wert: string; label: string }[];
 };
 
+export type AssistentLink = { href: string; text: string; tipp: string };
+
 export type AssistentAktion = {
   id: AssistentAktionId;
-  /** Beschriftung des einen Hauptknopfs. */
+  /** Worauf sich die Aktion bezieht, z. B. die Meldung, die Provision oder die Seite („anbieter“). */
+  ziel?: string;
+  /** Beschriftung des Knopfs. */
   knopf: string;
   tipp: string;
   /** Überschrift der Sicherheitsabfrage. */
@@ -90,39 +120,77 @@ export type AssistentAktion = {
   flaecheHa?: number | null;
   /** Warum der Knopf (noch) nicht geht. */
   gesperrt?: string;
-  /** Weiterführender Link, z. B. zum ausführlichen Formular oder zu den Vorlagen. */
-  link?: { href: string; text: string; tipp: string };
-  /** Jetzt zu erledigen (pulsiert) — nicht bloß eine Erinnerung während des Wartens. */
+  /** Weiterführender Link neben dem Knopf, z. B. zum ausführlichen Formular oder zu den Vorlagen. */
+  link?: AssistentLink;
+  /** Link in der Sicherheitsabfrage, z. B. „Vertragstext ansehen“. */
+  vorschau?: AssistentLink;
+  /** Jetzt zu erledigen (großer Knopf, pulsiert) — sonst ein ruhiges Angebot. */
   dran: boolean;
-  /** Betroffener Datensatz, z. B. die Provision. */
-  ziel?: string;
+  /** Hauptknopf, ruhiger Zusatzknopf daneben oder unter „Weitere Aktionen“. */
+  platz: "haupt" | "zusatz" | "weitere";
   /** Fingerabdruck des bestätigten Stands — der Server führt nur aus, wenn er noch gilt. */
   signatur: string;
 };
 
-/** „Zustimmung telefonisch erfassen“ je Seite (sekundär, neben dem Hauptknopf). */
-export type AssistentZustimmung = { rolle: Rolle; text: string; tipp: string; frage: string };
+/** Eine offene Meldung aus dem Kundenbereich (Rückfrage, Vertragsschluss, kein Interesse). */
+export type AssistentMeldung = {
+  id: string;
+  art: "rueckfrage" | "abschluss" | "ablehnung";
+  am: string;
+  /** z. B. „Suchender (Eva Busch)“ */
+  wer: string;
+  titel: string;
+  text: string;
+  /** Antworten im eigenen Mailprogramm (wird nicht im Verlauf gespeichert). */
+  antworten?: AssistentLink;
+  /** Erste Aktion = Hauptknopf der Meldung. */
+  aktionen: AssistentAktion[];
+};
 
 export type AssistentHinweis = { text: string; warn?: boolean };
+
+/** Worauf gewartet wird — mit Zeitpunkt, seit dem gewartet wird. */
+export type AssistentWarten = { text: string; seit?: string };
+
+export type AssistentChip = { text: string; art: "ok" | "warn" | "rot" | "grau"; tipp: string; href?: string };
 
 export type AssistentPlan = {
   key: string;
   art: Art;
+  /** Berechnet am (ISO) — Bezugspunkt für „wartet seit …“ (auf Server und Browser gleich). */
+  am: string;
   /** Aktueller Schritt (1–7), null wenn verworfen oder alles erledigt. */
   nr: number | null;
   gesamt: number;
   titel: string;
   /** Stand in ein, zwei Sätzen. */
   stand: string;
-  /** Worauf gerade gewartet wird. */
-  warten: string[];
+  warten: AssistentWarten[];
+  /** Seit wann (am längsten) gewartet wird. */
+  wartetSeit: string | null;
   hinweise: AssistentHinweis[];
+  meldungen: AssistentMeldung[];
+  /** Der eine Hauptknopf für den nächsten Schritt. */
   aktion: AssistentAktion | null;
-  zustimmungen: AssistentZustimmung[];
-  /** Wer ist am Zug: die Verwaltung („Jetzt dran“) oder Kunden, Notar, Behörde („Warten auf Kunden“). */
+  /** Zusatzknöpfe und „Weitere Aktionen“. */
+  neben: AssistentAktion[];
+  chips: AssistentChip[];
+  /** Wer ist am Zug: die Verwaltung („Jetzt dran“) oder Kunden, Notar, Behörde („Warten“). */
   amZug: "admin" | "kunde" | null;
   fertig: boolean;
   verworfen: boolean;
+  beendet: boolean;
   /** Testmodus: Mails werden nur protokolliert. */
   test: boolean;
 };
+
+/** Alle ausführbaren Aktionen eines Plans (Hauptknopf, Meldungen, Zusatz, Weitere). */
+export function alleAktionen(p: AssistentPlan): AssistentAktion[] {
+  return [...(p.aktion ? [p.aktion] : []), ...p.meldungen.flatMap((m) => m.aktionen), ...p.neben];
+}
+
+/** „seit heute“, „seit gestern“, „seit 3 Tagen“ — bezogen auf einen festen Zeitpunkt (auf Server und Browser gleich). */
+export function seitText(seit: string, bezug: string): string {
+  const tage = Math.floor((Date.parse(bezug) - Date.parse(seit)) / 86_400_000);
+  return tage <= 0 ? "seit heute" : tage === 1 ? "seit gestern" : `seit ${tage} Tagen`;
+}

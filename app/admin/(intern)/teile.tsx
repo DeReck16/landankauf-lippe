@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { datumZeit } from "@/lib/admin/format";
+import AdresseAufraeumen from "./AdresseAufraeumen";
 import * as M from "@/lib/portal/model";
 import { datumDe } from "@/lib/portal/texte";
 
@@ -13,6 +14,7 @@ export function Meldung({ sp }: { sp: Record<string, string | string[] | undefin
   return (
     <p className={`lfa-hinweis ${fehler ? "lfa-hinweis-fehler" : "lfa-hinweis-ok"}`} role="status">
       {m}
+      <AdresseAufraeumen />
     </p>
   );
 }

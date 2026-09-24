@@ -8,8 +8,9 @@ import { VORLAGEN, VORLAGEN_REIHENFOLGE, istVorlageId, kundenVorlage, istFreigeg
 import * as A from "@/lib/portal/ablauf";
 import * as V from "@/lib/portal/vorgang";
 import * as M from "@/lib/portal/model";
+import { pachtAnzeigeVermerken } from "@/lib/portal/nacharbeit";
 import { verwaltungsMailSenden } from "@/lib/portal/versand";
-import { aendereEinstellungen, aendereKunde, aendereVorgang, istKundeId, istPaarKey, ladeEinstellungen, markiereGesehen } from "@/lib/portal/speicher";
+import { aendereEinstellungen, aendereKunde, istKundeId, istPaarKey, ladeEinstellungen, markiereGesehen } from "@/lib/portal/speicher";
 
 // Server Actions der Verwaltung für Onboarding, Vorgänge, Verträge, Provision
 // und Einstellungen. Jede Action prüft die Anmeldung selbst (requireAdmin).
@@ -241,12 +242,7 @@ export async function pachtZurueckAktion(fd: FormData): Promise<void> {
 
 export async function pachtAnzeigeAktion(fd: FormData): Promise<void> {
   const { email } = await requireAdmin();
-  const key = paarKey(fd);
-  await aendereVorgang(key, "pacht", (x) => {
-    if (!x.pachtvertrag || x.pachtvertrag.anzeigeErledigtAm) return false;
-    x.pachtvertrag.anzeigeErledigtAm = new Date().toISOString();
-    M.ereignis(x, email, "pacht-anzeige", "Anzeige nach § 2 LPachtVG als erledigt vermerkt");
-  });
+  await pachtAnzeigeVermerken(paarKey(fd), email);
   zurueck(fd, "Pachtanzeige als erledigt vermerkt.", "ok", "pachtvertrag");
 }
 

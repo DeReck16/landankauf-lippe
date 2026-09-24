@@ -15,13 +15,17 @@ export default async function InternLayout({ children }: { children: React.React
   const kandidaten = findeKandidaten(leads, zustand).kandidaten.filter((k) => !k.meta);
   // Zähler fürs Dashboard (dieselbe Berechnung wie die Seite — pro Aufruf zwischengespeichert).
   let jetztDran = 0;
+  let jetztNeu = 0;
   try {
-    jetztDran = (await ladeDashboard(email)).jetzt.length;
+    const dash = await ladeDashboard(email);
+    jetztDran = dash.jetzt.length;
+    jetztNeu = dash.jetzt.filter((x) => x.neu > 0).length;
   } catch (err) {
     console.error("[verwaltung] Dashboard-Zähler nicht berechenbar", err);
   }
   const z = {
     jetztDran,
+    jetztNeu,
     neueAnfragen: leads.filter((l) => l.status !== "archiv" && neu.anfrage(l)).length,
     offeneVorschlaege: kandidaten.length,
     neueVorschlaege: kandidaten.filter((k) => neu.vorschlag(k.key)).length,
