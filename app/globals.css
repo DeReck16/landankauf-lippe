@@ -149,12 +149,18 @@ a.btn-on-dark, button.btn-on-dark, .btn-on-dark {
 }
 .card:hover { border-color: var(--color-brand); }
 
-.eyebrow {
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--color-brand);
+/* In @layer components, damit Tailwind-Utilities die Farbe überschreiben können:
+   ungelayert gewann .eyebrow gegen text-[color:var(--color-accent)], und die
+   Dachzeilen auf dunklem Grund (Hero, Erklärfilm, Diskretion, Ablauf) standen
+   grün auf Dunkelgrün (Kontrast ~2,1 : 1 statt Gold ~6,2 : 1). */
+@layer components {
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--color-brand);
+  }
 }
 
 .divider {
