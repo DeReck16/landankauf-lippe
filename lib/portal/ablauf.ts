@@ -138,8 +138,10 @@ export function einladungsLink(k: M.KundeRecord, basis: string): string | null {
 }
 
 /** Zugangslink für Mails der Verwaltung (Freigabe, Pachtvertrag): 14 Tage, einmal einlösbar. */
-export function zugangsLink(k: M.KundeRecord, basis: string): string {
-  return `${basis}/kunde/anmelden/bestaetigen?z=${encodeURIComponent(zugangToken(k.id).token)}`;
+/** Direktzugang zum Kundenbereich; mit Vorgangs-Schlüssel landet der Kunde gleich im Vorgang. */
+export function zugangsLink(k: M.KundeRecord, basis: string, vorgangKey?: string): string {
+  const ziel = vorgangKey && /^LL-[A-Z0-9]+~LL-[A-Z0-9]+$/.test(vorgangKey) ? `&v=${encodeURIComponent(vorgangKey)}` : "";
+  return `${basis}/kunde/anmelden/bestaetigen?z=${encodeURIComponent(zugangToken(k.id).token)}${ziel}`;
 }
 
 export type EinladungPruefung =

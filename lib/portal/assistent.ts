@@ -322,7 +322,8 @@ function abschlussAngaben(text: string): ExternVorbelegung {
   const flaeche = text.match(/^Fläche: ([\d.,]+) ha/m)?.[1];
   return {
     art: /^Art: Kaufvertrag/m.test(text) ? "kauf" : /^Art: Pachtvertrag/m.test(text) ? "pacht" : undefined,
-    datum: text.match(/^Datum: (\d{4}-\d{2}-\d{2})/m)?.[1],
+    // Kundenmeldung schreibt „Datum: 20.09.2026“ (ältere Meldungen noch „2026-09-20“) — fürs Formular als JJJJ-MM-TT.
+    datum: ((d) => (d && /^\d{2}\.\d{2}\.\d{4}$/.test(d) ? d.split(".").reverse().join("-") : d))(text.match(/^Datum: (\d{4}-\d{2}-\d{2}|\d{2}\.\d{2}\.\d{4})/m)?.[1]),
     flaeche,
     betrag,
   };

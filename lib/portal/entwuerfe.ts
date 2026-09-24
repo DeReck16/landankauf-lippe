@@ -238,7 +238,7 @@ export function entwuerfePaar(opts: {
 
   /** Link zum Zustimmen im anonymen Hinweis: Direktzugang zum Kundenbereich (14 Tage, einmal). Hinweise gehen erst nach beiden Unterschriften raus. */
   function zustimmungsLink(k: M.KundeRecord | null): string | null {
-    return k?.vertrag ? zugangsLink(k, basis) : null;
+    return k?.vertrag ? zugangsLink(k, basis, key) : null;
   }
 
   // Anonyme Hinweise erst nach Schritt 3: beide haben unterschrieben (Suchender: Provisionsvereinbarung).
@@ -292,7 +292,7 @@ export function entwuerfePaar(opts: {
       { k: anbieter, l: angebot, an: anA, rolle: "anbieter" as const },
     ]) {
       if (!seite.k || !seite.an) continue;
-      const zugang = zugangsLink(seite.k, basis);
+      const zugang = zugangsLink(seite.k, basis, key);
       liste.push({
         id: `freigabe-${seite.rolle}:${key}`,
         zweck: "freigabe",
@@ -349,7 +349,7 @@ export function entwuerfePaar(opts: {
           `${gesendet ? "eine kurze Erinnerung: Der Landpachtvertrag liegt" : "der Landpachtvertrag ist vorbereitet und liegt"} in Ihrem Kundenbereich zur Prüfung und Unterschrift bereit. Bitte lesen Sie ihn in Ruhe. Änderungswünsche können Sie uns dort über „Rückfrage“ schicken.`,
           "",
           "Direkt zum Kundenbereich (der Link ist 14 Tage gültig und funktioniert einmal):",
-          zugangsLink(seite.k, basis),
+          zugangsLink(seite.k, basis, key),
           "",
           "Der Vertrag wird in Textform geschlossen (§ 585a BGB) und kommt zustande, sobald beide Seiten unterschrieben haben. Beide erhalten ihn dann als PDF.",
           "",
@@ -412,7 +412,7 @@ export function entwuerfePaar(opts: {
             : "wir haben die besprochenen Eckdaten für den Kaufvertrag zusammengefasst. Bitte prüfen und bestätigen Sie sie in Ihrem Kundenbereich — die Bestätigung ist unverbindlich; der Kaufvertrag entsteht erst beim Notar.",
           "",
           "Direkt zum Kundenbereich (der Link ist 14 Tage gültig und funktioniert einmal):",
-          zugangsLink(seite.k, basis),
+          zugangsLink(seite.k, basis, key),
           "",
           GRUSS,
         ].join("\n"),

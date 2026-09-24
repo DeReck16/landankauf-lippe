@@ -82,6 +82,9 @@ export async function anmeldungBestaetigenAktion(fd: FormData): Promise<void> {
     const k = await A.zugangEinloesen(z);
     if (!k) redirect("/kunde/anmelden?grund=benutzt");
     await starteKundenSitzung(k.email);
+    // Direkt in den Vorgang, wenn der Link dafür gedacht war (nur eigene Vorgänge, feste Form — keine offene Weiterleitung).
+    const v = feld(fd, "v", 80);
+    if (/^LL-[A-Z0-9]+~LL-[A-Z0-9]+$/.test(v) && v.split("~").includes(k.id)) redirect(`/kunde/vorgang/${v}?k=${k.id}`);
     redirect("/kunde");
   }
   redirect("/kunde/anmelden");
@@ -261,7 +264,7 @@ export async function meldungAktion(fd: FormData): Promise<void> {
   if (typ === "abschluss") {
     const teile = [
       `Art: ${feld(fd, "vertragsart", 20) === "kauf" ? "Kaufvertrag" : "Pachtvertrag"}`,
-      `Datum: ${feld(fd, "datum", 10) || "—"}`,
+      `Datum: ${/^\d{4}-\d{2}-\d{2}$/.test(feld(fd, "datum", 10)) ? feld(fd, "datum", 10).split("-").reverse().join(".") : feld(fd, "datum", 10) || "—"}`,
       `Fläche: ${feld(fd, "flaeche", 40) || "—"} ha`,
       `Jahrespacht bzw. Kaufpreis: ${feld(fd, "betrag", 40) || "—"} €`,
       `Laufzeit: ${feld(fd, "laufzeit", 60) || "—"}`,

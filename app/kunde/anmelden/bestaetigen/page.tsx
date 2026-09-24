@@ -11,6 +11,7 @@ export default async function KundeBestaetigenPage(props: PageProps<"/kunde/anme
   const sp = await props.searchParams;
   const t = typeof sp.t === "string" ? sp.t : "";
   const z = typeof sp.z === "string" ? sp.z : "";
+  const v = typeof sp.v === "string" && /^LL-[A-Z0-9]+~LL-[A-Z0-9]+$/.test(sp.v) ? sp.v : "";
   const gueltig = t ? pruefeLogin(t) : z ? pruefeZugang(z) : null;
   return (
     <div className="lfk-seite" style={{ maxWidth: "30rem" }}>
@@ -21,6 +22,7 @@ export default async function KundeBestaetigenPage(props: PageProps<"/kunde/anme
             <p className="lfk-unterzeile">Mit dem Knopf öffnen Sie Ihren Kundenbereich auf diesem Gerät. Die Anmeldung gilt 14 Tage; der Link ist danach verbraucht.</p>
             {t && <input type="hidden" name="t" value={t} />}
             {z && <input type="hidden" name="z" value={z} />}
+            {z && v && <input type="hidden" name="v" value={v} />}
             <button type="submit" className="btn-primary" title="Meldet dieses Gerät für 14 Tage im Kundenbereich an">
               Jetzt anmelden
             </button>
