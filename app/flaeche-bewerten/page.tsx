@@ -30,7 +30,7 @@ export default function Page() {
             <hr className="divider mt-3" />
             <h2 className="text-3xl md:text-4xl">In 30 Sekunden zur Bandbreite.</h2>
             <p className="mt-4 text-[color:var(--color-ink-soft)]">
-              Eingaben werden ausschließlich in Ihrem Browser verarbeitet — wir sehen nichts. Datengrundlage: Grundstücksmarktbericht 2025 für den Kreis Lippe und tatsächlich gezahlte Kaufpreise 2024.
+              Eingaben werden ausschließlich in Ihrem Browser verarbeitet — wir sehen nichts. Datengrundlage: Grundstücksmarktberichte 2025 und 2026 für den Kreis Lippe mit den tatsächlich gezahlten Kaufpreisen 2024 und 2025.
             </p>
           </div>
           <div className="mt-8 max-w-3xl">

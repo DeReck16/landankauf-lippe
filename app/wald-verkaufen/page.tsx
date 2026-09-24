@@ -32,9 +32,9 @@ export default function Page() {
           <div>
             <p className="eyebrow">Kurzantwort</p>
             <h2 className="font-serif text-2xl md:text-3xl mt-2 leading-snug">Was ist Wald im Kreis Lippe wert?</h2>
-            <p className="mt-4 text-lg leading-relaxed">2024 wurden im Kreis Lippe <strong>15 forstwirtschaftliche Kauffälle über 22,44 Hektar</strong> beurkundet — im Mittel <strong>1,34 €/m² inklusive Aufwuchs</strong>, also rund <strong>13.400 € je Hektar</strong>. Die Spanne ist beim Wald größer als bei jeder anderen Fläche: hiebsreifes Laubholz liegt deutlich darüber, Käfer- und Aufforstungsflächen am unteren Rand. Rechnen Sie Ihren Bestand rechts durch — anonym, ohne Kontaktdaten.</p>
+            <p className="mt-4 text-lg leading-relaxed">2025 wurden im Kreis Lippe <strong>28 forstwirtschaftliche Kauffälle über 45,00 Hektar</strong> beurkundet — im Mittel <strong>1,53 €/m² inklusive Aufwuchs</strong>, also rund <strong>15.300 € je Hektar</strong>. Die Spanne ist beim Wald größer als bei jeder anderen Fläche: hiebsreifes Laubholz liegt deutlich darüber, Käfer- und Aufforstungsflächen am unteren Rand. Rechnen Sie Ihren Bestand rechts durch — anonym, ohne Kontaktdaten.</p>
             <p className="mt-4 text-sm text-[color:var(--color-muted)] leading-relaxed">
-              Quelle: Grundstücksmarktbericht 2025 für den Kreis Lippe (Berichtsjahr 2024),
+              Quelle: Grundstücksmarktbericht 2026 für den Kreis Lippe (Berichtsjahr 2025),
               Gutachterausschuss für Grundstückswerte im Kreis Lippe und in der Stadt Detmold.
                Reine Bodenwerte ohne Aufwuchs liegen niedriger.
             </p>
@@ -66,7 +66,7 @@ export default function Page() {
 
             <h2>Wert eines Waldgrundstücks im Kreis Lippe</h2>
             <p>
-              Die Bewertung von Waldflächen ist komplexer als die von Acker oder Wiese. Sie setzt sich zusammen aus dem Bodenwert (typischerweise 0,30–1,50 €/m²) und dem Bestandswert (vorratsabhängig: junge Aufforstung ist niedriger bewertet, hiebsreife Bestände entsprechend höher). Der Mittelwert der 2024 im Kreis Lippe beurkundeten Forstverkäufe lag bei <strong>13.400 €/ha</strong> (1,34 €/m² inklusive Aufwuchs). Die Bandbreite reicht je nach Bestand, Erschließung und Marktlage von <strong>5.400 bis 21.400 €/ha</strong> — hiebsreifes Laubholz auch darüber, Käfer- und Aufforstungsflächen darunter.
+              Die Bewertung von Waldflächen ist komplexer als die von Acker oder Wiese. Sie setzt sich zusammen aus dem Bodenwert (typischerweise 0,30–1,50 €/m²) und dem Bestandswert (vorratsabhängig: junge Aufforstung ist niedriger bewertet, hiebsreife Bestände entsprechend höher). Der Mittelwert der 2025 im Kreis Lippe beurkundeten Forstverkäufe lag bei <strong>15.300 €/ha</strong> (1,53 €/m² inklusive Aufwuchs). Die Bandbreite reicht je nach Bestand, Erschließung und Marktlage von <strong>6.100 bis 24.500 €/ha</strong> — hiebsreifes Laubholz auch darüber, Käfer- und Aufforstungsflächen darunter.
             </p>
             <p>
               Wir machen Ihnen — anders als manche Online-Rechner — keine Phantasiezahlen. Wir schauen uns die Fläche an, berücksichtigen Bestandsalter, Holzpreise, Erschließung, Pflegezustand und die Wegesituation. Dann bekommen Sie eine Zahl, die wir auch begründen können.

@@ -625,7 +625,7 @@ export const ARTICLES: Article[] = [
     description:
       "Solarpark-Investoren bieten Lipper Eigentümern aktuell 2.500 bis 5.000 €/ha pro Jahr — bei 30 Jahren Laufzeit. Wo sich das wirklich rechnet, welche fünf Fallen wir in Verträgen 2025/2026 gesehen haben und wann klassischer Verkauf oder Pacht besser ist.",
     category: "Markt",
-    publishedAt: "2026-05-15",
+    publishedAt: "2025-03-18",
     updatedAt: "2026-09-24",
     readingMinutes: 8,
     keywords: [
@@ -717,7 +717,7 @@ export const ARTICLES: Article[] = [
     description:
       "Wie das Ökokonto NRW funktioniert, welche Lipper Flächen sich eignen — und warum Ökopunkte für Eigentümer mit schwer bewirtschaftbaren Hangflächen oft mehr Geld bringen als ein klassischer Verkauf.",
     category: "Förderung",
-    publishedAt: "2026-05-15",
+    publishedAt: "2026-04-15",
     updatedAt: "2026-09-24",
     readingMinutes: 8,
     keywords: [
@@ -793,7 +793,7 @@ export const ARTICLES: Article[] = [
     description:
       "Genehmigungspflicht der Landwirtschaftskammer, siedlungsrechtliches Vorkaufsrecht, ungesunde Bodenverteilung — was die Theorie sagt und wie der Ablauf im Kreis Lippe tatsächlich aussieht.",
     category: "Recht",
-    publishedAt: "2026-05-15",
+    publishedAt: "2026-03-20",
     updatedAt: "2026-09-24",
     readingMinutes: 7,
     keywords: [
@@ -856,7 +856,7 @@ export const ARTICLES: Article[] = [
     description:
       "Aktuelle Pachtpreise im Kreis Lippe für Ackerland, Grünland und Sondernutzungen. Mit Bandbreiten je Bonität, Vergleich zu Vorjahren und Hinweisen, wann sich Pachterneuerung oder Direktverkauf rechnet.",
     category: "Markt",
-    publishedAt: "2026-05-15",
+    publishedAt: "2026-02-12",
     readingMinutes: 7,
     keywords: [
       "Pachtspiegel Lippe 2026",
@@ -924,7 +924,7 @@ export const ARTICLES: Article[] = [
     description:
       "Was Privatwald in Lippe heute wert ist, welche Förderprogramme NRW Eigentümern zur Verfügung stehen — und wann es wirtschaftlich sinnvoller ist, zu halten als zu verkaufen.",
     category: "Wald",
-    publishedAt: "2026-05-15",
+    publishedAt: "2026-01-09",
     updatedAt: "2026-09-24",
     readingMinutes: 8,
     keywords: [
@@ -1002,7 +1002,7 @@ export const ARTICLES: Article[] = [
     description:
       "Was tun, wenn der alte Pächter aufgehört hat und niemand die Hangwiese mehr will? Drei Wege, wie aus einer Problemfläche ein verlässlicher Ertrag wird — ohne Eigenaufwand.",
     category: "Praxis",
-    publishedAt: "2026-05-15",
+    publishedAt: "2025-11-18",
     readingMinutes: 6,
     keywords: [
       "Hangwiese verpachten",
@@ -1061,7 +1061,7 @@ export const ARTICLES: Article[] = [
     description:
       "Was passiert, wenn drei Geschwister 4 Hektar Acker erben und einer im Ausland lebt? Sechs Stolpersteine in Lipper Erbengemeinschaften — und wie der Verkauf trotzdem in unter sechs Monaten durchläuft.",
     category: "Recht",
-    publishedAt: "2026-05-15",
+    publishedAt: "2025-10-22",
     updatedAt: "2026-09-24",
     readingMinutes: 7,
     keywords: [
@@ -1125,7 +1125,7 @@ export const ARTICLES: Article[] = [
     description:
       "Der Bodenrichtwert sagt 1,80 €/m² — der Käufer bietet 4,20 €/m². Warum stimmen die zwei Zahlen nicht überein? Eine Einordnung mit echten Marktdaten aus dem Kreis Lippe.",
     category: "Markt",
-    publishedAt: "2026-05-15",
+    publishedAt: "2025-09-15",
     readingMinutes: 6,
     keywords: [
       "Bodenrichtwert Marktpreis Lippe",
@@ -1199,7 +1199,8 @@ export const ARTICLES: Article[] = [
     description:
       "Jede Lipper Gemeinde braucht regelmäßig Ausgleichsflächen für Bebauungspläne. Wer als privater Eigentümer Flächen anbietet, kann oft bessere Preise erzielen als am freien Markt — wenn man weiß, wie der Hase läuft.",
     category: "Förderung",
-    publishedAt: "2026-05-15",
+    publishedAt: "2025-08-25",
+    updatedAt: "2026-09-24",
     readingMinutes: 7,
     keywords: [
       "Ausgleichsflächen Kommune Lippe",
@@ -1245,7 +1246,7 @@ export const ARTICLES: Article[] = [
 <li>Aufwertungsmehrwert (Acker → artenreiches Grünland, +8 Werteinheiten/m²): 160.000 Werteinheiten × 0,75 €/WE = 120.000 €</li>
 <li><strong>Gesamterlös bei Verkauf inkl. Aufwertungspotenzial</strong>: ca. 175.000 €</li>
 </ul>
-<p>Das ist deutlich mehr als der reine Verkauf an einen Landwirt (56.000 €) oder den Direktankauf am freien Markt (ca. 105.000 € bei aktuellem Mittelwert von 5,26 €/m²).</p>
+<p>Das ist deutlich mehr als der reine Verkauf an einen Landwirt (56.000 €) oder den Direktankauf am freien Markt (ca. 105.000 € beim Kreismittel 2024 von 5,26 €/m²).</p>
 
 <h2>Drei Wege, mit der Kommune zu kooperieren</h2>
 <ol>
@@ -1268,7 +1269,7 @@ export const ARTICLES: Article[] = [
     description:
       "Eine Fläche im Außenbereich, von der jeder spricht, dass sie irgendwann Bauland wird. Lohnt das jahrelange Warten — oder verkaufen, solange noch verkauft werden kann? Eine nüchterne Einordnung mit Lipper Beispielen.",
     category: "Markt",
-    publishedAt: "2026-05-15",
+    publishedAt: "2025-07-31",
     updatedAt: "2026-09-24",
     readingMinutes: 6,
     keywords: [
@@ -1337,7 +1338,7 @@ export const ARTICLES: Article[] = [
     description:
       "Fichtenbestände, die innerhalb von Wochen abgängig sind. Sturmwurfflächen, die niemand räumt. Was Lipper Privatwaldbesitzer in der Praxis machen, wenn der eigene Wald zur wirtschaftlichen Belastung wird.",
     category: "Wald",
-    publishedAt: "2026-05-15",
+    publishedAt: "2025-06-19",
     readingMinutes: 8,
     keywords: [
       "Käferholz Lippe",
@@ -1407,7 +1408,7 @@ export const ARTICLES: Article[] = [
     description:
       "Eine alte Streuobstwiese im Erbe — was tun? Drei Förderprogramme in NRW, die den Erhalt finanziell tragen: Vertragsnaturschutz, Streuobstmittel des Landes, Ökopunkte. Mit konkreten Förderhöhen und realen Beispielen aus Lippe.",
     category: "Förderung",
-    publishedAt: "2026-05-15",
+    publishedAt: "2025-04-23",
     readingMinutes: 7,
     keywords: [
       "Streuobstwiese Förderung NRW",
@@ -1470,7 +1471,7 @@ export const ARTICLES: Article[] = [
     description:
       "Der Hof wird nicht weitergeführt. Niemand aus der Familie übernimmt. Vier realistische Wege, wie Lipper Vollerwerbsbetriebe die Aufgabe organisiert und finanziell sinnvoll gestalten können.",
     category: "Praxis",
-    publishedAt: "2026-05-15",
+    publishedAt: "2025-02-04",
     updatedAt: "2026-09-24",
     readingMinutes: 8,
     keywords: [
@@ -1535,7 +1536,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
     description:
       "Wald gilt als sichere Anlage, die Inflation übersteht. Stimmt das? Eine nüchterne Renditenrechnung über 30 Jahre für Lipper Privatwald — mit Förderung und Holzpreisentwicklung.",
     category: "Wald",
-    publishedAt: "2026-05-15",
+    publishedAt: "2024-11-05",
     updatedAt: "2026-09-24",
     readingMinutes: 7,
     keywords: [
@@ -1619,7 +1620,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
     description:
       "Vor dem Verkauf einer landwirtschaftlichen Fläche lohnt ein Blick ins Grundbuch — viele Eigentümer kennen ihre Lasten nicht. Welche typischen Einträge im Kreis Lippe vorkommen und wie sie den Wert beeinflussen.",
     category: "Recht",
-    publishedAt: "2026-05-15",
+    publishedAt: "2024-09-12",
     updatedAt: "2026-09-24",
     readingMinutes: 7,
     keywords: [
@@ -1694,7 +1695,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
     description:
       "Ein Landpachtvertrag aus 2018 ist heute oft 30 % unter Marktniveau und enthält zudem Klauseln, die Eigentümer benachteiligen. Welche 7 Bestandteile in jeden neuen Vertrag gehören — und welche nicht.",
     category: "Recht",
-    publishedAt: "2026-05-15",
+    publishedAt: "2024-07-18",
     updatedAt: "2026-09-24",
     readingMinutes: 7,
     keywords: [
@@ -1783,7 +1784,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
     description:
       "Zwei Äcker im selben Dorf, gleiche Größe, völlig unterschiedlicher Verkaufspreis. Welche sechs Faktoren bei landwirtschaftlichen Flächen in Lippe wirklich den Preis machen — und welche Eigentümer überschätzen oder ignorieren.",
     category: "Markt",
-    publishedAt: "2026-05-15",
+    publishedAt: "2024-05-22",
     updatedAt: "2026-09-24",
     readingMinutes: 7,
     keywords: [
@@ -1867,7 +1868,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
     description:
       "CO2-Zertifikate sind das nächste große Thema im Privatwald. Was Lipper Waldbesitzer 2025 darüber wissen sollten, welche Programme realistisch sind und wo die Verträge zur Falle werden können.",
     category: "Wald",
-    publishedAt: "2026-05-15",
+    publishedAt: "2025-05-15",
     readingMinutes: 7,
     keywords: [
       "CO2-Zertifikate Wald NRW",
@@ -1936,7 +1937,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
     description:
       "Soll man den Pächter über einen geplanten Verkauf informieren — oder erst nach Vertragsschluss? Drei Wege, die in der Lipper Praxis funktionieren, mit Vor- und Nachteilen je nach Konstellation.",
     category: "Praxis",
-    publishedAt: "2026-05-15",
+    publishedAt: "2024-10-15",
     updatedAt: "2026-09-24",
     readingMinutes: 6,
     keywords: [
@@ -2021,7 +2022,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
     description:
       "Neben Landwirten und Investoren gibt es eine dritte Käufergruppe für Lipper Flächen: Genossenschaften, Stiftungen, Bodenfonds. Welche Modelle es gibt, wann sich der Verkauf an sie lohnt und welche Konditionen üblich sind.",
     category: "Markt",
-    publishedAt: "2026-05-15",
+    publishedAt: "2024-08-21",
     updatedAt: "2026-09-24",
     readingMinutes: 6,
     keywords: [
@@ -2100,7 +2101,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
     description:
       "Bevor Sie mit einem Käufer oder Makler sprechen — hier der Quick-Check, wie Sie selbst eine grobe Werteinschätzung für Ihre Lipper Fläche bekommen. Mit konkreten Schritten und kostenlosen Quellen.",
     category: "Markt",
-    publishedAt: "2026-05-15",
+    publishedAt: "2024-06-12",
     readingMinutes: 5,
     keywords: [
       "Wert Acker selbst einschätzen",
