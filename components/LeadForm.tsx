@@ -82,6 +82,8 @@ type Props = {
   variant?: "embedded" | "card";
   title?: string;
   subtitle?: string;
+  /** Anfrage zu einem Angebot der Flächenbörse (Kennung + Kurzbeschreibung). */
+  boerse?: { code: string; titel: string };
 };
 
 export default function LeadForm({
@@ -91,6 +93,7 @@ export default function LeadForm({
   variant = "card",
   title = "Kostenlose Anfrage",
   subtitle = "Wir melden uns innerhalb von 24 Stunden persönlich bei Ihnen — diskret und unverbindlich.",
+  boerse,
 }: Props) {
   const [isPending, startTransition] = useTransition();
   const [success, setSuccess] = useState<string | null>(null);
@@ -139,6 +142,7 @@ export default function LeadForm({
   return (
     <form onSubmit={onSubmit} className={wrapper}>
       <input type="hidden" name="source" value={source} />
+      {boerse && <input type="hidden" name="boerse" value={boerse.code} />}
       {/* Honeypot — für Menschen unsichtbar, Bots füllen es aus → serverseitig verworfen */}
       <input
         type="text"
@@ -155,6 +159,11 @@ export default function LeadForm({
             <p className="text-sm text-[color:var(--color-ink-soft)] mt-1">{subtitle}</p>
           )}
         </div>
+      )}
+      {boerse && (
+        <p className="mb-4 text-sm rounded-md px-3 py-2 bg-[color:var(--color-brand-soft)] text-[color:var(--color-brand-dark)]">
+          Ihre Anfrage bezieht sich auf Angebot <strong>{boerse.code}</strong>: {boerse.titel}.
+        </p>
       )}
       <div className="grid sm:grid-cols-2 gap-4">
         <div>

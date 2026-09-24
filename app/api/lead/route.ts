@@ -3,6 +3,9 @@ import { put } from "@vercel/blob";
 import { site } from "@/lib/site";
 import { dataPrefix, hasBlobToken } from "@/lib/admin/config";
 import { orteErgaenzen } from "@/lib/admin/daten";
+import { mutateZustand, readZustand } from "@/lib/admin/store";
+import { angebotZuCode } from "@/lib/boerse";
+import { isGesuchIntent } from "@/lib/lead-options";
 
 /**
  * Zentraler Lead-Endpoint (alle Formulare gehen hierüber).
@@ -36,6 +39,8 @@ type Input = {
   source: string;
   consent: string;
   gclid: string;
+  /** Kennung eines Flächenbörse-Angebots (LF-1234), sonst „—“. */
+  boerse: string;
 };
 
 async function sendResend(
@@ -118,6 +123,7 @@ export async function POST(req: NextRequest) {
     source: fmt(body.source),
     consent: fmt(body.consent),
     gclid: fmt(body.gclid),
+    boerse: typeof body.boerse === "string" && /^LF-\d{4}$/.test(body.boerse.trim()) ? body.boerse.trim() : "—",
   };
 
   // Leichter Spam-Filter: Links im Namen sind ein sehr starkes Bot-Signal.
@@ -139,6 +145,7 @@ export async function POST(req: NextRequest) {
   const text = [
     `Neue Anfrage über ${site.url}`,
     "",
+    ...(input.boerse !== "—" ? [`Flächenbörse:  Interesse an Angebot ${input.boerse}`, ""] : []),
     `Anliegen:      ${input.intent}`,
     `Flächentyp:    ${input.flaechentyp}`,
     `Größe:         ${input.groesse}`,
@@ -158,7 +165,7 @@ export async function POST(req: NextRequest) {
       : `Kanal: organisch / direkt (keine gclid)`,
     `ID: ${id}`,
   ].join("\n");
-  const subject = `Anfrage [${input.intent} · ${input.flaechentyp}] – ${input.name}`;
+  const subject = `${input.boerse !== "—" ? `[Flächenbörse ${input.boerse}] ` : ""}Anfrage [${input.intent} · ${input.flaechentyp}] – ${input.name}`;
 
   const apiKey = process.env.RESEND_API_KEY;
   const to = process.env.LEAD_TO_EMAIL || site.contact.email || site.contact.emailFallback;
@@ -182,6 +189,25 @@ export async function POST(req: NextRequest) {
       blobOk = true;
     } catch (err) {
       console.error("[lead] blob exception", err);
+    }
+  }
+
+  // Interesse aus der Flächenbörse: gleich mit dem Angebot verknüpfen (Paar „vorgemerkt“).
+  // Weiter geht es danach im normalen Ablauf: Einladung → Provisionsvereinbarung → Zustimmung → Freigabe.
+  if (blobOk && input.boerse !== "—" && isGesuchIntent(input.intent)) {
+    try {
+      const { zustand } = await readZustand();
+      const angebotId = angebotZuCode(zustand.anfragen, input.boerse);
+      if (angebotId) {
+        const key = `${angebotId}~${id}`;
+        await mutateZustand("Flächenbörse", (z) => {
+          if (z.paare[key]) return;
+          z.paare[key] = { status: "vorgemerkt", geaendert: { am: new Date().toISOString(), von: "Flächenbörse" } };
+          return { was: `Interesse über die Flächenbörse (${input.boerse}) — Paar vorgemerkt`, ref: key };
+        });
+      }
+    } catch (err) {
+      console.error("[lead] boerse", err);
     }
   }
 

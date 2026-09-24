@@ -19,6 +19,8 @@ export type LeadRecord = {
   source: string;
   consent: string;
   gclid: string;
+  /** Gesuch aus der Flächenbörse: Kennung des Angebots (z. B. „LF-2731“), sonst „—“. */
+  boerse: string;
 };
 
 export const LEAD_STATUS = {
@@ -43,6 +45,22 @@ export type LeadMeta = {
   ortMatching?: string;
   radiusKm?: number | null;
   notiz?: string;
+  geaendert?: { am: string; von: string };
+  /** Angebot in der öffentlichen Flächenbörse (nur mit Einwilligung des Eigentümers). */
+  boerse?: BoerseMeta;
+};
+
+/** Anonyme Angaben eines Angebots für die Flächenbörse — nie Name, Flurstück oder genaue Lage. */
+export type BoerseMeta = {
+  code: string;
+  typ: string;
+  groesseHa: number | null;
+  lage: string;
+  text: string;
+  /** Einwilligung des Eigentümers in die anonyme Veröffentlichung (Pflicht vor „online“). */
+  einwilligung?: { am: string; quelle: string; von: string } | null;
+  online: boolean;
+  seit?: string;
   geaendert?: { am: string; von: string };
 };
 
@@ -249,5 +267,6 @@ export function normalizeLead(raw: Record<string, unknown>, fallbackId: string):
     source: s(raw.source),
     consent: s(raw.consent),
     gclid: s(raw.gclid),
+    boerse: typeof raw.boerse === "string" && /^LF-\d{4}$/.test(raw.boerse) ? raw.boerse : "—",
   };
 }

@@ -2,7 +2,6 @@ import "server-only";
 import { formatGroesse, type LeadView, type Zustand } from "@/lib/admin/model";
 import { grobeLage } from "@/lib/admin/matching";
 import { hinweisAnAnbieter, hinweisAnSuchenden } from "@/lib/admin/texte";
-import { FIRMA } from "@/lib/vertraege/firma";
 import { GRUSS, einladungsLink, zugangsLink } from "./ablauf";
 import * as M from "./model";
 import { SPERRE_UNTERSCHRIFT, beideUnterschrieben } from "./schritte";
@@ -143,7 +142,7 @@ export function entwuerfeKunde(opts: {
         "",
         "Dort ergänzen Sie Ihre Anschrift, lesen den vollständigen Vertrag und unterschreiben mit Ihrem Namen. Den Vertrag erhalten Sie anschließend als PDF per E-Mail.",
         "",
-        `Bei Fragen antworten Sie einfach auf diese E-Mail oder rufen Sie an: ${FIRMA.telefon}.`,
+        "Bei Fragen antworten Sie einfach auf diese E-Mail.",
         "",
         GRUSS,
       ]
@@ -162,7 +161,7 @@ export function entwuerfeKunde(opts: {
         "",
         "Dort ergänzen Sie Anschrift und Flurstücke, lesen die Vereinbarung und bestätigen sie mit Ihrem Namen. Sie erhalten sie anschließend als PDF per E-Mail.",
         "",
-        `Bei Fragen antworten Sie einfach auf diese E-Mail oder rufen Sie an: ${FIRMA.telefon}.`,
+        "Bei Fragen antworten Sie einfach auf diese E-Mail.",
         "",
         GRUSS,
       ];
