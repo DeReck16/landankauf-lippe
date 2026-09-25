@@ -144,7 +144,7 @@ export default async function AntwortPage(props: PageProps<"/kunde/antwort">) {
             <textarea
               name="nachricht"
               maxLength={1500}
-              defaultValue={r?.text ?? ""}
+              defaultValue={r?.quelle === "link" ? (r.text ?? "") : ""}
               className="field-textarea"
               style={{ minHeight: "5rem" }}
               placeholder="z. B. Größe und Lage der Fläche, Ihr Zeitrahmen oder Ihre Fragen"

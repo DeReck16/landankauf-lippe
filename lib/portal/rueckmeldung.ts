@@ -53,9 +53,10 @@ export async function rueckmeldungSpeichern(
   if (!antwortOptionen(antwortGruppe(l.rolle)).includes(e.art)) return { ok: false, code: "auswahl", fehler: "Diese Antwort passt nicht zur Anfrage." };
   const thema = e.art === "beratung" ? (istBeratungThema(e.thema ?? "") ? e.thema! : (themaVorschlag(T.wert(l.intent), T.wert(l.flaechentyp)) ?? "Etwas anderes")) : undefined;
   const text = bereinigen(e.text, 1500) || undefined;
+  const feld = opts.quelle === "link" ? "text" : "notiz";
 
   const vorher = l.meta.rueckmeldung;
-  if (vorher && vorher.art === e.art && vorher.thema === thema && vorher.text === text && Date.now() - Date.parse(vorher.am) < DOPPELT_MS) {
+  if (vorher && vorher.quelle === opts.quelle && vorher.art === e.art && vorher.thema === thema && vorher[feld] === text && Date.now() - Date.parse(vorher.am) < DOPPELT_MS) {
     return { ok: true, art: e.art, status: l.status, doppelt: true };
   }
 
@@ -72,12 +73,12 @@ export async function rueckmeldungSpeichern(
       art: e.art,
       quelle: opts.quelle,
       ...(thema ? { thema } : {}),
-      ...(text ? { text } : {}),
+      ...(text ? { [feld]: text } : {}),
       ...(opts.quelle === "verwaltung" ? { von: opts.von } : {}),
     };
     meta.rueckmeldung = r;
     const teile = [
-      `Rückmeldung ${opts.quelle === "link" ? "über den Antwort-Link" : "erfasst (Antwort per E-Mail o. Ä.)"}: ${RUECKMELDUNG_NAME[e.art]}${thema ? ` – ${thema}` : ""}${text ? ` · „${kuerzen(text, 240)}“` : ""}`,
+      `Rückmeldung ${opts.quelle === "link" ? "über den Antwort-Link" : "erfasst (Antwort per E-Mail o. Ä.)"}: ${RUECKMELDUNG_NAME[e.art]}${thema ? ` – ${thema}` : ""}${text ? ` · ${feld === "notiz" ? "Notiz: " : ""}„${kuerzen(text, 240)}“` : ""}`,
     ];
     // Verkaufen/Verpachten: als Angebot mit passender Art einordnen — so schlägt das Dashboard die richtige Einladung vor.
     if ((e.art === "verkaufen" || e.art === "verpachten") && !kunde?.vertrag) {

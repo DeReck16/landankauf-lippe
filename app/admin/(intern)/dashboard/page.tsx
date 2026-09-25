@@ -254,9 +254,9 @@ function RueckmeldungZeile({ x, test }: { x: DashRueckmeldung; test: boolean }) 
         <div className="lfa-klein">
           Antwort vom {datumZeit(r.am)} {r.quelle === "link" ? "über den Antwort-Link" : "(von Ihnen erfasst)"} · Anfrage vom {datum(x.eingang)}: {x.anliegen} · {x.ort}
         </div>
-        {r.text && (
-          <div className="lfa-nachricht lfa-ticket-text" title={r.quelle === "link" ? "Nachricht des Kunden" : "Notiz zur Antwort"}>
-            {r.text}
+        {(r.text || r.notiz) && (
+          <div className="lfa-nachricht lfa-ticket-text" title={r.text ? "Nachricht des Kunden" : "Ihre interne Notiz zur Antwort"}>
+            {r.text ?? `Notiz: ${r.notiz}`}
           </div>
         )}
         <div className="lfa-anfrage-warum" title="Warum genau dieser Schritt vorgeschlagen wird">
@@ -330,7 +330,7 @@ function RueckmeldungenAbschnitt({ liste, kein, test }: { liste: DashRueckmeldun
                     {x.name}
                   </Link>{" "}
                   <span className="lfa-klein">· {x.anliegen}</span>
-                  {x.r.text && <div className="lfa-klein">„{x.r.text}“</div>}
+                  {(x.r.text || x.r.notiz) && <div className="lfa-klein">{x.r.text ? `„${x.r.text}“` : `Notiz: ${x.r.notiz}`}</div>}
                 </div>
               </li>
             ))}

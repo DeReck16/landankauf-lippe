@@ -61,8 +61,10 @@ export type Rueckmeldung = {
   art: RueckmeldungArt;
   /** Beratung: gewähltes Thema. */
   thema?: string;
-  /** Freiwillige Nachricht des Kunden bzw. Notiz der Verwaltung. */
+  /** Freiwillige Nachricht des Kunden (nur Antwort-Link) — erscheint beim erneuten Öffnen wieder auf der Antwortseite. */
   text?: string;
+  /** Interne Notiz der Verwaltung zur erfassten Antwort — nie auf der Antwortseite. */
+  notiz?: string;
   quelle: "link" | "verwaltung";
   /** Erfasst von (nur Verwaltung). */
   von?: string;

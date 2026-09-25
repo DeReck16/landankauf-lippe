@@ -117,7 +117,11 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
             {rm.thema ? ` – ${rm.thema}` : ""}
           </strong>
           <span className="lfa-klein"> ({rm.quelle === "link" ? "selbst über den Antwort-Link" : `erfasst von ${rm.von ?? "der Verwaltung"}`})</span>
-          {rm.text && <div className="lfa-nachricht lfa-ticket-text">{rm.text}</div>}
+          {(rm.text || rm.notiz) && (
+            <div className="lfa-nachricht lfa-ticket-text" title={rm.text ? "Nachricht des Kunden" : "Interne Notiz — nie für den Kunden sichtbar"}>
+              {rm.text ?? `Notiz: ${rm.notiz}`}
+            </div>
+          )}
           {rm.art !== "kein-interesse" && l.status === "neu" && (
             <div className="lfa-klein">
               Offenes Ticket — steht im{" "}
