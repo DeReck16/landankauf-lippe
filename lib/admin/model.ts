@@ -53,6 +53,8 @@ export type LeadMeta = {
   boerse?: BoerseMeta;
   /** Neueste Antwort auf die Nachfass-Mail (frühere stehen im Verlauf) — offen als Ticket, solange der Status „Neu“ ist. */
   rueckmeldung?: Rueckmeldung;
+  /** E-Mails des Kunden aus dem Anfragenpostfach (Postfach-Abgleich, lib/portal/postfach.ts), neueste zuerst — offen, bis übernommen oder zur Kenntnis genommen. */
+  postfach?: PostfachMail[];
   /** Amtliche Daten zum angegebenen Flurstück (ALKIS NRW) und Bodenrichtwert (BORIS NRW) — einmal abgefragt (lib/portal/kataster.ts). */
   kataster?: KatasterDaten;
 };
@@ -68,25 +70,59 @@ export type KatasterDaten = {
   hinweis?: string;
 };
 
-/** Antwort des Kunden: selbst über den Antwort-Link (/kunde/antwort) oder von der Verwaltung aus einer E-Mail-Antwort erfasst. */
+/**
+ * Antwort des Kunden: selbst über den Antwort-Link (/kunde/antwort), von der Verwaltung erfasst
+ * oder aus einer E-Mail im Anfragenpostfach übernommen (Postfach-Abgleich).
+ */
 export type Rueckmeldung = {
   am: string;
   art: RueckmeldungArt;
   /** Beratung: gewähltes Thema. */
   thema?: string;
-  /** Freiwillige Nachricht des Kunden (nur Antwort-Link) — erscheint beim erneuten Öffnen wieder auf der Antwortseite. */
+  /** Nachricht des Kunden: freiwillig über den Antwort-Link (erscheint dort beim erneuten Öffnen wieder) bzw. Text seiner E-Mail. */
   text?: string;
   /** Interne Notiz der Verwaltung zur erfassten Antwort — nie auf der Antwortseite. */
   notiz?: string;
-  quelle: "link" | "verwaltung";
-  /** Erfasst von (nur Verwaltung). */
+  quelle: "link" | "verwaltung" | "email";
+  /** Erfasst bzw. übernommen von (Verwaltung, E-Mail). */
   von?: string;
+  /** E-Mail aus dem Postfach, aus der die Antwort übernommen wurde (PostfachMail.id). */
+  mail?: string;
   /** Laufende Vorgänge (Paar-Schlüssel) zum Zeitpunkt der Antwort — dann wird nichts umsortiert, sondern im Vorgang geprüft. */
   vorgaenge?: string[];
   /** Zuletzt per Mail an die Verwaltung gemeldet (Antwort-Link) — höchstens stündlich, außer bei neuer Antwort. */
   gemeldetAm?: string;
   /** Antworten über den Link in den letzten 24 Stunden (Schutz vor Missbrauch des Links). */
   zaehler?: { seit: string; n: number };
+};
+
+/**
+ * E-Mail eines Kunden aus dem Anfragenpostfach (info@tr-immobilien.com), vom Postfach-Abgleich
+ * der Anfrage zugeordnet (Absenderadresse oder persönlicher Link im zitierten Text). Gespeichert
+ * wird nur der neue Text ohne Zitat. Die Einordnung ist ein Vorschlag — geändert wird erst,
+ * wenn die Verwaltung ihn übernimmt.
+ */
+export type PostfachMail = {
+  /** Message-ID der Mail (Dublettenschutz). */
+  id: string;
+  /** Eingang im Postfach (ISO). */
+  am: string;
+  von: string;
+  betreff: string;
+  /** Neuer Text ohne Zitat und Signatur-Anhängsel, gekürzt. */
+  text: string;
+  /** Wie die Mail der Anfrage zugeordnet wurde: Absenderadresse, persönlicher Link oder Vorgangsnummer (LL-…). */
+  zuordnung: "absender" | "link" | "kennung";
+  /** Vorschlag aus dem Text (lib/portal/postfach-text.ts) — null: selbst lesen und entscheiden. */
+  vorschlag: RueckmeldungArt | null;
+  /** Kurzbegründung des Vorschlags für die Anzeige. */
+  grund: string;
+  /** Hinweise, z. B. Löschwunsch oder widersprüchliche Signale. */
+  hinweis?: string;
+  /** Abgeglichen am (ISO). */
+  erfasstAm: string;
+  /** Bearbeitet: als Rückmeldung übernommen (`art`) oder nur zur Kenntnis genommen (ohne `art`). */
+  erledigt?: { am: string; von: string; art?: RueckmeldungArt; wie?: "uebernommen" | "kenntnis" | "spaeter-erfasst" };
 };
 
 /** Anonyme Angaben eines Angebots für die Flächenbörse — nie Name, Flurstück oder genaue Lage. */

@@ -48,6 +48,9 @@ export function letzterKontakt(l: LeadView, k: M.KundeRecord | null, protokoll: 
   if (aktiv) liste.push({ am: aktiv.am, text: `im Kundenbereich: ${kuerzen(aktiv.text, 60)}` });
   if (l.meta.nachgefasstAm) liste.push({ am: l.meta.nachgefasstAm, text: "nachgefasst" });
   if (l.meta.rueckmeldung) liste.push({ am: l.meta.rueckmeldung.am, text: `Rückmeldung: ${RUECKMELDUNG_NAME[l.meta.rueckmeldung.art]}` });
+  // E-Mail des Kunden aus dem Anfragenpostfach (Postfach-Abgleich) — neueste zuerst gespeichert.
+  const post = l.meta.postfach?.[0];
+  if (post) liste.push({ am: post.am, text: `E-Mail des Kunden „${kuerzen(post.betreff || post.text, 60)}“` });
   // Mit Kundenakte stehen gesendete Mails dort (genauer) — aus dem Verlauf zählt dann nur das „Als beantwortet markieren“.
   const p = protokoll.find((x) => x.ref === l.id && (k ? /Status → Beantwortet/.test(x.was) && !/gesendet/.test(x.was) : KONTAKT_PROTOKOLL.test(x.was)));
   if (p) {
@@ -89,6 +92,8 @@ export function nachfassKandidaten(opts: {
     if (l.meta.rueckmeldung && l.meta.rueckmeldung.art !== "kein-interesse" && l.status === "neu") continue;
     // „Kein Interesse“ gemeldet: nie wieder nachfassen (auch wenn der Status später geändert wurde).
     if (l.meta.rueckmeldung?.art === "kein-interesse") continue;
+    // Offene E-Mail aus dem Postfach (noch nicht übernommen): erst lesen, dann ggf. nachfassen.
+    if (l.meta.postfach?.some((m) => !m.erledigt)) continue;
     try {
       const k = kunden.get(l.id) ?? null;
       const mail = nachfassEntwurf(l, k, basis);

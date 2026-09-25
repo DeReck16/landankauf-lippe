@@ -2,7 +2,8 @@ import "server-only";
 import { cache } from "react";
 import { ladeVerwaltung } from "@/lib/admin/daten";
 import { findeKandidaten } from "@/lib/admin/matching";
-import { formatGroesse, type LeadView, type Rueckmeldung } from "@/lib/admin/model";
+import { formatGroesse, type LeadView, type PostfachMail, type Rueckmeldung } from "@/lib/admin/model";
+import { ROLLE_LABEL, artLabel } from "@/lib/admin/format";
 import { boerseLuecken, haText } from "@/lib/boerse";
 import { ladeNeu, ladePortal } from "@/lib/admin/neu";
 import type { AnfrageVorschlag, AntwortEntwurf, NachfassKandidat } from "./anfrage-typen";
@@ -13,6 +14,8 @@ import { katasterNachholen } from "./kataster";
 import { assistentPlan, type AssistentChip, type AssistentPlan } from "./assistent";
 import * as M from "./model";
 import { nachfassKandidaten, nachfassTage } from "./nachfassen";
+import { istOffen, mailKey } from "./postfach";
+import { antwortGruppe, antwortOptionen, type RueckmeldungArt } from "./rueckmeldung-typen";
 import { vorgangSchritte, type Schritt } from "./schritte";
 import { basisUrl } from "./sitzung";
 import * as T from "./texte";
@@ -75,6 +78,28 @@ export type DashRueckmeldung = {
   antworten: { href: string; an: string } | null;
 };
 
+/**
+ * E-Mail eines Kunden aus dem Anfragenpostfach (Postfach-Abgleich, lib/portal/postfach.ts) als
+ * Ticket: offen, bis der Vorschlag übernommen oder die Mail zur Kenntnis genommen ist.
+ */
+export type DashPostfach = {
+  id: string;
+  name: string;
+  anliegen: string;
+  ort: string;
+  eingang: string;
+  /** Aktuelle Einordnung der Anfrage (z. B. „Angebot · Pacht“). */
+  einordnung: string;
+  mail: PostfachMail;
+  /** Kennung der Mail für Knöpfe und „gesehen“ (lib/portal/postfach.ts → mailKey). */
+  key: string;
+  /** Antworten, die sich übernehmen lassen — der Vorschlag zuerst. */
+  optionen: RueckmeldungArt[];
+  /** Laufende Vorgänge: dort wird nichts umsortiert. */
+  vorgaenge: string[];
+  neu: boolean;
+};
+
 /** Angebot für die Flächenbörse (Kauf oder Pacht, aktiv). */
 export type DashBoerse = {
   id: string;
@@ -117,6 +142,8 @@ export type Dashboard = {
   anfragen: DashAnfrage[];
   /** Offene Tickets aus Rückmeldungen auf Nachfass-Mails, neueste zuerst. */
   rueckmeldungen: DashRueckmeldung[];
+  /** E-Mails aus dem Anfragenpostfach, noch nicht übernommen bzw. zur Kenntnis genommen — neueste zuerst. */
+  postfach: DashPostfach[];
   /** „Kein Interesse“ der letzten 30 Tage — automatisch erledigt, nur zur Info. */
   keinInteresse: DashRueckmeldung[];
   /** Alte Anfragen ohne Rückmeldung, bei denen Nachfassen möglich ist (lib/portal/nachfassen.ts). */
@@ -388,6 +415,39 @@ export const ladeDashboard = cache(async (email: string): Promise<Dashboard> => 
   keinInteresse.sort((a, b) => b.r.am.localeCompare(a.r.am));
   for (const x of [...rueckmeldungen, ...keinInteresse]) gesehen.push(`rueckmeldung:${x.id}`);
 
+  // E-Mails aus dem Anfragenpostfach (Postfach-Abgleich): je offene Mail ein Ticket mit Vorschlag.
+  const laufend = new Map<string, string[]>();
+  for (const [key, pm] of Object.entries(zustand.paare)) {
+    if (pm.status === "vorschlag" || pm.status === "verworfen") continue;
+    const v = portal.vorgaenge.get(key);
+    if (v?.beendet && !v.abschluss) continue;
+    for (const id of key.split("~")) laufend.set(id, [...(laufend.get(id) ?? []), key]);
+  }
+  const postfach: DashPostfach[] = [];
+  for (const l of leads) {
+    if (l.status === "archiv") continue;
+    for (const m of l.meta.postfach ?? []) {
+      if (!istOffen(m)) continue;
+      const key = mailKey(m.id);
+      const alle = antwortOptionen(antwortGruppe(l.rolle), l.art, true);
+      postfach.push({
+        id: l.id,
+        name: portal.kunden.get(l.id)?.stammdaten?.name || T.wert(l.name) || l.id,
+        anliegen: T.wert(l.intent) || "—",
+        ort: l.ortText || T.wert(l.ort) || "Ort offen",
+        eingang: l.receivedAt,
+        einordnung: `${ROLLE_LABEL[l.rolle]}${l.art ? ` · ${artLabel(l.art)}` : ""}`,
+        mail: m,
+        key,
+        optionen: m.vorschlag ? [m.vorschlag, ...alle.filter((a) => a !== m.vorschlag)] : alle,
+        vorgaenge: laufend.get(l.id) ?? [],
+        neu: !neu.gesehen[`postfach:${key}`],
+      });
+      gesehen.push(`postfach:${key}`);
+    }
+  }
+  postfach.sort((a, b) => b.mail.am.localeCompare(a.mail.am));
+
   // Neue Anfragen, die in keinem Paar und keinem Vorschlag vorkommen (offene Tickets stehen unter „Rückmeldungen“).
   const imPaar = new Set<string>();
   for (const key of Object.keys(zustand.paare)) for (const id of key.split("~")) imPaar.add(id);
@@ -499,6 +559,7 @@ export const ladeDashboard = cache(async (email: string): Promise<Dashboard> => 
     vorschlaege,
     anfragen,
     rueckmeldungen,
+    postfach,
     keinInteresse,
     nachfassen,
     nachfassTage: nachfassTageWert,

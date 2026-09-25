@@ -6,7 +6,7 @@ import { formatGroesse, type LeadView } from "@/lib/admin/model";
 import { artLabel, datum, datumZeit } from "@/lib/admin/format";
 import type { NachfassKandidat } from "@/lib/portal/anfrage-typen";
 import { seitText } from "@/lib/portal/assistent-typen";
-import { ladeDashboard, type DashBoerse, type DashRueckmeldung, type DashUebersicht, type DashVorgang, type DashVorschlag } from "@/lib/portal/dashboard";
+import { ladeDashboard, type DashBoerse, type DashPostfach, type DashRueckmeldung, type DashUebersicht, type DashVorgang, type DashVorschlag } from "@/lib/portal/dashboard";
 import * as M from "@/lib/portal/model";
 import { NACHFASS_PAUSE_TAGE } from "@/lib/portal/nachfassen";
 import { RUECKMELDUNG_NAME } from "@/lib/portal/rueckmeldung-typen";
@@ -22,6 +22,7 @@ import AnfrageAktionen from "./AnfrageAktionen";
 import AntwortFreigabe from "./AntwortFreigabe";
 import { AbschnittErgebnis, AufklappenBeiErgebnis, EinKlick } from "./EinKlick";
 import Nachfassen from "./Nachfassen";
+import PostfachAktionen from "./PostfachAktionen";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
@@ -250,15 +251,21 @@ function RueckmeldungZeile({ x, test }: { x: DashRueckmeldung; test: boolean }) 
             {x.name}
           </Link>{" "}
           <span
-            className={`lfa-badge ${r.art === "beratung" ? "lfa-badge-gesuch" : "lfa-badge-angebot"}`}
-            title={r.quelle === "link" ? "Selbst über den Antwort-Link der Nachfass-Mail gewählt" : `Von ${r.von ?? "der Verwaltung"} aus einer Antwort erfasst`}
+            className={`lfa-badge ${r.art === "beratung" || r.art === "suche" || r.art === "pachten" || r.art === "kaufen" ? "lfa-badge-gesuch" : "lfa-badge-angebot"}`}
+            title={
+              r.quelle === "link"
+                ? "Selbst über den Antwort-Link der Nachfass-Mail gewählt"
+                : r.quelle === "email"
+                  ? `Aus der E-Mail des Kunden übernommen von ${r.von ?? "der Verwaltung"} (Postfach-Abgleich)`
+                  : `Von ${r.von ?? "der Verwaltung"} aus einer Antwort erfasst`
+            }
           >
             {RUECKMELDUNG_NAME[r.art]}
             {r.thema ? `: ${r.thema}` : ""}
           </span>
         </div>
         <div className="lfa-klein">
-          Antwort vom {datumZeit(r.am)} {r.quelle === "link" ? "über den Antwort-Link" : "(von Ihnen erfasst)"} · Anfrage vom {datum(x.eingang)}: {x.anliegen} · {x.ort}
+          Antwort vom {datumZeit(r.am)} {r.quelle === "link" ? "über den Antwort-Link" : r.quelle === "email" ? "(aus der E-Mail übernommen)" : "(von Ihnen erfasst)"} · Anfrage vom {datum(x.eingang)}: {x.anliegen} · {x.ort}
         </div>
         {(r.text || r.notiz) && (
           <div className="lfa-nachricht lfa-ticket-text" title={r.text ? "Nachricht des Kunden" : "Ihre interne Notiz zur Antwort"}>
@@ -323,21 +330,85 @@ function RueckmeldungZeile({ x, test }: { x: DashRueckmeldung; test: boolean }) 
   );
 }
 
+/** Ein Ticket aus dem Postfach-Abgleich: E-Mail eines Kunden mit Vorschlag — ein Klick übernimmt ihn. */
+function PostfachZeile({ x }: { x: DashPostfach }) {
+  const m = x.mail;
+  return (
+    <li className="lfa-dash-vorschlag" id={`postfach-${x.key}`}>
+      <div className="lfa-dash-vorschlag-text">
+        <div>
+          {x.neu && <span className="lfa-puls" title="Neue E-Mail — noch nicht angesehen" />}
+          <Link href={`/admin/anfrage/${x.id}#postfach`} className="lfa-link-name" title="Anfrage öffnen: Angaben, alle E-Mails aus dem Postfach und Verlauf">
+            {x.name}
+          </Link>{" "}
+          <span className="lfa-badge lfa-badge-keine" title={`E-Mail an das Anfragenpostfach, vom Postfach-Abgleich zugeordnet (${m.zuordnung === "link" ? "über den persönlichen Link im zitierten Text" : m.zuordnung === "kennung" ? "über die Vorgangsnummer LL-… im Betreff bzw. Text" : "über die Absenderadresse"})`}>
+            E-Mail
+          </span>{" "}
+          {m.vorschlag ? (
+            <span className={`lfa-badge ${m.vorschlag === "beratung" || m.vorschlag === "pachten" || m.vorschlag === "kaufen" || m.vorschlag === "suche" ? "lfa-badge-gesuch" : "lfa-badge-angebot"}`} title="Vorschlag aus dem Text der E-Mail — geändert wird erst beim Übernehmen">
+              Vorschlag: {RUECKMELDUNG_NAME[m.vorschlag]}
+            </span>
+          ) : (
+            <span className="lfa-badge lfa-badge-keine" title="Aus dem Text ließ sich kein eindeutiges Anliegen ablesen">
+              selbst einordnen
+            </span>
+          )}
+        </div>
+        <div className="lfa-klein">
+          E-Mail vom {datumZeit(m.am)} · {m.von}
+          {m.betreff ? ` · „${m.betreff}“` : ""} · Anfrage vom {datum(x.eingang)}: {x.anliegen} · jetzt {x.einordnung}
+        </div>
+        <div className="lfa-nachricht lfa-ticket-text" title="Text der E-Mail (ohne zitierte frühere Nachrichten)">
+          {m.text || "— kein eigener Text —"}
+        </div>
+        {x.vorgaenge.length > 0 && (
+          <div className="lfa-klein lfa-dash-warnung" title="Der Kunde steckt in einem laufenden Vorgang — beim Übernehmen wird die Einordnung nicht geändert">
+            Läuft in {x.vorgaenge.length === 1 ? "einem Vorgang" : `${x.vorgaenge.length} Vorgängen`} — bitte dort prüfen:{" "}
+            {x.vorgaenge.map((k, i) => (
+              <span key={k}>
+                {i > 0 ? ", " : ""}
+                <Link href={`/admin/vorgang/${k}`} title="Vorgang öffnen">
+                  {k}
+                </Link>
+              </span>
+            ))}
+          </div>
+        )}
+        <div className="lfa-anfrage-warum" title="Warum dieser Vorschlag — aus dem Text der E-Mail abgeleitet">
+          {m.grund}
+        </div>
+        {m.hinweis && (
+          <div className="lfa-klein lfa-dash-warnung" title="Bitte vor dem Übernehmen beachten">
+            Hinweis: {m.hinweis}
+          </div>
+        )}
+      </div>
+      <PostfachAktionen id={x.id} mail={x.key} vorschlag={m.vorschlag} optionen={x.optionen} />
+    </li>
+  );
+}
+
 /** Rückmeldungen auf Nachfass-Mails: offene Tickets (je ein Knopf) und zur Info, wer „kein Interesse“ gemeldet hat. */
-function RueckmeldungenAbschnitt({ liste, kein, test }: { liste: DashRueckmeldung[]; kein: DashRueckmeldung[]; test: boolean }) {
+function RueckmeldungenAbschnitt({ liste, post, kein, test }: { liste: DashRueckmeldung[]; post: DashPostfach[]; kein: DashRueckmeldung[]; test: boolean }) {
+  const anzahl = liste.length + post.length;
   return (
     <section className="lfa-dash-abschnitt" id="rueckmeldungen">
       <h2
         className="lfa-h2"
-        title="Antworten auf die Nachfass-Mail — über den Antwort-Link oder von Ihnen aus einer E-Mail erfasst. Jedes Ticket hat einen vorgeschlagenen Schritt und verschwindet, sobald die Anfrage bearbeitet ist."
+        title="Antworten der Kunden — über den Antwort-Link, von Ihnen erfasst oder als E-Mail aus dem Anfragenpostfach (Postfach-Abgleich, täglich). Jedes Ticket hat einen vorgeschlagenen Schritt und verschwindet, sobald es bearbeitet ist."
       >
-        {(liste.some((x) => x.neu) || kein.some((x) => x.neu)) && <span className="lfa-puls" />}Rückmeldungen ({liste.length})
+        {(liste.some((x) => x.neu) || post.some((x) => x.neu) || kein.some((x) => x.neu)) && <span className="lfa-puls" />}Rückmeldungen ({anzahl})
       </h2>
       <AbschnittErgebnis ziel="rueckmeldungen" />
-      {liste.length === 0 ? (
-        <div className="lfa-panel lfa-leer">Keine offenen Rückmeldungen — antwortet jemand auf eine Nachfass-Mail, erscheint hier ein Ticket mit dem nächsten Schritt.</div>
+      {anzahl === 0 ? (
+        <div className="lfa-panel lfa-leer">
+          Keine offenen Rückmeldungen — antwortet jemand auf eine Nachfass-Mail (über den Link oder per E-Mail an das Anfragenpostfach), erscheint hier ein Ticket mit dem nächsten Schritt.
+        </div>
       ) : (
         <ul className="lfa-dash-vorschlaege">
+          {post.map((x) => (
+            <PostfachZeile key={x.key} x={x} />
+          ))}
           {liste.map((x) => (
             <RueckmeldungZeile key={x.id} x={x} test={test} />
           ))}
@@ -351,7 +422,7 @@ function RueckmeldungenAbschnitt({ liste, kein, test }: { liste: DashRueckmeldun
           <ul className="lfa-protokoll">
             {kein.map((x) => (
               <li key={x.id}>
-                <span className="lfa-klein">{datumZeit(x.r.am)} · {x.r.quelle === "link" ? "Antwort-Link" : "erfasst"}</span>
+                <span className="lfa-klein">{datumZeit(x.r.am)} · {x.r.quelle === "link" ? "Antwort-Link" : x.r.quelle === "email" ? "E-Mail" : "erfasst"}</span>
                 <div>
                   {x.neu && <span className="lfa-puls" title="Neu seit Ihrem letzten Besuch" />}
                   <Link href={`/admin/anfrage/${x.id}`} className="lfa-link-name" title="Anfrage öffnen — über den Status lässt sie sich wieder aufnehmen">
@@ -405,11 +476,11 @@ export default async function DashboardPage(props: PageProps<"/admin/dashboard">
   const jetztPuls = d.jetzt.some((x) => x.neu > 0 || x.plan.meldungen.length > 0 || Boolean(x.plan.aktion?.dran && !x.plan.aktion.gesperrt));
   const kacheln = [
     {
-      href: d.rueckmeldungen.length ? "#rueckmeldungen" : "#anfragen",
-      wert: String(d.rueckmeldungen.length + d.anfragen.length),
+      href: d.rueckmeldungen.length || d.postfach.length ? "#rueckmeldungen" : "#anfragen",
+      wert: String(d.rueckmeldungen.length + d.postfach.length + d.anfragen.length),
       name: "Zur Freigabe",
-      tipp: `Fertig vorbereitet, Sie müssen nur prüfen und freigeben: ${d.anfragen.length} neue ${d.anfragen.length === 1 ? "Anfrage" : "Anfragen"} (Antwort bzw. Einladung) und ${d.rueckmeldungen.length} ${d.rueckmeldungen.length === 1 ? "Rückmeldung" : "Rückmeldungen"} auf Nachfass-Mails`,
-      puls: d.rueckmeldungen.some((x) => x.neu) || d.keinInteresse.some((x) => x.neu) || d.anfragen.some((a) => a.neu),
+      tipp: `Fertig vorbereitet, Sie müssen nur prüfen und freigeben: ${d.anfragen.length} neue ${d.anfragen.length === 1 ? "Anfrage" : "Anfragen"} (Antwort bzw. Einladung), ${d.rueckmeldungen.length} ${d.rueckmeldungen.length === 1 ? "Rückmeldung" : "Rückmeldungen"} auf Nachfass-Mails und ${d.postfach.length} ${d.postfach.length === 1 ? "E-Mail" : "E-Mails"} aus dem Postfach (Vorschlag übernehmen)`,
+      puls: d.rueckmeldungen.some((x) => x.neu) || d.postfach.some((x) => x.neu) || d.keinInteresse.some((x) => x.neu) || d.anfragen.some((a) => a.neu),
     },
     { href: "#jetzt", wert: String(d.jetzt.length), name: "Jetzt dran", tipp: "Vorgänge, bei denen Sie handeln müssen — je Vorgang ein Knopf", puls: d.jetzt.length > 0 && jetztPuls },
     { href: "#warten", wert: String(d.warten.length), name: "Warten auf Kunden", tipp: "Vorgänge, bei denen Kunden, Notar, Behörde oder die Zahlung am Zug sind — mit „Erinnerung senden“", puls: d.warten.some((x) => x.neu > 0) },
@@ -457,7 +528,7 @@ export default async function DashboardPage(props: PageProps<"/admin/dashboard">
       <UebersichtKacheln u={d.uebersicht} vorschlaege={d.vorschlaege.length} nachfassen={{ anzahl: d.nachfassen.length, neu: d.nachfassen.some((c) => c.neu), tage: d.nachfassTage }} />
       <AbschnittErgebnis ziel="weg" />
 
-      <RueckmeldungenAbschnitt liste={d.rueckmeldungen} kein={d.keinInteresse} test={test} />
+      <RueckmeldungenAbschnitt liste={d.rueckmeldungen} post={d.postfach} kein={d.keinInteresse} test={test} />
 
       {d.anfragen.length > 0 ? (
         <section className="lfa-dash-abschnitt" id="anfragen">

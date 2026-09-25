@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Postfach-Abgleich Lippe Forst (scripts/postfach/abgleich.py): taeglich 07:40 die Antworten
+     von Interessenten aus dem Anfragenpostfach an lippeforst.de/admin melden.
+     Einrichten:
+       cp scripts/postfach/com.dennisreckling.lippeforst-postfach.plist ~/Library/LaunchAgents/
+       launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.dennisreckling.lippeforst-postfach.plist
+     Sofort ausfuehren:  launchctl kickstart gui/$(id -u)/com.dennisreckling.lippeforst-postfach
+     Protokoll:          ~/Library/Logs/lippeforst-postfach.log
+     Ist der Mac um 07:40 im Ruhezustand, holt launchd den Lauf beim Aufwachen nach;
+     war er aus, laeuft der naechste Abgleich am Folgetag (14 Tage Rueckblick, es geht nichts verloren).
+     /usr/bin/python3 wie beim DHL-Rechnungsabgleich: dessen Automation-Freigabe fuer Outlook gilt auch hier. -->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.dennisreckling.lippeforst-postfach</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>/Users/de/landankauf-lippe/scripts/postfach/abgleich.py</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>/Users/de/landankauf-lippe/scripts/postfach</string>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key><integer>7</integer>
+    <key>Minute</key><integer>40</integer>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>/Users/de/Library/Logs/lippeforst-postfach.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/de/Library/Logs/lippeforst-postfach.log</string>
+  <key>RunAtLoad</key>
+  <false/>
+</dict>
+</plist>

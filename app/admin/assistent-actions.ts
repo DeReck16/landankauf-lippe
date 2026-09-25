@@ -14,6 +14,8 @@ import { entwuerfeKunde } from "@/lib/portal/entwuerfe";
 import * as M from "@/lib/portal/model";
 import * as N from "@/lib/portal/nacharbeit";
 import { NACHFASS_PAUSE_TAGE, nachfassKandidaten } from "@/lib/portal/nachfassen";
+import { postfachUebernehmen, postfachZurKenntnis } from "@/lib/portal/postfach";
+import { RUECKMELDUNG_NAME, istRueckmeldungArt } from "@/lib/portal/rueckmeldung-typen";
 import { SPERRE_FREIGABE } from "@/lib/portal/schritte";
 import { basisUrl } from "@/lib/portal/sitzung";
 import { alleKunden, alleVorgaenge, istKundeId, istPaarKey, ladeEinstellungen, ladeKunde, ladeVorgang } from "@/lib/portal/speicher";
@@ -395,6 +397,46 @@ export async function vorschlagAktion(fd: FormData): Promise<AssistentState> {
       ? { art: "ok", text: `Paar ${namen.join(" ↔ ")} vorgemerkt — nächster Schritt: „Beide einladen“` }
       : { art: "ok", text: `Paar ${namen.join(" ↔ ")} verworfen — es wird nicht mehr vorgeschlagen (im Matching unter „Verworfen“ zurückholbar)` },
   ]);
+}
+
+/**
+ * E-Mail aus dem Anfragenpostfach (Postfach-Abgleich): Vorschlag bzw. gewählte Antwort übernehmen —
+ * wie eine Rückmeldung über den Antwort-Link (Ticket mit nächstem Schritt, „kein Interesse“ → Erledigt).
+ * Ein Klick ohne Rückfrage: Es geht keine E-Mail raus, und die Einordnung bleibt in der Anfrage änderbar.
+ */
+export async function postfachUebernehmenAktion(fd: FormData): Promise<AssistentState> {
+  const { email } = await requireAdmin();
+  const id = feld(fd, "id", 40);
+  const mail = feld(fd, "mail", 40);
+  const art = feld(fd, "art", 20);
+  if (!istKundeId(id) || !mail || !istRueckmeldungArt(art)) return { status: "fehler", titel: "Ungültige Anfrage.", zeilen: [], am: new Date().toISOString() };
+  const r = await postfachUebernehmen(id, mail, art, { von: email, basis: await basisUrl(), thema: feld(fd, "thema", 80) || undefined });
+  revalidatePath("/admin", "layout");
+  if (!r.ok) return ergebnis("Übernehmen", [{ art: "fehler", text: r.fehler }]);
+  const zeilen: AssistentZeile[] = [{ art: "ok", text: `${r.name}: „${RUECKMELDUNG_NAME[art]}“ übernommen` }];
+  if (r.rueckmeldung.ok) {
+    zeilen.push(
+      r.rueckmeldung.status === "erledigt"
+        ? { art: "info", text: "Die Anfrage steht auf „Erledigt“ — es geht keine weitere E-Mail an den Kunden." }
+        : art === "kein-interesse"
+          ? { art: "info", text: "Die Anfrage steckt in einem laufenden Vorgang — „kein Interesse“ ist dort vermerkt, bitte im Vorgang entscheiden." }
+          : { art: "info", text: "Die Anfrage steht jetzt unter „Rückmeldungen“ mit dem nächsten Schritt (meist die Einladung) — gesendet wird erst auf Klick." },
+    );
+  }
+  return ergebnis("Übernehmen", zeilen);
+}
+
+/** E-Mail aus dem Postfach nur zur Kenntnis nehmen (Dank, schon selbst beantwortete Rückfrage …) — nichts wird eingeordnet. */
+export async function postfachKenntnisAktion(fd: FormData): Promise<AssistentState> {
+  const { email } = await requireAdmin();
+  const id = feld(fd, "id", 40);
+  const mail = feld(fd, "mail", 40);
+  if (!istKundeId(id) || !mail) return { status: "fehler", titel: "Ungültige Anfrage.", zeilen: [], am: new Date().toISOString() };
+  const r = await postfachZurKenntnis(id, mail, email);
+  revalidatePath("/admin", "layout");
+  return r.ok
+    ? ergebnis("Zur Kenntnis genommen", [{ art: "ok", text: `E-Mail von ${r.name} abgehakt — Einordnung und Status der Anfrage bleiben, wie sie sind.` }])
+    : ergebnis("Zur Kenntnis nehmen", [{ art: "fehler", text: r.fehler }]);
 }
 
 /** Neue Anfragen ohne Paar: Status mit einem Klick auf „In Arbeit“ oder „Archiv“. */

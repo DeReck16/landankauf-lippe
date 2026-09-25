@@ -10,12 +10,13 @@ import { ladeNeu, ladePortal } from "@/lib/admin/neu";
 import { FLAECHENTYPEN } from "@/lib/lead-options";
 import { einladungsLink } from "@/lib/portal/ablauf";
 import { entwuerfeKunde } from "@/lib/portal/entwuerfe";
+import { mailKey } from "@/lib/portal/postfach";
 import * as M from "@/lib/portal/model";
 import { basisUrl } from "@/lib/portal/sitzung";
 import { anschrift, datumDe, flaecheZeile, rolleVonLead } from "@/lib/portal/texte";
 import { VORLAGEN, istFreigegeben, kundenVorlage } from "@/lib/vertraege/vorlagen";
 import { BERATUNG_THEMEN, RUECKMELDUNG_NAME, antwortGruppe, antwortOptionen, istBeratungThema, istRueckmeldungArt, themaVorschlag } from "@/lib/portal/rueckmeldung-typen";
-import { anfrageSpeichern, ortNeuSuchen, rueckmeldungErfassen } from "../../../actions";
+import { anfrageSpeichern, ortNeuSuchen, postfachFormular, rueckmeldungErfassen } from "../../../actions";
 import {
   bestaetigungSendenAktion,
   bewertungsWiderspruchAktion,
@@ -68,7 +69,7 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
   const rm = l.meta.rueckmeldung;
   // Vorbelegung per Link (z. B. von Claude aus einer E-Mail-Antwort vorbereitet): ?rm=<Antwort>&rmNotiz=…&rmThema=… —
   // gespeichert wird trotzdem erst per Knopf.
-  const optionen = antwortOptionen(antwortGruppe(l.rolle), l.art);
+  const optionen = antwortOptionen(antwortGruppe(l.rolle), l.art, true);
   const rmVor = typeof sp.rm === "string" && istRueckmeldungArt(sp.rm) && optionen.includes(sp.rm) ? sp.rm : "";
   const rmNotizVor = typeof sp.rmNotiz === "string" ? sp.rmNotiz.slice(0, 1500) : "";
   const rmThemaVor = typeof sp.rmThema === "string" && istBeratungThema(sp.rmThema) ? sp.rmThema : "";
@@ -122,7 +123,10 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
             Rückmeldung vom {datumZeit(rm.am)}: {RUECKMELDUNG_NAME[rm.art]}
             {rm.thema ? ` – ${rm.thema}` : ""}
           </strong>
-          <span className="lfa-klein"> ({rm.quelle === "link" ? "selbst über den Antwort-Link" : `erfasst von ${rm.von ?? "der Verwaltung"}`})</span>
+          <span className="lfa-klein">
+            {" "}
+            ({rm.quelle === "link" ? "selbst über den Antwort-Link" : rm.quelle === "email" ? `aus der E-Mail übernommen von ${rm.von ?? "der Verwaltung"}` : `erfasst von ${rm.von ?? "der Verwaltung"}`})
+          </span>
           {(rm.text || rm.notiz) && (
             <div className="lfa-nachricht lfa-ticket-text" title={rm.text ? "Nachricht des Kunden" : "Interne Notiz — nie für den Kunden sichtbar"}>
               {rm.text ?? `Notiz: ${rm.notiz}`}
@@ -455,6 +459,66 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
               </div>
             </form>
           </section>
+
+          {(l.meta.postfach?.length ?? 0) > 0 && (
+            <section className="lfa-panel" id="postfach">
+              <h2 className="lfa-h2" title="E-Mails des Kunden an das Anfragenpostfach — vom Postfach-Abgleich (täglich) dieser Anfrage zugeordnet, ohne zitierte frühere Nachrichten">
+                {l.meta.postfach!.some((m) => !m.erledigt) && <span className="lfa-puls" />}E-Mails aus dem Postfach
+              </h2>
+              <ul className="lfa-protokoll">
+                {l.meta.postfach!.map((m) => (
+                  <li key={m.id}>
+                    <span className="lfa-klein">
+                      {datumZeit(m.am)} · {m.von}
+                      {m.betreff ? ` · „${m.betreff}“` : ""}
+                    </span>
+                    <div className="lfa-nachricht lfa-ticket-text" title="Text der E-Mail (ohne Zitat)">
+                      {m.text || "— kein eigener Text —"}
+                    </div>
+                    {m.erledigt ? (
+                      <div className="lfa-klein" title={`Bearbeitet am ${datumZeit(m.erledigt.am)} von ${m.erledigt.von}`}>
+                        {m.erledigt.wie === "spaeter-erfasst"
+                          ? "✓ Antwort war schon als Rückmeldung erfasst"
+                          : m.erledigt.art
+                            ? `✓ Übernommen: ${RUECKMELDUNG_NAME[m.erledigt.art]}`
+                            : "✓ Zur Kenntnis genommen"}{" "}
+                        ({datumZeit(m.erledigt.am)})
+                      </div>
+                    ) : (
+                      <form action={postfachFormular} className="lfa-formraster" style={{ marginTop: "0.4rem" }}>
+                        <input type="hidden" name="id" value={l.id} />
+                        <input type="hidden" name="mail" value={mailKey(m.id)} />
+                        <p className="lfa-klein lfa-breit" style={{ margin: 0 }} title="Aus dem Text der E-Mail abgeleitet — geändert wird erst beim Übernehmen">
+                          {m.vorschlag ? "Vorschlag: " : ""}
+                          {m.grund}
+                          {m.hinweis ? ` · Hinweis: ${m.hinweis}` : ""}
+                        </p>
+                        <label className="lfa-breit">
+                          <span className="field-label">Antwort des Kunden</span>
+                          <select name="art" defaultValue={m.vorschlag ?? ""} className="field-select" title="Was hat der Kunde geantwortet? Übernehmen wirkt wie eine Rückmeldung über den Antwort-Link.">
+                            <option value="">Bitte wählen …</option>
+                            {optionen.map((a) => (
+                              <option key={a} value={a}>
+                                {RUECKMELDUNG_NAME[a]}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                        <div className="lfa-breit lfa-knopfreihe">
+                          <button type="submit" name="aktion" value="uebernehmen" className="lfa-knopf lfa-knopf-klein" title="Übernimmt die gewählte Antwort: Einordnung und Ticket wie beim Antwort-Link, „kein Interesse“ setzt die Anfrage auf „Erledigt“. Es geht keine E-Mail raus.">
+                            Übernehmen
+                          </button>
+                          <button type="submit" name="aktion" value="kenntnis" className="lfa-knopf lfa-knopf-leise lfa-knopf-klein" title="Nur abhaken — Einordnung und Status bleiben, wie sie sind. Es geht keine E-Mail raus.">
+                            Zur Kenntnis (nichts ändern)
+                          </button>
+                        </div>
+                      </form>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           <section className="lfa-panel" id="rueckmeldung">
             <h2 className="lfa-h2" title="Antwort des Kunden auf die Nachfass-Mail eintragen, wenn sie nicht über den Antwort-Link kam">Rückmeldung erfassen</h2>

@@ -5,22 +5,26 @@ import { mutateZustand } from "@/lib/admin/store";
 import { boerseNeuSchreiben } from "@/lib/boerse";
 import * as A from "./ablauf";
 import { adminInfo } from "./mail";
-import { RUECKMELDUNG_NAME, antwortGruppe, antwortOptionen, istBeratungThema, themaVorschlag, type RueckmeldungArt } from "./rueckmeldung-typen";
+import { RUECKMELDUNG_NAME, antwortGruppe, antwortOptionen, istBeratungThema, istSuchAntwort, themaVorschlag, type RueckmeldungArt } from "./rueckmeldung-typen";
 import { ladeKunde, ladeVorgang } from "./speicher";
 import * as T from "./texte";
 
 // Rückmeldung auf die Nachfass-Mail speichern — vom Kunden über den Antwort-Link
-// (/kunde/antwort) oder von der Verwaltung aus einer E-Mail-Antwort erfasst
-// (Anfrage → „Rückmeldung erfassen“). Aus jeder Antwort wird ein Ticket: Die
+// (/kunde/antwort), von der Verwaltung erfasst (Anfrage → „Rückmeldung erfassen“)
+// oder aus einer E-Mail im Anfragenpostfach übernommen (Postfach-Abgleich,
+// lib/portal/postfach.ts). Aus jeder Antwort wird ein Ticket: Die
 // Anfrage steht wieder auf „Neu“ und oben im Dashboard unter „Rückmeldungen“
 // mit dem vorgeschlagenen Schritt, bis sie bearbeitet ist (Einladung gesendet,
 // als beantwortet markiert …). „Kein Interesse“ setzt sie auf „Erledigt“ und
 // nimmt ein Börsen-Angebot von der Website. Verkaufen/Verpachten ordnet die
-// Anfrage als Angebot mit passender Art ein (nicht mehr nach einer Unterschrift).
+// Anfrage als Angebot mit passender Art ein, Pachten/Kaufen („sucht selbst“) als
+// Gesuch (beides nicht mehr nach einer Unterschrift).
 // An den Kunden geht keine Mail; die Verwaltung bekommt bei Antworten über den
 // Link eine Meldung.
 
 export type RueckmeldungEingabe = { art: RueckmeldungArt; thema?: string; text?: string };
+
+export type RueckmeldungQuelle = "link" | "verwaltung" | "email";
 
 export type RueckmeldungErgebnis =
   | { ok: true; art: RueckmeldungArt; status: LeadStatus; doppelt?: boolean }
@@ -50,18 +54,20 @@ function kuerzen(s: string, max: number): string {
 export async function rueckmeldungSpeichern(
   id: string,
   e: RueckmeldungEingabe,
-  opts: { quelle: "link" | "verwaltung"; von: string; basis: string },
+  opts: { quelle: RueckmeldungQuelle; von: string; basis: string; /** E-Mail aus dem Postfach, aus der die Antwort stammt. */ mail?: string },
 ): Promise<RueckmeldungErgebnis> {
   const geladen = await A.ladeLead(id);
   if (!geladen || geladen.lead.status === "archiv") return { ok: false, code: "anfrage", fehler: "Anfrage nicht gefunden." };
   const l = geladen.lead;
-  if (!antwortOptionen(antwortGruppe(l.rolle)).includes(e.art)) return { ok: false, code: "auswahl", fehler: "Diese Antwort passt nicht zur Anfrage." };
+  // Die Verwaltung (auch beim Übernehmen einer E-Mail) darf jede Einordnung wählen, der Antwort-Link nur die angebotenen.
+  if (!antwortOptionen(antwortGruppe(l.rolle), undefined, opts.quelle !== "link").includes(e.art)) return { ok: false, code: "auswahl", fehler: "Diese Antwort passt nicht zur Anfrage." };
   const kunde = await ladeKunde(id);
   // Gesperrter Zugang: auch der Antwort-Link gilt nicht mehr.
   if (opts.quelle === "link" && kunde?.gesperrt) return { ok: false, code: "anfrage", fehler: "Zugang gesperrt." };
   const thema = e.art === "beratung" ? (istBeratungThema(e.thema ?? "") ? e.thema! : (themaVorschlag(T.wert(l.intent), T.wert(l.flaechentyp)) ?? "Etwas anderes")) : undefined;
   const text = bereinigen(e.text, 1500) || undefined;
-  const feld = opts.quelle === "link" ? "text" : "notiz";
+  // Worte des Kunden (Antwort-Link, E-Mail) stehen als `text`, Eingaben der Verwaltung als interne `notiz`.
+  const feld = opts.quelle === "verwaltung" ? "notiz" : "text";
 
   // Laufende Vorgänge (vorgemerkt bis Abschluss, nicht ohne Abschluss beendet): dort wird entschieden, nicht hier.
   const vorgaenge: string[] = [];
@@ -110,26 +116,37 @@ export async function rueckmeldungSpeichern(
       quelle: opts.quelle,
       ...(thema ? { thema } : {}),
       ...(text ? { [feld]: text } : {}),
-      ...(opts.quelle === "verwaltung" ? { von: opts.von } : {}),
+      ...(opts.quelle !== "link" ? { von: opts.von } : {}),
+      ...(opts.mail ? { mail: opts.mail } : {}),
       ...(imVorgang ? { vorgaenge } : {}),
       ...(melden ? { gemeldetAm: am } : vorher?.gemeldetAm ? { gemeldetAm: vorher.gemeldetAm } : {}),
       ...(zaehler ? { zaehler } : {}),
     };
+    const woher = { link: "über den Antwort-Link", verwaltung: "erfasst (Antwort per E-Mail o. Ä.)", email: "aus der E-Mail des Kunden übernommen" }[opts.quelle];
     const teile = [
-      `Rückmeldung ${opts.quelle === "link" ? "über den Antwort-Link" : "erfasst (Antwort per E-Mail o. Ä.)"}: ${RUECKMELDUNG_NAME[e.art]}${thema ? ` – ${thema}` : ""}${text ? ` · ${feld === "notiz" ? "Notiz: " : ""}„${kuerzen(text, 240)}“` : ""}`,
+      `Rückmeldung ${woher}: ${RUECKMELDUNG_NAME[e.art]}${thema ? ` – ${thema}` : ""}${text ? ` · ${feld === "notiz" ? "Notiz: " : ""}„${kuerzen(text, 240)}“` : ""}`,
     ];
 
-    // Verkaufen/Verpachten: als Angebot mit passender Art einordnen — nicht nach einer Unterschrift und nicht mitten in einem Vorgang.
-    if ((e.art === "verkaufen" || e.art === "verpachten") && !kunde?.vertrag && !imVorgang) {
-      const ziel = e.art === "verkaufen" ? "kauf" : "pacht";
+    // Verkaufen/Verpachten: als Angebot, Pachten/Kaufen („sucht selbst“): als Gesuch mit passender Art einordnen —
+    // nicht nach einer Unterschrift und nicht mitten in einem Vorgang.
+    const suchAntwort = istSuchAntwort(e.art);
+    if ((e.art === "verkaufen" || e.art === "verpachten" || suchAntwort) && !kunde?.vertrag && !imVorgang) {
+      const zielRolle = suchAntwort ? "gesuch" : "angebot";
+      const ziel = e.art === "verkaufen" || e.art === "kaufen" ? "kauf" : "pacht";
       const abgeleitet = ableitenAusAnliegen(l.intent);
       const rolle = meta.rolle ?? abgeleitet.rolle;
       const art = meta.art !== undefined ? meta.art : abgeleitet.art;
-      if (rolle !== "angebot" || art !== ziel) {
-        meta.rolle = "angebot";
+      if (rolle !== zielRolle || art !== ziel) {
+        meta.rolle = zielRolle;
         meta.art = ziel;
         artGeaendert = true;
-        teile.push(`Einordnung → Angebot · ${ziel === "kauf" ? "Kauf" : "Pacht"}`);
+        teile.push(`Einordnung → ${zielRolle === "gesuch" ? "Gesuch" : "Angebot"} · ${ziel === "kauf" ? "Kauf" : "Pacht"}`);
+      }
+      // Wer selbst sucht, bietet nichts an: ein Börsen-Angebot geht sofort offline.
+      if (suchAntwort && meta.boerse?.online) {
+        meta.boerse = { ...meta.boerse, online: false, geaendert: { am, von: opts.von } };
+        boerseAendern = true;
+        teile.push("Flächenbörse: offline (jetzt Gesuch)");
       }
     }
 
@@ -205,7 +222,9 @@ export async function rueckmeldungSpeichern(
         ...(text ? ["", "Nachricht:", text] : []),
         "",
         `Anfrage ${id} vom ${T.datumDe(l.receivedAt)}: ${T.wert(l.intent) || "—"}${ort ? `, ${ort}` : ""}`,
-        ...(artGeaendert ? [`Die Anfrage ist jetzt als Angebot ${e.art === "verkaufen" ? "zum Kauf" : "zur Pacht"} eingeordnet.`] : []),
+        ...(artGeaendert
+          ? [`Die Anfrage ist jetzt als ${istSuchAntwort(e.art) ? "Gesuch" : "Angebot"} ${e.art === "verkaufen" || e.art === "kaufen" ? "zum Kauf" : "zur Pacht"} eingeordnet.`]
+          : []),
         imVorgang
           ? `Achtung: Die Anfrage steckt in einem laufenden Vorgang (${vorgaenge.join(", ")}) — ${e.art === "kein-interesse" ? "„kein Interesse“ ist dort vermerkt, bitte im Vorgang entscheiden" : "bitte im Vorgang prüfen; die Einordnung wurde nicht geändert"}.`
           : e.art === "kein-interesse"

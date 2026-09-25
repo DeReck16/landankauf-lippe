@@ -11,7 +11,8 @@ import { antwortAktion } from "./actions";
 export const metadata: Metadata = { title: "Ihre Antwort" };
 
 // Antwortseite der Nachfass-Mail: Der Kunde wählt, wie es weitergeht (verkaufen,
-// verpachten bzw. weitersuchen, Beratung mit Thema, kein Interesse) — daraus wird
+// verpachten bzw. weitersuchen, Beratung mit Thema, kein Interesse; Anbieter auch
+// „Missverständnis — ich suche selbst eine Fläche“) — daraus wird
 // im Dashboard ein Ticket (lib/portal/rueckmeldung.ts). Erreichbar nur mit dem
 // persönlichen Antwort-Link; Öffnen allein speichert nichts.
 
@@ -28,6 +29,18 @@ function option(art: RueckmeldungArt, sucheKauf: boolean): Option {
         titel: `Ja, ich suche weiter eine Fläche ${sucheKauf ? "zum Kauf" : "zur Pacht"}`,
         text: "Wir melden uns, sobald wir Ihnen passende Flächen vorstellen können.",
         tipp: "Sie suchen weiterhin eine Fläche — wir melden uns per E-Mail",
+      };
+    case "pachten":
+      return {
+        titel: "Missverständnis — ich suche selbst eine Fläche zur Pacht",
+        text: "Dann nehmen wir Sie als Pachtinteressent auf und melden uns mit den nächsten Schritten.",
+        tipp: "Sie möchten selbst eine Fläche pachten (nicht verpachten) — wir melden uns per E-Mail",
+      };
+    case "kaufen":
+      return {
+        titel: "Missverständnis — ich suche selbst eine Fläche zum Kauf",
+        text: "Dann nehmen wir Sie als Kaufinteressent auf und melden uns mit den nächsten Schritten.",
+        tipp: "Sie möchten selbst eine Fläche kaufen (nicht verkaufen) — wir melden uns per E-Mail",
       };
     case "beratung":
       return { titel: "Ich möchte mich beraten lassen", text: "Wählen Sie unten das Thema — wir melden uns per E-Mail.", tipp: "Sie wünschen eine Beratung — bitte unten das Thema wählen" };
@@ -110,7 +123,7 @@ export default async function AntwortPage(props: PageProps<"/kunde/antwort">) {
         </p>
         {r && (
           <p className="lfk-hinweis lfk-hinweis-ok">
-            Ihre Antwort vom {datumDe(r.am)}: {optionen.includes(r.art) ? option(r.art, sucheKauf).titel : "—"}
+            Ihre Antwort vom {datumDe(r.am)}: {option(r.art, sucheKauf).titel}
             {r.thema ? ` (Thema: ${r.thema})` : ""}. Sie können sie hier ändern; es zählt die neueste Antwort.
           </p>
         )}

@@ -180,6 +180,8 @@ function oderListe(teile: string[]): string {
 const AUSWAHL_NAME: Record<RueckmeldungArt, string> = {
   verkaufen: "Verkauf",
   verpachten: "Verpachtung",
+  pachten: "„Ich suche selbst eine Fläche zur Pacht“",
+  kaufen: "„Ich suche selbst eine Fläche zum Kauf“",
   suche: "„Ich suche weiter“",
   beratung: "eine Beratung",
   "kein-interesse": "„kein Interesse“",

@@ -16,8 +16,9 @@ import { ladeKunde } from "@/lib/portal/speicher";
 import { beideUnterschrieben } from "@/lib/portal/schritte";
 import { LEAD_STATUS, MATCH_STATUS, leadView, type Art, type BoerseMeta, type LeadMeta, type LeadStatus, type MatchMeta, type Rolle } from "@/lib/admin/model";
 import { boerseLuecken, boerseNeuSchreiben, neuerBoerseCode } from "@/lib/boerse";
+import { postfachUebernehmen, postfachZurKenntnis } from "@/lib/portal/postfach";
 import { rueckmeldungSpeichern } from "@/lib/portal/rueckmeldung";
-import { istRueckmeldungArt } from "@/lib/portal/rueckmeldung-typen";
+import { RUECKMELDUNG_NAME, istRueckmeldungArt } from "@/lib/portal/rueckmeldung-typen";
 
 // ---------------------------------------------------------------------------
 // Anmeldung per Link
@@ -196,6 +197,36 @@ export async function rueckmeldungErfassen(formData: FormData): Promise<void> {
       ? "Rückmeldung gespeichert: kein Interesse — die Anfrage steht auf „Erledigt“."
       : "Rückmeldung gespeichert — die Anfrage steht wieder auf „Neu“ und im Dashboard unter „Rückmeldungen“.";
   redirect(`${zurueck}?m=${encodeURIComponent(m)}&mt=${r.ok ? "ok" : "fehler"}#rueckmeldung`);
+}
+
+/**
+ * E-Mail aus dem Anfragenpostfach (Anfrage-Seite, Abschnitt „E-Mails aus dem Postfach“): gewählte
+ * Antwort übernehmen oder nur zur Kenntnis nehmen — wie die Knöpfe im Dashboard.
+ */
+export async function postfachFormular(formData: FormData): Promise<void> {
+  const { email } = await requireAdmin();
+  const id = text(formData, "id", 40);
+  if (!/^LL-[A-Z0-9]+$/.test(id)) throw new Error("Ungültige Anfrage-ID");
+  const zurueck = `/admin/anfrage/${id}`;
+  const mail = text(formData, "mail", 40);
+  const art = text(formData, "art", 20);
+  let m: string;
+  let ok: boolean;
+  if (text(formData, "aktion", 20) === "kenntnis") {
+    const r = await postfachZurKenntnis(id, mail, email);
+    ok = r.ok;
+    m = r.ok ? "E-Mail zur Kenntnis genommen — Einordnung und Status bleiben, wie sie sind." : r.fehler;
+  } else {
+    if (!istRueckmeldungArt(art)) redirect(`${zurueck}?m=${encodeURIComponent("Bitte eine Antwort auswählen.")}&mt=fehler#postfach`);
+    const r = await postfachUebernehmen(id, mail, art, { von: email, basis: await basisUrl(), thema: text(formData, "thema", 80) || undefined });
+    ok = r.ok;
+    m = !r.ok
+      ? r.fehler
+      : art === "kein-interesse"
+        ? "Übernommen: kein Interesse — die Anfrage steht auf „Erledigt“ (bzw. ist im laufenden Vorgang vermerkt)."
+        : `Übernommen: ${RUECKMELDUNG_NAME[art]} — die Anfrage steht im Dashboard unter „Rückmeldungen“ mit dem nächsten Schritt.`;
+  }
+  redirect(`${zurueck}?m=${encodeURIComponent(m)}&mt=${ok ? "ok" : "fehler"}#postfach`);
 }
 
 export async function ortNeuSuchen(formData: FormData): Promise<void> {
