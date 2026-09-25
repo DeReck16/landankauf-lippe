@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { haText, type BoerseEintrag } from "@/lib/boerse";
+import { artText, haText, type BoerseEintrag } from "@/lib/boerse";
 
 /** Ein anonymes Kaufangebot der Flächenbörse — ohne Namen, Flurstück oder genaue Lage. */
-export default function BoerseKarte({ a, mitLink = true }: { a: Pick<BoerseEintrag, "code" | "typ" | "groesseHa" | "lage" | "text">; mitLink?: boolean }) {
+export default function BoerseKarte({ a, mitLink = true }: { a: Pick<BoerseEintrag, "code" | "art" | "typ" | "groesseHa" | "lage" | "text">; mitLink?: boolean }) {
   return (
     <article className="card flex flex-col" aria-label={`Angebot ${a.code}`}>
       <p className="eyebrow">
-        Zum Kauf · {a.code}
+        {artText(a.art).eyebrow} · {a.code}
       </p>
       <h3 className="mt-2 font-serif text-2xl">
         {a.typ || "Fläche"}, {haText(a.groesseHa)}

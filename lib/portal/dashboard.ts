@@ -44,7 +44,7 @@ export type DashVorschlag = { key: string; angebot: LeadView; gesuch: LeadView; 
 
 export type DashAnfrage = { id: string; name: string; anliegen: string; ort: string; eingang: string; neu: boolean };
 
-/** Verkaufsangebot für die Flächenbörse (Kaufangebote, aktiv). */
+/** Angebot für die Flächenbörse (Kauf oder Pacht, aktiv). */
 export type DashBoerse = {
   id: string;
   name: string;
@@ -331,13 +331,13 @@ export const ladeDashboard = cache(async (email: string): Promise<Dashboard> => 
   }
   const boerse: DashBoerse[] = [];
   for (const l of leads) {
-    if (l.rolle !== "angebot" || l.art !== "kauf" || l.status === "archiv" || l.status === "erledigt") continue;
+    if (l.rolle !== "angebot" || (l.art !== "kauf" && l.art !== "pacht") || l.status === "archiv" || l.status === "erledigt") continue;
     const b = l.meta.boerse;
     const luecken = b ? boerseLuecken(b, l) : ["Einwilligung des Eigentümers fehlt"];
     const eintrag: DashBoerse = {
       id: l.id,
       name: T.wert(l.name) || l.id,
-      eckdaten: b ? `${b.typ || l.typ}, ${haText(b.groesseHa)}, ${b.lage || "Lage offen"}` : `${l.typ}, ${formatGroesse(l.groesseWert)}, ${l.ortText || "Ort offen"}`,
+      eckdaten: `${l.art === "pacht" ? "Pacht" : "Kauf"} · ` + (b ? `${b.typ || l.typ}, ${haText(b.groesseHa)}, ${b.lage || "Lage offen"}` : `${l.typ}, ${formatGroesse(l.groesseWert)}, ${l.ortText || "Ort offen"}`),
       code: b?.code ?? null,
       online: Boolean(b?.online),
       seit: b?.seit ?? null,

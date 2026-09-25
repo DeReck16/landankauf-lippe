@@ -53,7 +53,7 @@ export default function Page() {
           </p>
 
           <p>
-            <strong>Flächenbörse:</strong> Mit Ihrer ausdrücklichen Einwilligung zeigen wir Ihr Kaufangebot anonym in unserer Flächenbörse auf lippeforst.de — nur mit Flächentyp, ungefährer Größe, grober Lage (Gemeinde) und einem kurzen Text, nie mit Namen, Kontaktdaten oder Flurstück (Art. 6 Abs. 1 lit. a DSGVO). Sie können die Einwilligung jederzeit widerrufen; dann nehmen wir das Angebot sofort von der Website. Wer über die Börse Interesse anmeldet, wird wie jede andere Anfrage behandelt (siehe oben).
+            <strong>Flächenbörse:</strong> Mit Ihrer ausdrücklichen Einwilligung zeigen wir Ihr Angebot (Verkauf oder Verpachtung) anonym in unserer Flächenbörse auf lippeforst.de — nur mit Flächentyp, ungefährer Größe, grober Lage (Gemeinde) und einem kurzen Text, nie mit Namen, Kontaktdaten oder Flurstück (Art. 6 Abs. 1 lit. a DSGVO). Sie können die Einwilligung jederzeit widerrufen; dann nehmen wir das Angebot sofort von der Website. Wer über die Börse Interesse anmeldet, wird wie jede andere Anfrage behandelt (siehe oben).
           </p>
 
           <h2>4. Kundenbereich, Online-Verträge und Dokumente</h2>

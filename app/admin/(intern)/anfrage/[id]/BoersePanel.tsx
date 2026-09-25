@@ -44,14 +44,16 @@ export function BoerseHerkunft({ l, zustand }: { l: LeadView; zustand: Zustand }
   );
 }
 
-/** Flächenbörse für ein Kaufangebot: Einwilligung, anonyme Angaben, Vorschau, veröffentlichen. */
+/** Flächenbörse für ein Angebot (Kauf oder Pacht): Einwilligung, anonyme Angaben, Vorschau, veröffentlichen. */
 export default function BoersePanel({ l, zustand }: { l: LeadView; zustand: Zustand }) {
   const b = l.meta.boerse;
-  if (!b && !(l.rolle === "angebot" && l.art === "kauf")) return null;
+  if (!b && !(l.rolle === "angebot" && (l.art === "kauf" || l.art === "pacht"))) return null;
+  const pacht = l.art === "pacht";
   const vorschlagHa = l.groesseWert.minHa ?? l.groesseWert.maxHa;
   const gemeinde = grobeLage(l, zustand.orte);
   const werte = {
     code: b?.code ?? "LF-…",
+    art: (pacht ? "pacht" : "kauf") as "pacht" | "kauf",
     typ: b?.typ || ((FLAECHENTYPEN as readonly string[]).includes(l.typ) ? l.typ : "Ackerland"),
     // Vorschläge auch nach dem Erfassen der Einwilligung (dann gibt es b schon, aber noch ohne Angaben).
     groesseHa: b?.groesseHa ?? (vorschlagHa != null ? Math.round(vorschlagHa * 2) / 2 : null),
@@ -64,7 +66,7 @@ export default function BoersePanel({ l, zustand }: { l: LeadView; zustand: Zust
   const bitte = [
     `Guten Tag${name ? ` ${name}` : ""},`,
     "",
-    "damit wir Ihre Fläche schneller an passende Käufer vermitteln können, würden wir sie gern anonym in unserer Flächenbörse auf lippeforst.de zeigen — nur mit Flächentyp, ungefährer Größe und grober Lage (z. B. „Grünland, ca. 5 ha, Raum Kalletal“).",
+    `damit wir Ihre Fläche schneller an passende ${pacht ? "Pächter" : "Käufer"} vermitteln können, würden wir sie gern anonym in unserer Flächenbörse auf lippeforst.de zeigen — nur mit Flächentyp, ungefährer Größe und grober Lage (z. B. „Grünland, ca. 5 ha, Raum Kalletal“).`,
     "",
     "Ihren Namen, das Flurstück und die genaue Lage nennen wir niemandem, bevor Sie dem konkreten Interessenten zugestimmt haben. Für Sie bleibt alles kostenlos.",
     "",
@@ -200,7 +202,7 @@ export default function BoersePanel({ l, zustand }: { l: LeadView; zustand: Zust
         ) : (
           <form action={boerseAktion}>
             <Versteckt id={l.id} aktion="offline" />
-            <BestaetigenKnopf className="lfa-knopf lfa-knopf-leise lfa-knopf-klein" frage="Angebot von der Website nehmen?" tipp="Nimmt das Angebot sofort von der Website (z. B. verkauft oder Einwilligung widerrufen)">
+            <BestaetigenKnopf className="lfa-knopf lfa-knopf-leise lfa-knopf-klein" frage="Angebot von der Website nehmen?" tipp="Nimmt das Angebot sofort von der Website (z. B. verkauft, verpachtet oder Einwilligung widerrufen)">
               Aus der Börse nehmen
             </BestaetigenKnopf>
           </form>

@@ -141,8 +141,8 @@ function UebersichtKacheln({ u, vorschlaege }: { u: DashUebersicht; vorschlaege:
     { href: "#warten", wert: u.zustimmungOffen, name: "Zustimmung offen", sub: "anonym angefragt, Zustimmung fehlt", tipp: "Beide wurden anonym angefragt, mindestens eine Zustimmung zum Kontakt fehlt noch" },
     { href: "#warten", wert: u.freigegeben, name: "Kontakt freigegeben", sub: u.vertraegeOffen ? `${n(u.vertraegeOffen, "Vertrag", "Verträge")} zur Unterschrift` : "Vertrag noch offen", tipp: "Kontakt ist hergestellt (Nachweis) — Pacht- oder Kaufvertrag steht noch aus" },
     { href: "#abgeschlossen", wert: u.abschluesse, name: "Abschlüsse", sub: "Vertrag geschlossen", tipp: "Vorgänge mit geschlossenem Pacht- oder Kaufvertrag" },
-    { href: "#boerse", wert: u.boerseBereit + u.boerseAngabenFehlen + u.boerseOhneEinwilligung, name: "Flächen nicht veröffentlicht", sub: `${u.boerseBereit} bereit · ${u.boerseAngabenFehlen ? `${u.boerseAngabenFehlen} Angaben fehlen · ` : ""}${u.boerseOhneEinwilligung} ohne Einwilligung`, tipp: "Kaufangebote, die (noch) nicht in der Flächenbörse stehen — „bereit“ heißt: Einwilligung liegt vor, ein Klick genügt", puls: u.boerseBereit > 0 },
-    { href: "#boerse", wert: u.boerseOnline, name: "Flächen online", sub: "anonym in der Flächenbörse", tipp: "Kaufangebote, die anonym auf lippeforst.de stehen" },
+    { href: "#boerse", wert: u.boerseBereit + u.boerseAngabenFehlen + u.boerseOhneEinwilligung, name: "Flächen nicht veröffentlicht", sub: `${u.boerseBereit} bereit · ${u.boerseAngabenFehlen ? `${u.boerseAngabenFehlen} Angaben fehlen · ` : ""}${u.boerseOhneEinwilligung} ohne Einwilligung`, tipp: "Angebote (Kauf und Pacht), die (noch) nicht in der Flächenbörse stehen — „bereit“ heißt: Einwilligung liegt vor, ein Klick genügt", puls: u.boerseBereit > 0 },
+    { href: "#boerse", wert: u.boerseOnline, name: "Flächen online", sub: "anonym in der Flächenbörse", tipp: "Angebote (Kauf und Pacht), die anonym auf lippeforst.de stehen" },
     { href: "/admin?status=neu", wert: u.neueAnfragen, name: "Neue Anfragen", sub: "noch nicht bearbeitet", tipp: "Formular-Anfragen mit Status „Neu“", puls: u.neueAnfragen > 0 },
   ];
   return (
@@ -166,15 +166,15 @@ function tagDe(ymdOderIso: string): string {
   return d.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" });
 }
 
-/** Flächenbörse: Kaufangebote mit Stand — „Veröffentlichen“ mit einem Klick, sobald die Einwilligung vorliegt. */
+/** Flächenbörse: Angebote (Kauf und Pacht) mit Stand — „Veröffentlichen“ mit einem Klick, sobald die Einwilligung vorliegt. */
 function BoerseListe({ liste }: { liste: DashBoerse[] }) {
   return (
     <section className="lfa-dash-abschnitt" id="boerse">
-      <h2 className="lfa-h2" title="Kaufangebote für die anonyme Flächenbörse auf lippeforst.de — nur mit Einwilligung des Eigentümers">
+      <h2 className="lfa-h2" title="Angebote zum Kauf und zur Pacht für die anonyme Flächenbörse auf lippeforst.de — nur mit Einwilligung des Eigentümers">
         {liste.some((x) => !x.online && x.einwilligung && !x.luecken.length) && <span className="lfa-puls" />}Flächenbörse ({liste.length})
       </h2>
       {liste.length === 0 ? (
-        <div className="lfa-panel lfa-leer">Keine aktiven Kaufangebote.</div>
+        <div className="lfa-panel lfa-leer">Keine aktiven Angebote.</div>
       ) : (
         <div className="lfa-panel">
           <ul className="lfa-boerse-liste">

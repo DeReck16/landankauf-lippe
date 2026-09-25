@@ -9,28 +9,29 @@ import { seitenMetadaten } from "@/lib/seo";
 export const revalidate = 300;
 
 export const metadata: Metadata = seitenMetadaten({
-  title: "Flächenbörse: Flächen kaufen im Kreis Lippe",
+  title: "Flächenbörse: Flächen kaufen & pachten",
   description:
-    "Aktuell zum Kauf angebotene Flächen im Kreis Lippe — anonym mit den Eckdaten. Interesse anmelden, Vertrag online schließen, Kontakt nach Zustimmung des Eigentümers.",
+    "Flächen zum Kauf und zur Pacht im Kreis Lippe — anonym mit den Eckdaten. Interesse anmelden, Vertrag online schließen, Kontakt nach Zustimmung des Eigentümers.",
   pfad: "/flaechenboerse",
 });
 
 const SCHRITTE = [
   { titel: "Angebot ansehen", text: "Flächentyp, ungefähre Größe und grobe Lage — ohne Namen und ohne Flurstück." },
   { titel: "Interesse anmelden", text: "Kurz das Formular ausfüllen. Wir melden uns persönlich und schicken Ihnen Ihren Zugang zum Kundenbereich." },
-  { titel: "Vertrag online schließen", text: "Einen kurzen Nachweisvertrag lesen und online unterschreiben. Eine Provision fällt nur an, wenn Sie die Fläche wirklich kaufen." },
-  { titel: "Kontakt nach Zustimmung", text: "Stimmt der Eigentümer zu, sehen Sie Namen, Kontaktdaten und Flurstücke. Den Kaufvertrag schließen Sie beim Notar." },
+  { titel: "Vertrag online schließen", text: "Einen kurzen Nachweisvertrag lesen und online unterschreiben. Eine Provision fällt nur an, wenn Sie die Fläche wirklich kaufen oder pachten." },
+  { titel: "Kontakt nach Zustimmung", text: "Stimmt der Eigentümer zu, sehen Sie Namen, Kontaktdaten und Flurstücke. Einen Pachtvertrag schließen Sie online über uns, einen Kaufvertrag beim Notar." },
 ];
 
 export default async function Page() {
   const d = await ladeBoerse();
-  const provision = provisionOderStandard(d);
+  const provisionKauf = provisionOderStandard(d, "kauf");
+  const provisionPacht = provisionOderStandard(d, "pacht");
   return (
     <>
       <PageHero
         eyebrow="Flächenbörse"
-        title="Flächen zu kaufen im Kreis Lippe — anonym angeboten."
-        subtitle="Hier finden Sie Ackerland, Wiesen und Wald, deren Eigentümer über uns verkaufen möchten. Diskret für beide Seiten: Namen und genaue Lage gibt es erst nach Vertrag und Zustimmung."
+        title="Flächen zu kaufen und zu pachten — anonym angeboten."
+        subtitle="Hier finden Sie Ackerland, Wiesen und Wald im Kreis Lippe, deren Eigentümer über uns verkaufen oder verpachten möchten. Diskret für beide Seiten: Namen und genaue Lage gibt es erst nach Vertrag und Zustimmung."
         primaryCta={{ href: "#angebote", label: "Angebote ansehen" }}
         secondaryCta={{ href: "#suchauftrag", label: "Suchauftrag hinterlegen" }}
       />
@@ -40,7 +41,7 @@ export default async function Page() {
           <span className="eyebrow">Aktuelle Angebote</span>
           <hr className="divider mt-3" />
           <h2 className="text-3xl md:text-4xl">
-            {d.angebote.length === 0 ? "Gerade ist keine Fläche frei im Angebot." : `${d.angebote.length} ${d.angebote.length === 1 ? "Fläche" : "Flächen"} zum Kauf`}
+            {d.angebote.length === 0 ? "Gerade ist keine Fläche frei im Angebot." : `${d.angebote.length} ${d.angebote.length === 1 ? "Fläche" : "Flächen"} im Angebot`}
           </h2>
           {d.angebote.length > 0 ? (
             <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
@@ -71,7 +72,7 @@ export default async function Page() {
             ))}
           </ol>
           <p className="mt-8 text-[color:var(--color-ink-soft)] max-w-3xl">
-            <strong>Provision für Käufer nur bei Erfolg:</strong> {provision}. Die genauen Konditionen stehen in Ihrem Vertrag, bevor Sie Namen oder Lage erfahren. Für Eigentümer ist die Börse kostenlos — Angebote erscheinen hier nur mit ihrer Zustimmung.
+            <strong>Provision nur bei Erfolg:</strong> für Käufer {provisionKauf}, für Pächter {provisionPacht}. Die genauen Konditionen stehen in Ihrem Vertrag, bevor Sie Namen oder Lage erfahren. Für Eigentümer ist die Börse kostenlos — Angebote erscheinen hier nur mit ihrer Zustimmung.
           </p>
         </div>
       </section>

@@ -94,7 +94,7 @@ export default async function AngabenPage(props: PageProps<"/kunde/angaben">) {
           </div>
         )}
 
-        {anbieter && kunde.art === "kauf" && (
+        {anbieter && (
           <div>
             <input type="hidden" name="boerse_feld" value="1" />
             <label className="lfk-check lfk-check-frei" title="Freiwillig und jederzeit widerrufbar — ohne Häkchen erscheint Ihre Fläche nicht öffentlich">
