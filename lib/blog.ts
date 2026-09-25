@@ -20,6 +20,103 @@ export type Article = {
 
 export const ARTICLES: Article[] = [
   {
+    slug: "landeswaldgesetz-nrw-2026-wiederbewaldung-vier-jahre",
+    title:
+      "Vier Jahre statt zwei: Was die Forstgesetz-Novelle für Waldbesitzer in Lippe ändert — und warum Naturverjüngung der eigentliche Gewinner ist",
+    description:
+      "Am 15. September 2026 hat die Landesregierung den Entwurf für ein neues Landeswaldgesetz in den Landtag eingebracht. Die Wiederbewaldungsfrist nach § 44 soll sich von zwei auf vier Jahre verdoppeln, und Naturverjüngung wird gleichrangig zur Pflanzung. Was das für Kalamitätsflächen im Kreis Lippe bedeutet — und was bis zum Beschluss weiter gilt.",
+    category: "Recht",
+    publishedAt: "2026-09-25",
+    readingMinutes: 8,
+    keywords: [
+      "Landeswaldgesetz NRW 2026",
+      "Wiederbewaldung Frist vier Jahre",
+      "§ 44 LFoG Wiederaufforstung",
+      "Naturverjüngung Kahlfläche NRW",
+      "Kalamitätsfläche Kreis Lippe",
+      "Forstgesetz Novelle NRW Waldbesitzer",
+    ],
+    heroImage: "/blog-landeswaldgesetz-2026.jpg",
+    faq: [
+      {
+        q: "Gilt die Vier-Jahres-Frist für meine Kahlfläche schon jetzt?",
+        a: "Nein. Der Gesetzentwurf wurde am 15. September 2026 in den Landtag eingebracht und ist noch nicht beschlossen. Bis zur Verkündung gilt § 44 LFoG unverändert: Kahlflächen und stark verlichtete Bestände sind innerhalb von zwei Jahren wieder aufzuforsten. Wer heute eine laufende Frist hat, sollte sie nicht auf Verdacht verstreichen lassen, sondern bei absehbarer Überschreitung die Fristverlängerung bei der Forstbehörde beantragen — diese Möglichkeit besteht schon im geltenden Recht.",
+      },
+      {
+        q: "Was ändert sich konkret bei der Naturverjüngung?",
+        a: "Heute ist die flächendeckende Entwicklung von Wald durch natürliche Ansamung nur „im Einzelfall“ und mit Zulassung der Forstbehörde als Wiederaufforstung anerkannt. Im Entwurf steht die Naturverjüngung gleichrangig neben Stockausschlag, Pflanzung und Saat — ohne gesonderte Zulassung. Wer auf einer Kalamitätsfläche ohnehin kräftigen Anflug von Birke, Eberesche oder Buche hat, könnte diesen künftig ohne Genehmigungsschritt als Wiederbewaldung ansetzen.",
+      },
+      {
+        q: "Heißt das, ich kann vier Jahre lang nichts tun?",
+        a: "Rechtlich bekommen Sie mehr Zeit, forstlich nicht. Auf geräumten Kalamitätsflächen entscheidet sich in den ersten zwei bis drei Jahren, ob eine verwertbare Verjüngung hochkommt oder ob Brombeere, Adlerfarn und Landreitgras die Fläche besetzen. Die längere Frist ist dafür gedacht, auf den Anflug warten und die Baumartenwahl an den Standort anpassen zu können — nicht dafür, die Fläche sich selbst zu überlassen. Die Pflege- und Schutzpflicht für Kulturen und Verjüngungen bleibt im Entwurf ausdrücklich bestehen.",
+      },
+      {
+        q: "Was bedeutet die Novelle für den Wert meiner Waldfläche?",
+        a: "Für Flächen mit offener Wiederbewaldungspflicht wirkt sie wertstabilisierend: Eine Kahlfläche mit laufender Zwei-Jahres-Frist ist für einen Käufer eine terminierte Investitionspflicht, die er einpreist. Vier Jahre Spielraum plus anerkannte Naturverjüngung senken diese kalkulierte Last spürbar. Für gut bestockte Flächen ändert sich am Wert nichts.",
+      },
+    ],
+    content: `
+<p>Am <strong>15. September 2026</strong> hat die nordrhein-westfälische Landesregierung den Entwurf zur Weiterentwicklung des Landesforstgesetzes in den Landtag eingebracht. Das Gesetz soll künftig <strong>Landeswaldgesetz</strong> heißen — und es enthält eine Änderung, die für jeden Eigentümer einer Kalamitätsfläche im Kreis Lippe unmittelbar praktisch ist: Die gesetzliche Frist zur Wiederbewaldung verdoppelt sich von zwei auf vier Jahre.</p>
+
+<p>Weil im Umlauf viel durcheinandergeht, gleich zu Anfang die wichtigste Einordnung: <strong>Der Entwurf ist eingebracht, nicht beschlossen.</strong> Bis zur Verkündung gilt geltendes Recht unverändert weiter. Was sich ändern soll, was das forstlich bedeutet und was Sie bis dahin beachten müssen, steht hier.</p>
+
+<h2>Was heute gilt — und was künftig gelten soll</h2>
+
+<p>Der Kern steht in § 44, der bisher „Pflicht zur Wiederaufforstung“ heißt und künftig „Pflicht zur Wiederbewaldung“ heißen soll. Die geltende Fassung lautet:</p>
+
+<blockquote><p>„Kahlflächen und stark verlichtete Waldbestände sind innerhalb von zwei Jahren wieder aufzuforsten oder zu ergänzen, falls nicht die Umwandlung in eine andere Nutzungsart genehmigt oder sonst zulässig ist. Im Einzelfall kann als Wiederaufforstung auch die flächendeckende Entwicklung von Wald durch die natürliche Ansamung von Forstpflanzen von der Forstbehörde zugelassen werden.“</p></blockquote>
+
+<p>Der Entwurf formuliert stattdessen:</p>
+
+<blockquote><p>„Kahlflächen und stark verlichtete Waldbestände sind innerhalb von vier Jahren durch Naturverjüngung, Stockausschlag, Pflanzung oder Saat wieder zu bewalden oder zu ergänzen, falls nicht die Umwandlung in eine andere Nutzungsart genehmigt oder sonst zulässig ist.“</p></blockquote>
+
+<p>Zwei Dinge ändern sich damit, und die zweite ist die wichtigere.</p>
+
+<h2>1. Die Frist verdoppelt sich</h2>
+
+<p>Zwei Jahre sind auf einer geräumten Fichtenfläche eine harte Vorgabe. Zwischen Käferbefall, Einschlag, Räumung und Pflanzung liegt oft schon ein Jahr; bleibt ein Pflanzjahr, in dem Pflanzgut verfügbar, der Boden befahrbar und die Witterung brauchbar sein muss. Wer nach einem Trockensommer einen Kulturausfall hatte, stand faktisch sofort wieder unter Frist.</p>
+
+<p>Vier Jahre entspannen genau diese Kette. Sie erlauben außerdem etwas, das forstlich seit Jahren empfohlen, rechtlich aber schwer darstellbar war: <strong>abwarten, was von selbst kommt</strong>, und die Pflanzung auf die Lücken zu beschränken. Das spart auf einem Hektar schnell einen vierstelligen Betrag an Pflanzgut und Pflanzlohn.</p>
+
+<h2>2. Naturverjüngung wird gleichrangig — das ist der eigentliche Hebel</h2>
+
+<p>Bisher ist natürliche Ansamung kein regulärer Weg zur Erfüllung der Pflicht, sondern eine Ausnahme: „im Einzelfall“, „von der Forstbehörde zugelassen“. Das bedeutet einen Antrag, eine Prüfung und ein Restrisiko, ob die Behörde den Anflug als ausreichend ansieht.</p>
+
+<p>Im Entwurf steht die Naturverjüngung gleichberechtigt neben Stockausschlag, Pflanzung und Saat. Der Zulassungsschritt entfällt. Für Lipper Flächen ist das relevanter als die reine Fristverlängerung, denn auf vielen Käferflächen am Teutoburger Wald und im Lipper Bergland kommt <strong>Birke, Eberesche und Weide ohnehin von allein</strong> — bisher war das rechtlich ein Sonderfall, künftig wäre es der Normalfall.</p>
+
+<p>Wichtig bleibt dabei: Der Entwurf behält die Verpflichtung ausdrücklich bei, „die Kulturen und Verjüngungen zu pflegen und zu schützen“. Eine sich selbst überlassene Brombeerfläche erfüllt die Pflicht auch künftig nicht.</p>
+
+<h2>Was sonst noch im Entwurf steht</h2>
+
+<ul>
+<li><strong>Neuer Name:</strong> aus dem Landesforstgesetz wird das Landeswaldgesetz.</li>
+<li><strong>Wegebau:</strong> beschleunigte Verfahren für die Genehmigung forstwirtschaftlicher Wegebaumaßnahmen.</li>
+<li><strong>Digitalisierung:</strong> Anzeigen und Anträge sollen digital laufen, auch für Forstbetriebsgemeinschaften.</li>
+<li><strong>Betretungsregeln:</strong> Pedelecs bis 25 km/h sind auf Straßen und festen Wegen erlaubt, S-Pedelecs, Segways und E-Scooter nicht; Fahren abseits der Wege bleibt verboten.</li>
+<li><strong>Kahlschlagregel unverändert:</strong> Kahlschläge über zwei Hektar zusammenhängender Waldfläche eines Besitzers innerhalb von vier Jahren bleiben verboten.</li>
+</ul>
+
+<h2>Was Sie bis zum Beschluss tun sollten</h2>
+
+<p>Der Landtag berät den Entwurf in den kommenden Monaten. Bis zur Verkündung gilt die Zwei-Jahres-Frist. Daraus folgt praktisch:</p>
+
+<ul>
+<li><strong>Laufende Fristen nicht aussitzen.</strong> Wer darauf spekuliert, dass die Novelle rechtzeitig kommt, geht ein vermeidbares Risiko ein. Zeichnet sich eine Überschreitung ab, ist der Antrag auf Fristverlängerung bei der Unteren Forstbehörde der saubere Weg — den sieht schon das geltende Recht vor.</li>
+<li><strong>Anflug dokumentieren.</strong> Wenn auf Ihrer Fläche Naturverjüngung hochkommt, halten Sie Zustand und Dichte fest — mit datierten Fotos und grober Stückzahl je Hektar. Das hilft sowohl beim heutigen Zulassungsantrag als auch später beim Nachweis.</li>
+<li><strong>Förderung getrennt denken.</strong> Die Wiederbewaldungspflicht und die Förderkulisse sind zwei verschiedene Dinge mit eigenen Fristen. Was derzeit an Landesmitteln abrufbar ist, haben wir in <a href="/blog/waldfoerderung-nrw-2026-antragstopp-wiederbewaldungspraemie">Waldförderung 2026 in der Krise</a> zusammengestellt.</li>
+<li><strong>Verkaufsüberlegungen neu rechnen.</strong> Wer eine Kalamitätsfläche abgeben will, verhandelt nach der Novelle aus einer etwas besseren Position, weil die Wiederbewaldungslast für den Käufer kalkulatorisch kleiner wird. Die Größenordnungen dazu stehen in <a href="/blog/kaeferholz-sturmwurf-lippe-privatwald">Käferholz und Sturmwurf im Lipper Privatwald</a>.</li>
+</ul>
+
+<h2>Einordnung</h2>
+
+<p>Die Novelle ist keine Entlastung von der Pflicht, sondern eine Anpassung des Zeitrahmens an das, was auf geschädigten Flächen tatsächlich passiert. Für Eigentümer mit kleiner Fläche und ohne eigenen Maschinenpark ist sie trotzdem spürbar: Sie nimmt den Druck, in einem schlechten Pflanzjahr teuer zu pflanzen, nur um eine Frist zu halten.</p>
+
+<p>Wenn Sie wissen wollen, was Ihre Waldfläche im heutigen Zustand wert ist — mit oder ohne offene Wiederbewaldungspflicht —, nutzen Sie unsere <a href="/blog/fluechen-quick-check-wertindikation">kostenlose Wertindikation</a> oder sprechen Sie uns direkt zum <a href="/wald-verkaufen">Verkauf einer Waldfläche</a> an.</p>
+
+<p class="text-sm text-stone-500"><em>Stand: 25. September 2026. Quelle der zitierten Entwurfsfassung: Gesetzentwurf der Landesregierung vom 7. Mai 2026 nebst Synopse sowie Mitteilung des Ministeriums für Landwirtschaft und Verbraucherschutz NRW vom 15. September 2026. Dieser Beitrag gibt den Stand des Gesetzgebungsverfahrens wieder und ersetzt keine Rechtsberatung im Einzelfall.</em></p>
+`,
+  },
+  {
     slug: "batteriespeicher-ackerland-pacht-lippe",
     title:
       "Batteriespeicher statt Solarpark: Warum ein halber Hektar am Umspannwerk 2026 mehr Pacht bringt als 5 ha Ackerland",
@@ -1367,6 +1464,7 @@ export const ARTICLES: Article[] = [
 
 <h2>Wiederaufforstung: Pflicht und Förderung</h2>
 <p>Das Landesforstgesetz NRW (§ 44 LFoG) schreibt eine Wiederaufforstung innerhalb von zwei Jahren vor — das gilt auch für Käfer- und Sturmwurfflächen. Wer es ignoriert, bekommt Aufforderung der unteren Forstbehörde, ggf. mit Zwangsmaßnahmen.</p>
+<p><strong>Achtung, das ändert sich möglicherweise:</strong> Seit dem 15. September 2026 liegt dem Landtag ein Gesetzentwurf vor, der diese Frist auf vier Jahre verdoppelt und Naturverjüngung gleichrangig zur Pflanzung stellt. Beschlossen ist er noch nicht — bis dahin gelten die zwei Jahre. Details in <a href="/blog/landeswaldgesetz-nrw-2026-wiederbewaldung-vier-jahre">Vier Jahre statt zwei: die Forstgesetz-Novelle</a>.</p>
 <p>Die Gute Nachricht: Wiederaufforstung wird gefördert. Über die <em>Förderrichtlinie Privat- und Körperschaftswald NRW</em> sind Investitionszuschüsse und Pflegezuschüsse möglich:</p>
 <ul>
 <li>Pflanzgut-Förderung: 0,80–1,50 € pro Pflanze bei klimastabilem Mischwald</li>
