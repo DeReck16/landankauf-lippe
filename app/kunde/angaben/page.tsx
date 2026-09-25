@@ -94,6 +94,18 @@ export default async function AngabenPage(props: PageProps<"/kunde/angaben">) {
           </div>
         )}
 
+        {anbieter && kunde.art === "kauf" && (
+          <div>
+            <input type="hidden" name="boerse_feld" value="1" />
+            <label className="lfk-check lfk-check-frei" title="Freiwillig und jederzeit widerrufbar — ohne Häkchen erscheint Ihre Fläche nicht öffentlich">
+              <input type="checkbox" name="boerse" value="1" defaultChecked={Boolean(lead?.meta.boerse?.einwilligung)} />
+              <span>
+                Freiwillig: Meine Fläche darf anonym in der <a href="/flaechenboerse" target="_blank" rel="noopener" title="Flächenbörse in neuem Tab ansehen">Flächenbörse</a> auf lippeforst.de erscheinen — nur mit Flächentyp, ungefährer Größe und grober Lage (z. B. „Ackerland, ca. 5 ha, Raum Lemgo“), ohne Namen, Flurstück oder genaue Lage. Das lässt sich jederzeit widerrufen: einfach das Häkchen hier entfernen.
+              </span>
+            </label>
+          </div>
+        )}
+
         <div className="lfk-knopfreihe">
           <button type="submit" className="btn-primary" title={kunde.vertrag ? "Angaben speichern" : "Angaben speichern und weiter zum Vertrag"}>
             {kunde.vertrag ? "Speichern" : "Speichern und weiter zum Vertrag"}

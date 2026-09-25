@@ -4,9 +4,11 @@ import { requireAdmin } from "@/lib/admin/session";
 import { formatGroesse, type LeadView } from "@/lib/admin/model";
 import { artLabel, datum, datumZeit } from "@/lib/admin/format";
 import { seitText } from "@/lib/portal/assistent-typen";
-import { ladeDashboard, type DashVorgang, type DashVorschlag } from "@/lib/portal/dashboard";
+import { ladeDashboard, type DashBoerse, type DashUebersicht, type DashVorgang, type DashVorschlag } from "@/lib/portal/dashboard";
 import * as M from "@/lib/portal/model";
 import { anfrageStatusAktion, vorschlagAktion } from "../../assistent-actions";
+import { boerseAktion } from "../../actions";
+import BestaetigenKnopf from "../BestaetigenKnopf";
 import AlleFreigeben from "../AlleFreigeben";
 import Assistent, { Chips } from "../Assistent";
 import GesehenMarker from "../GesehenMarker";
@@ -129,6 +131,96 @@ function VorschlagZeile({ v }: { v: DashVorschlag }) {
   );
 }
 
+/** Zweite Kachelreihe: Stand aller Kunden, Paare und der Flächenbörse auf einen Blick. */
+function UebersichtKacheln({ u, vorschlaege }: { u: DashUebersicht; vorschlaege: number }) {
+  const n = (x: number, eins: string, mehr: string) => `${x} ${x === 1 ? eins : mehr}`;
+  const kacheln = [
+    { href: "#warten", wert: u.eingeladen, name: "Einladungen raus", sub: `${n(u.eingeladen, "Kunde", "Kunden")} noch ohne Unterschrift${u.eingeladenGeoeffnet ? ` · ${u.eingeladenGeoeffnet} Link geöffnet` : ""}`, tipp: "Kunden mit Einladung, die ihren Vertrag mit Lippe Forst noch nicht unterschrieben haben" },
+    { href: "/admin/vorgaenge", wert: u.unterschrieben, name: "Unterschrieben", sub: `${n(u.unterschriebenAnbieter, "Anbieter", "Anbieter")} · ${n(u.unterschriebenSuchende, "Suchender", "Suchende")}`, tipp: "Kunden mit gültigem Vertrag mit Lippe Forst (Suchende: Provisionsvereinbarung)" },
+    { href: "#jetzt", wert: u.matchingOffen, name: "Matchings offen", sub: `Paare vor der Freigabe${vorschlaege ? ` · dazu ${n(vorschlaege, "neuer Vorschlag", "neue Vorschläge")}` : ""}`, tipp: "Vorgemerkte bzw. angefragte Paare, deren Kontakt noch nicht freigegeben ist" },
+    { href: "#warten", wert: u.zustimmungOffen, name: "Zustimmung offen", sub: "anonym angefragt, Zustimmung fehlt", tipp: "Beide wurden anonym angefragt, mindestens eine Zustimmung zum Kontakt fehlt noch" },
+    { href: "#warten", wert: u.freigegeben, name: "Kontakt freigegeben", sub: u.vertraegeOffen ? `${n(u.vertraegeOffen, "Vertrag", "Verträge")} zur Unterschrift` : "Vertrag noch offen", tipp: "Kontakt ist hergestellt (Nachweis) — Pacht- oder Kaufvertrag steht noch aus" },
+    { href: "#abgeschlossen", wert: u.abschluesse, name: "Abschlüsse", sub: "Vertrag geschlossen", tipp: "Vorgänge mit geschlossenem Pacht- oder Kaufvertrag" },
+    { href: "#boerse", wert: u.boerseBereit + u.boerseAngabenFehlen + u.boerseOhneEinwilligung, name: "Flächen nicht veröffentlicht", sub: `${u.boerseBereit} bereit · ${u.boerseAngabenFehlen ? `${u.boerseAngabenFehlen} Angaben fehlen · ` : ""}${u.boerseOhneEinwilligung} ohne Einwilligung`, tipp: "Kaufangebote, die (noch) nicht in der Flächenbörse stehen — „bereit“ heißt: Einwilligung liegt vor, ein Klick genügt", puls: u.boerseBereit > 0 },
+    { href: "#boerse", wert: u.boerseOnline, name: "Flächen online", sub: "anonym in der Flächenbörse", tipp: "Kaufangebote, die anonym auf lippeforst.de stehen" },
+    { href: "/admin?status=neu", wert: u.neueAnfragen, name: "Neue Anfragen", sub: "noch nicht bearbeitet", tipp: "Formular-Anfragen mit Status „Neu“", puls: u.neueAnfragen > 0 },
+  ];
+  return (
+    <>
+      <h2 className="lfa-h2 lfa-uebersicht-titel" title="Stand aller Kunden, Paare und der Flächenbörse — Klick springt zum passenden Abschnitt">Übersicht</h2>
+      <nav className="lfa-kacheln lfa-uebersicht" aria-label="Übersicht nach Stand">
+        {kacheln.map((k) => (
+          <a key={k.name} href={k.href} className={`lfa-kachel ${"puls" in k && k.puls ? "lfa-puls-ring" : ""}`} title={k.tipp}>
+            <div className="lfa-kachel-wert">{k.wert}</div>
+            <div className="lfa-kachel-name">{k.name}</div>
+            <div className="lfa-kachel-sub">{k.sub}</div>
+          </a>
+        ))}
+      </nav>
+    </>
+  );
+}
+
+function tagDe(ymdOderIso: string): string {
+  const d = /^\d{4}-\d{2}-\d{2}$/.test(ymdOderIso) ? new Date(`${ymdOderIso}T12:00:00`) : new Date(ymdOderIso);
+  return d.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" });
+}
+
+/** Flächenbörse: Kaufangebote mit Stand — „Veröffentlichen“ mit einem Klick, sobald die Einwilligung vorliegt. */
+function BoerseListe({ liste }: { liste: DashBoerse[] }) {
+  return (
+    <section className="lfa-dash-abschnitt" id="boerse">
+      <h2 className="lfa-h2" title="Kaufangebote für die anonyme Flächenbörse auf lippeforst.de — nur mit Einwilligung des Eigentümers">
+        {liste.some((x) => !x.online && x.einwilligung && !x.luecken.length) && <span className="lfa-puls" />}Flächenbörse ({liste.length})
+      </h2>
+      {liste.length === 0 ? (
+        <div className="lfa-panel lfa-leer">Keine aktiven Kaufangebote.</div>
+      ) : (
+        <div className="lfa-panel">
+          <ul className="lfa-boerse-liste">
+            {liste.map((x) => (
+              <li key={x.id} className="lfa-boerse-zeile">
+                <div className="lfa-boerse-text">
+                  <Link href={`/admin/anfrage/${x.id}#boerse`} className="lfa-link-name" title="Anfrage öffnen: Einwilligung, anonyme Angaben, Vorschau">{x.name}</Link>
+                  <div className="lfa-klein">{x.eckdaten}{x.code ? ` · ${x.code}` : ""}</div>
+                </div>
+                <div className="lfa-boerse-stand">
+                  {x.online ? (
+                    <>
+                      <span className="lfa-badge lfa-badge-ok" title="Steht anonym auf lippeforst.de">online{x.seit ? ` seit ${tagDe(x.seit)}` : ""}</span>
+                      {x.code && <a href={`/flaechenboerse/${x.code}`} target="_blank" rel="noopener" className="lfa-klein" title="Öffentliche Angebotsseite in neuem Tab öffnen">ansehen</a>}
+                    </>
+                  ) : x.einwilligung && !x.luecken.length ? (
+                    <>
+                      <span className="lfa-badge lfa-badge-warn" title={`Einwilligung ${x.einwilligung.quelle} am ${tagDe(x.einwilligung.am)}`}>Einwilligung ✓ {tagDe(x.einwilligung.am)}</span>
+                      <form action={boerseAktion}>
+                        <input type="hidden" name="id" value={x.id} />
+                        <input type="hidden" name="aktion" value="online" />
+                        <input type="hidden" name="zurueck" value="/admin/dashboard" />
+                        <BestaetigenKnopf frage={`„${x.eckdaten}“ jetzt anonym auf lippeforst.de zeigen (Startseite und Flächenbörse)?`} tipp="Zeigt das Angebot sofort anonym auf der Website — Angaben vorher in der Anfrage prüfbar">
+                          Veröffentlichen
+                        </BestaetigenKnopf>
+                      </form>
+                    </>
+                  ) : x.einwilligung ? (
+                    <Link href={`/admin/anfrage/${x.id}#boerse`} className="lfa-knopf lfa-knopf-hell lfa-knopf-klein" title={`Noch nicht veröffentlichbar: ${x.luecken.join(" · ")}`}>
+                      Angaben ergänzen
+                    </Link>
+                  ) : (
+                    <Link href={`/admin/anfrage/${x.id}#boerse`} className="lfa-knopf lfa-knopf-leise lfa-knopf-klein" title="Keine Einwilligung — in der Anfrage erfassen oder den fertigen Text zum Erfragen nutzen (Verkäufer können auch selbst im Kundenbereich ankreuzen)">
+                      Einwilligung fehlt
+                    </Link>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </section>
+  );
+}
+
 export default async function DashboardPage(props: PageProps<"/admin/dashboard">) {
   const { email } = await requireAdmin();
   const sp = await props.searchParams;
@@ -180,6 +272,7 @@ export default async function DashboardPage(props: PageProps<"/admin/dashboard">
           </a>
         ))}
       </nav>
+      <UebersichtKacheln u={d.uebersicht} vorschlaege={d.vorschlaege.length} />
       <AbschnittErgebnis ziel="weg" />
 
       <section className="lfa-dash-abschnitt" id="jetzt">
@@ -203,6 +296,8 @@ export default async function DashboardPage(props: PageProps<"/admin/dashboard">
           d.warten.map((x) => <VorgangKarte key={x.key} x={x} bezug={d.am} />)
         )}
       </section>
+
+      <BoerseListe liste={d.boerse} />
 
       {d.anfragen.length > 0 ? (
         <section className="lfa-dash-abschnitt" id="anfragen">

@@ -2,7 +2,11 @@ import "server-only";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { blobToken, dataPrefix, hasBlobToken } from "@/lib/admin/config";
 import { leadView, type BoerseMeta, type LeadView } from "@/lib/admin/model";
-import { jsonAendern, listLeads, readZustand } from "@/lib/admin/store";
+import { jsonAendern, listLeads, mutateZustand, readZustand } from "@/lib/admin/store";
+import { grobeLage } from "@/lib/admin/matching";
+import { FLAECHENTYPEN } from "@/lib/lead-options";
+import { adminInfo } from "@/lib/portal/mail";
+import { site } from "@/lib/site";
 import * as M from "@/lib/portal/model";
 import { ladeEinstellungen } from "@/lib/portal/speicher";
 
@@ -140,4 +144,68 @@ export async function boerseNeuSchreiben(): Promise<number> {
 export function angebotZuCode(anfragen: Record<string, { boerse?: BoerseMeta }>, code: string): string | null {
   for (const [id, m] of Object.entries(anfragen)) if (m.boerse?.code === code) return id;
   return null;
+}
+
+/**
+ * Einwilligung aus dem Kundenbereich (Häkchen im Angaben-Formular eines Verkäufers).
+ * Legt fehlende Börsen-Angaben mit Vorschlägen an (Typ, gerundete Größe, „Raum <Gemeinde>“),
+ * damit „Veröffentlichen“ im Dashboard ein Klick ist. Veröffentlicht wird NIE automatisch.
+ * Widerruf nimmt ein veröffentlichtes Angebot sofort von der Website.
+ */
+export async function boerseEinwilligungKunde(leadId: string, erteilt: boolean, flaechenHa: number | null): Promise<"erteilt" | "widerrufen" | null> {
+  const [leads, { zustand }] = await Promise.all([listLeads(), readZustand()]);
+  const lead = leads.find((x) => x.id === leadId);
+  if (!lead) return null;
+  const l = leadView(lead, zustand.anfragen[leadId]);
+  if (l.rolle !== "angebot" || l.art !== "kauf") return null;
+  let ergebnis: "erteilt" | "widerrufen" | null = null;
+  let warOnline = false;
+  const jetzt = new Date().toISOString();
+  await mutateZustand("kunde", (z) => {
+    ergebnis = null;
+    warOnline = false;
+    const meta = { ...(z.anfragen[leadId] ?? {}) };
+    const alt = meta.boerse;
+    if (erteilt && alt?.einwilligung) return;
+    if (!erteilt && !alt?.einwilligung) return;
+    const vorhanden = new Set(Object.values(z.anfragen).map((m) => m.boerse?.code).filter((c): c is string => Boolean(c)));
+    const ha = flaechenHa ?? l.groesseWert.minHa ?? l.groesseWert.maxHa;
+    const gemeinde = grobeLage(l, z.orte);
+    const b: BoerseMeta = alt
+      ? { ...alt }
+      : {
+          code: neuerBoerseCode(vorhanden),
+          typ: (FLAECHENTYPEN as readonly string[]).includes(l.typ) ? l.typ : "Sonstiges",
+          groesseHa: ha != null && ha > 0 ? Math.max(0.5, Math.round(ha * 2) / 2) : null,
+          lage: gemeinde ? `Raum ${gemeinde}` : "",
+          text: "",
+          einwilligung: null,
+          online: false,
+        };
+    if (erteilt) {
+      b.einwilligung = { am: jetzt.slice(0, 10), quelle: "im Kundenbereich", von: "kunde" };
+      ergebnis = "erteilt";
+    } else {
+      b.einwilligung = null;
+      warOnline = b.online;
+      b.online = false;
+      ergebnis = "widerrufen";
+    }
+    b.geaendert = { am: jetzt, von: "kunde" };
+    meta.boerse = b;
+    z.anfragen[leadId] = meta;
+    return { was: erteilt ? `Einwilligung in die Flächenbörse im Kundenbereich erteilt (${b.code})` : `Einwilligung in die Flächenbörse im Kundenbereich widerrufen${warOnline ? " — Angebot offline" : ""}`, ref: leadId };
+  });
+  if (warOnline) await boerseNeuSchreiben();
+  if (ergebnis) {
+    const name = lead.name !== "—" ? lead.name : leadId;
+    await adminInfo(
+      ergebnis === "erteilt" ? `Flächenbörse: ${name} ist einverstanden — jetzt veröffentlichen` : `Flächenbörse: ${name} hat die Einwilligung widerrufen`,
+      ergebnis === "erteilt"
+        ? ["Der Verkäufer hat im Kundenbereich angekreuzt, dass seine Fläche anonym in der Flächenbörse erscheinen darf.", "Angaben prüfen und im Dashboard unter „Flächenbörse“ mit einem Klick veröffentlichen."]
+        : ["Der Verkäufer hat seine Einwilligung im Kundenbereich zurückgenommen.", warOnline ? "Das Angebot wurde sofort von der Website genommen." : "Das Angebot war nicht online."],
+      `${site.url}/admin/dashboard#boerse`,
+    );
+  }
+  return ergebnis;
 }

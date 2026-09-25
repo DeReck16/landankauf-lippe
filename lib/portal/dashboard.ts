@@ -2,7 +2,8 @@ import "server-only";
 import { cache } from "react";
 import { ladeVerwaltung } from "@/lib/admin/daten";
 import { findeKandidaten } from "@/lib/admin/matching";
-import type { LeadView } from "@/lib/admin/model";
+import { formatGroesse, type LeadView } from "@/lib/admin/model";
+import { boerseLuecken, haText } from "@/lib/boerse";
 import { ladeNeu, ladePortal } from "@/lib/admin/neu";
 import { assistentPlan, type AssistentChip, type AssistentPlan } from "./assistent";
 import * as M from "./model";
@@ -43,7 +44,41 @@ export type DashVorschlag = { key: string; angebot: LeadView; gesuch: LeadView; 
 
 export type DashAnfrage = { id: string; name: string; anliegen: string; ort: string; eingang: string; neu: boolean };
 
+/** Verkaufsangebot für die Flächenbörse (Kaufangebote, aktiv). */
+export type DashBoerse = {
+  id: string;
+  name: string;
+  eckdaten: string;
+  code: string | null;
+  online: boolean;
+  seit: string | null;
+  einwilligung: { am: string; quelle: string } | null;
+  /** Was einer Veröffentlichung im Weg steht (leer = ein Klick genügt). */
+  luecken: string[];
+};
+
+/** Zahlen für die Übersichtskacheln (Stand aller Kunden, Paare und der Börse). */
+export type DashUebersicht = {
+  eingeladen: number;
+  eingeladenGeoeffnet: number;
+  unterschrieben: number;
+  unterschriebenAnbieter: number;
+  unterschriebenSuchende: number;
+  matchingOffen: number;
+  zustimmungOffen: number;
+  freigegeben: number;
+  vertraegeOffen: number;
+  abschluesse: number;
+  boerseOnline: number;
+  boerseBereit: number;
+  boerseAngabenFehlen: number;
+  boerseOhneEinwilligung: number;
+  neueAnfragen: number;
+};
+
 export type Dashboard = {
+  uebersicht: DashUebersicht;
+  boerse: DashBoerse[];
   jetzt: DashVorgang[];
   warten: DashVorgang[];
   abgeschlossen: DashVorgang[];
@@ -260,7 +295,68 @@ export const ladeDashboard = cache(async (email: string): Promise<Dashboard> => 
     }
   }
 
+  // Übersicht: Kunden nach Stufe, Paare nach Stand, Flächenbörse.
+  const ue: DashUebersicht = {
+    eingeladen: 0, eingeladenGeoeffnet: 0, unterschrieben: 0, unterschriebenAnbieter: 0, unterschriebenSuchende: 0,
+    matchingOffen: 0, zustimmungOffen: 0, freigegeben: 0, vertraegeOffen: 0, abschluesse: 0,
+    boerseOnline: 0, boerseBereit: 0, boerseAngabenFehlen: 0, boerseOhneEinwilligung: 0,
+    neueAnfragen: leads.filter((l) => l.status === "neu").length,
+  };
+  for (const k of portal.kunden.values()) {
+    const st = M.stufe(k);
+    if (st === "eingeladen" || st === "geoeffnet" || st === "angaben") {
+      ue.eingeladen++;
+      if (st !== "eingeladen") ue.eingeladenGeoeffnet++;
+    } else if (st === "unterschrieben") {
+      ue.unterschrieben++;
+      if (k.rolle === "anbieter") ue.unterschriebenAnbieter++;
+      else ue.unterschriebenSuchende++;
+    }
+  }
+  for (const [key, meta] of Object.entries(zustand.paare)) {
+    if (meta.status === "vorschlag" || meta.status === "verworfen") continue;
+    const v = portal.vorgaenge.get(key) ?? null;
+    if (v?.abschluss) {
+      ue.abschluesse++;
+      continue;
+    }
+    if (M.aktiveFreigabe(v)) {
+      ue.freigegeben++;
+      if (v?.pachtvertrag?.status === "zur_unterschrift" || v?.kauf?.status === "zur_bestaetigung") ue.vertraegeOffen++;
+      continue;
+    }
+    ue.matchingOffen++;
+    const angefragt = meta.status === "angefragt" || Boolean(v?.hinweise?.anbieter || v?.hinweise?.suchender);
+    if (angefragt && !(meta.zustimmungAnbieter && meta.zustimmungSuchender)) ue.zustimmungOffen++;
+  }
+  const boerse: DashBoerse[] = [];
+  for (const l of leads) {
+    if (l.rolle !== "angebot" || l.art !== "kauf" || l.status === "archiv" || l.status === "erledigt") continue;
+    const b = l.meta.boerse;
+    const luecken = b ? boerseLuecken(b, l) : ["Einwilligung des Eigentümers fehlt"];
+    const eintrag: DashBoerse = {
+      id: l.id,
+      name: T.wert(l.name) || l.id,
+      eckdaten: b ? `${b.typ || l.typ}, ${haText(b.groesseHa)}, ${b.lage || "Lage offen"}` : `${l.typ}, ${formatGroesse(l.groesseWert)}, ${l.ortText || "Ort offen"}`,
+      code: b?.code ?? null,
+      online: Boolean(b?.online),
+      seit: b?.seit ?? null,
+      einwilligung: b?.einwilligung ? { am: b.einwilligung.am, quelle: b.einwilligung.quelle } : null,
+      luecken,
+    };
+    boerse.push(eintrag);
+    if (eintrag.online) ue.boerseOnline++;
+    else if (!eintrag.einwilligung) ue.boerseOhneEinwilligung++;
+    else if (luecken.length) ue.boerseAngabenFehlen++;
+    else ue.boerseBereit++;
+  }
+  // Reihenfolge: bereit zum Veröffentlichen, Angaben fehlen, ohne Einwilligung, online.
+  const rang = (x: DashBoerse) => (x.online ? 3 : !x.einwilligung ? 2 : x.luecken.length ? 1 : 0);
+  boerse.sort((a, b) => rang(a) - rang(b));
+
   return {
+    uebersicht: ue,
+    boerse,
     jetzt: jetztDran,
     warten,
     abgeschlossen,

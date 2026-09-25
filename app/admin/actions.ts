@@ -284,7 +284,9 @@ export async function boerseAktion(formData: FormData): Promise<void> {
   const id = text(formData, "id", 40);
   if (!/^LL-[A-Z0-9]+$/.test(id)) throw new Error("Ungültige Anfrage-ID");
   const aktion = text(formData, "aktion", 30);
-  const zurueck = `/admin/anfrage/${id}`;
+  // Aus dem Dashboard zurück dorthin (fester Pfad, keine offene Weiterleitung), sonst zur Anfrage.
+  const vomDashboard = text(formData, "zurueck", 40) === "/admin/dashboard";
+  const zurueck = vomDashboard ? "/admin/dashboard" : `/admin/anfrage/${id}`;
   const lead = (await listLeads()).find((l) => l.id === id);
   if (!lead) redirect(`${zurueck}?m=${encodeURIComponent("Anfrage nicht gefunden.")}&mt=fehler`);
   const jetzt = new Date().toISOString();
@@ -354,5 +356,6 @@ export async function boerseAktion(formData: FormData): Promise<void> {
 
   if (oeffentlichBetroffen) await boerseNeuSchreiben();
   revalidatePath("/admin", "layout");
-  redirect(`${zurueck}?m=${encodeURIComponent(meldung || "Keine Änderung.")}&mt=${fehler ? "fehler" : "ok"}#boerse`);
+  const name = lead && lead.name !== "—" ? `${lead.name}: ` : "";
+  redirect(`${zurueck}?m=${encodeURIComponent(`${vomDashboard ? name : ""}${meldung || "Keine Änderung."}`)}&mt=${fehler ? "fehler" : "ok"}#boerse`);
 }

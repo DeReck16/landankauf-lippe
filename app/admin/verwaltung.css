@@ -127,6 +127,19 @@
 a.lfa-kachel:hover { border-color: var(--color-brand); }
 .lfa-kachel-wert { font-size: 1.6rem; font-weight: 600; font-family: var(--font-serif), Georgia, serif; }
 .lfa-kachel-name { font-size: 0.8rem; color: var(--color-muted); }
+.lfa-kachel-sub { font-size: 0.72rem; color: var(--color-muted); margin-top: 0.2rem; line-height: 1.3; }
+/* Übersicht: zweite, kleinere Kachelreihe im Dashboard */
+.lfa-uebersicht-titel { margin: 0.25rem 0 0.5rem; }
+.lfa-uebersicht { grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr)); gap: 0.6rem; }
+.lfa-uebersicht .lfa-kachel { padding: 0.6rem 0.75rem; }
+.lfa-uebersicht .lfa-kachel-wert { font-size: 1.3rem; }
+.lfa-uebersicht .lfa-kachel-name { color: var(--color-ink); font-weight: 600; }
+/* Flächenbörse im Dashboard */
+.lfa-boerse-liste { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+.lfa-boerse-zeile { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.5rem 1rem; padding: 0.5rem 0; border-bottom: 1px solid var(--color-line); }
+.lfa-boerse-zeile:last-child { border-bottom: 0; }
+.lfa-boerse-text { min-width: 0; flex: 1 1 16rem; }
+.lfa-boerse-stand { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
 
 /* Filterleiste */
 .lfa-filter {

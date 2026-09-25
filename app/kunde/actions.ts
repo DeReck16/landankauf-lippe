@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import * as A from "@/lib/portal/ablauf";
+import { boerseEinwilligungKunde } from "@/lib/boerse";
 import * as V from "@/lib/portal/vorgang";
 import * as M from "@/lib/portal/model";
 import { erklaerungenKaufabsicht, erklaerungenKundenvertrag, erklaerungenPachtvertrag, type ErklaerungDef } from "@/lib/portal/erklaerungen";
@@ -128,6 +129,11 @@ export async function angabenAktion(fd: FormData): Promise<void> {
     }
   }
   await A.angabenSpeichern(id, s, flaechen);
+  // Flächenbörse: Einwilligung per Häkchen (nur Verkäufer; veröffentlicht wird erst per Klick in der Verwaltung).
+  if (kunde.rolle === "anbieter" && kunde.art === "kauf" && feld(fd, "boerse_feld", 2) === "1") {
+    const summeHa = flaechen?.reduce((sum, f) => sum + (f.groesseHa ?? 0), 0) || null;
+    await boerseEinwilligungKunde(id, feld(fd, "boerse", 2) === "1", summeHa);
+  }
   revalidatePath("/kunde", "layout");
   if (!kunde.vertrag) redirect(`/kunde/vertrag?k=${id}`);
   nachricht("/kunde", "Ihre Angaben sind gespeichert.");
