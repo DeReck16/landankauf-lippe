@@ -14,7 +14,7 @@ import * as M from "@/lib/portal/model";
 import { basisUrl } from "@/lib/portal/sitzung";
 import { anschrift, datumDe, flaecheZeile, rolleVonLead } from "@/lib/portal/texte";
 import { VORLAGEN, istFreigegeben, kundenVorlage } from "@/lib/vertraege/vorlagen";
-import { BERATUNG_THEMEN, RUECKMELDUNG_NAME, antwortGruppe, antwortOptionen, themaVorschlag } from "@/lib/portal/rueckmeldung-typen";
+import { BERATUNG_THEMEN, RUECKMELDUNG_NAME, antwortGruppe, antwortOptionen, istBeratungThema, istRueckmeldungArt, themaVorschlag } from "@/lib/portal/rueckmeldung-typen";
 import { anfrageSpeichern, ortNeuSuchen, rueckmeldungErfassen } from "../../../actions";
 import {
   bestaetigungSendenAktion,
@@ -66,6 +66,12 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
   const link = kunde ? einladungsLink(kunde, basis) : null;
   const entwuerfe = entwuerfeKunde({ lead: l, kunde, einstellungen: portal.einstellungen, basis });
   const rm = l.meta.rueckmeldung;
+  // Vorbelegung per Link (z. B. von Claude aus einer E-Mail-Antwort vorbereitet): ?rm=<Antwort>&rmNotiz=…&rmThema=… —
+  // gespeichert wird trotzdem erst per Knopf.
+  const optionen = antwortOptionen(antwortGruppe(l.rolle), l.art);
+  const rmVor = typeof sp.rm === "string" && istRueckmeldungArt(sp.rm) && optionen.includes(sp.rm) ? sp.rm : "";
+  const rmNotizVor = typeof sp.rmNotiz === "string" ? sp.rmNotiz.slice(0, 1500) : "";
+  const rmThemaVor = typeof sp.rmThema === "string" && istBeratungThema(sp.rmThema) ? sp.rmThema : "";
 
   return (
     <>
@@ -455,15 +461,20 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
             <p className="lfa-klein" style={{ marginTop: 0 }}>
               Kam die Antwort per E-Mail oder WhatsApp? Hier eintragen — wie beim Antwort-Link entsteht ein Ticket im Dashboard; „kein Interesse mehr“ setzt die Anfrage auf „Erledigt“. Es geht keine E-Mail raus.
             </p>
+            {rmVor && (
+              <p className="lfa-hinweis lfa-hinweis-frage" role="status">
+                Vorbereitet aus der Antwort des Kunden: „{RUECKMELDUNG_NAME[rmVor]}“{rmNotizVor ? " mit Notiz" : ""} — bitte prüfen und „Rückmeldung speichern“ klicken.
+              </p>
+            )}
             <form action={rueckmeldungErfassen} className="lfa-formraster">
               <input type="hidden" name="id" value={l.id} />
               <label className="lfa-breit">
                 <span className="field-label">Antwort des Kunden</span>
-                <select name="art" required defaultValue="" className="field-select" title="Was hat der Kunde geantwortet?">
+                <select name="art" required defaultValue={rmVor} className="field-select" title="Was hat der Kunde geantwortet?">
                   <option value="" disabled>
                     Bitte wählen …
                   </option>
-                  {antwortOptionen(antwortGruppe(l.rolle), l.art).map((a) => (
+                  {optionen.map((a) => (
                     <option key={a} value={a}>
                       {RUECKMELDUNG_NAME[a]}
                     </option>
@@ -472,7 +483,7 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
               </label>
               <label className="lfa-breit">
                 <span className="field-label">Thema (nur bei Beratung)</span>
-                <select name="thema" defaultValue={themaVorschlag(l.intent, l.flaechentyp) ?? ""} className="field-select" title="Nur bei „möchte eine Beratung“: worüber? Ohne Auswahl wird das Thema aus dem Anliegen abgeleitet.">
+                <select name="thema" defaultValue={rmThemaVor || themaVorschlag(l.intent, l.flaechentyp) || ""} className="field-select" title="Nur bei „möchte eine Beratung“: worüber? Ohne Auswahl wird das Thema aus dem Anliegen abgeleitet.">
                   <option value="">—</option>
                   {BERATUNG_THEMEN.map((th) => (
                     <option key={th} value={th}>
@@ -483,7 +494,7 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
               </label>
               <label className="lfa-breit">
                 <span className="field-label">Notiz zur Antwort (freiwillig)</span>
-                <textarea name="notiz" className="field-textarea" placeholder="z. B. möchte ab Oktober verpachten, bitte per E-Mail" title="Steht im Ticket und im Verlauf — nur intern" />
+                <textarea name="notiz" defaultValue={rmNotizVor} className="field-textarea" placeholder="z. B. möchte ab Oktober verpachten, bitte per E-Mail" title="Steht im Ticket und im Verlauf — nur intern" />
               </label>
               <div className="lfa-breit">
                 <button type="submit" className="lfa-knopf" title="Speichert die Rückmeldung: Ticket im Dashboard bzw. „Erledigt“ bei „kein Interesse mehr“ — es geht keine E-Mail raus">
