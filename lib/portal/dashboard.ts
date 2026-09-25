@@ -5,8 +5,9 @@ import { findeKandidaten } from "@/lib/admin/matching";
 import { formatGroesse, type LeadView, type Rueckmeldung } from "@/lib/admin/model";
 import { boerseLuecken, haText } from "@/lib/boerse";
 import { ladeNeu, ladePortal } from "@/lib/admin/neu";
-import type { AnfrageVorschlag, NachfassKandidat } from "./anfrage-typen";
+import type { AnfrageVorschlag, AntwortEntwurf, NachfassKandidat } from "./anfrage-typen";
 import { anfrageVorschlagSicher } from "./anfrage-vorschlag";
+import { antwortEntwurf } from "./antwort";
 import { assistentPlan, type AssistentChip, type AssistentPlan } from "./assistent";
 import * as M from "./model";
 import { nachfassKandidaten, nachfassTage } from "./nachfassen";
@@ -46,8 +47,11 @@ export type DashVorgang = {
 
 export type DashVorschlag = { key: string; angebot: LeadView; gesuch: LeadView; score: number | null; distanzKm: number | null; gruende: string[]; hinweise: string[]; neu: boolean; boerse: string | null };
 
-/** Neue Anfrage ohne Paar — mit dem einen vorgeschlagenen Schritt (lib/portal/anfrage-vorschlag.ts). */
-export type DashAnfrage = { id: string; name: string; anliegen: string; ort: string; eingang: string; neu: boolean; vorschlag: AnfrageVorschlag };
+/**
+ * Neue Anfrage ohne Paar — mit dem einen vorgeschlagenen Schritt (lib/portal/anfrage-vorschlag.ts):
+ * Angebote/Gesuche die Einladung, reine Auskünfte das fertige Antwortschreiben (lib/portal/antwort.ts).
+ */
+export type DashAnfrage = { id: string; name: string; anliegen: string; ort: string; eingang: string; neu: boolean; vorschlag: AnfrageVorschlag; antwort: AntwortEntwurf | null };
 
 /**
  * Rückmeldung auf eine Nachfass-Mail als Ticket: offen, solange die Anfrage auf „Neu“ steht
@@ -63,7 +67,9 @@ export type DashRueckmeldung = {
   r: Rueckmeldung;
   neu: boolean;
   vorschlag: AnfrageVorschlag | null;
-  /** Beratung: neue E-Mail an den Kunden im eigenen Mailprogramm. */
+  /** Beratung: fertiges Antwortschreiben zum gewählten Thema (lib/portal/antwort.ts). */
+  antwort: AntwortEntwurf | null;
+  /** Beratung ohne Entwurf: neue E-Mail an den Kunden im eigenen Mailprogramm. */
   antworten: { href: string; an: string } | null;
 };
 
@@ -129,6 +135,16 @@ export type Dashboard = {
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const KEIN_INTERESSE_TAGE = 30;
+
+/** Antwortentwurf — ein kaputter Datensatz legt das Dashboard nicht lahm (dann ohne Entwurf). */
+function antwortSicher(l: LeadView, k: M.KundeRecord | null, basis: string, r?: Rueckmeldung): AntwortEntwurf | null {
+  try {
+    return antwortEntwurf({ lead: l, kunde: k, basis, rueckmeldung: r });
+  } catch (err) {
+    console.error("[dashboard] Antwortentwurf nicht berechenbar", l.id, err);
+    return null;
+  }
+}
 
 function tag(iso: string | null | undefined): string {
   if (!iso) return "";
@@ -320,21 +336,28 @@ export const ladeDashboard = cache(async (email: string): Promise<Dashboard> => 
       ort: l.ortText || T.wert(l.ort) || "Ort offen",
       eingang: l.receivedAt,
       r,
-      neu: (neu.gesehen[`rueckmeldung:${l.id}`] ?? "") < r.am,
+      // Selbst erfasste Antworten pulsieren für die erfassende Person nicht (wie überall: Neues von anderen).
+      neu: r.von !== email && (neu.gesehen[`rueckmeldung:${l.id}`] ?? "") < r.am,
     };
     if (r.art === "kein-interesse") {
-      if (jetzt.getTime() - Date.parse(r.am) < KEIN_INTERESSE_TAGE * 86_400_000) keinInteresse.push({ ...eintrag, vorschlag: null, antworten: null });
+      if (l.status === "erledigt" && jetzt.getTime() - Date.parse(r.am) < KEIN_INTERESSE_TAGE * 86_400_000) keinInteresse.push({ ...eintrag, vorschlag: null, antwort: null, antworten: null });
       continue;
     }
     if (l.status !== "neu") continue;
     offeneTickets.add(l.id);
     const an = (k?.email || T.wert(l.email)).toLowerCase();
-    const anrede = `Guten Tag ${name},\n\nvielen Dank für Ihre Rückmeldung. Gern beraten wir Sie zum Thema „${r.thema ?? "Ihre Fläche"}“.\n\n`;
+    const beratung = r.art === "beratung";
+    // Im laufenden Vorgang keine Einladung vorschlagen — dort wird entschieden (Link zum Vorgang in der Zeile).
+    const imVorgang = Boolean(r.vorgaenge?.length);
+    const antwort = beratung ? antwortSicher(l, k, basis, r) : null;
+    const thema = r.thema && r.thema !== "Etwas anderes" ? ` zum Thema „${r.thema}“` : "";
+    const anrede = `Guten Tag ${name},\n\nvielen Dank für Ihre Rückmeldung. Gern beraten wir Sie${thema}.\n\n`;
     rueckmeldungen.push({
       ...eintrag,
-      vorschlag: r.art === "beratung" ? null : anfrageVorschlagSicher(l, k, u),
+      vorschlag: beratung || imVorgang ? null : anfrageVorschlagSicher(l, k, u),
+      antwort,
       antworten:
-        r.art === "beratung" && EMAIL.test(an)
+        beratung && !antwort && EMAIL.test(an)
           ? { href: `mailto:${an}?subject=${encodeURIComponent("Ihre Beratungsanfrage bei Lippe Forst")}&body=${encodeURIComponent(anrede)}`, an }
           : null,
     });
@@ -360,6 +383,8 @@ export const ladeDashboard = cache(async (email: string): Promise<Dashboard> => 
       eingang: l.receivedAt,
       neu: neu.anfrage(l),
       vorschlag: anfrageVorschlagSicher(l, portal.kunden.get(l.id) ?? null, u),
+      // Reine Auskünfte (weder Angebot noch Gesuch): fertiges Antwortschreiben zur Freigabe.
+      antwort: T.rolleVonLead(l) ? null : antwortSicher(l, portal.kunden.get(l.id) ?? null, basis),
     }));
   for (const a of anfragen) gesehen.push(`anfrage:${a.id}`);
 

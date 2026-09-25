@@ -1,5 +1,5 @@
 import "server-only";
-import { formatGroesse, type LeadView, type Zustand } from "@/lib/admin/model";
+import { formatGroesse, parseGroesse, type LeadView, type Zustand } from "@/lib/admin/model";
 import { grobeLage } from "@/lib/admin/matching";
 import { hinweisAnAnbieter, hinweisAnSuchenden } from "@/lib/admin/texte";
 import { GRUSS, einladungsLink, zugangsLink } from "./ablauf";
@@ -26,9 +26,10 @@ export type MailZweck =
   | "anzeige"
   | "bewertung"
   | "nachfassen"
+  | "antwort"
   | "frei";
 
-export const MAIL_ZWECKE: MailZweck[] = ["rueckfrage", "einladung", "erinnerung", "hinweis", "freigabe", "pachtvertrag", "kaufabsicht", "anzeige", "bewertung", "nachfassen", "frei"];
+export const MAIL_ZWECKE: MailZweck[] = ["rueckfrage", "einladung", "erinnerung", "hinweis", "freigabe", "pachtvertrag", "kaufabsicht", "anzeige", "bewertung", "nachfassen", "antwort", "frei"];
 
 export type Entwurf = {
   id: string;
@@ -64,6 +65,34 @@ function zuletzt(mails: M.GesendeteMail[] | undefined, zweck: string, an?: strin
 
 function name(k: M.KundeRecord | null, l: LeadView): string {
   return k?.stammdaten?.name || T.wert(l.name);
+}
+
+function kuerzen(s: string, max: number): string {
+  const t = s.replace(/\s+/g, " ").trim();
+  return t.length > max ? `${t.slice(0, max - 1)}…` : t;
+}
+
+/**
+ * Bezug auf die ursprüngliche Anfrage — steht in jeder Mail an Interessenten (Dennis,
+ * 25.09.2026: Kunden wussten nach Wochen nicht mehr, worum es ging). Nur die eigenen
+ * Formularangaben des Kunden, nie Übersteuerungen der Verwaltung oder Daten Dritter.
+ */
+export function anfrageBezug(lead: LeadView, einleitung = "Ihre Anfrage"): string[] {
+  const roh = T.wert(lead.groesse);
+  const g = parseGroesse(roh);
+  // Tippfehler oder fehlende Einheit („15.606 qmm“): gelesene Größe dazuschreiben.
+  const groesse = roh && g.unsicher && (g.minHa != null || g.maxHa != null) ? `${roh} (≈ ${formatGroesse(g)})` : roh;
+  const typ = T.wert(lead.flaechentyp);
+  const flaeche = [typ && typ !== "Sonstiges" ? typ : "", groesse].filter(Boolean).join(", ");
+  const lage = [T.wert(lead.ort), T.wert(lead.flurstueck)].filter(Boolean).join(", ");
+  const nachricht = T.wert(lead.message);
+  return [
+    `${einleitung} vom ${T.datumDe(lead.receivedAt)}:`,
+    `– Anliegen: ${T.wert(lead.intent) || "—"}`,
+    ...(flaeche ? [`– Fläche: ${flaeche}`] : []),
+    ...(lage ? [`– Lage: ${lage}`] : []),
+    ...(nachricht ? [`– Ihre Nachricht: „${kuerzen(nachricht, 400)}“`] : []),
+  ];
 }
 
 // ---------------------------------------------------------------------------
@@ -111,6 +140,8 @@ export function entwuerfeKunde(opts: {
       "",
       "Eine kurze Antwort auf diese E-Mail genügt.",
       "",
+      ...anfrageBezug(lead),
+      "",
       GRUSS,
     ].join("\n"),
     tipp: "Fragt fehlende Angaben (Größe, Lage/Flurstück, Zeitraum) nach — ändert keinen Status.",
@@ -147,6 +178,8 @@ export function entwuerfeKunde(opts: {
         "",
         "Bei Fragen antworten Sie einfach auf diese E-Mail.",
         "",
+        ...anfrageBezug(lead),
+        "",
         GRUSS,
       ]
     : [
@@ -168,6 +201,8 @@ export function entwuerfeKunde(opts: {
         "Auf Wunsch zeigen wir Ihre Fläche außerdem anonym in der Flächenbörse auf lippeforst.de — dafür genügt ein Häkchen bei den Angaben im Kundenbereich.",
         "",
         "Bei Fragen antworten Sie einfach auf diese E-Mail.",
+        "",
+        ...anfrageBezug(lead),
         "",
         GRUSS,
       ];
@@ -205,6 +240,8 @@ export function entwuerfeKunde(opts: {
         link,
         "",
         "Haben Sie Fragen oder möchten Sie doch nicht? Eine kurze Antwort genügt.",
+        "",
+        ...anfrageBezug(lead),
         "",
         GRUSS,
       ].join("\n"),
@@ -492,11 +529,19 @@ const BERATUNG_GRUND: Record<string, string> = {
   "Bauland-Beratung": "wegen einer Bauland-Beratung",
 };
 
-/** Art der Nachfass-Mail — aus der Einordnung der Anfrage (Angebot/Gesuch mit Kauf oder Pacht), sonst Beratung. */
+/**
+ * Art der Nachfass-Mail — aus der Einordnung der Anfrage (Angebot/Gesuch mit Kauf oder Pacht). Bei einer
+ * allgemeinen Anfrage zählt die Nachricht („Würde gern verkaufen“ → Verkauf), sonst Beratung.
+ */
 export function nachfassTyp(lead: LeadView): NachfassTyp {
   const rr = T.rolleVonLead(lead);
   if (rr?.rolle === "anbieter") return rr.art === "kauf" ? "verkauf" : "verpachtung";
   if (rr?.rolle === "suchender") return rr.art === "kauf" ? "suche-kauf" : "suche-pacht";
+  const nachricht = T.wert(lead.message);
+  if (T.wert(lead.intent) === "Allgemein" || !T.wert(lead.intent)) {
+    if (/verkauf|veräußer/i.test(nachricht)) return "verkauf";
+    if (/\bverpachten\b|zu verpachten|zur pacht (geben|anbieten)/i.test(nachricht)) return "verpachtung";
+  }
   return "beratung";
 }
 
@@ -517,7 +562,10 @@ const ANTWORT_AUSWAHL: Record<NachfassTyp, string> = {
 export function nachfassEntwurf(lead: LeadView, kunde: M.KundeRecord | null, basis: string): { typ: NachfassTyp; an: string; betreff: string; text: string } {
   const typ = nachfassTyp(lead);
   const ort = T.wert(lead.ort);
-  const groesse = T.wert(lead.groesse);
+  const roh = T.wert(lead.groesse);
+  const gl = parseGroesse(roh);
+  // Unsicher gelesene Größe („15.606 qmm“) im Satz als gelesene Hektarzahl — der Originaltext steht im Anfrage-Bezug.
+  const groesse = roh && gl.unsicher && (gl.minHa != null || gl.maxHa != null) ? formatGroesse(gl) : roh;
   const klammer = [FLAECHENTYP_KURZ[T.wert(lead.flaechentyp)] ?? "", groesse.length <= 30 ? groesse : ""].filter(Boolean).join(", ");
   const zusatz = (vor: string) => `${ort && ort.length <= 60 ? ` ${vor} ${ort}` : ""}${klammer ? ` (${klammer})` : ""}`;
   const intent = T.wert(lead.intent);
@@ -546,10 +594,12 @@ export function nachfassEntwurf(lead: LeadView, kunde: M.KundeRecord | null, bas
       "",
       `Sie hatten sich am ${T.datumDe(lead.receivedAt)} ${grund[typ]} an uns gewandt. ${frage[typ]}`,
       "",
-      `Ihre Antwort geht mit einem Klick — wählen Sie einfach ${ANTWORT_AUSWAHL[typ]}:`,
+      ...anfrageBezug(lead, "Zur Erinnerung — Ihre Anfrage"),
+      "",
+      `Antworten Sie einfach über Ihren persönlichen Link — dort wählen Sie ${ANTWORT_AUSWAHL[typ]}:`,
       antwortLink(lead.id, basis),
       "",
-      "Sie können auch direkt auf diese E-Mail antworten. Haben Sie kein Interesse mehr, melden wir uns danach nicht wieder.",
+      "Sie können auch direkt auf diese E-Mail antworten. Haben Sie kein Interesse mehr, wählen Sie „Kein Interesse mehr“ oder antworten Sie kurz — dann melden wir uns nicht wieder.",
       "",
       GRUSS,
     ].join("\n"),

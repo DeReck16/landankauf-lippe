@@ -70,3 +70,22 @@ export type NachfassKandidat = {
   /** Neu in der Liste seit dem letzten Besuch (pulsiert). */
   neu: boolean;
 };
+
+/** Worum eine Anfrage bzw. ein Beratungswunsch geht — bestimmt den Antwortentwurf (lib/portal/antwort.ts). */
+export type AntwortThema = "bewertung" | "verkauf" | "verpachtung" | "vergleich" | "energie" | "vns" | "bauland" | "wald" | "lohnunternehmer" | "allgemein";
+
+/** Fertiges Antwortschreiben zur Freigabe — mit der automatischen Einordnung, die dazu geführt hat. */
+export type AntwortEntwurf = {
+  thema: AntwortThema;
+  /** Kurzform für die Anzeige, z. B. „Bewertung“. */
+  themaName: string;
+  /** Erkannte Eckdaten, z. B. „Ackerland“, „1,56 ha“, „Extertal“. */
+  erkannt: string[];
+  /** Hinweise nur für die Verwaltung (z. B. unsicher gelesene Größe). */
+  hinweise: string[];
+  /** Die Wertindikation in einem Satz — nur, wenn gerechnet werden konnte. */
+  wert: string | null;
+  an: string;
+  betreff: string;
+  text: string;
+};

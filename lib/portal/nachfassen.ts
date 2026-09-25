@@ -87,6 +87,8 @@ export function nachfassKandidaten(opts: {
     if (!OFFEN.has(l.status)) continue;
     // Offenes Ticket (Antwort auf eine frühere Nachfass-Mail, noch nicht bearbeitet): nicht erneut fragen.
     if (l.meta.rueckmeldung && l.meta.rueckmeldung.art !== "kein-interesse" && l.status === "neu") continue;
+    // „Kein Interesse“ gemeldet: nie wieder nachfassen (auch wenn der Status später geändert wurde).
+    if (l.meta.rueckmeldung?.art === "kein-interesse") continue;
     try {
       const k = kunden.get(l.id) ?? null;
       const mail = nachfassEntwurf(l, k, basis);

@@ -60,6 +60,7 @@ export default async function AntwortPage(props: PageProps<"/kunde/antwort">) {
 
   const l = geladen.lead;
   const kunde = await ladeKunde(l.id);
+  if (kunde?.gesperrt || sp.fehler === "anfrage") return <Ungueltig />;
   const name = kunde?.stammdaten?.name || wert(l.name);
   const gruppe = antwortGruppe(l.rolle);
   const sucheKauf = l.art === "kauf";
@@ -75,7 +76,7 @@ export default async function AntwortPage(props: PageProps<"/kunde/antwort">) {
           <p className="lfk-hinweis lfk-hinweis-ok">
             {nein
               ? "Wir haben vermerkt, dass Sie kein Interesse mehr haben, und melden uns dazu nicht wieder."
-              : `Ihre Antwort: ${option(r.art, sucheKauf).titel}${r.thema ? ` — ${r.thema}` : ""}. Wir melden uns zeitnah per E-Mail bei Ihnen.`}
+              : `Ihre Antwort: ${option(r.art, sucheKauf).titel}${r.thema ? ` (Thema: ${r.thema})` : ""}. Wir melden uns zeitnah per E-Mail bei Ihnen.`}
           </p>
           <p className="lfk-klein">
             {nein ? "Falls Sie es sich anders überlegen, " : "Möchten Sie noch etwas ergänzen oder ändern, "}
@@ -91,7 +92,12 @@ export default async function AntwortPage(props: PageProps<"/kunde/antwort">) {
   const gewaehlt = r && optionen.includes(r.art) ? r.art : null;
   const themaStart = r?.thema ?? themaVorschlag(wert(l.intent), wert(l.flaechentyp)) ?? "";
   const eckdaten = [wert(l.intent), wert(l.flaechentyp), wert(l.ort)].filter(Boolean).join(" · ");
-  const fehler = sp.fehler === "auswahl" ? "Bitte wählen Sie eine der Antworten aus." : null;
+  const fehler =
+    sp.fehler === "auswahl"
+      ? "Bitte wählen Sie eine der Antworten aus."
+      : sp.fehler === "zuviel"
+        ? `Über diesen Link sind heute schon sehr viele Antworten eingegangen. Bitte versuchen Sie es später noch einmal oder schreiben Sie uns an ${FIRMA.email}.`
+        : null;
 
   return (
     <div className="lfk-seite" style={{ maxWidth: "40rem" }}>
@@ -105,7 +111,7 @@ export default async function AntwortPage(props: PageProps<"/kunde/antwort">) {
         {r && (
           <p className="lfk-hinweis lfk-hinweis-ok">
             Ihre Antwort vom {datumDe(r.am)}: {optionen.includes(r.art) ? option(r.art, sucheKauf).titel : "—"}
-            {r.thema ? ` — ${r.thema}` : ""}. Sie können sie hier ändern; es zählt die neueste Antwort.
+            {r.thema ? ` (Thema: ${r.thema})` : ""}. Sie können sie hier ändern; es zählt die neueste Antwort.
           </p>
         )}
         {fehler && <p className="lfk-hinweis lfk-hinweis-fehler">{fehler}</p>}

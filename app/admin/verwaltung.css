@@ -765,3 +765,11 @@ a.lfa-kachel:hover { border-color: var(--color-brand); }
 /* Rückmeldungen auf Nachfass-Mails (Dashboard „Rückmeldungen“, Anfrage „Rückmeldung erfassen“) */
 .lfa-ticket-text { font-size: 0.86rem; padding: 0.45rem 0.7rem; margin: 0.25rem 0; }
 .lfa-rueckmeldung-box { margin-bottom: 1rem; }
+
+/* Antwortentwurf zur Freigabe (Dashboard „Zur Freigabe“, AntwortFreigabe.tsx) */
+.lfa-antwort { display: grid; gap: 0.45rem; min-width: 0; max-width: 100%; }
+.lfa-antwort-analyse { display: flex; flex-wrap: wrap; gap: 0.3rem 0.4rem; align-items: center; }
+.lfa-antwort-vorschau > summary { cursor: pointer; font-size: 0.84rem; color: var(--color-ink-soft); overflow-wrap: anywhere; }
+.lfa-antwort-text { max-height: 22rem; overflow: auto; }
+.lfa-antwort-edit { display: grid; gap: 0.5rem; }
+.lfa-antwort-textarea { min-height: 18rem; font-size: 0.85rem; line-height: 1.5; }

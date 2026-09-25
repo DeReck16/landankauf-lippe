@@ -20,7 +20,7 @@ import * as V from "./vorgang";
 // Keine Server Action: Aufrufer prüfen vorher die Anmeldung (requireAdmin).
 
 /** Zwecke, die auch ohne Kundenakte gesendet werden dürfen (Anfrage ist weder Angebot noch Gesuch). */
-const OHNE_KUNDENAKTE: readonly string[] = ["nachfassen"];
+const OHNE_KUNDENAKTE: readonly string[] = ["nachfassen", "antwort"];
 
 export type VersandAuftrag = {
   zweck: string;

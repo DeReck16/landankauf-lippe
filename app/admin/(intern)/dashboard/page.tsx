@@ -19,6 +19,7 @@ import GesehenMarker from "../GesehenMarker";
 import { SchrittKurz } from "../Schritte";
 import { Meldung } from "../teile";
 import AnfrageAktionen from "./AnfrageAktionen";
+import AntwortFreigabe from "./AntwortFreigabe";
 import { AbschnittErgebnis, AufklappenBeiErgebnis, EinKlick } from "./EinKlick";
 import Nachfassen from "./Nachfassen";
 
@@ -259,12 +260,34 @@ function RueckmeldungZeile({ x, test }: { x: DashRueckmeldung; test: boolean }) 
             {r.text ?? `Notiz: ${r.notiz}`}
           </div>
         )}
+        {r.vorgaenge?.length ? (
+          <div className="lfa-klein lfa-dash-warnung" title="Der Kunde steckt in einem laufenden Vorgang — dort wird entschieden, die Einordnung wurde nicht geändert">
+            Läuft in {r.vorgaenge.length === 1 ? "einem Vorgang" : `${r.vorgaenge.length} Vorgängen`} — bitte dort prüfen:{" "}
+            {r.vorgaenge.map((k, i) => (
+              <span key={k}>
+                {i > 0 ? ", " : ""}
+                <Link href={`/admin/vorgang/${k}`} title="Vorgang öffnen">
+                  {k}
+                </Link>
+              </span>
+            ))}
+          </div>
+        ) : null}
         <div className="lfa-anfrage-warum" title="Warum genau dieser Schritt vorgeschlagen wird">
-          Vorschlag: {x.vorschlag ? x.vorschlag.warum : "Beratung gewünscht — per E-Mail antworten (Thema und Nachricht stehen oben), danach als beantwortet markieren"}
+          Vorschlag:{" "}
+          {x.vorschlag
+            ? x.vorschlag.warum
+            : x.antwort
+              ? `Beratung gewünscht — die Antwort zum Thema „${x.antwort.themaName}“ ist vorbereitet: lesen, bei Bedarf anpassen, freigeben`
+              : r.vorgaenge?.length
+                ? "Im laufenden Vorgang prüfen, danach als beantwortet markieren"
+                : "Beratung gewünscht — per E-Mail antworten (Thema und Nachricht stehen oben), danach als beantwortet markieren"}
         </div>
       </div>
       {x.vorschlag ? (
         <AnfrageAktionen id={x.id} v={x.vorschlag} test={test} ziel="rueckmeldungen" ticket />
+      ) : x.antwort ? (
+        <AntwortFreigabe id={x.id} e={x.antwort} test={test} ziel="rueckmeldungen" archiv={false} />
       ) : (
         <div className="lfa-anfrage-aktionen">
           <div className="lfa-knopfreihe lfa-anfrage-knoepfe">
@@ -377,20 +400,20 @@ export default async function DashboardPage(props: PageProps<"/admin/dashboard">
   const jetztPuls = d.jetzt.some((x) => x.neu > 0 || x.plan.meldungen.length > 0 || Boolean(x.plan.aktion?.dran && !x.plan.aktion.gesperrt));
   const kacheln = [
     {
-      href: "#rueckmeldungen",
-      wert: String(d.rueckmeldungen.length),
-      name: "Rückmeldungen",
-      tipp: "Antworten auf Nachfass-Mails, die noch bearbeitet werden müssen — je Ticket ein Knopf",
-      puls: d.rueckmeldungen.some((x) => x.neu) || d.keinInteresse.some((x) => x.neu),
+      href: d.rueckmeldungen.length ? "#rueckmeldungen" : "#anfragen",
+      wert: String(d.rueckmeldungen.length + d.anfragen.length),
+      name: "Zur Freigabe",
+      tipp: `Fertig vorbereitet, Sie müssen nur prüfen und freigeben: ${d.anfragen.length} neue ${d.anfragen.length === 1 ? "Anfrage" : "Anfragen"} (Antwort bzw. Einladung) und ${d.rueckmeldungen.length} ${d.rueckmeldungen.length === 1 ? "Rückmeldung" : "Rückmeldungen"} auf Nachfass-Mails`,
+      puls: d.rueckmeldungen.some((x) => x.neu) || d.keinInteresse.some((x) => x.neu) || d.anfragen.some((a) => a.neu),
     },
     { href: "#jetzt", wert: String(d.jetzt.length), name: "Jetzt dran", tipp: "Vorgänge, bei denen Sie handeln müssen — je Vorgang ein Knopf", puls: d.jetzt.length > 0 && jetztPuls },
     { href: "#warten", wert: String(d.warten.length), name: "Warten auf Kunden", tipp: "Vorgänge, bei denen Kunden, Notar, Behörde oder die Zahlung am Zug sind — mit „Erinnerung senden“", puls: d.warten.some((x) => x.neu > 0) },
     {
       href: "#vorschlaege",
-      wert: String(d.vorschlaege.length + d.anfragen.length),
-      name: "Neue Vorschläge & Anfragen",
-      tipp: `${d.vorschlaege.length} passende Paare aus dem Matching und ${d.anfragen.length} neue Anfragen ohne Paar`,
-      puls: d.vorschlaege.some((v) => v.neu) || d.anfragen.some((a) => a.neu),
+      wert: String(d.vorschlaege.length),
+      name: "Neue Vorschläge",
+      tipp: `${d.vorschlaege.length} passende Paare aus dem Matching (Angebot ↔ Gesuch)`,
+      puls: d.vorschlaege.some((v) => v.neu),
     },
     {
       href: "#jetzt",
@@ -431,6 +454,39 @@ export default async function DashboardPage(props: PageProps<"/admin/dashboard">
 
       <RueckmeldungenAbschnitt liste={d.rueckmeldungen} kein={d.keinInteresse} test={test} />
 
+      {d.anfragen.length > 0 ? (
+        <section className="lfa-dash-abschnitt" id="anfragen">
+          <h2 className="lfa-h2" title="Neue Anfragen ohne passendes Gegenstück: Bei Auskünften (Bewertung, Solar/Wind, VNS …) ist die Antwort fertig geschrieben, bei Angeboten und Gesuchen die Einladung — lesen und freigeben">
+            {d.anfragen.some((a) => a.neu) && <span className="lfa-puls" />}Neue Anfragen — Antwort zur Freigabe ({d.anfragen.length})
+          </h2>
+          <AbschnittErgebnis ziel="anfragen" />
+          <ul className="lfa-dash-vorschlaege">
+            {d.anfragen.map((a) => (
+              <li key={a.id} className="lfa-dash-vorschlag">
+                <div className="lfa-dash-vorschlag-text">
+                  <div>
+                    {a.neu && <span className="lfa-puls" title="Neue Anfrage — noch nicht geöffnet" />}
+                    <Link href={`/admin/anfrage/${a.id}`} className="lfa-link-name" title="Anfrage öffnen: alle Angaben, Kontakt, Einordnung fürs Matching">
+                      {a.name}
+                    </Link>
+                  </div>
+                  <div className="lfa-klein">
+                    {a.anliegen} · {a.ort} · eingegangen {datum(a.eingang)}
+                  </div>
+                  <div className="lfa-anfrage-warum" title="Warum der Assistent genau diesen Schritt vorschlägt">
+                    Vorschlag: {a.antwort ? `Antwort ist vorbereitet (${a.antwort.themaName}) — lesen, bei Bedarf anpassen, freigeben` : a.vorschlag.warum}
+                  </div>
+                </div>
+                {a.antwort ? <AntwortFreigabe id={a.id} e={a.antwort} test={test} ziel="anfragen" archiv /> : <AnfrageAktionen id={a.id} v={a.vorschlag} test={test} />}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : (
+        // Letzte Anfrage erledigt: Abschnitt entfällt, die Rückmeldung bleibt sichtbar.
+        <AbschnittErgebnis ziel="anfragen" />
+      )}
+
       <section className="lfa-dash-abschnitt" id="jetzt">
         <h2 className="lfa-h2" title="Hier sind Sie am Zug — je Vorgang ein Knopf für den nächsten Schritt">
           {jetztPuls && <span className="lfa-puls" />}Jetzt dran ({d.jetzt.length})
@@ -455,38 +511,6 @@ export default async function DashboardPage(props: PageProps<"/admin/dashboard">
 
       <BoerseListe liste={d.boerse} />
 
-      {d.anfragen.length > 0 ? (
-        <section className="lfa-dash-abschnitt" id="anfragen">
-          <h2 className="lfa-h2" title="Neue Anfragen, zu denen es (noch) kein passendes Gegenstück gibt — z. B. Bewertungen, Fragen oder Flächen ohne Gesuch">
-            {d.anfragen.some((a) => a.neu) && <span className="lfa-puls" />}Neue Anfragen ohne Paar ({d.anfragen.length})
-          </h2>
-          <AbschnittErgebnis ziel="anfragen" />
-          <ul className="lfa-dash-vorschlaege">
-            {d.anfragen.map((a) => (
-              <li key={a.id} className="lfa-dash-vorschlag">
-                <div className="lfa-dash-vorschlag-text">
-                  <div>
-                    {a.neu && <span className="lfa-puls" title="Neue Anfrage — noch nicht geöffnet" />}
-                    <Link href={`/admin/anfrage/${a.id}`} className="lfa-link-name" title="Anfrage öffnen: alle Angaben, Kontakt, Einordnung fürs Matching">
-                      {a.name}
-                    </Link>
-                  </div>
-                  <div className="lfa-klein">
-                    {a.anliegen} · {a.ort} · eingegangen {datum(a.eingang)}
-                  </div>
-                  <div className="lfa-anfrage-warum" title="Warum der Assistent genau diesen Schritt vorschlägt">
-                    Vorschlag: {a.vorschlag.warum}
-                  </div>
-                </div>
-                <AnfrageAktionen id={a.id} v={a.vorschlag} test={test} />
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : (
-        // Letzte Anfrage erledigt: Abschnitt entfällt, die Rückmeldung bleibt sichtbar.
-        <AbschnittErgebnis ziel="anfragen" />
-      )}
 
       <section className="lfa-dash-abschnitt" id="vorschlaege">
         <h2 className="lfa-h2" title="Automatisch gefundene Paare aus dem Matching, beste zuerst">

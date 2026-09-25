@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { testModus } from "@/lib/admin/config";
 import { unstable_rethrow } from "next/navigation";
-import { leadView } from "@/lib/admin/model";
+import { LEAD_STATUS, leadView } from "@/lib/admin/model";
 import { requireAdmin } from "@/lib/admin/session";
 import { listLeads, readZustand } from "@/lib/admin/store";
 import * as A from "@/lib/portal/ablauf";
@@ -402,7 +402,18 @@ export async function anfrageStatusAktion(fd: FormData): Promise<AssistentState>
   if (!istKundeId(id) || (status !== "in_arbeit" && status !== "archiv" && status !== "beantwortet")) {
     return { status: "fehler", titel: "Ungültige Anfrage.", zeilen: [], am: new Date().toISOString() };
   }
-  const name = wert((await A.ladeLead(id))?.lead.name) || id;
+  const geladen = await A.ladeLead(id);
+  const name = wert(geladen?.lead.name) || id;
+  // „Als beantwortet markieren“ gilt nur für Neues — eine veraltete Ansicht darf z. B. „kein Interesse“ (Erledigt) nicht überschreiben.
+  if (status === "beantwortet" && geladen?.lead.status !== "neu") {
+    revalidatePath("/admin", "layout");
+    return {
+      status: "fehler",
+      titel: "Nichts geändert — die Anfrage ist schon bearbeitet.",
+      zeilen: [{ art: "info", text: `Anfrage von ${name} steht inzwischen auf „${geladen ? LEAD_STATUS[geladen.lead.status].label : "—"}“. Die Ansicht ist aktualisiert.` }],
+      am: new Date().toISOString(),
+    };
+  }
   const f = new FormData();
   f.set("id", id);
   f.set("bereich", "status");
@@ -483,6 +494,52 @@ export async function anfrageVorschlagAktion(fd: FormData): Promise<AssistentSta
   }
   revalidatePath("/admin", "layout");
   return ergebnis(a.knopf, zeilen);
+}
+
+/**
+ * Antwortentwurf freigeben (Dashboard „Zur Freigabe“, lib/portal/antwort.ts): sendet Betreff und Text
+ * so, wie die Verwaltung sie bestätigt (ggf. angepasst) hat — an die Adresse aus der Anfrage, nie an eine
+ * übergebene. Nur für Anfragen auf „Neu“ (neue Anfrage oder offenes Ticket), damit nichts doppelt rausgeht.
+ * Versand, Verlauf und Status „Beantwortet“ über lib/portal/versand.ts.
+ */
+export async function antwortSendenAktion(fd: FormData): Promise<AssistentState> {
+  const { email } = await requireAdmin();
+  const am = new Date().toISOString();
+  const id = feld(fd, "id", 40);
+  const betreff = feld(fd, "betreff", 200);
+  const text = String(fd.get("text") ?? "").replace(/\r\n?/g, "\n").trim().slice(0, 12_000);
+  if (!istKundeId(id)) return { status: "fehler", titel: "Ungültige Anfrage.", zeilen: [], am };
+  if (!betreff || !text) return { status: "fehler", titel: "Nicht gesendet — Betreff und Text dürfen nicht leer sein.", zeilen: [], am };
+  const geladen = await A.ladeLead(id);
+  if (!geladen) return { status: "fehler", titel: "Anfrage nicht gefunden.", zeilen: [], am };
+  const { lead } = geladen;
+  const name = wert(lead.name) || id;
+  if (lead.status !== "neu") {
+    revalidatePath("/admin", "layout");
+    return {
+      status: "fehler",
+      titel: "Nichts gesendet — die Anfrage ist schon bearbeitet.",
+      zeilen: [{ art: "info", text: `Anfrage von ${name} steht inzwischen auf „${LEAD_STATUS[lead.status].label}“ (z. B. schon beantwortet). Die Ansicht ist aktualisiert.` }],
+      am,
+    };
+  }
+  const kunde = await ladeKunde(id);
+  const an = (kunde?.email || wert(lead.email)).toLowerCase();
+  const zeilen: AssistentZeile[] = [];
+  try {
+    const r = await verwaltungsMailSenden(email, { zweck: "antwort", kundeId: id, an, betreff, text });
+    if (r.ok) {
+      zeilen.push({ art: "ok", text: `E-Mail an ${name} (${an}): „${betreff}“` });
+      zeilen.push({ art: "ok", text: "Status → „Beantwortet“ — die Anfrage steht nicht mehr unter „Zur Freigabe“; der Text steht im Verlauf der Anfrage" });
+    } else {
+      zeilen.push({ art: "fehler", text: `E-Mail an ${name} (${an}) nicht gesendet: ${r.text}` });
+    }
+  } catch (err) {
+    unstable_rethrow(err);
+    zeilen.push({ art: "fehler", text: err instanceof Error ? err.message : "Unbekannter Fehler." });
+  }
+  revalidatePath("/admin", "layout");
+  return ergebnis("Antwort senden", zeilen);
 }
 
 /** Höchstens so lange je Klick senden (Seite: maxDuration 60 s) — der Rest folgt mit dem nächsten Klick. */

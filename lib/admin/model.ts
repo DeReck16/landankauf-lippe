@@ -68,6 +68,12 @@ export type Rueckmeldung = {
   quelle: "link" | "verwaltung";
   /** Erfasst von (nur Verwaltung). */
   von?: string;
+  /** Laufende Vorgänge (Paar-Schlüssel) zum Zeitpunkt der Antwort — dann wird nichts umsortiert, sondern im Vorgang geprüft. */
+  vorgaenge?: string[];
+  /** Zuletzt per Mail an die Verwaltung gemeldet (Antwort-Link) — höchstens stündlich, außer bei neuer Antwort. */
+  gemeldetAm?: string;
+  /** Antworten über den Link in den letzten 24 Stunden (Schutz vor Missbrauch des Links). */
+  zaehler?: { seit: string; n: number };
 };
 
 /** Anonyme Angaben eines Angebots für die Flächenbörse — nie Name, Flurstück oder genaue Lage. */
