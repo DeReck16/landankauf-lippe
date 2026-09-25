@@ -5,8 +5,11 @@ import { findeKandidaten } from "@/lib/admin/matching";
 import { formatGroesse, type LeadView } from "@/lib/admin/model";
 import { boerseLuecken, haText } from "@/lib/boerse";
 import { ladeNeu, ladePortal } from "@/lib/admin/neu";
+import type { AnfrageVorschlag, NachfassKandidat } from "./anfrage-typen";
+import { anfrageVorschlagSicher } from "./anfrage-vorschlag";
 import { assistentPlan, type AssistentChip, type AssistentPlan } from "./assistent";
 import * as M from "./model";
+import { nachfassKandidaten, nachfassTage } from "./nachfassen";
 import { vorgangSchritte, type Schritt } from "./schritte";
 import { basisUrl } from "./sitzung";
 import * as T from "./texte";
@@ -42,7 +45,8 @@ export type DashVorgang = {
 
 export type DashVorschlag = { key: string; angebot: LeadView; gesuch: LeadView; score: number | null; distanzKm: number | null; gruende: string[]; hinweise: string[]; neu: boolean; boerse: string | null };
 
-export type DashAnfrage = { id: string; name: string; anliegen: string; ort: string; eingang: string; neu: boolean };
+/** Neue Anfrage ohne Paar — mit dem einen vorgeschlagenen Schritt (lib/portal/anfrage-vorschlag.ts). */
+export type DashAnfrage = { id: string; name: string; anliegen: string; ort: string; eingang: string; neu: boolean; vorschlag: AnfrageVorschlag };
 
 /** Angebot für die Flächenbörse (Kauf oder Pacht, aktiv). */
 export type DashBoerse = {
@@ -84,6 +88,10 @@ export type Dashboard = {
   abgeschlossen: DashVorgang[];
   vorschlaege: DashVorschlag[];
   anfragen: DashAnfrage[];
+  /** Alte Anfragen ohne Rückmeldung, bei denen Nachfassen möglich ist (lib/portal/nachfassen.ts). */
+  nachfassen: NachfassKandidat[];
+  /** Nachfassen ab so vielen Tagen nach Eingang und letztem Kontakt. */
+  nachfassTage: number;
   /** Provision netto, noch nicht bezahlt: fällig + abgerechnet. */
   provisionOffen: number;
   /** Davon aufschiebend (noch nicht fällig, z. B. Genehmigung ausstehend). */
@@ -279,8 +287,24 @@ export const ladeDashboard = cache(async (email: string): Promise<Dashboard> => 
   }
   const anfragen: DashAnfrage[] = leads
     .filter((l) => l.status === "neu" && !imPaar.has(l.id))
-    .map((l) => ({ id: l.id, name: T.wert(l.name) || l.id, anliegen: T.wert(l.intent) || "—", ort: l.ortText || T.wert(l.ort) || "Ort offen", eingang: l.receivedAt, neu: neu.anfrage(l) }));
+    .map((l) => ({
+      id: l.id,
+      name: T.wert(l.name) || l.id,
+      anliegen: T.wert(l.intent) || "—",
+      ort: l.ortText || T.wert(l.ort) || "Ort offen",
+      eingang: l.receivedAt,
+      neu: neu.anfrage(l),
+      vorschlag: anfrageVorschlagSicher(l, portal.kunden.get(l.id) ?? null, u),
+    }));
   for (const a of anfragen) gesehen.push(`anfrage:${a.id}`);
+
+  // Nachfassen: alte Anfragen ohne Rückmeldung — neu (pulsierend), bis die Liste sie einmal gezeigt hat.
+  const nachfassTageWert = nachfassTage();
+  const nachfassen = nachfassKandidaten({ leads, zustand, kunden: portal.kunden, vorgaenge: portal.vorgaenge, jetzt, tage: nachfassTageWert }).map((c) => ({
+    ...c,
+    neu: (neu.gesehen[`nachfassen:${c.id}`] ?? "") < c.seit,
+  }));
+  for (const c of nachfassen) gesehen.push(`nachfassen:${c.id}`);
 
   let provisionOffen = 0;
   let provisionAufschiebend = 0;
@@ -362,6 +386,8 @@ export const ladeDashboard = cache(async (email: string): Promise<Dashboard> => 
     abgeschlossen,
     vorschlaege,
     anfragen,
+    nachfassen,
+    nachfassTage: nachfassTageWert,
     provisionOffen: M.runde2(provisionOffen),
     provisionAufschiebend: M.runde2(provisionAufschiebend),
     provisionDran,

@@ -46,6 +46,8 @@ export type LeadMeta = {
   radiusKm?: number | null;
   notiz?: string;
   geaendert?: { am: string; von: string };
+  /** Zuletzt per Nachfass-Mail gefragt, ob noch Interesse besteht (Dashboard „Nachfassen“). */
+  nachgefasstAm?: string;
   /** Angebot in der öffentlichen Flächenbörse (nur mit Einwilligung des Eigentümers). */
   boerse?: BoerseMeta;
 };

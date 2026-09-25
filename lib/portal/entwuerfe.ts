@@ -3,6 +3,7 @@ import { formatGroesse, type LeadView, type Zustand } from "@/lib/admin/model";
 import { grobeLage } from "@/lib/admin/matching";
 import { hinweisAnAnbieter, hinweisAnSuchenden } from "@/lib/admin/texte";
 import { GRUSS, einladungsLink, zugangsLink } from "./ablauf";
+import type { NachfassTyp } from "./anfrage-typen";
 import * as M from "./model";
 import { SPERRE_UNTERSCHRIFT, beideUnterschrieben } from "./schritte";
 import * as T from "./texte";
@@ -23,9 +24,10 @@ export type MailZweck =
   | "kaufabsicht"
   | "anzeige"
   | "bewertung"
+  | "nachfassen"
   | "frei";
 
-export const MAIL_ZWECKE: MailZweck[] = ["rueckfrage", "einladung", "erinnerung", "hinweis", "freigabe", "pachtvertrag", "kaufabsicht", "anzeige", "bewertung", "frei"];
+export const MAIL_ZWECKE: MailZweck[] = ["rueckfrage", "einladung", "erinnerung", "hinweis", "freigabe", "pachtvertrag", "kaufabsicht", "anzeige", "bewertung", "nachfassen", "frei"];
 
 export type Entwurf = {
   id: string;
@@ -160,6 +162,9 @@ export function entwuerfeKunde(opts: {
         link ?? "[Link erscheint nach „Einladung erstellen“]",
         "",
         "Dort ergänzen Sie Anschrift und Flurstücke, lesen die Vereinbarung und bestätigen sie mit Ihrem Namen. Sie erhalten sie anschließend als PDF per E-Mail.",
+        "",
+        // Die Flächenbörse gibt es für Verkauf und Verpachtung — der Satz gilt für jeden Anbieter.
+        "Auf Wunsch zeigen wir Ihre Fläche außerdem anonym in der Flächenbörse auf lippeforst.de — dafür genügt ein Häkchen bei den Angaben im Kundenbereich.",
         "",
         "Bei Fragen antworten Sie einfach auf diese E-Mail.",
         "",
@@ -468,4 +473,65 @@ export function entwuerfePaar(opts: {
     }
   }
   return liste;
+}
+
+// ---------------------------------------------------------------------------
+// Nachfass-Mail (Dashboard „Nachfassen“): fragt nur, ob zur eigenen Anfrage noch
+// Interesse besteht — keine allgemeine Werbung, keine Telefonnummer. Im Text
+// stehen nur die Formularangaben des Kunden, nie Übersteuerungen der Verwaltung.
+
+const FLAECHENTYP_KURZ: Record<string, string> = { Ackerland: "Ackerland", "Wiese / Grünland": "Grünland", "Wald / Forst": "Wald", Bauland: "Bauland" };
+
+const BERATUNG_GRUND: Record<string, string> = {
+  "Energiepacht (Solar/Wind)": "wegen einer Energiepacht (Solar/Wind)",
+  "VNS / Ökopunkte": "wegen Vertragsnaturschutz bzw. Ökopunkten",
+  Lohnunternehmer: "wegen der Vermittlung eines Lohnunternehmers",
+  "Bauland-Beratung": "wegen einer Bauland-Beratung",
+};
+
+/** Art der Nachfass-Mail — aus der Einordnung der Anfrage (Angebot/Gesuch mit Kauf oder Pacht), sonst Beratung. */
+export function nachfassTyp(lead: LeadView): NachfassTyp {
+  const rr = T.rolleVonLead(lead);
+  if (rr?.rolle === "anbieter") return rr.art === "kauf" ? "verkauf" : "verpachtung";
+  if (rr?.rolle === "suchender") return rr.art === "kauf" ? "suche-kauf" : "suche-pacht";
+  return "beratung";
+}
+
+export function nachfassEntwurf(lead: LeadView, kunde: M.KundeRecord | null): { typ: NachfassTyp; an: string; betreff: string; text: string } {
+  const typ = nachfassTyp(lead);
+  const ort = T.wert(lead.ort);
+  const groesse = T.wert(lead.groesse);
+  const klammer = [FLAECHENTYP_KURZ[T.wert(lead.flaechentyp)] ?? "", groesse.length <= 30 ? groesse : ""].filter(Boolean).join(", ");
+  const zusatz = (vor: string) => `${ort && ort.length <= 60 ? ` ${vor} ${ort}` : ""}${klammer ? ` (${klammer})` : ""}`;
+  const intent = T.wert(lead.intent);
+  const grund: Record<NachfassTyp, string> = {
+    verkauf: `wegen des Verkaufs Ihrer Fläche${zusatz("in")}`,
+    verpachtung: `wegen der Verpachtung Ihrer Fläche${zusatz("in")}`,
+    "suche-pacht": `wegen einer Fläche zur Pacht${zusatz("im Raum")}`,
+    "suche-kauf": `wegen einer Fläche zum Kauf${zusatz("im Raum")}`,
+    beratung: intent === "Bewertung" ? `wegen einer Bewertung Ihrer Fläche${zusatz("in")}` : (BERATUNG_GRUND[intent] ?? "mit einer Anfrage"),
+  };
+  const frage: Record<NachfassTyp, string> = {
+    verkauf: "Haben Sie noch Interesse am Verkauf?",
+    verpachtung: "Haben Sie noch Interesse an der Verpachtung?",
+    "suche-pacht": "Haben Sie noch Interesse an einer Fläche zur Pacht?",
+    "suche-kauf": "Haben Sie noch Interesse an einer Fläche zum Kauf?",
+    beratung: intent === "Bewertung" ? "Haben Sie noch Interesse an einer Bewertung?" : "Haben Sie noch Interesse an einer Beratung?",
+  };
+  // Allgemeine Fragen ohne Bezug zu einer Fläche (kein Flächentyp, kein Ort) nicht mit „Ihre Fläche“ anschreiben.
+  const ohneFlaeche = typ === "beratung" && !FLAECHENTYP_KURZ[T.wert(lead.flaechentyp)] && !ort && !["Bewertung", "Energiepacht (Solar/Wind)", "VNS / Ökopunkte", "Bauland-Beratung"].includes(intent);
+  return {
+    typ,
+    an: (kunde?.email || T.wert(lead.email)).toLowerCase(),
+    betreff: typ === "suche-pacht" || typ === "suche-kauf" ? "Ihre Flächensuche bei Lippe Forst" : ohneFlaeche ? "Ihre Anfrage bei Lippe Forst" : "Ihre Fläche bei Lippe Forst",
+    text: [
+      anrede(name(kunde, lead)),
+      "",
+      `Sie hatten sich am ${T.datumDe(lead.receivedAt)} ${grund[typ]} an uns gewandt. ${frage[typ]} Dann genügt eine kurze Antwort auf diese E-Mail.`,
+      "",
+      "Wenn nicht, antworten Sie einfach mit „kein Interesse“ — dann melden wir uns nicht wieder.",
+      "",
+      GRUSS,
+    ].join("\n"),
+  };
 }

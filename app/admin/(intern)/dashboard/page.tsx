@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { testModus } from "@/lib/admin/config";
 import { requireAdmin } from "@/lib/admin/session";
 import { formatGroesse, type LeadView } from "@/lib/admin/model";
 import { artLabel, datum, datumZeit } from "@/lib/admin/format";
+import type { NachfassKandidat } from "@/lib/portal/anfrage-typen";
 import { seitText } from "@/lib/portal/assistent-typen";
 import { ladeDashboard, type DashBoerse, type DashUebersicht, type DashVorgang, type DashVorschlag } from "@/lib/portal/dashboard";
 import * as M from "@/lib/portal/model";
-import { anfrageStatusAktion, vorschlagAktion } from "../../assistent-actions";
+import { NACHFASS_PAUSE_TAGE } from "@/lib/portal/nachfassen";
+import { vorschlagAktion } from "../../assistent-actions";
 import { boerseAktion } from "../../actions";
 import BestaetigenKnopf from "../BestaetigenKnopf";
 import AlleFreigeben from "../AlleFreigeben";
@@ -14,9 +17,15 @@ import Assistent, { Chips } from "../Assistent";
 import GesehenMarker from "../GesehenMarker";
 import { SchrittKurz } from "../Schritte";
 import { Meldung } from "../teile";
+import AnfrageAktionen from "./AnfrageAktionen";
 import { AbschnittErgebnis, AufklappenBeiErgebnis, EinKlick } from "./EinKlick";
+import Nachfassen from "./Nachfassen";
 
 export const metadata: Metadata = { title: "Dashboard" };
+
+// Server Actions dieser Seite (u. a. „Nachfass-Mail senden“ an viele Kunden) dürfen bis zu
+// 60 Sekunden laufen — so viel erlaubt Vercel in jedem Tarif; das Nachfassen teilt sich die Zeit selbst ein.
+export const maxDuration = 60;
 
 // Das Dashboard: alles, was zu tun ist, auf einer Seite — je Vorgang mit dem einen
 // Knopf des Assistenten (lib/portal/assistent.ts). Die Rückmeldung eines Klicks
@@ -132,7 +141,7 @@ function VorschlagZeile({ v }: { v: DashVorschlag }) {
 }
 
 /** Zweite Kachelreihe: Stand aller Kunden, Paare und der Flächenbörse auf einen Blick. */
-function UebersichtKacheln({ u, vorschlaege }: { u: DashUebersicht; vorschlaege: number }) {
+function UebersichtKacheln({ u, vorschlaege, nachfassen }: { u: DashUebersicht; vorschlaege: number; nachfassen: { anzahl: number; neu: boolean; tage: number } }) {
   const n = (x: number, eins: string, mehr: string) => `${x} ${x === 1 ? eins : mehr}`;
   const kacheln = [
     { href: "#warten", wert: u.eingeladen, name: "Einladungen raus", sub: `${n(u.eingeladen, "Kunde", "Kunden")} noch ohne Unterschrift${u.eingeladenGeoeffnet ? ` · ${u.eingeladenGeoeffnet} Link geöffnet` : ""}`, tipp: "Kunden mit Einladung, die ihren Vertrag mit Lippe Forst noch nicht unterschrieben haben" },
@@ -144,6 +153,7 @@ function UebersichtKacheln({ u, vorschlaege }: { u: DashUebersicht; vorschlaege:
     { href: "#boerse", wert: u.boerseBereit + u.boerseAngabenFehlen + u.boerseOhneEinwilligung, name: "Flächen nicht veröffentlicht", sub: `${u.boerseBereit} bereit · ${u.boerseAngabenFehlen ? `${u.boerseAngabenFehlen} Angaben fehlen · ` : ""}${u.boerseOhneEinwilligung} ohne Einwilligung`, tipp: "Angebote (Kauf und Pacht), die (noch) nicht in der Flächenbörse stehen — „bereit“ heißt: Einwilligung liegt vor, ein Klick genügt", puls: u.boerseBereit > 0 },
     { href: "#boerse", wert: u.boerseOnline, name: "Flächen online", sub: "anonym in der Flächenbörse", tipp: "Angebote (Kauf und Pacht), die anonym auf lippeforst.de stehen" },
     { href: "/admin?status=neu", wert: u.neueAnfragen, name: "Neue Anfragen", sub: "noch nicht bearbeitet", tipp: "Formular-Anfragen mit Status „Neu“", puls: u.neueAnfragen > 0 },
+    { href: "#nachfassen", wert: nachfassen.anzahl, name: "Nachfassen möglich", sub: "ältere Anfragen ohne Rückmeldung", tipp: `Anfragen ohne laufenden Vorgang und ohne Vertrag, bei denen Eingang und letzter Kontakt mehr als ${n(nachfassen.tage, "Tag", "Tage")} zurückliegen — eine kurze Mail fragt, ob noch Interesse besteht (nur auf Klick)`, puls: nachfassen.neu },
   ];
   return (
     <>
@@ -221,11 +231,38 @@ function BoerseListe({ liste }: { liste: DashBoerse[] }) {
   );
 }
 
+/** Nachfassen: ältere Anfragen ohne Rückmeldung — Häkchen je Kunde, Textvorschau, ein Knopf mit Rückfrage. */
+function NachfassenAbschnitt({ liste, tage, test }: { liste: NachfassKandidat[]; tage: number; test: boolean }) {
+  const laenger = `länger als ${tage === 1 ? "einen Tag" : `${tage} Tage`}`;
+  return (
+    <section className="lfa-dash-abschnitt" id="nachfassen">
+      <h2 className="lfa-h2" title="Ältere Anfragen ohne Rückmeldung: eine kurze Mail fragt, ob noch Interesse besteht — nur auf Klick, je Kunde eine eigene E-Mail">
+        {liste.some((c) => c.neu) && <span className="lfa-puls" />}Nachfassen ({liste.length})
+      </h2>
+      <AbschnittErgebnis ziel="nachfassen" />
+      <div className={`lfa-panel ${liste.length === 0 ? "lfa-leer" : ""}`}>
+        {liste.length === 0 ? (
+          <>Niemand zum Nachfassen — ältere Anfragen ohne Rückmeldung erscheinen hier, sobald Eingang und letzter Kontakt {laenger} zurückliegen.</>
+        ) : (
+          <>
+            <p className="lfa-klein lfa-nachfass-regel">
+              Hier stehen offene Anfragen (neu, in Arbeit oder beantwortet), deren Eingang und letzter Kontakt {laenger} zurückliegen — ohne laufenden Vorgang, ohne unterschriebenen Vertrag und in den letzten {NACHFASS_PAUSE_TAGE} Tagen nicht nachgefasst.
+              Antwortet jemand mit „kein Interesse“: Anfrage öffnen und auf „Erledigt“ setzen — dann erscheint sie hier nicht wieder.
+            </p>
+            <Nachfassen kandidaten={liste} test={test} />
+          </>
+        )}
+      </div>
+    </section>
+  );
+}
+
 export default async function DashboardPage(props: PageProps<"/admin/dashboard">) {
   const { email } = await requireAdmin();
   const sp = await props.searchParams;
   const d = await ladeDashboard(email);
   const fokus = typeof sp.k === "string" ? sp.k : "";
+  const test = testModus();
 
   const jetztPuls = d.jetzt.some((x) => x.neu > 0 || x.plan.meldungen.length > 0 || Boolean(x.plan.aktion?.dran && !x.plan.aktion.gesperrt));
   const kacheln = [
@@ -272,7 +309,7 @@ export default async function DashboardPage(props: PageProps<"/admin/dashboard">
           </a>
         ))}
       </nav>
-      <UebersichtKacheln u={d.uebersicht} vorschlaege={d.vorschlaege.length} />
+      <UebersichtKacheln u={d.uebersicht} vorschlaege={d.vorschlaege.length} nachfassen={{ anzahl: d.nachfassen.length, neu: d.nachfassen.some((c) => c.neu), tage: d.nachfassTage }} />
       <AbschnittErgebnis ziel="weg" />
 
       <section className="lfa-dash-abschnitt" id="jetzt">
@@ -318,11 +355,11 @@ export default async function DashboardPage(props: PageProps<"/admin/dashboard">
                   <div className="lfa-klein">
                     {a.anliegen} · {a.ort} · eingegangen {datum(a.eingang)}
                   </div>
+                  <div className="lfa-anfrage-warum" title="Warum der Assistent genau diesen Schritt vorschlägt">
+                    Vorschlag: {a.vorschlag.warum}
+                  </div>
                 </div>
-                <div className="lfa-knopfreihe lfa-dash-vorschlag-knoepfe">
-                  <EinKlick aktion={anfrageStatusAktion} werte={{ id: a.id, status: "in_arbeit" }} ziel="anfragen" klasse="lfa-knopf lfa-knopf-hell lfa-knopf-klein" knopf="In Arbeit" tipp="Setzt den Status auf „In Arbeit“ — die Anfrage verschwindet aus dieser Liste (in „Anfragen“ weiter sichtbar)" />
-                  <EinKlick aktion={anfrageStatusAktion} werte={{ id: a.id, status: "archiv" }} ziel="anfragen" klasse="lfa-link-knopf" knopf="Archiv" tipp="Test, Spam oder Dublette — archivieren (nicht mehr im Dashboard und nicht im Matching)" />
-                </div>
+                <AnfrageAktionen id={a.id} v={a.vorschlag} test={test} />
               </li>
             ))}
           </ul>
@@ -356,6 +393,8 @@ export default async function DashboardPage(props: PageProps<"/admin/dashboard">
           </p>
         )}
       </section>
+
+      <NachfassenAbschnitt liste={d.nachfassen} tage={d.nachfassTage} test={test} />
 
       {/* Offen, wenn eine Karte hier im Fokus steht (Link aus einer Verwaltungs-Mail); sonst eingeklappt. */}
       <details className="lfa-weitere lfa-dash-abschnitt" id="abgeschlossen" open={d.abgeschlossen.some((x) => x.key === fokus) || undefined}>

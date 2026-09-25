@@ -3,15 +3,20 @@
 import { revalidatePath } from "next/cache";
 import { testModus } from "@/lib/admin/config";
 import { unstable_rethrow } from "next/navigation";
+import { leadView } from "@/lib/admin/model";
 import { requireAdmin } from "@/lib/admin/session";
+import { listLeads, readZustand } from "@/lib/admin/store";
 import * as A from "@/lib/portal/ablauf";
+import { anfrageVorschlag } from "@/lib/portal/anfrage-vorschlag";
 import { ASSISTENT_AKTIONEN, alleAktionen, assistentEntwurf, assistentPlan, type AssistentAktionId, type AssistentMail, type AssistentUmgebung } from "@/lib/portal/assistent";
+import { entwuerfeKunde } from "@/lib/portal/entwuerfe";
 import * as M from "@/lib/portal/model";
 import * as N from "@/lib/portal/nacharbeit";
+import { NACHFASS_PAUSE_TAGE, nachfassKandidaten } from "@/lib/portal/nachfassen";
 import { SPERRE_FREIGABE } from "@/lib/portal/schritte";
 import { basisUrl } from "@/lib/portal/sitzung";
-import { istKundeId, istPaarKey, ladeEinstellungen, ladeVorgang } from "@/lib/portal/speicher";
-import { rolleVonLead, tagDe, wert } from "@/lib/portal/texte";
+import { alleKunden, alleVorgaenge, istKundeId, istPaarKey, ladeEinstellungen, ladeKunde, ladeVorgang } from "@/lib/portal/speicher";
+import { datumDe, rolleVonLead, tagDe, wert } from "@/lib/portal/texte";
 import { verwaltungsMailSenden } from "@/lib/portal/versand";
 import * as V from "@/lib/portal/vorgang";
 import { VORLAGEN, istFreigegeben, kundenVorlage } from "@/lib/vertraege/vorlagen";
@@ -407,4 +412,147 @@ export async function anfrageStatusAktion(fd: FormData): Promise<AssistentState>
   return ergebnis(status === "archiv" ? "Archiv" : "In Arbeit", [
     { art: "ok", text: status === "archiv" ? `Anfrage von ${name} archiviert — sie erscheint nicht mehr im Dashboard und nicht im Matching` : `Anfrage von ${name} auf „In Arbeit“ gesetzt — weiter unter „Anfragen“` },
   ]);
+}
+
+/**
+ * Neue Anfrage ohne Paar: den vorgeschlagenen Schritt ausführen (lib/portal/anfrage-vorschlag.ts) —
+ * einladen (Link bei Bedarf erstellen, Einladungs-Mail senden, Status „Beantwortet“) bzw. als
+ * beantwortet markieren. Der Vorschlag wird frisch berechnet; weicht er vom bestätigten ab
+ * (Signatur), passiert nichts.
+ */
+export async function anfrageVorschlagAktion(fd: FormData): Promise<AssistentState> {
+  const { email } = await requireAdmin();
+  const am = new Date().toISOString();
+  const id = feld(fd, "id", 40);
+  const aktion = feld(fd, "aktion", 20);
+  const signatur = feld(fd, "signatur", 64);
+  if (!istKundeId(id) || (aktion !== "einladen" && aktion !== "beantwortet")) return { status: "fehler", titel: "Ungültige Anfrage.", zeilen: [], am };
+  const geladen = await A.ladeLead(id);
+  if (!geladen) return { status: "fehler", titel: "Anfrage nicht gefunden.", zeilen: [], am };
+  const { lead } = geladen;
+  const u = await umgebung();
+  const a = anfrageVorschlag(lead, await ladeKunde(id), u).aktion;
+  // Nur ausführen, was bestätigt wurde — sonst neu anzeigen (z. B. schon beantwortet oder neuer Link erstellt).
+  if (lead.status !== "neu" || a.id !== aktion || a.signatur !== signatur) {
+    revalidatePath("/admin", "layout");
+    return {
+      status: "fehler",
+      titel: "Nichts ausgeführt — der Stand hat sich inzwischen geändert.",
+      zeilen: [{ art: "info", text: "Die Ansicht ist jetzt aktualisiert. Bitte prüfen und dann erneut klicken." }],
+      am,
+    };
+  }
+  if (a.gesperrt) return { status: "fehler", titel: `Nicht möglich: ${a.knopf}`, zeilen: [{ art: "fehler", text: a.gesperrt }], am };
+
+  const name = wert(lead.name) || id;
+  const zeilen: AssistentZeile[] = [];
+  try {
+    if (a.id === "beantwortet") {
+      const f = new FormData();
+      f.set("id", id);
+      f.set("bereich", "status");
+      f.set("status", "beantwortet");
+      await anfrageSpeichern(f);
+      zeilen.push({ art: "ok", text: `Anfrage von ${name} als beantwortet markiert — sie steht nicht mehr unter „Neue Anfragen“` });
+    } else {
+      const rr = rolleVonLead(lead);
+      const m = a.mails[0];
+      if (!rr || !m) throw new Error("Für diese Anfrage ist keine Einladung möglich.");
+      let kunde = await ladeKunde(id);
+      if (!kunde?.einladung || Date.parse(kunde.einladung.bis) < Date.now()) {
+        // Vorlage ist freigegeben (sonst wäre der Vorschlag gesperrt) — Link und ggf. Kundenakte anlegen.
+        await A.einladungErstellen(lead, email);
+        zeilen.push({ art: "ok", text: `Persönlicher Einladungslink für ${name} erstellt (30 Tage gültig)` });
+        kunde = await ladeKunde(id);
+      }
+      const e = entwuerfeKunde({ lead, kunde, einstellungen: u.einstellungen, basis: u.basis }).find((x) => x.zweck === "einladung");
+      if (!e || e.gesperrt) {
+        zeilen.push({ art: "fehler", text: `E-Mail an ${m.wer}: nicht gesendet — ${e?.gesperrt ?? "keine Einladung möglich"}` });
+      } else {
+        const r = await verwaltungsMailSenden(email, { zweck: "einladung", kundeId: id, rolle: rr.rolle, an: e.an, betreff: e.betreff, text: e.text });
+        zeilen.push(r.ok ? { art: "ok", text: `E-Mail an ${m.wer} (${e.an}): „${e.betreff}“` } : { art: "fehler", text: `E-Mail an ${m.wer} (${e.an}) nicht gesendet: ${r.text}` });
+        if (r.ok) zeilen.push({ art: "ok", text: "Status → „Beantwortet“ — die Anfrage steht nicht mehr unter „Neue Anfragen“" });
+      }
+    }
+  } catch (err) {
+    unstable_rethrow(err);
+    zeilen.push({ art: "fehler", text: err instanceof Error ? err.message : "Unbekannter Fehler." });
+  }
+  revalidatePath("/admin", "layout");
+  return ergebnis(a.knopf, zeilen);
+}
+
+/** Höchstens so lange je Klick senden (Seite: maxDuration 60 s) — der Rest folgt mit dem nächsten Klick. */
+const NACHFASS_BUDGET_MS = 45_000;
+/** Mindestabstand zwischen zwei echten Sendungen (Resend erlaubt wenige Mails je Sekunde). */
+const NACHFASS_ABSTAND_MS = 600;
+
+/**
+ * Nachfassen (Dashboard): den ausgewählten Kunden je eine eigene Nachfass-Mail senden — nur an
+ * Anfragen, die jetzt noch Kandidaten sind (frisch berechnet). Versand, Protokoll, „nachgefasst am“
+ * und Status „Beantwortet“ über lib/portal/versand.ts; Rückmeldung ✓/✗ je Empfänger.
+ */
+export async function nachfassenAktion(fd: FormData): Promise<AssistentState> {
+  const { email } = await requireAdmin();
+  const start = Date.now();
+  const am = new Date(start).toISOString();
+  const ids = [...new Set(fd.getAll("id").map((x) => String(x).trim()))].filter(istKundeId).slice(0, 500);
+  if (ids.length === 0) return { status: "fehler", titel: "Keine Empfänger ausgewählt.", zeilen: [{ art: "info", text: "Bitte mindestens ein Häkchen setzen." }], am };
+
+  const [roh, { zustand }, kunden, vorgaenge] = await Promise.all([listLeads(), readZustand(), alleKunden(), alleVorgaenge()]);
+  const leads = roh.map((l) => leadView(l, zustand.anfragen[l.id]));
+  const kandidaten = new Map(
+    nachfassKandidaten({
+      leads,
+      zustand,
+      kunden: new Map(kunden.map((k) => [k.id, k])),
+      vorgaenge: new Map(vorgaenge.map((v) => [v.key, v])),
+      jetzt: new Date(start),
+    }).map((k) => [k.id, k]),
+  );
+
+  const zeilen: AssistentZeile[] = [];
+  const spaeter: string[] = [];
+  let gesendet = 0;
+  let letzterVersand = 0;
+  for (const id of ids) {
+    const k = kandidaten.get(id);
+    if (!k) {
+      const l = leads.find((x) => x.id === id);
+      const zuletzt = l?.meta.nachgefasstAm && Date.parse(l.meta.nachgefasstAm) > start - NACHFASS_PAUSE_TAGE * 86_400_000 ? l.meta.nachgefasstAm : null;
+      const grund = !l
+        ? "Anfrage nicht gefunden"
+        : zuletzt
+          ? `schon am ${datumDe(zuletzt)} nachgefasst`
+          : "kommt fürs Nachfassen nicht mehr in Frage (Status, Vorgang, Vertrag oder letzter Kontakt hat sich geändert)";
+      zeilen.push({ art: "fehler", text: `${wert(l?.name) || id}: nicht gesendet — ${grund}` });
+      continue;
+    }
+    if (Date.now() - start > NACHFASS_BUDGET_MS) {
+      spaeter.push(k.name);
+      continue;
+    }
+    if (!testModus()) {
+      const warten = letzterVersand + NACHFASS_ABSTAND_MS - Date.now();
+      if (warten > 0) await new Promise((r) => setTimeout(r, warten));
+    }
+    letzterVersand = Date.now();
+    try {
+      const r = await verwaltungsMailSenden(email, { zweck: "nachfassen", kundeId: id, an: k.an, betreff: k.betreff, text: k.text });
+      if (r.ok) gesendet++;
+      zeilen.push(r.ok ? { art: "ok", text: `E-Mail an ${k.name} (${k.an}): „${k.betreff}“` } : { art: "fehler", text: `E-Mail an ${k.name} (${k.an}) nicht gesendet: ${r.text}` });
+    } catch (err) {
+      unstable_rethrow(err);
+      zeilen.push({ art: "fehler", text: `E-Mail an ${k.name} (${k.an}) nicht gesendet: ${err instanceof Error ? err.message : "unbekannter Fehler"}` });
+    }
+  }
+  if (spaeter.length) {
+    zeilen.push({
+      art: "fehler",
+      text: `Noch nicht gesendet, weil die Zeit für einen Klick nicht reicht: ${spaeter.join(", ")} — bitte gleich noch einmal auf „Nachfass-Mail … senden“ klicken (wer schon angeschrieben ist, steht nicht mehr in der Liste).`,
+    });
+  }
+  zeilen.unshift({ art: "info", text: `${gesendet} von ${ids.length} Nachfass-Mails ${testModus() ? "protokolliert" : "gesendet"} — je Empfänger eine eigene E-Mail.` });
+  revalidatePath("/admin", "layout");
+  return ergebnis("Nachfass-Mail senden", zeilen);
 }

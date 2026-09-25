@@ -722,3 +722,42 @@ a.lfa-kachel:hover { border-color: var(--color-brand); }
   .lfa-link-knopf { min-height: 40px; }
   .lfa-assistent-zu { min-width: 40px; min-height: 40px; }
 }
+
+/* ---------------------------------------------------------------------------
+   Dashboard: vorgeschlagene Aktion je neuer Anfrage (AnfrageAktionen.tsx) und
+   „Nachfassen“ (Nachfassen.tsx). Knöpfe mindestens 40 px, lange Beschriftungen
+   dürfen umbrechen (375 px ohne Querscrollen). */
+.lfa-dash-abschnitt > .lfa-assistent-ergebnis { margin-bottom: 0.6rem; }
+.lfa-anfrage-warum { font-size: 0.84rem; color: var(--color-brand-dark); overflow-wrap: anywhere; }
+.lfa-anfrage-aktionen { display: grid; gap: 0.35rem; min-width: 0; max-width: 100%; }
+.lfa-anfrage-knoepfe { gap: 0.45rem 0.8rem; }
+.lfa-anfrage-knopf { min-height: 40px; white-space: normal; text-align: center; max-width: 100%; }
+.lfa-anfrage-knoepfe .lfa-link-knopf, .lfa-nachfass .lfa-link-knopf { min-height: 40px; }
+.lfa-anfrage-oeffnen { display: inline-flex; align-items: center; }
+/* Die Rückfrage nimmt die ganze Zeile ein. */
+.lfa-anfrage-frage { flex: 1 1 100%; }
+
+.lfa-nachfass { display: grid; gap: 0.75rem; min-width: 0; }
+.lfa-nachfass-regel { margin: 0 0 0.6rem; overflow-wrap: anywhere; }
+.lfa-nachfass-wahlknoepfe { gap: 0.2rem 0.9rem; }
+.lfa-nachfass-liste { list-style: none; margin: 0; padding: 0; display: grid; }
+.lfa-nachfass-zeile {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.2rem 0.8rem;
+  min-width: 0;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--color-line);
+}
+.lfa-nachfass-zeile:last-child { border-bottom: 0; }
+.lfa-nachfass-ab .lfa-nachfass-text { opacity: 0.55; }
+.lfa-nachfass-wahl { display: flex; align-items: flex-start; gap: 0.6rem; flex: 1 1 16rem; min-width: 0; min-height: 40px; padding-top: 0.35rem; cursor: pointer; }
+.lfa-nachfass-wahl input { flex: none; width: 1.15rem; height: 1.15rem; margin-top: 0.1rem; accent-color: var(--color-brand); cursor: pointer; }
+.lfa-nachfass-text { display: grid; gap: 0.1rem; min-width: 0; font-size: 0.88rem; overflow-wrap: anywhere; }
+.lfa-nachfass-vorschauen { display: grid; gap: 0.35rem; min-width: 0; }
+.lfa-nachfass-vorschau { min-width: 0; padding: 0.4rem 0.6rem; border: 1px solid var(--color-line); border-radius: 0.55rem; background: #fcfbf7; }
+.lfa-nachfass-vorschau > summary { cursor: pointer; font-size: 0.86rem; color: var(--color-brand-dark); overflow-wrap: anywhere; }
+/* Viele Empfänger: die Liste in der Rückfrage scrollt in sich. */
+.lfa-nachfass-empfaenger { max-height: 24rem; overflow-y: auto; overscroll-behavior: contain; }
