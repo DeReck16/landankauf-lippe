@@ -52,6 +52,8 @@ export const KUNDE_SITZUNG_TAGE = 14;
 export const KUNDE_LOGIN_MINUTEN = 20;
 export const EINLADUNG_TAGE = 30;
 export const ZUGANG_TAGE = 14;
+/** Antwort-Link der Nachfass-Mail (mehrfach nutzbar, die neueste Antwort zählt). */
+export const ANTWORT_TAGE = 120;
 
 function adressListe(raw: string | undefined): string[] {
   return (raw || "")

@@ -12,6 +12,9 @@ export const metadata: Metadata = {
   title: { default: "Kundenbereich", template: "%s · Kundenbereich Lippe Forst" },
   robots: { index: false, follow: false, nocache: true },
   alternates: { canonical: null },
+  // Links mit persönlichem Token (Einladung, Antwort-Link) nie als Referrer weitergeben —
+  // sonst stünde die volle Adresse auf der nächsten Website-Seite in GA (page_referrer).
+  referrer: "origin",
 };
 
 export default async function KundeLayout({ children }: { children: React.ReactNode }) {

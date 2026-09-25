@@ -1,6 +1,6 @@
 import "server-only";
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
-import { EINLADUNG_TAGE, KUNDE_LOGIN_MINUTEN, KUNDE_SITZUNG_TAGE, ZUGANG_TAGE, sessionSecret } from "@/lib/admin/config";
+import { ANTWORT_TAGE, EINLADUNG_TAGE, KUNDE_LOGIN_MINUTEN, KUNDE_SITZUNG_TAGE, ZUGANG_TAGE, sessionSecret } from "@/lib/admin/config";
 import type { Rolle } from "./model";
 
 // Signierte Token für den Kundenbereich — getrennt von der Verwaltung:
@@ -8,14 +8,15 @@ import type { Rolle } from "./model";
 // Zweck-Tag in jeder Signatur. Ein Einladungslink taugt so nie als Sitzung, ein
 // Verwaltungs-Token nie als Kunden-Token und umgekehrt.
 
-export type Zweck = "kunde-einladung" | "kunde-login" | "kunde-zugang" | "kunde-sitzung";
+export type Zweck = "kunde-einladung" | "kunde-login" | "kunde-zugang" | "kunde-sitzung" | "kunde-antwort";
 
 export type EinladungToken = { p: "kunde-einladung"; k: string; r: Rolle; n: string; x: number };
 export type LoginToken = { p: "kunde-login"; e: string; n: string; x: number };
 export type ZugangToken = { p: "kunde-zugang"; k: string; n: string; x: number };
 export type SitzungToken = { p: "kunde-sitzung"; e: string; i: number; x: number };
+export type AntwortToken = { p: "kunde-antwort"; k: string; x: number };
 
-type Payload = EinladungToken | LoginToken | ZugangToken | SitzungToken;
+type Payload = EinladungToken | LoginToken | ZugangToken | SitzungToken | AntwortToken;
 
 function schluessel(): Buffer {
   return createHmac("sha256", sessionSecret()).update("lippeforst-kundenbereich-v1").digest();
@@ -93,6 +94,21 @@ export function zugangToken(kundeId: string): { token: string; bis: Date } {
 export function pruefeZugang(token: string | null | undefined): ZugangToken | null {
   const t = decode<ZugangToken>("kunde-zugang", token);
   return t && ID.test(t.k) && t.n.length >= 16 ? t : null;
+}
+
+/**
+ * Antwort-Link der Nachfass-Mail (/kunde/antwort): an die Anfrage gebunden, mehrfach nutzbar
+ * (die neueste Antwort zählt), kein Zugang zum Kundenbereich. Ablauf auf den Tag gerundet —
+ * so zeigt die Vorschau im Dashboard denselben Link, der am selben Tag gesendet wird.
+ */
+export function antwortToken(anfrageId: string): string {
+  const tag = 86_400;
+  return encode({ p: "kunde-antwort", k: anfrageId, x: (Math.floor(jetztSek() / tag) + ANTWORT_TAGE + 1) * tag });
+}
+
+export function pruefeAntwort(token: string | null | undefined): AntwortToken | null {
+  const t = decode<AntwortToken>("kunde-antwort", token);
+  return t && ID.test(t.k) ? t : null;
 }
 
 /** Sitzungscookie: an die E-Mail-Adresse gebunden; Sperren wirken über `zugangAb` je Kunde. */

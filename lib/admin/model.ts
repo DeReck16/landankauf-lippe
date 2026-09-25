@@ -3,6 +3,7 @@
 // der als eine JSON-Datei im privaten Speicher liegt.
 
 import { isGesuchIntent } from "@/lib/lead-options";
+import type { RueckmeldungArt } from "@/lib/portal/rueckmeldung-typen";
 
 export type LeadRecord = {
   id: string;
@@ -50,6 +51,21 @@ export type LeadMeta = {
   nachgefasstAm?: string;
   /** Angebot in der öffentlichen Flächenbörse (nur mit Einwilligung des Eigentümers). */
   boerse?: BoerseMeta;
+  /** Neueste Antwort auf die Nachfass-Mail (frühere stehen im Verlauf) — offen als Ticket, solange der Status „Neu“ ist. */
+  rueckmeldung?: Rueckmeldung;
+};
+
+/** Antwort des Kunden: selbst über den Antwort-Link (/kunde/antwort) oder von der Verwaltung aus einer E-Mail-Antwort erfasst. */
+export type Rueckmeldung = {
+  am: string;
+  art: RueckmeldungArt;
+  /** Beratung: gewähltes Thema. */
+  thema?: string;
+  /** Freiwillige Nachricht des Kunden bzw. Notiz der Verwaltung. */
+  text?: string;
+  quelle: "link" | "verwaltung";
+  /** Erfasst von (nur Verwaltung). */
+  von?: string;
 };
 
 /** Anonyme Angaben eines Angebots für die Flächenbörse — nie Name, Flurstück oder genaue Lage. */

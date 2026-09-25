@@ -18,7 +18,11 @@ function datumZeit(iso: string): string {
   return new Date(iso).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Berlin" });
 }
 
-export default function AnfrageAktionen({ id, v, test }: { id: string; v: AnfrageVorschlag; test: boolean }) {
+/**
+ * `ziel`: Abschnitt, über dem die Rückmeldung erscheint. `ticket`: Rückmeldung auf eine
+ * Nachfass-Mail — dann statt „Archiv (Test/Spam)“ zweitrangig „Als beantwortet markieren“.
+ */
+export default function AnfrageAktionen({ id, v, test, ziel = "anfragen", ticket = false }: { id: string; v: AnfrageVorschlag; test: boolean; ziel?: string; ticket?: boolean }) {
   const [fragen, setFragen] = useState(false);
   const [pending, starten] = useTransition();
   const a = v.aktion;
@@ -29,7 +33,7 @@ export default function AnfrageAktionen({ id, v, test }: { id: string; v: Anfrag
       fd.set("id", id);
       fd.set("aktion", a.id);
       fd.set("signatur", a.signatur);
-      ergebnisSetzen("anfragen", await anfrageVorschlagAktion(fd));
+      ergebnisSetzen(ziel, await anfrageVorschlagAktion(fd));
       setFragen(false);
     });
   }
@@ -109,14 +113,27 @@ export default function AnfrageAktionen({ id, v, test }: { id: string; v: Anfrag
             Antwort schreiben
           </a>
         )}
-        <EinKlick
-          aktion={anfrageStatusAktion}
-          werte={{ id, status: "archiv" }}
-          ziel="anfragen"
-          klasse="lfa-link-knopf"
-          knopf="Archiv (Test/Spam)"
-          tipp="Test, Spam oder Dublette — archivieren: nicht mehr im Dashboard, nicht im Matching und nicht beim Nachfassen. Es geht keine E-Mail raus; in der Anfrage jederzeit zurückholbar."
-        />
+        {ticket ? (
+          a.id !== "beantwortet" && (
+            <EinKlick
+              aktion={anfrageStatusAktion}
+              werte={{ id, status: "beantwortet" }}
+              ziel={ziel}
+              klasse="lfa-link-knopf"
+              knopf="Als beantwortet markieren"
+              tipp="Schon anders erledigt (z. B. per E-Mail geantwortet)? Setzt den Status auf „Beantwortet“ — das Ticket verschwindet. Es geht keine E-Mail raus."
+            />
+          )
+        ) : (
+          <EinKlick
+            aktion={anfrageStatusAktion}
+            werte={{ id, status: "archiv" }}
+            ziel={ziel}
+            klasse="lfa-link-knopf"
+            knopf="Archiv (Test/Spam)"
+            tipp="Test, Spam oder Dublette — archivieren: nicht mehr im Dashboard, nicht im Matching und nicht beim Nachfassen. Es geht keine E-Mail raus; in der Anfrage jederzeit zurückholbar."
+          />
+        )}
         <Link href={`/admin/anfrage/${id}`} className="lfa-link-knopf lfa-anfrage-oeffnen" title="Anfrage öffnen: alle Angaben, Kontakt, E-Mail-Entwürfe, Einordnung fürs Matching und Verlauf">
           Anfrage öffnen
         </Link>

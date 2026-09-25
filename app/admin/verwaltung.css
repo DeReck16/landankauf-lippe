@@ -761,3 +761,7 @@ a.lfa-kachel:hover { border-color: var(--color-brand); }
 .lfa-nachfass-vorschau > summary { cursor: pointer; font-size: 0.86rem; color: var(--color-brand-dark); overflow-wrap: anywhere; }
 /* Viele Empfänger: die Liste in der Rückfrage scrollt in sich. */
 .lfa-nachfass-empfaenger { max-height: 24rem; overflow-y: auto; overscroll-behavior: contain; }
+
+/* Rückmeldungen auf Nachfass-Mails (Dashboard „Rückmeldungen“, Anfrage „Rückmeldung erfassen“) */
+.lfa-ticket-text { font-size: 0.86rem; padding: 0.45rem 0.7rem; margin: 0.25rem 0; }
+.lfa-rueckmeldung-box { margin-bottom: 1rem; }

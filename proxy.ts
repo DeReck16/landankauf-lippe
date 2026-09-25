@@ -7,8 +7,9 @@ import { verifySessionToken } from "@/lib/admin/token";
 // (lib/admin/session.ts, lib/portal/sitzung.ts).
 
 // Im Kundenbereich ohne Anmeldung erreichbar: Einladung, Anmeldung,
-// Widerrufsfunktion (§ 356a BGB) und Kündigung.
-const KUNDE_OEFFENTLICH = /^\/kunde\/(einladung|anmelden|widerruf|kuendigung)(\/|$)/;
+// Widerrufsfunktion (§ 356a BGB), Kündigung und die Antwortseite der
+// Nachfass-Mail (nur mit persönlichem Antwort-Link).
+const KUNDE_OEFFENTLICH = /^\/kunde\/(einladung|anmelden|widerruf|kuendigung|antwort)(\/|$)/;
 
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;

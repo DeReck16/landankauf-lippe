@@ -7,6 +7,7 @@ import type { NachfassTyp } from "./anfrage-typen";
 import * as M from "./model";
 import { SPERRE_UNTERSCHRIFT, beideUnterschrieben } from "./schritte";
 import * as T from "./texte";
+import { antwortToken } from "./token";
 import { PACHTANZEIGE_STELLE, bewertungFaellig, bewertungsText } from "./vorgang";
 
 // Fertige E-Mail-Entwürfe für jeden sinnvollen Schritt. Die Verwaltung kann
@@ -479,6 +480,8 @@ export function entwuerfePaar(opts: {
 // Nachfass-Mail (Dashboard „Nachfassen“): fragt nur, ob zur eigenen Anfrage noch
 // Interesse besteht — keine allgemeine Werbung, keine Telefonnummer. Im Text
 // stehen nur die Formularangaben des Kunden, nie Übersteuerungen der Verwaltung.
+// Der persönliche Antwort-Link führt zu /kunde/antwort; jede Antwort wird im
+// Dashboard zum Ticket (lib/portal/rueckmeldung.ts).
 
 const FLAECHENTYP_KURZ: Record<string, string> = { Ackerland: "Ackerland", "Wiese / Grünland": "Grünland", "Wald / Forst": "Wald", Bauland: "Bauland" };
 
@@ -497,7 +500,21 @@ export function nachfassTyp(lead: LeadView): NachfassTyp {
   return "beratung";
 }
 
-export function nachfassEntwurf(lead: LeadView, kunde: M.KundeRecord | null): { typ: NachfassTyp; an: string; betreff: string; text: string } {
+/** Persönlicher Antwort-Link der Nachfass-Mail — die Antwort wird im Dashboard zum Ticket („Rückmeldungen“). */
+export function antwortLink(anfrageId: string, basis: string): string {
+  return `${basis}/kunde/antwort?t=${encodeURIComponent(antwortToken(anfrageId))}`;
+}
+
+/** Was die Antwortseite zur Auswahl anbietet — für den Satz vor dem Link. */
+const ANTWORT_AUSWAHL: Record<NachfassTyp, string> = {
+  verkauf: "Verkauf, Verpachtung, eine Beratung oder „kein Interesse“",
+  verpachtung: "Verpachtung, Verkauf, eine Beratung oder „kein Interesse“",
+  "suche-pacht": "„Ich suche weiter“, eine Beratung oder „kein Interesse“",
+  "suche-kauf": "„Ich suche weiter“, eine Beratung oder „kein Interesse“",
+  beratung: "eine Beratung mit Thema, Verkauf, Verpachtung oder „kein Interesse“",
+};
+
+export function nachfassEntwurf(lead: LeadView, kunde: M.KundeRecord | null, basis: string): { typ: NachfassTyp; an: string; betreff: string; text: string } {
   const typ = nachfassTyp(lead);
   const ort = T.wert(lead.ort);
   const groesse = T.wert(lead.groesse);
@@ -527,9 +544,12 @@ export function nachfassEntwurf(lead: LeadView, kunde: M.KundeRecord | null): { 
     text: [
       anrede(name(kunde, lead)),
       "",
-      `Sie hatten sich am ${T.datumDe(lead.receivedAt)} ${grund[typ]} an uns gewandt. ${frage[typ]} Dann genügt eine kurze Antwort auf diese E-Mail.`,
+      `Sie hatten sich am ${T.datumDe(lead.receivedAt)} ${grund[typ]} an uns gewandt. ${frage[typ]}`,
       "",
-      "Wenn nicht, antworten Sie einfach mit „kein Interesse“ — dann melden wir uns nicht wieder.",
+      `Ihre Antwort geht mit einem Klick — wählen Sie einfach ${ANTWORT_AUSWAHL[typ]}:`,
+      antwortLink(lead.id, basis),
+      "",
+      "Sie können auch direkt auf diese E-Mail antworten. Haben Sie kein Interesse mehr, melden wir uns danach nicht wieder.",
       "",
       GRUSS,
     ].join("\n"),

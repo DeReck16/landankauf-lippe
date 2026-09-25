@@ -111,7 +111,8 @@ export default function Nachfassen({ kandidaten, test }: { kandidaten: NachfassK
             <span className="lfa-assistent-zwischen">Das passiert:</span>
             <ul className="lfa-assistent-liste">
               <li>Jeder Empfänger bekommt eine eigene E-Mail — kein Sammelversand, niemand sieht andere Adressen.</li>
-              <li>Die Mail fragt nur, ob zur eigenen Anfrage noch Interesse besteht. Wer mit „kein Interesse“ antwortet, bekommt keine weitere Mail — bitte die Anfrage dann auf „Erledigt“ setzen.</li>
+              <li>Die Mail fragt nur, ob zur eigenen Anfrage noch Interesse besteht — mit einem persönlichen Antwort-Link (verkaufen, verpachten bzw. weitersuchen, Beratung mit Thema oder „kein Interesse“, 120 Tage gültig).</li>
+              <li>Jede Antwort über den Link erscheint oben unter „Rückmeldungen“ als Ticket mit dem nächsten Schritt, und Sie bekommen eine Meldung per E-Mail. „Kein Interesse“ setzt die Anfrage automatisch auf „Erledigt“ — danach geht keine weitere Mail raus.</li>
               <li>Vermerkt werden „nachgefasst am …“ und der Status „Beantwortet“; die Mail steht im Verlauf (Kundenakte bzw. Verlauf der Anfrage).</li>
               <li>Die Angeschriebenen erscheinen hier frühestens in 60 Tagen wieder.</li>
             </ul>

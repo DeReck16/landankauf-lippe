@@ -14,7 +14,8 @@ import * as M from "@/lib/portal/model";
 import { basisUrl } from "@/lib/portal/sitzung";
 import { anschrift, datumDe, flaecheZeile, rolleVonLead } from "@/lib/portal/texte";
 import { VORLAGEN, istFreigegeben, kundenVorlage } from "@/lib/vertraege/vorlagen";
-import { anfrageSpeichern, ortNeuSuchen } from "../../../actions";
+import { BERATUNG_THEMEN, RUECKMELDUNG_NAME, antwortGruppe, antwortOptionen, themaVorschlag } from "@/lib/portal/rueckmeldung-typen";
+import { anfrageSpeichern, ortNeuSuchen, rueckmeldungErfassen } from "../../../actions";
 import {
   bestaetigungSendenAktion,
   bewertungsWiderspruchAktion,
@@ -64,6 +65,7 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
   const vorlageFrei = vorlage ? istFreigegeben(portal.einstellungen, vorlage) : false;
   const link = kunde ? einladungsLink(kunde, basis) : null;
   const entwuerfe = entwuerfeKunde({ lead: l, kunde, einstellungen: portal.einstellungen, basis });
+  const rm = l.meta.rueckmeldung;
 
   return (
     <>
@@ -107,6 +109,26 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
           )}
         </div>
       </div>
+
+      {rm && (
+        <div className="lfa-hinweis lfa-hinweis-ok lfa-rueckmeldung-box" title="Neueste Antwort auf die Nachfass-Mail — frühere stehen im Verlauf der Anfrage">
+          <strong>
+            Rückmeldung vom {datumZeit(rm.am)}: {RUECKMELDUNG_NAME[rm.art]}
+            {rm.thema ? ` – ${rm.thema}` : ""}
+          </strong>
+          <span className="lfa-klein"> ({rm.quelle === "link" ? "selbst über den Antwort-Link" : `erfasst von ${rm.von ?? "der Verwaltung"}`})</span>
+          {rm.text && <div className="lfa-nachricht lfa-ticket-text">{rm.text}</div>}
+          {rm.art !== "kein-interesse" && l.status === "neu" && (
+            <div className="lfa-klein">
+              Offenes Ticket — steht im{" "}
+              <Link href="/admin/dashboard#rueckmeldungen" title="Zum Dashboard, Abschnitt „Rückmeldungen“">
+                Dashboard unter „Rückmeldungen“
+              </Link>
+              , bis die Anfrage bearbeitet ist (Einladung gesendet oder als beantwortet markiert).
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="lfa-raster">
         <div>
@@ -396,6 +418,49 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
               </label>
               <div className="lfa-breit">
                 <button type="submit" className="lfa-knopf" title="Status und Notiz speichern; die Änderung erscheint im Verlauf">Speichern</button>
+              </div>
+            </form>
+          </section>
+
+          <section className="lfa-panel" id="rueckmeldung">
+            <h2 className="lfa-h2" title="Antwort des Kunden auf die Nachfass-Mail eintragen, wenn sie nicht über den Antwort-Link kam">Rückmeldung erfassen</h2>
+            <p className="lfa-klein" style={{ marginTop: 0 }}>
+              Kam die Antwort per E-Mail oder WhatsApp? Hier eintragen — wie beim Antwort-Link entsteht ein Ticket im Dashboard; „kein Interesse mehr“ setzt die Anfrage auf „Erledigt“. Es geht keine E-Mail raus.
+            </p>
+            <form action={rueckmeldungErfassen} className="lfa-formraster">
+              <input type="hidden" name="id" value={l.id} />
+              <label className="lfa-breit">
+                <span className="field-label">Antwort des Kunden</span>
+                <select name="art" required defaultValue="" className="field-select" title="Was hat der Kunde geantwortet?">
+                  <option value="" disabled>
+                    Bitte wählen …
+                  </option>
+                  {antwortOptionen(antwortGruppe(l.rolle), l.art).map((a) => (
+                    <option key={a} value={a}>
+                      {RUECKMELDUNG_NAME[a]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="lfa-breit">
+                <span className="field-label">Thema (nur bei Beratung)</span>
+                <select name="thema" defaultValue={themaVorschlag(l.intent, l.flaechentyp) ?? ""} className="field-select" title="Nur bei „möchte eine Beratung“: worüber? Ohne Auswahl wird das Thema aus dem Anliegen abgeleitet.">
+                  <option value="">—</option>
+                  {BERATUNG_THEMEN.map((th) => (
+                    <option key={th} value={th}>
+                      {th}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="lfa-breit">
+                <span className="field-label">Notiz zur Antwort (freiwillig)</span>
+                <textarea name="notiz" className="field-textarea" placeholder="z. B. möchte ab Oktober verpachten, bitte per E-Mail" title="Steht im Ticket und im Verlauf — nur intern" />
+              </label>
+              <div className="lfa-breit">
+                <button type="submit" className="lfa-knopf" title="Speichert die Rückmeldung: Ticket im Dashboard bzw. „Erledigt“ bei „kein Interesse mehr“ — es geht keine E-Mail raus">
+                  Rückmeldung speichern
+                </button>
               </div>
             </form>
           </section>

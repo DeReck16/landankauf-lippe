@@ -399,7 +399,7 @@ export async function anfrageStatusAktion(fd: FormData): Promise<AssistentState>
   await requireAdmin();
   const id = feld(fd, "id", 40);
   const status = feld(fd, "status", 20);
-  if (!istKundeId(id) || (status !== "in_arbeit" && status !== "archiv")) {
+  if (!istKundeId(id) || (status !== "in_arbeit" && status !== "archiv" && status !== "beantwortet")) {
     return { status: "fehler", titel: "Ungültige Anfrage.", zeilen: [], am: new Date().toISOString() };
   }
   const name = wert((await A.ladeLead(id))?.lead.name) || id;
@@ -409,9 +409,12 @@ export async function anfrageStatusAktion(fd: FormData): Promise<AssistentState>
   f.set("status", status);
   await anfrageSpeichern(f);
   revalidatePath("/admin", "layout");
-  return ergebnis(status === "archiv" ? "Archiv" : "In Arbeit", [
-    { art: "ok", text: status === "archiv" ? `Anfrage von ${name} archiviert — sie erscheint nicht mehr im Dashboard und nicht im Matching` : `Anfrage von ${name} auf „In Arbeit“ gesetzt — weiter unter „Anfragen“` },
-  ]);
+  const text = {
+    archiv: `Anfrage von ${name} archiviert — sie erscheint nicht mehr im Dashboard und nicht im Matching`,
+    in_arbeit: `Anfrage von ${name} auf „In Arbeit“ gesetzt — weiter unter „Anfragen“`,
+    beantwortet: `Anfrage von ${name} als beantwortet markiert — das Ticket ist erledigt`,
+  }[status];
+  return ergebnis(status === "archiv" ? "Archiv" : status === "beantwortet" ? "Als beantwortet markieren" : "In Arbeit", [{ art: "ok", text }]);
 }
 
 /**
@@ -499,7 +502,7 @@ export async function nachfassenAktion(fd: FormData): Promise<AssistentState> {
   const ids = [...new Set(fd.getAll("id").map((x) => String(x).trim()))].filter(istKundeId).slice(0, 500);
   if (ids.length === 0) return { status: "fehler", titel: "Keine Empfänger ausgewählt.", zeilen: [{ art: "info", text: "Bitte mindestens ein Häkchen setzen." }], am };
 
-  const [roh, { zustand }, kunden, vorgaenge] = await Promise.all([listLeads(), readZustand(), alleKunden(), alleVorgaenge()]);
+  const [roh, { zustand }, kunden, vorgaenge, basis] = await Promise.all([listLeads(), readZustand(), alleKunden(), alleVorgaenge(), basisUrl()]);
   const leads = roh.map((l) => leadView(l, zustand.anfragen[l.id]));
   const kandidaten = new Map(
     nachfassKandidaten({
@@ -508,6 +511,7 @@ export async function nachfassenAktion(fd: FormData): Promise<AssistentState> {
       kunden: new Map(kunden.map((k) => [k.id, k])),
       vorgaenge: new Map(vorgaenge.map((v) => [v.key, v])),
       jetzt: new Date(start),
+      basis,
     }).map((k) => [k.id, k]),
   );
 

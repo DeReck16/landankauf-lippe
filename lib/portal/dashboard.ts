@@ -2,7 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { ladeVerwaltung } from "@/lib/admin/daten";
 import { findeKandidaten } from "@/lib/admin/matching";
-import { formatGroesse, type LeadView } from "@/lib/admin/model";
+import { formatGroesse, type LeadView, type Rueckmeldung } from "@/lib/admin/model";
 import { boerseLuecken, haText } from "@/lib/boerse";
 import { ladeNeu, ladePortal } from "@/lib/admin/neu";
 import type { AnfrageVorschlag, NachfassKandidat } from "./anfrage-typen";
@@ -18,8 +18,9 @@ import type { VorgangKontext } from "./vorgang";
 // Daten für das Dashboard (/admin/dashboard): jeder Vorgang mit dem Plan des
 // Assistenten (lib/portal/assistent.ts), einsortiert nach „Jetzt dran“ (die
 // Verwaltung ist am Zug), „Warten“ und „Abgeschlossen & beendet“, dazu die
-// unbearbeiteten Vorschläge aus dem Matching und neue Anfragen ohne Paar. Keine
-// eigene Ablauf-Logik — die Knöpfe führen die Aktionen des Assistenten aus.
+// unbearbeiteten Vorschläge aus dem Matching, neue Anfragen ohne Paar und die
+// Rückmeldungen auf Nachfass-Mails als Tickets. Keine eigene Ablauf-Logik — die
+// Knöpfe führen die Aktionen des Assistenten aus.
 
 export type DashSeite = { rolle: M.Rolle; name: string; chips: AssistentChip[] };
 export type DashEreignis = { id: string; am: string; text: string; wer: string; neu: boolean };
@@ -47,6 +48,24 @@ export type DashVorschlag = { key: string; angebot: LeadView; gesuch: LeadView; 
 
 /** Neue Anfrage ohne Paar — mit dem einen vorgeschlagenen Schritt (lib/portal/anfrage-vorschlag.ts). */
 export type DashAnfrage = { id: string; name: string; anliegen: string; ort: string; eingang: string; neu: boolean; vorschlag: AnfrageVorschlag };
+
+/**
+ * Rückmeldung auf eine Nachfass-Mail als Ticket: offen, solange die Anfrage auf „Neu“ steht
+ * (lib/portal/rueckmeldung.ts). Verkaufen/Verpachten/Suche bekommen den Vorschlag wie eine
+ * neue Anfrage (meist „Einladen“), eine Beratung „Antwort schreiben“ + „Als beantwortet markieren“.
+ */
+export type DashRueckmeldung = {
+  id: string;
+  name: string;
+  anliegen: string;
+  ort: string;
+  eingang: string;
+  r: Rueckmeldung;
+  neu: boolean;
+  vorschlag: AnfrageVorschlag | null;
+  /** Beratung: neue E-Mail an den Kunden im eigenen Mailprogramm. */
+  antworten: { href: string; an: string } | null;
+};
 
 /** Angebot für die Flächenbörse (Kauf oder Pacht, aktiv). */
 export type DashBoerse = {
@@ -88,6 +107,10 @@ export type Dashboard = {
   abgeschlossen: DashVorgang[];
   vorschlaege: DashVorschlag[];
   anfragen: DashAnfrage[];
+  /** Offene Tickets aus Rückmeldungen auf Nachfass-Mails, neueste zuerst. */
+  rueckmeldungen: DashRueckmeldung[];
+  /** „Kein Interesse“ der letzten 30 Tage — automatisch erledigt, nur zur Info. */
+  keinInteresse: DashRueckmeldung[];
   /** Alte Anfragen ohne Rückmeldung, bei denen Nachfassen möglich ist (lib/portal/nachfassen.ts). */
   nachfassen: NachfassKandidat[];
   /** Nachfassen ab so vielen Tagen nach Eingang und letztem Kontakt. */
@@ -103,6 +126,9 @@ export type Dashboard = {
   einstellungen: M.Einstellungen;
   am: string;
 };
+
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const KEIN_INTERESSE_TAGE = 30;
 
 function tag(iso: string | null | undefined): string {
   if (!iso) return "";
@@ -278,7 +304,46 @@ export const ladeDashboard = cache(async (email: string): Promise<Dashboard> => 
     }));
   for (const v of vorschlaege) gesehen.push(`paar:${v.key}`);
 
-  // Neue Anfragen, die in keinem Paar und keinem Vorschlag vorkommen.
+  // Rückmeldungen auf Nachfass-Mails: offen, solange die Anfrage auf „Neu“ steht (jede Bearbeitung ändert den Status).
+  const offeneTickets = new Set<string>();
+  const rueckmeldungen: DashRueckmeldung[] = [];
+  const keinInteresse: DashRueckmeldung[] = [];
+  for (const l of leads) {
+    const r = l.meta.rueckmeldung;
+    if (!r || l.status === "archiv") continue;
+    const k = portal.kunden.get(l.id) ?? null;
+    const name = k?.stammdaten?.name || T.wert(l.name) || l.id;
+    const eintrag = {
+      id: l.id,
+      name,
+      anliegen: T.wert(l.intent) || "—",
+      ort: l.ortText || T.wert(l.ort) || "Ort offen",
+      eingang: l.receivedAt,
+      r,
+      neu: (neu.gesehen[`rueckmeldung:${l.id}`] ?? "") < r.am,
+    };
+    if (r.art === "kein-interesse") {
+      if (jetzt.getTime() - Date.parse(r.am) < KEIN_INTERESSE_TAGE * 86_400_000) keinInteresse.push({ ...eintrag, vorschlag: null, antworten: null });
+      continue;
+    }
+    if (l.status !== "neu") continue;
+    offeneTickets.add(l.id);
+    const an = (k?.email || T.wert(l.email)).toLowerCase();
+    const anrede = `Guten Tag ${name},\n\nvielen Dank für Ihre Rückmeldung. Gern beraten wir Sie zum Thema „${r.thema ?? "Ihre Fläche"}“.\n\n`;
+    rueckmeldungen.push({
+      ...eintrag,
+      vorschlag: r.art === "beratung" ? null : anfrageVorschlagSicher(l, k, u),
+      antworten:
+        r.art === "beratung" && EMAIL.test(an)
+          ? { href: `mailto:${an}?subject=${encodeURIComponent("Ihre Beratungsanfrage bei Lippe Forst")}&body=${encodeURIComponent(anrede)}`, an }
+          : null,
+    });
+  }
+  rueckmeldungen.sort((a, b) => b.r.am.localeCompare(a.r.am));
+  keinInteresse.sort((a, b) => b.r.am.localeCompare(a.r.am));
+  for (const x of [...rueckmeldungen, ...keinInteresse]) gesehen.push(`rueckmeldung:${x.id}`);
+
+  // Neue Anfragen, die in keinem Paar und keinem Vorschlag vorkommen (offene Tickets stehen unter „Rückmeldungen“).
   const imPaar = new Set<string>();
   for (const key of Object.keys(zustand.paare)) for (const id of key.split("~")) imPaar.add(id);
   for (const k of kandidaten) {
@@ -286,7 +351,7 @@ export const ladeDashboard = cache(async (email: string): Promise<Dashboard> => 
     imPaar.add(k.gesuch.id);
   }
   const anfragen: DashAnfrage[] = leads
-    .filter((l) => l.status === "neu" && !imPaar.has(l.id))
+    .filter((l) => l.status === "neu" && !imPaar.has(l.id) && !offeneTickets.has(l.id))
     .map((l) => ({
       id: l.id,
       name: T.wert(l.name) || l.id,
@@ -300,7 +365,7 @@ export const ladeDashboard = cache(async (email: string): Promise<Dashboard> => 
 
   // Nachfassen: alte Anfragen ohne Rückmeldung — neu (pulsierend), bis die Liste sie einmal gezeigt hat.
   const nachfassTageWert = nachfassTage();
-  const nachfassen = nachfassKandidaten({ leads, zustand, kunden: portal.kunden, vorgaenge: portal.vorgaenge, jetzt, tage: nachfassTageWert }).map((c) => ({
+  const nachfassen = nachfassKandidaten({ leads, zustand, kunden: portal.kunden, vorgaenge: portal.vorgaenge, jetzt, basis, tage: nachfassTageWert }).map((c) => ({
     ...c,
     neu: (neu.gesehen[`nachfassen:${c.id}`] ?? "") < c.seit,
   }));
@@ -386,6 +451,8 @@ export const ladeDashboard = cache(async (email: string): Promise<Dashboard> => 
     abgeschlossen,
     vorschlaege,
     anfragen,
+    rueckmeldungen,
+    keinInteresse,
     nachfassen,
     nachfassTage: nachfassTageWert,
     provisionOffen: M.runde2(provisionOffen),

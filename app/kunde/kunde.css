@@ -191,3 +191,14 @@
 }
 .lfk-dialog h2 { font-size: 1.35rem; margin-bottom: 0.5rem; }
 .lfk-dialog p { color: var(--color-ink-soft); line-height: 1.6; margin-bottom: 1rem; }
+
+/* Antwortseite der Nachfass-Mail (/kunde/antwort): Das Thema erscheint nur bei
+   „Beratung“ — ohne :has()-Unterstützung bleibt es einfach immer sichtbar. */
+.lfk-antwort-beratung {
+  display: grid; gap: 0.6rem;
+  padding: 0.75rem 0.9rem; border: 1px dashed var(--color-line); border-radius: 0.8rem; background: #fff;
+}
+@supports selector(:has(a)) {
+  .lfk-antwort-form .lfk-antwort-beratung { display: none; }
+  .lfk-antwort-form:has(input[name="art"][value="beratung"]:checked) .lfk-antwort-beratung { display: grid; }
+}

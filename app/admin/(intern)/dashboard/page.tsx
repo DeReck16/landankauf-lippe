@@ -6,10 +6,11 @@ import { formatGroesse, type LeadView } from "@/lib/admin/model";
 import { artLabel, datum, datumZeit } from "@/lib/admin/format";
 import type { NachfassKandidat } from "@/lib/portal/anfrage-typen";
 import { seitText } from "@/lib/portal/assistent-typen";
-import { ladeDashboard, type DashBoerse, type DashUebersicht, type DashVorgang, type DashVorschlag } from "@/lib/portal/dashboard";
+import { ladeDashboard, type DashBoerse, type DashRueckmeldung, type DashUebersicht, type DashVorgang, type DashVorschlag } from "@/lib/portal/dashboard";
 import * as M from "@/lib/portal/model";
 import { NACHFASS_PAUSE_TAGE } from "@/lib/portal/nachfassen";
-import { vorschlagAktion } from "../../assistent-actions";
+import { RUECKMELDUNG_NAME } from "@/lib/portal/rueckmeldung-typen";
+import { anfrageStatusAktion, vorschlagAktion } from "../../assistent-actions";
 import { boerseAktion } from "../../actions";
 import BestaetigenKnopf from "../BestaetigenKnopf";
 import AlleFreigeben from "../AlleFreigeben";
@@ -231,6 +232,115 @@ function BoerseListe({ liste }: { liste: DashBoerse[] }) {
   );
 }
 
+/** Ein Ticket: Antwort des Kunden auf die Nachfass-Mail mit dem einen vorgeschlagenen Schritt. */
+function RueckmeldungZeile({ x, test }: { x: DashRueckmeldung; test: boolean }) {
+  const r = x.r;
+  return (
+    <li className="lfa-dash-vorschlag" id={`rueckmeldung-${x.id}`}>
+      <div className="lfa-dash-vorschlag-text">
+        <div>
+          {x.neu && <span className="lfa-puls" title="Neue Rückmeldung — noch nicht angesehen" />}
+          <Link href={`/admin/anfrage/${x.id}`} className="lfa-link-name" title="Anfrage öffnen: Angaben, Rückmeldung und Verlauf">
+            {x.name}
+          </Link>{" "}
+          <span
+            className={`lfa-badge ${r.art === "beratung" ? "lfa-badge-gesuch" : "lfa-badge-angebot"}`}
+            title={r.quelle === "link" ? "Selbst über den Antwort-Link der Nachfass-Mail gewählt" : `Von ${r.von ?? "der Verwaltung"} aus einer Antwort erfasst`}
+          >
+            {RUECKMELDUNG_NAME[r.art]}
+            {r.thema ? `: ${r.thema}` : ""}
+          </span>
+        </div>
+        <div className="lfa-klein">
+          Antwort vom {datumZeit(r.am)} {r.quelle === "link" ? "über den Antwort-Link" : "(von Ihnen erfasst)"} · Anfrage vom {datum(x.eingang)}: {x.anliegen} · {x.ort}
+        </div>
+        {r.text && (
+          <div className="lfa-nachricht lfa-ticket-text" title={r.quelle === "link" ? "Nachricht des Kunden" : "Notiz zur Antwort"}>
+            {r.text}
+          </div>
+        )}
+        <div className="lfa-anfrage-warum" title="Warum genau dieser Schritt vorgeschlagen wird">
+          Vorschlag: {x.vorschlag ? x.vorschlag.warum : "Beratung gewünscht — per E-Mail antworten (Thema und Nachricht stehen oben), danach als beantwortet markieren"}
+        </div>
+      </div>
+      {x.vorschlag ? (
+        <AnfrageAktionen id={x.id} v={x.vorschlag} test={test} ziel="rueckmeldungen" ticket />
+      ) : (
+        <div className="lfa-anfrage-aktionen">
+          <div className="lfa-knopfreihe lfa-anfrage-knoepfe">
+            {x.antworten && (
+              <a
+                href={x.antworten.href}
+                className="lfa-knopf lfa-anfrage-knopf"
+                title={`Öffnet eine neue E-Mail an ${x.antworten.an} in Ihrem Mailprogramm — Betreff und Anrede stehen schon drin, den Rest schreiben Sie selbst. Danach „Als beantwortet markieren“.`}
+              >
+                Antwort schreiben
+              </a>
+            )}
+            <EinKlick
+              aktion={anfrageStatusAktion}
+              werte={{ id: x.id, status: "beantwortet" }}
+              ziel="rueckmeldungen"
+              klasse="lfa-knopf lfa-knopf-hell lfa-anfrage-knopf"
+              knopf="Als beantwortet markieren"
+              tipp="Nachdem Sie geantwortet haben: setzt den Status auf „Beantwortet“ — das Ticket verschwindet. Es geht keine E-Mail raus."
+            />
+            <Link href={`/admin/anfrage/${x.id}`} className="lfa-link-knopf lfa-anfrage-oeffnen" title="Anfrage öffnen: alle Angaben, Rückmeldung und Verlauf">
+              Anfrage öffnen
+            </Link>
+          </div>
+        </div>
+      )}
+    </li>
+  );
+}
+
+/** Rückmeldungen auf Nachfass-Mails: offene Tickets (je ein Knopf) und zur Info, wer „kein Interesse“ gemeldet hat. */
+function RueckmeldungenAbschnitt({ liste, kein, test }: { liste: DashRueckmeldung[]; kein: DashRueckmeldung[]; test: boolean }) {
+  return (
+    <section className="lfa-dash-abschnitt" id="rueckmeldungen">
+      <h2
+        className="lfa-h2"
+        title="Antworten auf die Nachfass-Mail — über den Antwort-Link oder von Ihnen aus einer E-Mail erfasst. Jedes Ticket hat einen vorgeschlagenen Schritt und verschwindet, sobald die Anfrage bearbeitet ist."
+      >
+        {(liste.some((x) => x.neu) || kein.some((x) => x.neu)) && <span className="lfa-puls" />}Rückmeldungen ({liste.length})
+      </h2>
+      <AbschnittErgebnis ziel="rueckmeldungen" />
+      {liste.length === 0 ? (
+        <div className="lfa-panel lfa-leer">Keine offenen Rückmeldungen — antwortet jemand auf eine Nachfass-Mail, erscheint hier ein Ticket mit dem nächsten Schritt.</div>
+      ) : (
+        <ul className="lfa-dash-vorschlaege">
+          {liste.map((x) => (
+            <RueckmeldungZeile key={x.id} x={x} test={test} />
+          ))}
+        </ul>
+      )}
+      {kein.length > 0 && (
+        <details className="lfa-weitere lfa-weitere-klein" style={{ marginTop: "0.6rem" }}>
+          <summary title="Diese Kunden haben „kein Interesse“ gemeldet — die Anfragen stehen automatisch auf „Erledigt“, es geht keine weitere Mail raus">
+            {kein.some((x) => x.neu) && <span className="lfa-puls" />}„Kein Interesse“ gemeldet ({kein.length}, letzte 30 Tage) — automatisch erledigt
+          </summary>
+          <ul className="lfa-protokoll">
+            {kein.map((x) => (
+              <li key={x.id}>
+                <span className="lfa-klein">{datumZeit(x.r.am)} · {x.r.quelle === "link" ? "Antwort-Link" : "erfasst"}</span>
+                <div>
+                  {x.neu && <span className="lfa-puls" title="Neu seit Ihrem letzten Besuch" />}
+                  <Link href={`/admin/anfrage/${x.id}`} className="lfa-link-name" title="Anfrage öffnen — über den Status lässt sie sich wieder aufnehmen">
+                    {x.name}
+                  </Link>{" "}
+                  <span className="lfa-klein">· {x.anliegen}</span>
+                  {x.r.text && <div className="lfa-klein">„{x.r.text}“</div>}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+    </section>
+  );
+}
+
 /** Nachfassen: ältere Anfragen ohne Rückmeldung — Häkchen je Kunde, Textvorschau, ein Knopf mit Rückfrage. */
 function NachfassenAbschnitt({ liste, tage, test }: { liste: NachfassKandidat[]; tage: number; test: boolean }) {
   const laenger = `länger als ${tage === 1 ? "einen Tag" : `${tage} Tage`}`;
@@ -247,7 +357,7 @@ function NachfassenAbschnitt({ liste, tage, test }: { liste: NachfassKandidat[];
           <>
             <p className="lfa-klein lfa-nachfass-regel">
               Hier stehen offene Anfragen (neu, in Arbeit oder beantwortet), deren Eingang und letzter Kontakt {laenger} zurückliegen — ohne laufenden Vorgang, ohne unterschriebenen Vertrag und in den letzten {NACHFASS_PAUSE_TAGE} Tagen nicht nachgefasst.
-              Antwortet jemand mit „kein Interesse“: Anfrage öffnen und auf „Erledigt“ setzen — dann erscheint sie hier nicht wieder.
+              Jede Mail enthält einen persönlichen Antwort-Link: Die Antwort erscheint oben unter „Rückmeldungen“ als Ticket, „kein Interesse“ setzt die Anfrage automatisch auf „Erledigt“. Antworten per E-Mail tragen Sie in der Anfrage unter „Rückmeldung erfassen“ ein.
             </p>
             <Nachfassen kandidaten={liste} test={test} />
           </>
@@ -266,6 +376,13 @@ export default async function DashboardPage(props: PageProps<"/admin/dashboard">
 
   const jetztPuls = d.jetzt.some((x) => x.neu > 0 || x.plan.meldungen.length > 0 || Boolean(x.plan.aktion?.dran && !x.plan.aktion.gesperrt));
   const kacheln = [
+    {
+      href: "#rueckmeldungen",
+      wert: String(d.rueckmeldungen.length),
+      name: "Rückmeldungen",
+      tipp: "Antworten auf Nachfass-Mails, die noch bearbeitet werden müssen — je Ticket ein Knopf",
+      puls: d.rueckmeldungen.some((x) => x.neu) || d.keinInteresse.some((x) => x.neu),
+    },
     { href: "#jetzt", wert: String(d.jetzt.length), name: "Jetzt dran", tipp: "Vorgänge, bei denen Sie handeln müssen — je Vorgang ein Knopf", puls: d.jetzt.length > 0 && jetztPuls },
     { href: "#warten", wert: String(d.warten.length), name: "Warten auf Kunden", tipp: "Vorgänge, bei denen Kunden, Notar, Behörde oder die Zahlung am Zug sind — mit „Erinnerung senden“", puls: d.warten.some((x) => x.neu > 0) },
     {
@@ -311,6 +428,8 @@ export default async function DashboardPage(props: PageProps<"/admin/dashboard">
       </nav>
       <UebersichtKacheln u={d.uebersicht} vorschlaege={d.vorschlaege.length} nachfassen={{ anzahl: d.nachfassen.length, neu: d.nachfassen.some((c) => c.neu), tage: d.nachfassTage }} />
       <AbschnittErgebnis ziel="weg" />
+
+      <RueckmeldungenAbschnitt liste={d.rueckmeldungen} kein={d.keinInteresse} test={test} />
 
       <section className="lfa-dash-abschnitt" id="jetzt">
         <h2 className="lfa-h2" title="Hier sind Sie am Zug — je Vorgang ein Knopf für den nächsten Schritt">

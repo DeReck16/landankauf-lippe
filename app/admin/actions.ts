@@ -16,6 +16,8 @@ import { ladeKunde } from "@/lib/portal/speicher";
 import { beideUnterschrieben } from "@/lib/portal/schritte";
 import { LEAD_STATUS, MATCH_STATUS, leadView, type Art, type BoerseMeta, type LeadMeta, type LeadStatus, type MatchMeta, type Rolle } from "@/lib/admin/model";
 import { boerseLuecken, boerseNeuSchreiben, neuerBoerseCode } from "@/lib/boerse";
+import { rueckmeldungSpeichern } from "@/lib/portal/rueckmeldung";
+import { istRueckmeldungArt } from "@/lib/portal/rueckmeldung-typen";
 
 // ---------------------------------------------------------------------------
 // Anmeldung per Link
@@ -174,6 +176,26 @@ export async function anfrageSpeichern(formData: FormData): Promise<void> {
     if (lead) await orteErgaenzen(email, [leadView(lead, zustand.anfragen[id]).ortText], 15_000);
   }
   revalidatePath("/admin", "layout");
+}
+
+/**
+ * Rückmeldung auf die Nachfass-Mail von Hand erfassen (Antwort kam per E-Mail, WhatsApp o. Ä.) —
+ * wie beim Antwort-Link entsteht ein Ticket im Dashboard bzw. „Erledigt“ bei „kein Interesse“.
+ */
+export async function rueckmeldungErfassen(formData: FormData): Promise<void> {
+  const { email } = await requireAdmin();
+  const id = text(formData, "id", 40);
+  if (!/^LL-[A-Z0-9]+$/.test(id)) throw new Error("Ungültige Anfrage-ID");
+  const zurueck = `/admin/anfrage/${id}`;
+  const art = text(formData, "art", 20);
+  if (!istRueckmeldungArt(art)) redirect(`${zurueck}?m=${encodeURIComponent("Bitte die Antwort des Kunden auswählen.")}&mt=fehler#rueckmeldung`);
+  const r = await rueckmeldungSpeichern(id, { art, thema: text(formData, "thema", 80), text: text(formData, "notiz", 1500) }, { quelle: "verwaltung", von: email, basis: await basisUrl() });
+  const m = !r.ok
+    ? r.fehler
+    : r.art === "kein-interesse"
+      ? "Rückmeldung gespeichert: kein Interesse — die Anfrage steht auf „Erledigt“."
+      : "Rückmeldung gespeichert — die Anfrage steht wieder auf „Neu“ und im Dashboard unter „Rückmeldungen“.";
+  redirect(`${zurueck}?m=${encodeURIComponent(m)}&mt=${r.ok ? "ok" : "fehler"}#rueckmeldung`);
 }
 
 export async function ortNeuSuchen(formData: FormData): Promise<void> {
