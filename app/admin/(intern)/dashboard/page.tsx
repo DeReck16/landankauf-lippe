@@ -185,6 +185,11 @@ function BoerseListe({ liste }: { liste: DashBoerse[] }) {
       <h2 className="lfa-h2" title="Angebote zum Kauf und zur Pacht für die anonyme Flächenbörse auf lippeforst.de — nur mit Einwilligung des Eigentümers">
         {liste.some((x) => !x.online && x.einwilligung && !x.luecken.length) && <span className="lfa-puls" />}Flächenbörse ({liste.length})
       </h2>
+      <p className="lfa-klein" style={{ margin: "-0.3rem 0 0.5rem" }}>
+        <Link href="/admin/flaechen-einstellen" title="Eigene oder telefonisch angebotene Flächen direkt einstellen — Flurstücke eingeben, Größe und Lage kommen aus dem Kataster NRW">
+          + Flächen selbst einstellen
+        </Link>
+      </p>
       {liste.length === 0 ? (
         <div className="lfa-panel lfa-leer">Keine aktiven Angebote.</div>
       ) : (

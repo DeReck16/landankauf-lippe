@@ -6,6 +6,8 @@ import { orteErgaenzen } from "@/lib/admin/daten";
 import { mutateZustand, readZustand } from "@/lib/admin/store";
 import { angebotZuCode } from "@/lib/boerse";
 import { isGesuchIntent } from "@/lib/lead-options";
+import { leadView } from "@/lib/admin/model";
+import { katasterNachholen } from "@/lib/portal/kataster";
 
 /**
  * Zentraler Lead-Endpoint (alle Formulare gehen hierüber).
@@ -99,6 +101,9 @@ async function sendFormspree(input: Input, subject: string, id: string): Promise
   }
 }
 
+// Nach der Antwort laufen noch Ortssuche und Kataster-Abfrage (after) — die langsamen NRW-Dienste brauchen etwas Zeit.
+export const maxDuration = 30;
+
 export async function POST(req: NextRequest) {
   let body: Record<string, unknown>;
   try {
@@ -142,6 +147,7 @@ export async function POST(req: NextRequest) {
   }
 
   const id = `LL-${Date.now().toString(36).toUpperCase()}`;
+  const receivedAt = new Date().toISOString();
   const text = [
     `Neue Anfrage über ${site.url}`,
     "",
@@ -178,7 +184,7 @@ export async function POST(req: NextRequest) {
       const date = new Date().toISOString().slice(0, 10);
       await put(
         `${dataPrefix()}leads/${date}/${id}.json`,
-        JSON.stringify({ id, receivedAt: new Date().toISOString(), ...input }, null, 2),
+        JSON.stringify({ id, receivedAt, ...input }, null, 2),
         {
           access: "private",
           token: process.env.LF_BLOB_READ_WRITE_TOKEN,
@@ -217,6 +223,17 @@ export async function POST(req: NextRequest) {
   if (blobOk && input.ort !== "—" && input.ort.length <= 120) {
     after(() =>
       orteErgaenzen("Formular", [input.ort], 5_000).catch((err) => console.error("[lead] orte", err)),
+    );
+  }
+
+  // Mit Flurstück: amtliche Daten (ALKIS NRW) und Bodenrichtwert (BORIS NRW) gleich nachschlagen —
+  // für den Antwortentwurf mit Wertindikation (lib/portal/antwort.ts). Läuft nach der Antwort ans Formular.
+  if (blobOk && input.flurstueck !== "—" && input.flurstueck.length <= 120) {
+    after(() =>
+      katasterNachholen([leadView({ id, receivedAt, ...input }, undefined)], 20_000).then(
+        () => undefined,
+        (err) => console.error("[lead] kataster", err),
+      ),
     );
   }
 

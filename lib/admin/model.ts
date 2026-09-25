@@ -53,6 +53,19 @@ export type LeadMeta = {
   boerse?: BoerseMeta;
   /** Neueste Antwort auf die Nachfass-Mail (frühere stehen im Verlauf) — offen als Ticket, solange der Status „Neu“ ist. */
   rueckmeldung?: Rueckmeldung;
+  /** Amtliche Daten zum angegebenen Flurstück (ALKIS NRW) und Bodenrichtwert (BORIS NRW) — einmal abgefragt (lib/portal/kataster.ts). */
+  kataster?: KatasterDaten;
+};
+
+/** Ergebnis der Kataster-Abfrage für eine Anfrage mit Flurstück. */
+export type KatasterDaten = {
+  am: string;
+  /** Womit gesucht wurde (Ort | Flurstück) — ändert sich die Angabe, wird neu gesucht. */
+  schluessel: string;
+  flurstueck: { gemarkung: string; gemeinde: string; kreis: string; flur: string; nummer: string; flaecheM2: number; nutzung: string; lage: string; punkt: [number, number] } | null;
+  brw: { wert: number; stichtag: string; art: "landwirtschaft" | "forstwirtschaft" | "wohnbau"; zone: string; gutachterausschuss: string; gemarkungen: string } | null;
+  /** Warum nichts (Eindeutiges) gefunden wurde — nur für die Verwaltung. */
+  hinweis?: string;
 };
 
 /** Antwort des Kunden: selbst über den Antwort-Link (/kunde/antwort) oder von der Verwaltung aus einer E-Mail-Antwort erfasst. */

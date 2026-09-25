@@ -8,6 +8,7 @@ import { ladeNeu, ladePortal } from "@/lib/admin/neu";
 import type { AnfrageVorschlag, AntwortEntwurf, NachfassKandidat } from "./anfrage-typen";
 import { anfrageVorschlagSicher } from "./anfrage-vorschlag";
 import { antwortEntwurf } from "./antwort";
+import { katasterNachholen } from "./kataster";
 import { assistentPlan, type AssistentChip, type AssistentPlan } from "./assistent";
 import * as M from "./model";
 import { nachfassKandidaten, nachfassTage } from "./nachfassen";
@@ -319,6 +320,12 @@ export const ladeDashboard = cache(async (email: string): Promise<Dashboard> => 
       boerse: k.gesuch.boerse && k.gesuch.boerse !== "—" ? k.gesuch.boerse : null,
     }));
   for (const v of vorschlaege) gesehen.push(`paar:${v.key}`);
+
+  // Amtliche Kataster-Daten (Flurstück, Bodenrichtwert) für die Antwortentwürfe einmalig nachholen —
+  // z. B. für Anfragen von vor der Einführung; danach stehen sie im Verwaltungszustand (LeadMeta.kataster).
+  const fuerEntwurf = leads.filter((l) => l.status === "neu" && (l.meta.rueckmeldung?.art === "beratung" || !T.rolleVonLead(l)));
+  const neuKataster = await katasterNachholen(fuerEntwurf, 14_000);
+  for (const l of leads) if (neuKataster[l.id]) l.meta = { ...l.meta, kataster: neuKataster[l.id] };
 
   // Rückmeldungen auf Nachfass-Mails: offen, solange die Anfrage auf „Neu“ steht (jede Bearbeitung ändert den Status).
   const offeneTickets = new Set<string>();

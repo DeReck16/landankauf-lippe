@@ -1,5 +1,5 @@
 import "server-only";
-import { formatGroesse, type LeadView, type Rueckmeldung } from "@/lib/admin/model";
+import { formatGroesse, type KatasterDaten, type LeadView, type Rueckmeldung } from "@/lib/admin/model";
 import { CITIES, type City } from "@/lib/cities";
 import { valuate, type FlaechenTyp } from "@/lib/valuation";
 import { GRUSS } from "./ablauf";
@@ -64,6 +64,16 @@ const STICHWORTE: [RegExp, AntwortThema][] = [
 ];
 
 const VERPACHTET = /verpachtet|pächter|pachtvertrag/i;
+/** Hinweise auf Belastungen im Boden — dann nie nur den Bodenrichtwert nennen. */
+const ALTLAST = /altlast|kontamin|belastet|belastung|kampfmittel|sprengplatz|bodenverunreinig|verdachtsfläche/i;
+
+/** Flächentyp aus der Nachricht, wenn das Formular „Sonstiges“ sagt („Spargelfeld“ → Acker). */
+const TYP_STICHWORTE: [RegExp, FlaechenTyp][] = [
+  [/spargel|acker|getreide|\bmais|weizen|gerste|roggen|raps|kartoffel|rüben|gemüse|erdbeer/i, "ackerland"],
+  [/wiese|grünland|weide|\bheu\b|mähwiese/i, "gruenland"],
+  [/\bwald\b|forst|holzbestand|fichte|buche|eiche|aufforst/i, "wald"],
+  [/bauland|bauplatz|baugrund|bebaubar/i, "bauland"],
+];
 
 const TYP_NAME: Record<FlaechenTyp, string> = { ackerland: "Ackerland", gruenland: "Grünland", wald: "Wald", bauland: "Bauland" };
 
@@ -124,6 +134,23 @@ function wertindikation(typ: FlaechenTyp, ha: number | null, city: City | null):
     satz: `${TYP_NAME[typ]} ${city ? city.display : "im Kreis Lippe"} liegt nach unserer Auswertung des Grundstücksmarktberichts Kreis Lippe 2026 derzeit bei etwa ${euro2(a)} bis ${euro2(b)} € je m². Für Ihre rund ${qm(ha)} m² ergibt das grob ${euroRund(a * qmZahl)} bis ${euroRund(b * qmZahl)} €.`,
     kurz: `${euro2(a)}–${euro2(b)} €/m² · ${euroRund(a * qmZahl)}–${euroRund(b * qmZahl)} €`,
     hint: r.hint,
+  };
+}
+
+const datumTag = (iso: string) => (/^\d{4}-\d{2}-\d{2}/.test(iso) ? `${iso.slice(8, 10)}.${iso.slice(5, 7)}.${iso.slice(0, 4)}` : iso);
+
+/** Wertindikation aus dem amtlichen Bodenrichtwert am Flurstück (BORIS NRW) — genauer als der Kreisdurchschnitt. */
+function wertAusBrw(k: KatasterDaten): Wert | null {
+  const f = k.flurstueck;
+  const b = k.brw;
+  if (!f || !b || !f.flaecheM2) return null;
+  const ga = b.gutachterausschuss.replace(/^Der\s+/, "") || "Gutachterausschuss für Grundstückswerte";
+  const artText = b.art === "forstwirtschaft" ? "Waldflächen (Boden ohne Aufwuchs)" : b.art === "wohnbau" ? "Wohnbauland" : "landwirtschaftliche Flächen";
+  const gesamt = b.wert * f.flaecheM2;
+  return {
+    satz: `Der amtliche Bodenrichtwert für ${artText} in Ihrer Lage liegt bei ${euro2(b.wert)} € je m² (Stichtag ${datumTag(b.stichtag)}, ${ga}). Für Ihr Flurstück ${f.gemarkung}, Flur ${f.flur}, Flurstück ${f.nummer} mit amtlich ${qm(f.flaecheM2 / 10_000)} m² ergibt das rechnerisch rund ${euroRund(gesamt)} €.${b.art === "forstwirtschaft" ? " Der Wert des Holzbestands kommt hinzu." : ""}`,
+    kurz: `Bodenrichtwert ${euro2(b.wert)} €/m² (${datumTag(b.stichtag)}) · amtlich ${qm(f.flaecheM2 / 10_000)} m² · ≈ ${euroRund(gesamt)} €`,
+    hint: null,
   };
 }
 
@@ -216,32 +243,52 @@ export function antwortEntwurf(opts: { lead: LeadView; kunde: M.KundeRecord | nu
   if (groesseRoh && g.unsicher && ha != null) hinweise.push(`Größe unsicher gelesen: „${groesseRoh}“ → ${formatGroesse(g)} — bitte prüfen.`);
   const ortText = l.ortText || T.wert(l.ort);
   const city = gemeindeAus(ortText);
-  if (ortText && !city) hinweise.push(`„${ortText}“ keiner Lipper Gemeinde zugeordnet — Werte für den Kreis Lippe insgesamt.`);
-  const typ = wertTyp(l.typ);
+  const k = l.meta.kataster ?? null;
+  const fs = k?.flurstueck ?? null;
+  // In Lippe? Das Kataster weiß es genau, sonst der Ortsname.
+  const inLippe = fs ? fs.kreis === "Lippe" : Boolean(city);
+  if (fs && fs.kreis !== "Lippe") hinweise.push(`Lage im Kreis ${fs.kreis || "?"} (${fs.gemeinde}) — außerhalb des Kreises Lippe; der Entwurf sagt nichts zur Vermittlung zu.`);
+  else if (!fs && ortText && !city) hinweise.push(`„${ortText}“ keiner Lipper Gemeinde zugeordnet — keine Lipper Durchschnittswerte im Entwurf.`);
+  if (k?.hinweis && T.wert(l.flurstueck)) hinweise.push(`Kataster: ${k.hinweis}`);
+  // Flächentyp: Formular, sonst Nachricht („Spargelfeld“), sonst amtliche Nutzung.
+  let typ = wertTyp(l.typ);
+  if (!typ) {
+    const ausNachricht = TYP_STICHWORTE.find(([re]) => re.test(nachricht))?.[1] ?? null;
+    const ausKataster = fs ? (/wald|gehölz|forst/i.test(fs.nutzung) ? "wald" : /wohn/i.test(fs.nutzung) ? "bauland" : /landwirtschaft|acker|grünland/i.test(fs.nutzung) ? "ackerland" : null) : null;
+    typ = ausNachricht ?? ausKataster;
+    if (typ) hinweise.push(`Flächentyp im Formular „${l.typ}“ — ${ausNachricht ? "aus der Nachricht" : "aus dem Kataster"} als ${TYP_NAME[typ]} gelesen.`);
+  }
   const hatFlurstueck = Boolean(T.wert(l.flurstueck));
   const verpachtet = VERPACHTET.test(nachricht);
+  const altlast = ALTLAST.test(nachricht);
+  if (altlast) hinweise.push("Die Nachricht nennt Altlasten bzw. Belastungen — der Wert kann deutlich unter dem Bodenrichtwert liegen; der Entwurf weist darauf hin.");
+  const vnsQuelle = /vns|oekopunkt|ökopunkt/i.test(T.wert(l.source));
 
   const mitWert = thema === "bewertung" || thema === "verkauf" || thema === "vergleich" || thema === "wald" || thema === "bauland";
   const wTyp = thema === "wald" ? "wald" : thema === "bauland" ? "bauland" : typ;
-  const w = mitWert && wTyp ? wertindikation(wTyp, ha ?? null, city) : null;
-  if (w && hatFlurstueck && (thema === "bewertung" || thema === "verkauf" || thema === "bauland")) {
-    hinweise.push("Flurstück angegeben — den genauen Bodenrichtwert zeigt BORIS NRW (boris.nrw.de) für diese Lage.");
-  }
+  // Vorrang: amtlicher Bodenrichtwert am Flurstück; sonst (nur in Lippe) der Durchschnitt aus dem Grundstücksmarktbericht.
+  const w = !mitWert ? null : (k ? wertAusBrw(k) : null) ?? (wTyp && inLippe ? wertindikation(wTyp, ha ?? null, city) : null);
+  /** Wert aus dem amtlichen Bodenrichtwert (ein Wert statt einer Spanne). */
+  const amtlich = Boolean(w?.kurz.startsWith("Bodenrichtwert"));
 
   const nf = genauer(wTyp ?? "ackerland", hatFlurstueck);
   const koerper: string[] = [];
   switch (thema) {
     case "bewertung": {
-      if (w && wTyp !== "bauland") {
+      if (w && (amtlich || wTyp !== "bauland")) {
         koerper.push(`Unsere erste Wertindikation: ${w.satz}`, "");
         if (w.hint) koerper.push(w.hint, "");
         koerper.push(
-          `Wo genau Ihre Fläche in dieser Spanne liegt, hängt vor allem von ${nf.faktoren} ab. Nennen Sie uns gern ${nf.nachfrage} – dann grenzen wir den Wert genauer ein. Die Indikation ist kostenlos und unverbindlich und ersetzt kein Verkehrswertgutachten.`,
-          "",
-          VERMITTLUNG,
+          amtlich
+            ? `Innerhalb der Richtwertzone hängt der Preis vor allem von ${nf.faktoren} ab. Die Indikation ist kostenlos und unverbindlich und ersetzt kein Verkehrswertgutachten.`
+            : `Wo genau Ihre Fläche in dieser Spanne liegt, hängt vor allem von ${nf.faktoren} ab. Nennen Sie uns gern ${nf.nachfrage} – dann grenzen wir den Wert genauer ein. Die Indikation ist kostenlos und unverbindlich und ersetzt kein Verkehrswertgutachten.`,
         );
       } else if (w) {
-        koerper.push(w.satz, "", `Je nach Lage im Ort, Zuschnitt und Bebaubarkeit sind deutliche Abweichungen möglich. Nennen Sie uns gern ${nf.nachfrage} – dann prüfen wir den Bodenrichtwert für Ihre Lage.`, "", VERMITTLUNG);
+        koerper.push(w.satz, "", `Je nach Lage im Ort, Zuschnitt und Bebaubarkeit sind deutliche Abweichungen möglich. Nennen Sie uns gern ${nf.nachfrage} – dann prüfen wir den Bodenrichtwert für Ihre Lage.`);
+      } else if (typ && ha != null && ortText) {
+        koerper.push(
+          `Wir sehen uns den amtlichen Bodenrichtwert für Ihre Lage an und melden uns mit einer ersten Einschätzung.${hatFlurstueck ? "" : " Nennen Sie uns dafür gern das Flurstück (Gemarkung, Flur und Nummer) – dann wird sie genauer."}`,
+        );
       } else {
         const fehlt = [
           ...(typ ? [] : ["die Art der Fläche (Acker, Grünland, Wald oder Bauland)"]),
@@ -249,16 +296,29 @@ export function antwortEntwurf(opts: { lead: LeadView; kunde: M.KundeRecord | nu
           ...(ortText ? [] : ["die Lage (Ort bzw. Gemarkung)"]),
         ];
         koerper.push(
-          `Für eine erste Wertindikation brauchen wir noch ${aufzaehlen(fehlt.length ? fehlt : ["ein paar Angaben zur Fläche"])}. Eine kurze Antwort genügt – wir melden uns dann mit einer Einschätzung auf Basis aktueller Bodenrichtwerte und realer Vergleichsverkäufe im Kreis Lippe, kostenlos und unverbindlich.`,
+          `Für eine erste Wertindikation brauchen wir noch ${aufzaehlen(fehlt.length ? fehlt : ["ein paar Angaben zur Fläche"])}. Eine kurze Antwort genügt – wir melden uns dann mit einer Einschätzung auf Basis der amtlichen Bodenrichtwerte, kostenlos und unverbindlich.`,
         );
       }
+      if (altlast) {
+        koerper.push(
+          "",
+          `${/kataster/i.test(nachricht) ? "Ihren Hinweis auf das Altlastenkataster" : "Ihren Hinweis auf mögliche Belastungen"} berücksichtigen wir: Ob und wie stark das den Wert mindert, hängt davon ab, ob Untersuchungen vorliegen und ob die Nutzung eingeschränkt ist. Wenn Sie Unterlagen dazu haben – etwa einen Auszug aus dem Kataster oder ein Bodengutachten –, sehen wir sie uns gern an.`,
+        );
+      }
+      if (vnsQuelle) {
+        koerper.push(
+          "",
+          "Sie sind über unsere Seite zu Vertragsnaturschutz und Ökopunkten zu uns gekommen: Für Flächen mit eingeschränkter Nutzung kann auch eine ökologische Aufwertung – etwa als Ausgleichsfläche mit Ökopunkten – eine Möglichkeit sein. Das prüfen wir auf Wunsch gern mit.",
+        );
+      }
+      koerper.push("", inLippe ? VERMITTLUNG : "Gern besprechen wir mit Ihnen auch die nächsten Schritte – ob Verkauf, Verpachtung oder eine andere Nutzung.");
       break;
     }
     case "verkauf":
       koerper.push(
         `Dabei unterstützen wir Sie gern: Wir stellen Ihre Fläche passenden Käufern vor – für Sie als Eigentümer kostenlos.${verpachtet ? " Eine laufende Verpachtung ist dabei kein Hindernis – der Pachtvertrag geht beim Verkauf auf den Käufer über." : ""}`,
       );
-      if (w) koerper.push("", `Zur ersten Orientierung: ${w.satz} Wo Ihre Fläche innerhalb dieser Spanne liegt, hängt vor allem von ${nf.faktoren} ab.`);
+      if (w) koerper.push("", `Zur ersten Orientierung: ${w.satz} ${amtlich ? "Innerhalb der Richtwertzone" : "Wo Ihre Fläche innerhalb dieser Spanne liegt,"} hängt ${amtlich ? "der Preis " : ""}vor allem von ${nf.faktoren} ab.`);
       koerper.push(
         "",
         r
@@ -342,10 +402,11 @@ export function antwortEntwurf(opts: { lead: LeadView; kunde: M.KundeRecord | nu
 
   const erkannt = [
     THEMA_NAME[thema],
-    l.typ && l.typ !== "Sonstiges" ? l.typ : "",
-    ha != null ? formatGroesse(g) : "",
-    city?.name ?? "",
+    typ ? TYP_NAME[typ] : l.typ && l.typ !== "Sonstiges" ? l.typ : "",
+    fs ? `amtlich ${qm(fs.flaecheM2 / 10_000)} m² (${fs.nutzung})` : ha != null ? formatGroesse(g) : "",
+    fs ? `${fs.gemeinde}${fs.kreis && fs.kreis !== "Lippe" ? `, Kreis ${fs.kreis}` : ""}` : (city?.name ?? ""),
     verpachtet ? "derzeit verpachtet" : "",
+    altlast ? "Altlasten-Hinweis" : "",
   ].filter(Boolean);
 
   return {

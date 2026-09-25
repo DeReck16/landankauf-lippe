@@ -150,6 +150,30 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
               </dd>
               <dt>Ort / Gemarkung</dt><dd>{l.ort}</dd>
               <dt>Flur / Flurstück</dt><dd>{l.flurstueck}</dd>
+              {l.meta.kataster && (
+                <>
+                  <dt title="Automatisch abgefragt: ALKIS NRW (Flurstück) und BORIS NRW (Bodenrichtwert)">Kataster (amtlich)</dt>
+                  <dd title={`Abgefragt am ${datumZeit(l.meta.kataster.am)}`}>
+                    {l.meta.kataster.flurstueck ? (
+                      <>
+                        {l.meta.kataster.flurstueck.gemarkung}, Flur {l.meta.kataster.flurstueck.flur}, Flurstück {l.meta.kataster.flurstueck.nummer} ·{" "}
+                        {l.meta.kataster.flurstueck.flaecheM2.toLocaleString("de-DE")} m² · {l.meta.kataster.flurstueck.nutzung}
+                        {l.meta.kataster.flurstueck.lage ? ` · „${l.meta.kataster.flurstueck.lage}“` : ""} · Kreis {l.meta.kataster.flurstueck.kreis}
+                        {l.meta.kataster.brw && (
+                          <span className="lfa-klein">
+                            {" "}
+                            — Bodenrichtwert {l.meta.kataster.brw.wert.toLocaleString("de-DE", { minimumFractionDigits: 2 })} €/m² (
+                            {l.meta.kataster.brw.art === "forstwirtschaft" ? "Forst, ohne Aufwuchs" : l.meta.kataster.brw.art === "wohnbau" ? "Wohnbau" : "Landwirtschaft"}, Stichtag{" "}
+                            {l.meta.kataster.brw.stichtag.split("-").reverse().join(".")}, Zone {l.meta.kataster.brw.zone})
+                          </span>
+                        )}
+                      </>
+                    ) : (
+                      <span className="lfa-klein">{l.meta.kataster.hinweis ?? "nicht gefunden"}</span>
+                    )}
+                  </dd>
+                </>
+              )}
               <dt>Name</dt><dd>{l.name}</dd>
               <dt>E-Mail</dt>
               <dd className="lfa-kontakt">{l.email !== "—" ? <a href={`mailto:${l.email}`} title="Neue E-Mail an diese Adresse">{l.email}</a> : "—"}</dd>
