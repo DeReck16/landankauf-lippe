@@ -117,6 +117,360 @@ export const ARTICLES: Article[] = [
 `,
   },
   {
+    slug: "duerre-ernte-2026-pacht-verpaechter-lippe",
+    title:
+      "Dürre-Ernte 2026: Was Verpächter in Lippe wissen müssen — Pacht, Hilfspaket und Flächenwert nach der „Krise von nationaler Tragweite“",
+    description:
+      "Der Bund hat die Lage der Landwirtschaft nach Hitze und Trockenheit am 2. September als „Krise von nationaler Tragweite“ eingestuft: 7,3 Prozent weniger Getreide, knappes Futter, Liquiditätshilfen über die Rentenbank. Im Kreis Lippe beziffert der Landwirtschaftsverband die Mindererträge auf rund 20 Prozent. Was das für Pachtzahlung, Pachtanpassung nach § 593 BGB und den Wert von Acker und Grünland bedeutet.",
+    category: "Markt",
+    publishedAt: "2026-09-14",
+    readingMinutes: 9,
+    keywords: [
+      "Dürre 2026 Pacht",
+      "Pachtminderung Dürre Missernte",
+      "§ 593 BGB Pachtanpassung",
+      "Erntebericht 2026 Krise nationaler Tragweite",
+      "Pachtstundung Verpächter",
+      "Ernte 2026 Kreis Lippe",
+    ],
+    heroImage: "/blog-duerre-ernte-2026.jpg",
+    faq: [
+      {
+        q: "Darf mein Pächter die Pacht wegen der Dürre kürzen?",
+        a: "Nicht einseitig. Die Pacht wird für die Überlassung der Fläche geschuldet und bleibt zu den vereinbarten Terminen fällig. Eine Änderung der Pachthöhe kann nach § 593 BGB nur verlangt werden, wenn sich die Verhältnisse, die für die Pacht maßgebend waren, nachhaltig geändert haben und dadurch ein grobes Missverhältnis entstanden ist. Ein einzelnes schlechtes Erntejahr dürfte diese Voraussetzungen in aller Regel nicht erfüllen. Einigen sich die Vertragsparteien nicht, entscheidet das Landwirtschaftsgericht.",
+      },
+      {
+        q: "Bekomme ich als Verpächter Geld aus dem Hilfspaket des Bundes?",
+        a: "Nein. Die angekündigten Maßnahmen — Liquiditätsdarlehen über die Landwirtschaftliche Rentenbank, die EU-Düngemittelhilfe als Hektarprämie und die höheren Direktzahlungen 2027 — richten sich an die wirtschaftenden landwirtschaftlichen Betriebe. Ein Eigentümer, der seine Flächen verpachtet hat, profitiert nur mittelbar: Das Paket stützt die Zahlungsfähigkeit seines Pächters.",
+      },
+      {
+        q: "Was kann ich tun, wenn mein Pächter gar nicht mehr zahlt?",
+        a: "Das Gesetz gibt dem Verpächter klare Rechte: Ist der Pächter mit der Pacht oder einem nicht unerheblichen Teil davon länger als drei Monate in Verzug, liegt nach § 594e BGB ein wichtiger Grund für eine fristlose Kündigung vor. In einem Krisenjahr lohnt aber vorher das Gespräch — eine befristete, schriftlich vereinbarte Stundung ist bei einem bisher verlässlichen Pächter oft die bessere Lösung als ein Pächterwechsel.",
+      },
+      {
+        q: "Sinkt nach der Dürre der Wert meiner Acker- oder Grünlandfläche?",
+        a: "Ein einzelnes Dürrejahr ändert den Verkehrswert einer Fläche nicht unmittelbar — Kaufpreise und Pachten bilden sich über viele Jahre. Sichtbar wird aber, wie stark der Standort über den Ertrag entscheidet: Tiefgründige Böden mit gutem Wasserhaltevermögen stehen in trockenen Jahren deutlich besser da als leichte, flachgründige Böden. Was Ihre konkrete Fläche heute wert ist, lässt sich nur am Flurstück beurteilen.",
+      },
+    ],
+    content: `
+<p class="lead">Seit dem 2. September ist es amtlich: Bundeslandwirtschaftsminister Alois Rainer hat bei der Vorstellung des Ernteberichts erklärt, man habe es mit einer „Krise von nationaler Tragweite“ zu tun, und schnelle Hilfen angekündigt. Für Eigentümer, die Acker oder Grünland im Kreis Lippe verpachtet haben, stellen sich damit sehr praktische Fragen: Kommt die Pacht pünktlich? Darf der Pächter sie kürzen? Und was macht ein Dürrejahr mit dem Wert der Fläche? Wir ordnen die Zahlen ein — vom Bund bis in den Kreis Lippe — und sagen, was rechtlich gilt.</p>
+
+<figure>
+<img src="/blog-duerre-ernte-2026.jpg" alt="Vertrockneter Maisbestand und ausgedörrtes Grünland mit rissigem Boden in Ostwestfalen-Lippe im Spätsommer 2026" width="1376" height="768" style="width:100%;height:auto;border-radius:14px" loading="lazy" />
+<figcaption>Das Getreide kam in Westfalen-Lippe noch auf durchschnittliche Erträge — Mais, Rüben und Kartoffeln traf die Trockenheit des Sommers 2026 deutlich härter.</figcaption>
+</figure>
+
+<h2>Die Ernte 2026 in Zahlen — vom Bund bis nach Lippe</h2>
+<p><strong>Bund:</strong> Nach dem vorläufigen Erntebericht des Bundeslandwirtschaftsministeriums vom 2. September liegt die Getreideernte (ohne Körnermais) bei rund 37,4 Millionen Tonnen — 7,3 Prozent weniger als im guten Vorjahr und 2,1 Prozent unter dem Mittel der Jahre 2020 bis 2025. Beim Winterweizen rechnet das Ministerium mit 20,2 Millionen Tonnen (−10,4 Prozent), beim Winterraps mit rund 3,5 Millionen Tonnen (−11,5 Prozent). Bei Mais, Kartoffeln, Zuckerrüben und beim Futter vom Grünland war die Ernte zu diesem Zeitpunkt noch nicht abgeschlossen; das Ministerium befürchtet auch hier in vielen Regionen hohe Verluste, besonders beim Mais im Süden und Südwesten.</p>
+<p><strong>NRW:</strong> Laut der Erntebilanz von Landwirtschaftsministerium und Landwirtschaftskammer vom 31. August lag der Winterweizen bei rund 8,3 Tonnen je Hektar — etwa 7 Prozent unter dem Rekordjahr 2025, aber nahezu im langjährigen Mittel. Beim Raps waren die Erträge im Rheinland und im Münsterland gut, „insbesondere in Ostwestfalen“ dagegen schwächer. Beim Mais erwartet das Land deutliche Einbußen vor allem im Münsterland und am Niederrhein; für Ostwestfalen heißt es, die Lage sei „etwas besser“.</p>
+<p><strong>Westfalen-Lippe und Kreis Lippe:</strong> Der Westfälisch-Lippische Landwirtschaftsverband zog am 11. September eine „durchschnittliche“ Getreidebilanz — Winterweizen nach IT.NRW-Schätzung bei 80,5 Dezitonnen je Hektar, knapp über dem langjährigen Mittel —, aber deutliche Verluste bei Mais, Zuckerrüben und Kartoffeln. Für den Kreis Lippe beziffert der Landwirtschaftliche Kreisverband in seinem Erntebrief vom selben Tag die Mindererträge durch Hitze und fehlenden Regen auf <strong>im Schnitt etwa 20 Prozent</strong>, je nach Bodentyp und Wasserversorgung. Die Preise seien schlecht, mit Ausnahme des Rapses. Zum Vergleich: Im Juli fielen nach dem Deutschen Wetterdienst in NRW nur rund 18 Liter Regen pro Quadratmeter, in Ostwestfalen immerhin 25 bis 40 Liter — der trockenste Juli im Land seit Beginn der Aufzeichnungen 1881.</p>
+
+<h2>Was „Krise von nationaler Tragweite“ bedeutet — und was nicht</h2>
+<p>Rainer begründete die Einstufung nicht allein mit den Erntezahlen, sondern mit dem Zusammentreffen mehrerer Belastungen: Dürre und Futterknappheit, regionale Ernte- und Qualitätsverluste, hohe Kosten für Diesel und Dünger, Druck in der Tierhaltung und Schäden in den Wäldern. Jede Ertragsschwankung staatlich auszugleichen, sei nicht das Ziel; es gehe um Betriebe, deren Substanz dauerhaft gefährdet sei.</p>
+<p>Wichtig für die Einordnung: Die Formulierung ist nicht dasselbe wie die förmliche Einstufung als „Ereignis von nationalem Ausmaß“. Nur eine solche Einstufung erlaubt es dem Bund nach Angaben seines Ministeriums, sich an Schadensausgleichsprogrammen der Länder zu beteiligen — zuletzt war das bei der Dürre 2018 und beim Hochwasser 2021 der Fall. Die Mitteilung vom 2. September enthält diese Einstufung nicht. Das Paket setzt stattdessen vor allem auf Liquidität:</p>
+<ul>
+<li>Das <strong>Liquiditätshilfeprogramm der Landwirtschaftlichen Rentenbank</strong> wird um 300 Millionen auf ein Darlehensvolumen von 500 Millionen Euro aufgestockt, ohne Nachweis von Notlage und Verwendung; ein zweites Programm mit stärker gesenkten Zinsen und längeren Laufzeiten ist in Vorbereitung.</li>
+<li>60 Millionen Euro <strong>EU-Düngemittelhilfe</strong> sollen als Hektarprämie an Betriebe gehen, deren Kosten für Dünger oder Diesel stark gestiegen sind.</li>
+<li>Die <strong>Direktzahlungen</strong> sollen 2027 einmalig steigen, von rund 4,1 auf rund 4,9 Milliarden Euro.</li>
+<li>Die Förderung von <strong>Mehrgefahrenversicherungen</strong>, die auch gegen Trockenheit absichern, soll über die Gemeinschaftsaufgabe Agrarstruktur möglich werden.</li>
+</ul>
+<p>Für Verpächter heißt das: Das Paket zielt auf die Liquidität der wirtschaftenden Betriebe — also auf Ihre Pächter. Direktzahlungen erhält, wer die Fläche bewirtschaftet; ein Eigentümer, der verpachtet hat, bekommt aus dem Paket nichts, profitiert aber mittelbar, weil es die Zahlungsfähigkeit seines Pächters stützt. Aufschlussreich ist ein Detail aus der Übersicht des Ministeriums: Auch die bundeseigene Bodenverwertungs- und -verwaltungs GmbH (BVVG), die landwirtschaftliche Flächen des Bundes verpachtet, lässt ihre Pächter die <strong>Stundung von Pachtraten</strong> beantragen.</p>
+
+<h2>Pacht im Dürrejahr: Was rechtlich gilt</h2>
+<p>Die kurze Antwort: Eine schlechte Ernte allein mindert die Pacht nicht. Nach § 581 BGB schuldet der Verpächter den Gebrauch der Fläche und den Genuss der Früchte, der Pächter die vereinbarte Pacht — nicht eine Pacht nach Ernteerfolg. Der gesetzliche Hebel für eine Anpassung ist <strong>§ 593 BGB</strong>. Danach kann jede Seite eine Vertragsänderung verlangen, wenn sich die Verhältnisse, die für die Pachthöhe maßgebend waren, „nachhaltig so geändert“ haben, „dass die gegenseitigen Verpflichtungen in ein grobes Missverhältnis zueinander geraten sind“. Für die aktuelle Lage sind drei Punkte entscheidend:</p>
+<ul>
+<li><strong>„Nachhaltig“ heißt dauerhaft.</strong> Der Bundesgerichtshof stellt für die Anpassung auf das Verhältnis zwischen der Pacht und dem „bei ordnungsgemäßer Bewirtschaftung nachhaltig erzielbaren Ertrag“ ab (Beschluss vom 29. November 1996, BLw 48/95). Ein einzelnes Dürrejahr — in NRW direkt nach einem Rekordjahr beim Weizen — dürfte diese Schwelle für sich genommen kaum erreichen. Anders kann es aussehen, wenn sich die Ertragsbedingungen über Jahre verschieben.</li>
+<li><strong>Zwei-Jahres-Sperre:</strong> Eine Änderung kann frühestens zwei Jahre nach Pachtbeginn oder nach der letzten Anpassung verlangt werden. Ausgenommen sind „verwüstende Naturereignisse, gegen die ein Versicherungsschutz nicht üblich ist“ — und auch dann nur, wenn sie das Verhältnis der Leistungen „grundlegend und nachhaltig“ verändert haben. Gegen Trockenheit gibt es Mehrgefahrenversicherungen, die nach Angaben des Bundesministeriums bereits neun Länder fördern.</li>
+<li><strong>Keine Rückwirkung:</strong> Die Änderung kann nicht für eine frühere Zeit als das Pachtjahr verlangt werden, in dem sie geltend gemacht wird. Einigen sich die Parteien nicht, entscheidet das Landwirtschaftsgericht.</li>
+</ul>
+<p>Umgekehrt schützt das Gesetz auch den Verpächter: Ist der Pächter mit der Pacht oder einem nicht unerheblichen Teil länger als drei Monate in Verzug, liegt ein wichtiger Grund für eine fristlose Kündigung vor (§ 594e BGB). Bei einem bisher verlässlichen Pächter ist das in einem Krisenjahr aber selten die klügste Reaktion.</p>
+
+<h2>Stundung statt Minderung: der pragmatische Weg</h2>
+<p>Der Bauernverband hatte schon in seiner Erntebilanz vom 18. August darauf hingewiesen, dass nicht wenige Betriebe Sonder- oder Zwischenfinanzierungen brauchen, um ihre Liquidität zu sichern. Wer einen solchen Pächter hat, fährt mit einer <strong>befristeten Stundung</strong> meist besser als mit einem Streit oder einer dauerhaften Pachtsenkung. Worauf es dabei ankommt:</p>
+<ul>
+<li><strong>Schriftlich festhalten:</strong> gestundeter Betrag, neuer Fälligkeitstermin, gegebenenfalls Raten.</li>
+<li><strong>Einmaligkeit klarstellen:</strong> ausdrücklich als Stundung ohne Verzicht formulieren, damit sie nicht als dauerhafte Änderung der Pachthöhe verstanden wird.</li>
+<li><strong>Vertrag bei der Gelegenheit prüfen:</strong> Zahlungstermine, Anpassungsklauseln, Restlaufzeit — was in einen zeitgemäßen Vertrag gehört, steht in <a href="/blog/landpachtvertrag-klauseln-formulieren">Landpachtvertrag formulieren: 7 Klauseln</a>.</li>
+</ul>
+<p><em>Rechenbeispiel mit angenommenen Werten:</em> 10 ha Acker zu 550 €/ha ergeben 5.500 € Jahrespacht. Eine Stundung um sechs Monate kostet den Verpächter im Wesentlichen den Zinsvorteil eines halben Jahres. Eine dauerhafte Senkung um 10 Prozent kostet dagegen 550 € in jedem weiteren Jahr — bei acht Jahren Restlaufzeit 4.400 €.</p>
+
+<h2>Was die Dürre für Pachtpreise und Flächenwerte bedeutet</h2>
+<p>„Der Standort hat in diesem Jahr über den Ertrag entschieden wie selten zuvor“, sagte Bauernpräsident Joachim Rukwied bei der Erntebilanz seines Verbands. Auch der Kreisverband Lippe beschreibt Mindererträge, die je nach Bodentyp und Wasserversorgung schwankten. Im Kreis Lippe liegen sehr leichte Sandböden am Rand der Senne und tiefgründige Lehm- und Auenböden nicht weit voneinander entfernt — wie stark die Bodengüte den Wert einer Fläche bestimmt, beschreiben wir in <a href="/blog/hektar-ackerland-lippe-wertbestimmende-faktoren">Was einen Hektar Ackerland in Lippe wert macht</a>. In feuchten Jahren liegen gute und schwache Standorte näher beieinander, in trockenen wird der Abstand sichtbar. Unsere Einschätzung: Bodenqualität und Wasserhaltevermögen werden bei Pacht- und Kaufentscheidungen eher mehr Gewicht bekommen, nicht weniger.</p>
+<p>Kurzfristige Preissprünge lassen sich aus einem einzelnen Jahr aber nicht ableiten. Pachtverträge laufen über mehrere Jahre, und der Bodenmarkt reagiert träge. Wo die Pachten im Kreis Lippe derzeit liegen, zeigt unser <a href="/blog/pachtspiegel-lippe-2026">Pachtspiegel Kreis Lippe 2026</a>.</p>
+<p>Beim <strong>Grünland</strong> ist das Bild regional sehr unterschiedlich. Im Süden und Südwesten Deutschlands wuchs nach Angaben des Bundesministeriums auf vielen Wiesen nach dem ersten Schnitt kaum noch Gras nach. In Westfalen-Lippe waren nach Einschätzung des WLV dagegen insgesamt drei bis vier Schnitte möglich; ob die Futterernte noch ein durchschnittliches Niveau erreicht, hing vom Regen ab Mitte August ab. Das Land NRW erwartet, dass die angespannte Futterversorgung die Nachfrage nach Silomais erhöht. Wer Grünland an einen Tierhalter verpachtet hat, sollte in diesem Herbst vor allem auf dessen Zahlungsfähigkeit achten — und im Zweifel früh das Gespräch suchen.</p>
+
+<h2>Was Verpächter jetzt tun sollten</h2>
+<ol>
+<li><strong>Früh reden:</strong> vor dem nächsten Zahlungstermin mit dem Pächter klären, ob es Engpässe gibt.</li>
+<li><strong>Stundung statt Minderung:</strong> bei echter Notlage eine befristete, schriftliche Stundung vereinbaren.</li>
+<li><strong>Keine vorschnellen Zugeständnisse bei der Pachthöhe:</strong> § 593 BGB setzt dauerhafte Veränderungen voraus.</li>
+<li><strong>Bei Neuverpachtung genauer hinsehen:</strong> Betriebskonzept und Zahlungsfähigkeit des Bewerbers zählen in solchen Jahren mehr als das höchste Gebot. Wir begleiten die <a href="/flaeche-verpachten">Verpachtung Ihrer Fläche</a> von der Pächtersuche bis zum Vertrag.</li>
+<li><strong>Nicht aus Sorge verkaufen:</strong> Ein Dürrejahr ist kein Verkaufsgrund. Wer trotzdem wissen will, wo seine Fläche steht, nutzt unsere <a href="/blog/fluechen-quick-check-wertindikation">kostenlose Wertindikation</a>.</li>
+</ol>
+
+<p class="text-sm text-stone-500"><em>Stand: 14. September 2026. Quellen: Erntebericht 2026 und Pressemitteilungen des Bundesministeriums für Landwirtschaft, Ernährung und Heimat vom 12. August und 2. September 2026 sowie dessen Themenseite zu Trockenheit und Dürre (Stand 18. August 2026); Erntebilanz des Deutschen Bauernverbands (18. August 2026); Erntebilanz des Ministeriums für Landwirtschaft und Verbraucherschutz NRW und der Landwirtschaftskammer NRW (31. August 2026); Erntebilanz des Westfälisch-Lippischen Landwirtschaftsverbands mit Ertragstabelle nach IT.NRW (11. September 2026); Erntebrief des Landwirtschaftlichen Kreisverbands Lippe (11. September 2026); Deutscher Wetterdienst, Deutschlandwetter im Juli 2026; §§ 581, 593, 594e BGB; BGH, Beschluss vom 29. November 1996 – BLw 48/95. Dieser Beitrag ersetzt keine Rechtsberatung im Einzelfall.</em></p>
+`,
+  },
+  {
+    slug: "wiederherstellungsplan-renaturierung-wald-gruenland-lippe-2026",
+    title:
+      "Wiederherstellungsplan: Deutschland verpasst EU-Frist — was die Renaturierungsziele für Wald-, Grünland- und Ackereigentümer in Lippe bedeuten",
+    description:
+      "Bis zum 1. September 2026 sollten alle EU-Staaten den Entwurf ihres nationalen Wiederherstellungsplans nach der EU-Renaturierungsverordnung in Brüssel vorlegen — Deutschland hat die Frist verstreichen lassen. Was der deutsche Entwurf für Wald, Grünland und Acker vorsieht, was für private Eigentümer freiwillig bleibt und wo im Kreis Lippe Förderchancen liegen.",
+    category: "Recht",
+    publishedAt: "2026-09-07",
+    readingMinutes: 7,
+    keywords: [
+      "Wiederherstellungsplan Deutschland 2026",
+      "EU-Renaturierungsverordnung Waldbesitzer",
+      "Wiederherstellungsverordnung Landwirte freiwillig",
+      "Wiederherstellung der Natur Totholz Wald",
+      "Natura 2000 Kreis Lippe",
+      "Biotopbaum Förderung NRW",
+    ],
+    heroImage: "/blog-wiederherstellungsplan-2026.jpg",
+    faq: [
+      {
+        q: "Muss ich wegen der Wiederherstellungsverordnung jetzt Totholz liegen lassen oder Flächen aus der Nutzung nehmen?",
+        a: "Nein, nicht unmittelbar. Die Verordnung verpflichtet die Mitgliedstaaten, nicht einzelne Eigentümer. Der deutsche Planentwurf stellt ausdrücklich klar, dass seine Maßnahmen keine unmittelbaren Verpflichtungen für private Landnutzer oder Flächeneigentümer begründen und auf Freiwilligkeit setzen. Unberührt bleiben die bestehenden Regeln, etwa in Natura-2000-Gebieten oder beim gesetzlichen Biotopschutz — und wer freiwillig an einem Förderprogramm teilnimmt, muss dessen Bedingungen einhalten.",
+      },
+      {
+        q: "Kann meine Wiese gegen meinen Willen wiedervernässt werden?",
+        a: "Nicht auf Grundlage der EU-Verordnung. Sie legt für entwässerte, landwirtschaftlich genutzte Moorböden zwar Wiedervernässungsziele fest, stellt aber ausdrücklich klar, dass die Wiedervernässung für Landwirte und private Landbesitzer freiwillig bleibt — unbeschadet von Pflichten, die sich aus nationalem Recht ergeben. Die Staaten sollen stattdessen Anreize schaffen.",
+      },
+      {
+        q: "Wann steht fest, was in Deutschland konkret gilt?",
+        a: "Noch nicht. Der Entwurf muss erst vom Bundeskabinett beschlossen und an die EU-Kommission übermittelt werden; der ursprünglich für den 26. August geplante Kabinettsbeschluss wurde ohne neues Datum verschoben. Die Kommission hat danach sechs Monate Zeit für ihre Bewertung. Nach dem Zeitplan des Bundesumweltministeriums soll der endgültige Plan im September 2027 vorliegen.",
+      },
+      {
+        q: "Gibt es Geld für Eigentümer, die sich beteiligen?",
+        a: "Ja, allerdings über bestehende Programme: In NRW etwa den Vertragsnaturschutz über die Kreise und die Förderung des dauerhaften Erhalts von Alt- und Biotopbäumen im Privatwald, für Landwirte die Öko-Regelungen der Agrarpolitik. Das Bundesprogramm Klimaangepasstes Waldmanagement nimmt derzeit keine Erstanträge an. Der Planentwurf selbst stellt alle Maßnahmen unter einen Finanzierungsvorbehalt.",
+      },
+    ],
+    content: `
+<p class="lead">Am 1. September ist eine Frist abgelaufen, die für Flächeneigentümer in ganz Europa von Bedeutung ist: Bis zu diesem Tag sollten die Mitgliedstaaten der EU-Kommission den Entwurf ihres nationalen Wiederherstellungsplans vorlegen. Deutschland hat die Frist verstreichen lassen — nach Angaben des Bundesumweltministeriums in Abstimmung mit der Kommission. Der deutsche Entwurf liegt allerdings seit April öffentlich vor. Was darin für Wald, Grünland und Acker steht, was für private Eigentümer verpflichtend ist und was nicht — und was das für Flächen im Kreis Lippe bedeutet.</p>
+
+<figure>
+<img src="/blog-wiederherstellungsplan-2026.jpg" alt="Artenreiche Wiese mit Bachlauf an einem strukturreichen Laubwaldrand mit stehendem und liegendem Totholz in Ostwestfalen-Lippe" width="1376" height="768" style="width:100%;height:auto;border-radius:14px" loading="lazy" />
+<figcaption>Totholz, strukturreiche Waldränder, artenreiches Grünland: Genau solche Merkmale misst die EU-Wiederherstellungsverordnung.</figcaption>
+</figure>
+
+<h2>Worum es geht: die EU-Wiederherstellungsverordnung</h2>
+<p>Die Verordnung (EU) 2024/1991 über die Wiederherstellung der Natur ist seit dem 18. August 2024 in Kraft und gilt unmittelbar. Ihr übergeordnetes Ziel: Bis 2030 sollen Wiederherstellungsmaßnahmen auf mindestens 20 Prozent der Land- und 20 Prozent der Meeresfläche der EU greifen, bis 2050 in allen Ökosystemen, die der Wiederherstellung bedürfen. Wie ein Staat seine Ziele erreichen will, legt er in einem nationalen Wiederherstellungsplan dar; der Entwurf war nach Artikel 16 bis zum 1. September 2026 vorzulegen. Für Eigentümer im Kreis Lippe sind vor allem drei Teile relevant:</p>
+<ul>
+<li><strong>Wald (Artikel 12):</strong> Die Staaten müssen einen Aufwärtstrend beim Index häufiger Waldvogelarten erreichen und bei mindestens sechs von sieben Indikatoren — darunter stehendes und liegendes Totholz, der Anteil ungleichaltriger Wälder, die Vernetzung der Wälder, der Kohlenstoffvorrat, der Anteil überwiegend heimischer Baumarten und die Baumartenvielfalt.</li>
+<li><strong>Agrarflächen (Artikel 11):</strong> Verlangt ist ein Aufwärtstrend bei mindestens zwei von drei Indikatoren — dem Index der Grünlandschmetterlinge, dem Vorrat an organischem Kohlenstoff in mineralischen Ackerböden und dem Anteil von Flächen mit vielfältigen Landschaftselementen wie Hecken oder Feldgehölzen —, dazu steigende Feldvogelbestände.</li>
+<li><strong>Lebensraumtypen (Artikel 4):</strong> Geschützte Lebensräume in schlechtem Zustand sollen schrittweise wiederhergestellt werden, bis 2030 vorrangig in Natura-2000-Gebieten.</li>
+</ul>
+
+<h2>Stand am Stichtag: noch kein deutscher Entwurf in Brüssel</h2>
+<p>Das Bundesumweltministerium hat den Planentwurf am 25. April 2026 veröffentlicht; bis zum 28. Juni konnten Öffentlichkeit und Verbände ihn kommentieren, rund 7.000 Hinweise gingen ein. Vor der Übermittlung nach Brüssel muss das Bundeskabinett den Plan beschließen. Dieser Beschluss war nach Angaben des NABU für den 26. August vorgesehen und wurde ohne neues Datum in den September verschoben — offiziell, weil die Einarbeitung der vielen Kommentare länger dauert als geplant. Am 1. September bestätigte der WWF, dass das Ministerium die Frist hat verstreichen lassen, laut Ministerium in Abstimmung mit der EU-Kommission. Nachbarland Österreich hat seinen Entwurf dagegen am 1. September fristgerecht übermittelt.</p>
+<p>Politisch ist der Plan umstritten. Nach einem Bericht des Fachdienstes Table.Media vom 4. September drängen Agrarminister von CDU und CSU Bundesumweltminister Carsten Schneider zu Änderungen, auch Landnutzerverbände machen Druck. Der Deutsche Bauernverband sah im Entwurf schon im April die Grundlage für eine „Spirale des Ordnungsrechts“, der Waldeigentümerverband AGDW forderte, die Umsetzung auszusetzen. Umweltverbände wie der BUND NRW kritisieren das Gegenteil: zu wenig Verbindlichkeit.</p>
+
+<h2>Was im deutschen Entwurf steht</h2>
+<p>Der wichtigste Satz für Eigentümer steht gleich zu Beginn des über 1.000 Seiten starken Entwurfs: Die Maßnahmen „begründen keine unmittelbaren Verpflichtungen für einzelne private Landnutzende oder Flächeneigentümer“ und setzen auf Freiwilligkeit und kooperative Umsetzung. Zugleich stehen sie „grundsätzlich unter Finanzierungsvorbehalt“ — der Entwurf räumt ein, dass für alle nötigen Maßnahmen erhebliche zusätzliche Mittel gebraucht würden.</p>
+<ul>
+<li><strong>Umfang:</strong> Bis 2030 sollen Wiederherstellungsmaßnahmen auf rund 20 Prozent der deutschen Landfläche greifen, etwa 72.000 Quadratkilometer. Für die Agrarökosysteme nennt der Entwurf rund 30.000 Quadratkilometer mit Maßnahmen bis 2030.</li>
+<li><strong>Wald:</strong> Die gesamte Holzbodenfläche wird als „Suchraum“ für Maßnahmen angegeben. Umgesetzt werden soll über Programme der Forstverwaltungen und über die bestehende Förderung von Bund und Ländern. Welche sechs der sieben Waldindikatoren Deutschland heranziehen will, ist im Entwurf noch offen.</li>
+<li><strong>Acker und Grünland:</strong> Genannt werden vor allem bestehende Instrumente der Agrarpolitik — etwa die Öko-Regelung zur Bereitstellung von Flächen für die Biodiversität, Altgrasstreifen im Grünland, Blüh- und Ackerrandstreifen, die Pflege von Streuobst, Hecken und Baumreihen sowie der ökologische Landbau.</li>
+<li><strong>Bäume:</strong> Bis 2030 sollen in Deutschland rund 16 Millionen zusätzliche Bäume gepflanzt werden, überwiegend durch Erstaufforstung.</li>
+</ul>
+<p>Kurz gesagt: Der Entwurf ist in weiten Teilen eine Bündelung vorhandener, freiwilliger Programme. Genau das kritisieren beide Seiten — die einen, weil sie befürchten, dass daraus schrittweise neue Auflagen werden, die anderen, weil zusätzliche Wirkung fehle.</p>
+
+<h2>Pflicht oder freiwillig? Was für Eigentümer gilt</h2>
+<p>Rechtlich richtet sich die Verordnung an die Mitgliedstaaten. Das Bundesumweltministerium schreibt zu den Verschlechterungsregeln der Verordnung, sie entfalteten gegenüber Privaten „keine unmittelbare Wirkung“. Bei der Wiedervernässung entwässerter Moorböden ist die Verordnung besonders deutlich: Sie ist für Landwirte und private Landbesitzer „weiterhin freiwillig“, unbeschadet von Pflichten aus nationalem Recht; die Staaten sollen Anreize schaffen.</p>
+<p>Das bedeutet aber nicht, dass sich nichts ändert. Bestehende Schutzregeln — Natura-2000-Gebiete, der gesetzliche Biotopschutz nach § 30 Bundesnaturschutzgesetz — gelten unverändert weiter. Und weil der Staat seine Ziele erreichen muss, dürfte er künftig häufiger auf Eigentümer zugehen — mit Förderangeboten, Vertragsnaturschutz und, etwa über den im Entwurf genannten Wildnisfonds, auch mit Kaufangeboten. Wer eine Fläche in einem Schutzgebiet besitzt, sollte damit rechnen, öfter gefragt zu werden.</p>
+
+<h2>Was das für Flächen im Kreis Lippe bedeutet</h2>
+<p>Im Kreis Lippe liegen Teile bedeutender Natura-2000-Gebiete, darunter die FFH-Gebiete „Senne mit Stapelager Senne“, „Östlicher Teutoburger Wald“, „Externsteine“, „Begatal“, „Wälder bei Blomberg“ und „Schwalenberger Wald“ sowie das Vogelschutzgebiet „Senne mit Teutoburger Wald“. Weil sich die Wiederherstellung von Lebensräumen bis 2030 vorrangig auf Natura 2000 konzentrieren soll, sind Eigentümer von Wald und Grünland in diesen Kulissen am ehesten Ansprechpartner für neue Angebote.</p>
+<p>Geld gibt es dafür schon heute — freiwillig und vertraglich:</p>
+<ul>
+<li><strong>Vertragsnaturschutz:</strong> Die Kreise bieten über ihre Kulturlandschaftsprogramme mehrjährige Verträge für extensive Grünlandnutzung an. Wie das in Lippe funktioniert, beschreiben wir in <a href="/blog/vertragsnaturschutz-nrw-frist-juni-2026">Vertragsnaturschutz NRW 2026</a>.</li>
+<li><strong>Alt- und Biotopbäume:</strong> Die NRW-Förderrichtlinie für den Privat- und Körperschaftswald (Fassung vom 21. Mai 2026) fördert den dauerhaften Erhalt von Alt- und Biotopbäumen — je nach Baumart und Stammdurchmesser mit Beträgen bis zu 1.400 Euro je Eiche mit mehr als 80 Zentimetern Brusthöhendurchmesser. Genau solche Bäume zählen später als stehendes Totholz und Habitatstrukturen.</li>
+<li><strong>Waldförderung des Bundes:</strong> Das Programm Klimaangepasstes Waldmanagement, das der Entwurf als zentrale Waldmaßnahme nennt, nimmt derzeit keine Erstanträge an; Hintergründe in <a href="/blog/waldfoerderung-nrw-2026-antragstopp-wiederbewaldungspraemie">Waldförderung 2026 in der Krise</a>.</li>
+</ul>
+<p>Für den Wert einer Fläche ändert der Plan zunächst wenig: Er schafft keine neuen Auflagen, und die bestehenden Schutzgebietsregeln sind schon heute eingepreist. Wer eine Fläche in einem FFH-Gebiet verkaufen oder verpachten will, sollte diese Regeln aber sauber klären — wie schwierig extensive Lagen am Markt sein können, zeigt unser Beitrag <a href="/blog/hangwiese-ffh-niemand-pachtet">Hangwiese, Streuobst, FFH-Lage</a>. Umgekehrt können Aufwertungsmaßnahmen eine Fläche auch wirtschaftlich interessant machen, etwa über <a href="/blog/oekopunkte-oekokonto-lippe">Ökopunkte und Ökokonten</a>.</p>
+<p>Wenn Sie wissen möchten, was Ihre Wald- oder Grünlandfläche heute wert ist, nutzen Sie unsere <a href="/blog/fluechen-quick-check-wertindikation">kostenlose Wertindikation</a> oder sprechen Sie uns zur <a href="/flaeche-verpachten">Verpachtung</a> oder zum <a href="/wald-verkaufen">Verkauf Ihrer Waldfläche</a> an.</p>
+
+<p class="text-sm text-stone-500"><em>Stand: 7. September 2026. Quellen: Verordnung (EU) 2024/1991 vom 24. Juni 2024; Entwurf des Nationalen Wiederherstellungsplans (April 2026) und Themenseite des Bundesumweltministeriums; Fragen und Antworten des Bundesumweltministeriums zur Verordnung; NABU vom 12. August 2026; WWF Deutschland vom 1. September 2026; Mitteilung der EU-Kommission vom 1. September 2026; österreichisches Umweltministerium vom 1. September 2026; Table.Media vom 4. September 2026; Pressemitteilungen von Deutschem Bauernverband und AGDW vom 30. April 2026 und BUND NRW vom 28. Juni 2026; Natura-2000-Gebietsliste des LANUK NRW; Förderrichtlinie Privat- und Körperschaftswald NRW (Fassung vom 21. Mai 2026). Dieser Beitrag ersetzt keine Rechtsberatung im Einzelfall.</em></p>
+`,
+  },
+  {
+    slug: "waldbrandgefahr-lippe-2026-huertgenwald-waldbesitzer",
+    title:
+      "Waldbrandgefahr in Lippe nach dem Hürtgenwald-Brand: Was Waldbesitzer jetzt wissen sollten — Pflichten, Kosten, Vorsorge und die Folgen des trockensten Julis seit 1881",
+    description:
+      "Der Brand im Hürtgenwald war mit rund 300 bis 400 Hektar der größte in Nordrhein-Westfalen seit Jahrzehnten, der Juli 2026 der trockenste seit 1881. Auch in Lippe galt Mitte August Waldbrand-Warnstufe 4, an den Externsteinen geriet ein Lagerfeuer außer Kontrolle. Was Waldbesitzer über Pflichten, Kosten, Vorsorge und Folgeschäden im Bestand wissen sollten.",
+    category: "Wald",
+    publishedAt: "2026-08-31",
+    readingMinutes: 8,
+    keywords: [
+      "Waldbrand Lippe 2026",
+      "Waldbrandgefahr Waldbesitzer Pflichten",
+      "Waldbrand Feuerwehr Kosten Waldbesitzer",
+      "Waldbrandvorsorge Privatwald NRW",
+      "Hürtgenwald Waldbrand 2026",
+      "Trockenstress Buche Verkehrssicherung",
+    ],
+    heroImage: "/blog-waldbrand-2026.jpg",
+    faq: [
+      {
+        q: "Wer zahlt den Feuerwehreinsatz, wenn mein Wald brennt?",
+        a: "In der Regel niemand von Ihnen: Nach § 52 des nordrhein-westfälischen Brandschutzgesetzes (BHKG) sind Einsätze der Feuerwehr grundsätzlich unentgeltlich. Kostenersatz können die Gemeinden nur in den gesetzlich genannten Fällen verlangen — etwa vom Verursacher, der den Brand vorsätzlich oder grob fahrlässig herbeigeführt hat. Als Eigentümer müssen Sie allerdings dulden, dass die Einsatzkräfte Ihr Grundstück betreten und zur Brandbekämpfung zum Beispiel Bäume und Sträucher beseitigen.",
+      },
+      {
+        q: "Darf ich als Waldbesitzer im Sommer in meinem eigenen Wald Feuer machen?",
+        a: "Das Feuer- und Grillverbot im Wald und im Abstand von weniger als 100 Metern zum Waldrand gilt nach § 47 Landesforstgesetz nicht für den Waldbesitzer und die dort Beschäftigten; auch das Rauchverbot vom 1. März bis 31. Oktober nimmt diesen Personenkreis aus. Die Ausnahme ist aber kein Freibrief: Bei Warnstufe 4 kann nach Warnung der Polizei schon ein kleiner Funke einen verheerenden Brand auslösen. Arbeiten mit Feuer sollten in solchen Phasen unterbleiben.",
+      },
+      {
+        q: "Kann der Wald bei Waldbrandgefahr gesperrt werden?",
+        a: "Ja. Nach § 5 Landesforstgesetz kann die Forstbehörde aus Gründen der Waldbrandverhütung für bestimmte Waldgebiete zeitweilig das Betreten ausschließen oder auf die Wege beschränken. Unabhängig davon kann sie gegenüber Waldbesitzern notwendige Schutzmaßnahmen gegen Waldbrände anordnen; die Kosten dafür trägt nach § 45 Landesforstgesetz das Land.",
+      },
+      {
+        q: "Mein Wald hat nicht gebrannt — worauf sollte ich trotzdem achten?",
+        a: "Auf die Folgen des Trockenstresses. Wald und Holz NRW beobachtet frühen Laubfall vor allem bei Buchen und abbrechende grüne Äste; ein dort zitierter Förster rechnet damit, dass Buchen, die jetzt schon ihr Laub verlieren, im Herbst gefällt werden müssen. Entlang von Straßen, Wegen und Nachbargrundstücken ist das eine Frage der Verkehrssicherung. Zudem begünstigt die Witterung Borkenkäfer, Prachtkäfer und Hallimasch — regelmäßige Kontrollen der Bestände lohnen sich.",
+      },
+    ],
+    content: `
+<p class="lead">Mitte August hat Nordrhein-Westfalen den größten Waldbrand seit Jahrzehnten erlebt: Im Hürtgenwald im Kreis Düren brannten nach Angaben des Landes auf rund 300 bis 400 Hektar Waldflächen ab oder wurden geschädigt, der Ortsteil Gey musste evakuiert werden. Zugleich war der Juli 2026 in NRW der trockenste seit Beginn der Wetteraufzeichnungen 1881. Auch im Kreis Lippe galt Mitte August Waldbrand-Warnstufe 4, und die Polizei meldete eine Reihe kleiner Brände — vom außer Kontrolle geratenen Lagerfeuer an den Externsteinen bis zum glimmenden Baumstumpf in Augustdorf. Was Waldbesitzer in Lippe daraus mitnehmen sollten.</p>
+
+<figure>
+<img src="/blog-waldbrand-2026.jpg" alt="Kiefernwald auf Sandboden nach einem Bodenfeuer mit verkohltem Waldboden und geschwärzten Stämmen" width="1376" height="768" style="width:100%;height:auto;border-radius:14px" loading="lazy" />
+<figcaption>Kiefernbestände auf sandigen Böden gelten nach dem Waldbrandvorsorgekonzept des Landes als besonders gefährdet — in Lippe betrifft das vor allem den Rand der Senne.</figcaption>
+</figure>
+
+<h2>Ein Sommer der Extreme — die Zahlen</h2>
+<p>Nach dem Deutschen Wetterdienst fielen in Nordrhein-Westfalen im Juli nur rund <strong>18 Liter Regen pro Quadratmeter</strong> — 22 Prozent des langjährigen Mittels von 82 Litern. Der bisherige Tiefstwert von 26 Litern aus dem Jahr 2018 wurde damit deutlich unterboten. Ostwestfalen kam mit 25 bis 40 Litern noch vergleichsweise gut weg; am Niederrhein fielen vielerorts weniger als 10 Liter. Der August brachte mit rund 67 Litern wieder fast normale Mengen, doch Wald und Holz NRW stellte noch am 24. August fest, dass die Böden trotz der Regenfälle ausgetrocknet sind.</p>
+<p>Die Waldbrandstatistik zeigt, was das bedeutet: Bis zum 31. Juli waren der Landesforstverwaltung 86 Waldbrände auf zusammen 9,3 Hektar bekannt. In den ersten beiden Augustwochen kamen 36 Brände mit rund 330 Hektar hinzu — der größte Teil davon im Hürtgenwald. Dort brach das Feuer am 13. August aus; in der Spitze waren rund 1.800 Einsatzkräfte im Einsatz, die Bundeswehr zog mit Panzern Brandschneisen, Landwirte halfen mit Grubbern und Güllefässern. Erst am 21. August meldete die Gemeinde: Das Feuer ist gelöscht.</p>
+<p>Wie außergewöhnlich das ist, zeigt ein Vergleich, den der WDR mit Daten der Bundesanstalt für Landwirtschaft und Ernährung gezogen hat: 2025 waren in ganz NRW zusammen 51,7 Hektar Wald von Bränden betroffen, in den Jahren 2018 bis 2025 zusammen 275,9 Hektar. Ein einziger Brand hat diese acht Jahre in diesem Sommer übertroffen.</p>
+
+<h2>Und in Lippe?</h2>
+<p>Ab dem 13. August galt in weiten Teilen Lippes die Waldbrand-Warnstufe 4 von 5 („hohe Gefahr“); die Messstation des Deutschen Wetterdienstes in Bad Salzuflen zeigte sie für zwei Tage an, der Graslandfeuerindex ebenso. Die Polizei Lippe meldete in den folgenden Tagen mehrere Feuer in der Natur:</p>
+<ul>
+<li>eine Feuerstelle in einem Waldstück in Leopoldshöhe-Greste, vermutlich absichtlich entzündet, und einen Mülleimerbrand in Barntrup, der auf einen Busch übergriff (14. August);</li>
+<li>einen Grasbrand an einem Feldweg nahe einem kleinen Waldstück in Bad Salzuflen, augenscheinlich durch eine weggeworfene Zigarette (14. August);</li>
+<li>ein Lagerfeuer im Wald an den <strong>Externsteinen</strong>, das wegen der Trockenheit außer Kontrolle geriet — die Verursacher flüchteten (15. August);</li>
+<li>ein kleines Feuer in einem Waldstück in Detmold-Pivitsheide und einen glimmenden Baumstumpf in einem Waldstück in <strong>Augustdorf</strong>, an dem pyrotechnische Gegenstände gefunden wurden (29. August).</li>
+</ul>
+<p>In allen Fällen blieb es bei kleinen Bränden — meist, weil aufmerksame Zeugen früh den Notruf wählten. Ein Grund zur Entwarnung ist das nicht. Das Waldbrandvorsorgekonzept des Landes nennt „Bereiche in Ostwestfalen“ ausdrücklich unter den gefährdeten Regionen und beschreibt Kiefernbestände auf sandigen Böden als deutlich anfälliger als Bestände auf tonhaltigen, tiefgründigen Böden. Im Kreis Lippe dürfte das vor allem die Kiefernwälder auf den Sandböden am Rand der Senne betreffen, etwa um Augustdorf und Schlangen. Hinzu kommt die Vorbelastung: Allein der Landesverband Lippe verlor nach eigenen Angaben zwischen 2018 und 2022 durch Sturm, Dürre und Borkenkäfer 1.500 Hektar Wald.</p>
+
+<h2>Was Waldbesitzer dürfen, müssen — und wer zahlt</h2>
+<ul>
+<li><strong>Feuer- und Rauchverbot:</strong> Im Wald und im Abstand von weniger als 100 Metern zum Waldrand sind Feuer, Grillen und das Lagern leicht entzündlicher Stoffe verboten, im Wald gilt vom 1. März bis 31. Oktober zudem Rauchverbot (§ 47 Landesforstgesetz). Ausgenommen sind der Waldbesitzer und die dort Beschäftigten sowie Jäger und Imker bei ihrer Tätigkeit. Verstöße können mit bis zu 25.000 Euro Bußgeld geahndet werden.</li>
+<li><strong>Vorsorge ist Sache der Eigentümer:</strong> Das Waldbrandvorsorgekonzept stellt klar, dass die Umsetzung konkreter Vorbeugemaßnahmen den Waldbesitzenden obliegt. Die Forstbehörde kann notwendige Schutzmaßnahmen anordnen — die Kosten trägt dann nach § 45 Landesforstgesetz das Land.</li>
+<li><strong>Löschen kostet den Eigentümer in der Regel nichts:</strong> Feuerwehreinsätze sind nach § 52 Brandschutzgesetz grundsätzlich unentgeltlich. Kostenersatz können Gemeinden nur in bestimmten Fällen verlangen, etwa vom Verursacher bei Vorsatz oder grober Fahrlässigkeit.</li>
+<li><strong>Dulden müssen Eigentümer trotzdem einiges:</strong> Einsatzkräfte dürfen das Grundstück betreten; Maßnahmen wie die Beseitigung von Bäumen und Sträuchern für Brandschneisen sind zu dulden, Wasservorräte auf Anforderung bereitzustellen (§ 44 Brandschutzgesetz).</li>
+<li><strong>Brandschäden durch Besucher trägt nicht das Land:</strong> Das Landesforstgesetz sieht vor, dass die Forstbehörde Schäden durch Erholungssuchende auf Antrag beseitigt — Brandschäden sind davon ausdrücklich ausgenommen (§ 6).</li>
+</ul>
+
+<h2>Vorsorge: Was sich jetzt lohnt</h2>
+<ol>
+<li><strong>Zufahrten freihalten:</strong> Die Feuerwehr braucht befahrbare Wege. Das Landesportal waldinfo.nrw zeigt für Feuerwehrfahrzeuge befahrbare Waldwege und verfügbare Löschwasserstellen — ein Blick darauf zeigt, wie gut der eigene Wald erreichbar ist.</li>
+<li><strong>Schutzstreifen planen, aber zur richtigen Zeit anlegen:</strong> Wundstreifen, also von Vegetation freigehaltene Linien, werden nach dem Landeskonzept nur außerhalb der Zeit vom 1. März bis 30. September angelegt. Als Faustregel soll ein Schutzstreifen doppelt so breit sein, wie die angrenzende brennbare Vegetation hoch ist; Streifen mit schwer entflammbaren Laubbäumen (Laubholzriegel) ergänzen ihn.</li>
+<li><strong>Löschwasser fördern lassen:</strong> Die seit Mai geltende Förderrichtlinie für den Privat- und Körperschaftswald fördert die Anlage und Erweiterung von Löschwasserentnahmestellen — antragsberechtigt sind auch einzelne Eigentümer. Voraussetzung ist unter anderem, dass das Waldgebiet im Waldbrandkonzept des zuständigen Regionalforstamts enthalten ist und die Gemeinde unter Beteiligung ihrer Feuerwehr Stellung nimmt.</li>
+<li><strong>Versicherungsschutz prüfen:</strong> Klären Sie, ob Ihre Police Waldbrand überhaupt abdeckt und was genau ersetzt wird — der Wert des Aufwuchses, die Räumung, die Wiederaufforstung.</li>
+<li><strong>Langfristig umbauen:</strong> Laubholzreiche Mischbestände brennen schlechter als reine Nadelholzbestände. Welche Förderung dafür derzeit offen ist, haben wir in <a href="/blog/waldfoerderung-nrw-2026-antragstopp-wiederbewaldungspraemie">Waldförderung 2026 in der Krise</a> zusammengestellt.</li>
+</ol>
+
+<h2>Die leiseren Folgen: Trockenstress im Bestand</h2>
+<p>Auch wo es nicht gebrannt hat, hinterlässt der Sommer Spuren. Schon Ende Juli meldeten die NRW-Ministerien eine Herbstfärbung mitten im Sommer, besonders bei Birke, Rotbuche, Hainbuche, Kirsche, Linde und Ahorn; die Witterung begünstige Borkenkäfer, Prachtkäfer und Hallimasch. Wald und Holz NRW berichtete am 24. August von welkem, früh abgeworfenem Buchenlaub und von abbrechenden grünen Ästen. Ein dort zitierter Förster rechnet damit, dass Buchen, die jetzt schon ihr Laub verlieren, im Herbst gefällt werden müssen.</p>
+<p>Für Eigentümer heißt das vor allem: <strong>Verkehrssicherung</strong> ernst nehmen. Wer Wald an Straßen, Wanderwegen oder bebauten Grundstücken besitzt, sollte die Randbäume im Herbst kontrollieren lassen. Bei Fichte lohnt der Blick auf frischen Käferbefall — wie man Käferholz und Schadflächen einordnet, steht in <a href="/blog/kaeferholz-sturmwurf-lippe-privatwald">Käferholz und Sturmwurf im Lipper Privatwald</a>.</p>
+
+<h2>Was das für Wert und Verkauf bedeutet</h2>
+<p>Ein Brand oder ein stark geschädigter Bestand kostet doppelt: Der Holzwert sinkt, und es entstehen Pflichten — Räumung, Verkehrssicherung und die Wiederaufforstung, die das Landesforstgesetz für Kahlflächen verlangt. Wer einen Schaden hat, sollte ihn mit datierten Fotos dokumentieren und früh mit Forstbehörde und Versicherung sprechen. Wer die Wiederherstellung einer geschädigten Fläche nicht selbst stemmen will, für den kann ein Verkauf die ehrlichere Lösung sein als eine Fläche, die über Jahre liegen bleibt. Was Ihre Waldfläche heute wert ist, zeigt unsere <a href="/blog/fluechen-quick-check-wertindikation">kostenlose Wertindikation</a>; Hintergründe zum <a href="/wald-verkaufen">Verkauf einer Waldfläche im Kreis Lippe</a> finden Sie hier.</p>
+
+<p class="text-sm text-stone-500"><em>Stand: 31. August 2026. Quellen: Deutscher Wetterdienst, Deutschlandwetter im Juli 2026 (30. Juli 2026) und im August 2026 (31. August 2026); Mitteilungen der Landesregierung NRW vom 29. Juli, 14. August und 18. August 2026; Lageinformationen des Kreises Düren zum Brand im Hürtgenwald (14. bis 21. August 2026); WDR vom 14. August 2026; Radio Lippe vom 13. August 2026; Pressemeldungen der Polizei Lippe vom 14., 17. und 30. August 2026; Wald und Holz NRW vom 24. August 2026; Waldbrandvorsorgekonzept NRW (August 2022); Landesforstgesetz NRW, Brandschutzgesetz NRW (BHKG), Förderrichtlinie Privat- und Körperschaftswald (Fassung vom 21. Mai 2026). Dieser Beitrag ersetzt keine Rechtsberatung im Einzelfall.</em></p>
+`,
+  },
+  {
+    slug: "eudr-waldbesitzer-holzverkauf-lippe-2026",
+    title:
+      "EUDR für Waldbesitzer in Lippe: Was ab dem 30. Dezember beim Holzverkauf gilt — Adresse statt Geodaten, einmalige Erklärung, Sammelerklärung über die FBG",
+    description:
+      "Ab dem 30. Dezember 2026 gilt die EU-Entwaldungsverordnung — für Rund- und Brennholz auch für kleine Privatwaldbesitzer. Im August hat das Bundeskabinett das Durchführungsgesetz beschlossen, das Agrarministerium hat Erleichterungen vorgelegt: Adresse statt Geodaten, Sammelerklärung über die Forstbetriebsgemeinschaft. Was Waldbesitzer im Kreis Lippe jetzt vorbereiten sollten.",
+    category: "Wald",
+    publishedAt: "2026-08-24",
+    readingMinutes: 8,
+    keywords: [
+      "EUDR Waldbesitzer",
+      "EU-Entwaldungsverordnung Holzverkauf",
+      "EUDR vereinfachte Erklärung Privatwald",
+      "EUDR Sammelerklärung Forstbetriebsgemeinschaft",
+      "EUDR Geodaten Adresse",
+      "Entwaldungsverordnung Brennholz Rundholz",
+    ],
+    heroImage: "/blog-eudr-2026.jpg",
+    faq: [
+      {
+        q: "Gilt die EUDR auch für mich, wenn ich nur alle paar Jahre Holz aus meinem Wald verkaufe?",
+        a: "Ja. Wer Rund- oder Brennholz aus dem eigenen Wald erstmals verkauft, gilt als Marktteilnehmer; eine Mindestmenge, unterhalb derer die Pflichten entfallen, sieht die Verordnung nicht vor. Für die allermeisten Privatwaldbesitzer genügt aber eine einmalige vereinfachte Erklärung im EU-Informationssystem statt laufender Sorgfaltserklärungen. Wer über eine anerkannte Forstbetriebsgemeinschaft verkauft, soll die Pflichten nach dem Entwurf der deutschen Verwaltungsvorschrift über eine Sammelerklärung der FBG erfüllen können.",
+      },
+      {
+        q: "Muss ich GPS-Koordinaten meiner Waldflurstücke angeben?",
+        a: "Voraussichtlich nicht. Das EU-Recht erlaubt kleinen Erzeugern, statt der Geolokalisierung die Postanschrift der Grundstücke oder des Betriebs anzugeben, sofern die Anschrift eindeutig dem Standort der Flächen entspricht. Nach dem Entwurf der deutschen Verwaltungsvorschrift soll sogar die Wohnanschrift zusammen mit einer nationalen Identifikationsnummer genügen. Dieser Entwurf ist allerdings noch nicht beschlossen.",
+      },
+      {
+        q: "Ab wann muss ich die Erklärung abgegeben haben?",
+        a: "Vor dem ersten Holzverkauf ab dem 30. Dezember 2026. Die spätere Frist 30. Juni 2027, die für kleine Unternehmen oft genannt wird, gilt ausdrücklich nicht für Rund- und Brennholz. Maßgeblich ist der Verkauf, nicht der Einschlag: Auch Holz, das jetzt geschlagen, aber erst ab dem 30. Dezember verkauft wird, fällt unter die neuen Regeln.",
+      },
+      {
+        q: "Betrifft das auch Brennholz, das ich an Privatleute verkaufe?",
+        a: "Brennholz ist erfasst, und nach den Leitlinien der EU-Kommission fallen auch Lieferungen an private Verbraucher in den Anwendungsbereich — entscheidend ist, dass die Abgabe im Rahmen einer geschäftsbezogenen Tätigkeit erfolgt, entgeltlich oder unentgeltlich. Die privaten Käufer selbst haben keine Pflichten. Wer unsicher ist, ob sein Brennholzverkauf darunterfällt, sollte bei der Forstbetriebsgemeinschaft oder der Forstbehörde nachfragen.",
+      },
+    ],
+    content: `
+<p class="lead">Für Waldbesitzer im Kreis Lippe rückt ein Termin näher, der lange vor allem als Bürokratie-Schreckgespenst galt: Ab dem 30. Dezember 2026 gilt die EU-Entwaldungsverordnung (EUDR) — und für Rund- und Brennholz ausdrücklich auch für kleine Privatwaldbesitzer. Im August hat die Bundesregierung die deutsche Umsetzung auf den Weg gebracht: Am 7. August legte das Bundeslandwirtschaftsministerium den Entwurf einer Verwaltungsvorschrift mit Erleichterungen vor, am 12. August beschloss das Kabinett den Gesetzentwurf zur Durchführung. Was das für den nächsten Holzverkauf bedeutet, welche Erleichterungen kommen sollen und was noch offen ist.</p>
+
+<figure>
+<img src="/blog-eudr-2026.jpg" alt="Holzpolter mit frisch eingeschlagenem Rundholz an einem Waldweg in einem Mischwald" width="1376" height="768" style="width:100%;height:auto;border-radius:14px" loading="lazy" />
+<figcaption>Rundholz am Waldweg: Wer ab dem 30. Dezember 2026 Holz aus dem eigenen Wald verkauft, braucht vorher eine Identifikationsnummer aus dem EU-Informationssystem.</figcaption>
+</figure>
+
+<h2>Worum es geht — und warum auch der Privatwald betroffen ist</h2>
+<p>Die EUDR soll sicherstellen, dass in der EU nur noch Rohstoffe und Erzeugnisse verkauft werden, für die keine Wälder gerodet oder geschädigt wurden. Neben Kakao, Kaffee, Soja, Ölpalme, Kautschuk und Rindern gehört <strong>Holz</strong> zu den sieben erfassten Rohstoffen. Für Holz gilt nach Darstellung der Bundesregierung: Es muss aus einem Wald stammen, in dem es seit dem 31. Dezember 2020 keine Waldschädigung gab, es muss nach dem Recht des Erzeugerlandes legal erzeugt sein, und für die Ware muss eine Erklärung im EU-Informationssystem vorliegen. „Waldschädigung“ meint dabei nicht Käfer- oder Sturmschäden, sondern strukturelle Veränderungen der Waldbedeckung — etwa die Umwandlung natürlich verjüngter Wälder in Plantagenwälder.</p>
+<p>Erfasst sind unter anderem <strong>Rohholz</strong> (Zolltarifnummer 4403) und <strong>Brennholz</strong> (4401). Pflichtig ist, wer das Holz erstmals auf dem EU-Markt bereitstellt — beim Holz aus dem eigenen Wald in aller Regel der Waldbesitzer selbst, gleich ob er an ein Sägewerk, an einen Händler oder als Brennholz an Privatleute verkauft. Eine Mindestmenge, unterhalb derer die Pflichten entfallen, sieht die Verordnung nicht vor.</p>
+
+<h2>Die wichtigste Frist: 30. Dezember 2026 — auch für kleine Waldbesitzer</h2>
+<p>In vielen Übersichten steht, für Klein- und Kleinstunternehmen gelte die Verordnung erst ab dem 30. Juni 2027. Für Waldbesitzer ist das eine gefährliche Verkürzung. Die Änderungsverordnung vom Dezember 2025 nimmt Erzeugnisse, die schon unter die bisherige EU-Holzhandelsverordnung fielen, ausdrücklich von dieser Schonfrist aus — und dazu gehören Rund- und Brennholz. Die EU-Kommission hat es in ihrer Mitteilung vom 4. Mai 2026 klar formuliert: Die Verordnung gilt ab dem 30. Dezember 2026 für große und mittlere Unternehmen „sowie für Kleinst- und Kleinunternehmen aus der Holzbranche“.</p>
+<p>Entscheidend ist dabei der Verkauf, nicht der Einschlag. Nach den Leitlinien der Kommission vom 20. Juli fällt Holz, das nach dem 29. Juni 2023 geschlagen und ab dem 30. Dezember 2026 in Verkehr gebracht wird, unter die EUDR. Wer im Herbst einschlägt — etwa um die weiterhin hohen Fichtenpreise mitzunehmen, die wir in <a href="/blog/holzpreise-2026-rekord-fichte-lippe-einschlagen-oder-warten">Holzpreise auf Rekordniveau</a> eingeordnet haben — und das Holz erst im Januar verkauft, braucht also bereits die neue Erklärung.</p>
+
+<h2>Die Erleichterungen: Was für den Lipper Privatwald gelten soll</h2>
+<h3>1. Einmalige vereinfachte Erklärung statt laufender Sorgfaltserklärungen</h3>
+<p>Seit der Änderung vom Dezember 2025 gibt es die Gruppe der „Kleinst- oder Kleinprimärerzeuger“: natürliche Personen und kleine Betriebe aus Ländern mit geringem Entwaldungsrisiko, die selbst erzeugte Rohstoffe verkaufen. Deutschland ist in der Länderliste der Kommission als Land mit geringem Risiko eingestuft, und nach Angaben des Bundeslandwirtschaftsministeriums zählen „die allermeisten Waldbesitzer in Deutschland“ zu dieser Gruppe. Sie geben <strong>einmalig</strong> eine vereinfachte Erklärung im EU-Informationssystem ab, statt regelmäßig — in der Regel jährlich — eine Sorgfaltserklärung einzureichen. Danach erhalten sie eine <strong>Identifikationsnummer</strong>; verkaufen dürfen sie erst, wenn diese Nummer vergeben ist.</p>
+<p>In die Erklärung gehören laut Verordnung im Wesentlichen Name und Anschrift, die Art des Erzeugnisses mit Zolltarifnummer und einer geschätzten jährlichen Menge, das Erzeugerland mit der Anschrift oder den Geodaten der Flächen sowie eine vorgegebene Bestätigung.</p>
+
+<h3>2. Postanschrift statt Geodaten</h3>
+<p>Schon das EU-Recht erlaubt kleinen Erzeugern, statt der Geolokalisierung jedes Grundstücks die Postanschrift der Grundstücke oder des Betriebs anzugeben — nach den Erwägungsgründen allerdings nur, wenn die Anschrift eindeutig dem Standort der Flächen entspricht. Der Entwurf der deutschen Verwaltungsvorschrift geht weiter: Für kleine Primärerzeuger soll die Anschrift des Betriebs oder, wenn es keinen Betrieb gibt, die <strong>Wohnanschrift in Verbindung mit einer nationalen Identifikationsnummer</strong> genügen. Damit entfiele für sie die Pflicht zur Geolokalisierung. Welche Identifikationsnummer gemeint ist, legt der Entwurf noch nicht fest.</p>
+
+<h3>3. Sammelerklärung über die Forstbetriebsgemeinschaft</h3>
+<p>Forstwirtschaftliche Zusammenschlüsse, die das Holz ihrer Mitglieder vermarkten, sollen selbst als Marktteilnehmer gelten und eine gemeinsame Erklärung für dieses Holz abgeben können. Der Entwurf bezieht das auf Holz von Mitgliedern anerkannter Forstbetriebsgemeinschaften. Für viele kleine Waldbesitzer in Lippe, die ihr Holz ohnehin gebündelt über eine FBG verkaufen, wäre das die einfachste Lösung. Die Gesetzesbegründung rechnet selbst damit, dass die meisten Waldbesitzenden diesen Weg wählen werden.</p>
+
+<h2>Was noch offen ist</h2>
+<ul>
+<li><strong>Die Erleichterungen stehen nicht im Gesetz.</strong> Adresse statt Geodaten und Sammelerklärung finden sich nur im Entwurf einer Allgemeinen Verwaltungsvorschrift, der noch mit den Ressorts und den Ländern abgestimmt wird. Die Verbände AGDW – Die Waldeigentümer und Familienbetriebe Land und Forst kritisieren, eine solche Vorschrift binde nur die Verwaltung und schaffe keine gesicherte Rechtsposition, und fordern, die Erleichterungen in das Gesetz selbst zu schreiben.</li>
+<li><strong>Strenge Sanktionen:</strong> Der Kabinettsentwurf sieht für das Inverkehrbringen entgegen der Verordnung Freiheitsstrafe bis zu fünf Jahren oder Geldstrafe vor, bei leichtfertigem Handeln bis zu drei Jahren; unerhebliche Mengen sind ausgenommen. Wer die vereinfachte Erklärung nicht, falsch oder zu spät übermittelt, riskiert ein Bußgeld von bis zu 50.000 Euro. Die Verbände halten das für unverhältnismäßig.</li>
+<li><strong>Das EU-System hakt:</strong> Nach Angaben der Kommission ging das Informationssystem Ende Juni mit der Funktion für die vereinfachte Erklärung wieder in Betrieb. Ein Praxistest der Waldbesitzerverbände im Juli fand dennoch Mängel: Nicht jeder Browser funktioniert, Eingaben gehen verloren, Adressen werden abgelehnt, und Rundholz soll in Kilogramm statt in Festmetern angegeben werden.</li>
+<li><strong>Das parlamentarische Verfahren steht aus:</strong> Bundestag und Bundesrat müssen sich mit dem Gesetzentwurf noch befassen; Änderungen sind möglich. Die Kontrolle heimischen Holzes sollen nach dem Entwurf die nach Landesrecht zuständigen Behörden übernehmen.</li>
+</ul>
+
+<h2>Checkliste: Was Waldbesitzer in Lippe bis Jahresende klären sollten</h2>
+<ol>
+<li><strong>Vermarktungsweg klären:</strong> Wer über eine anerkannte Forstbetriebsgemeinschaft verkauft, sollte dort nachfragen, ob sie Sammelerklärungen für ihre Mitglieder abgeben wird. Wer selbst verkauft, muss die Erklärung selbst abgeben.</li>
+<li><strong>Zugang rechtzeitig anlegen:</strong> Die Erklärung läuft über das EU-Informationssystem, die Anmeldung über ein EU-Login-Konto. Planen Sie Zeit für Registrierung und Anlaufprobleme ein — vor dem ersten Verkauf ab dem 30. Dezember muss die Identifikationsnummer vorliegen.</li>
+<li><strong>Stammdaten bereitlegen:</strong> Anschrift, eine Liste Ihrer Waldflurstücke (Gemarkung, Flur, Flurstück) und eine realistische Schätzung der jährlich verkauften Holzmenge.</li>
+<li><strong>Käufer einbinden:</strong> Die Identifikationsnummer muss an die Abnehmer weitergegeben werden. Stimmen Sie mit Sägewerk oder Holzhändler ab, auf welchem Weg das geschieht.</li>
+<li><strong>Holz auf dem Stock sauber regeln:</strong> Wer Bäume verkauft, die der Käufer selbst fällt, sollte im Vertrag klar festhalten, wer mit dem Fällen Eigentümer des Holzes wird. Davon hängt nach den EU-Leitlinien ab, wer als Marktteilnehmer die Pflichten trägt.</li>
+<li><strong>Unterlagen aufbewahren:</strong> Erklärungen und die zugehörigen Nachweise sind fünf Jahre aufzubewahren.</li>
+</ol>
+
+<h2>Was das für Wert und Verkauf von Waldflächen bedeutet</h2>
+<p>Der Verkauf einer Waldfläche selbst ist kein Holzverkauf — die EUDR betrifft die geernteten Erzeugnisse, nicht das Grundstück. Mittelbar spielt sie trotzdem eine Rolle: Wer nur alle paar Jahre Holz verkauft und den Aufwand scheut, wird sich stärker an eine Forstbetriebsgemeinschaft binden oder die Holzernte ganz einem Dienstleister überlassen. Für manche Eigentümer kleiner, weit entfernt liegender Parzellen dürfte die neue Pflicht ein weiterer Anlass sein, grundsätzlich über Halten oder Abgeben nachzudenken — die Abwägung beschreiben wir in <a href="/blog/privatwald-lippe-halten-foerdern-verkaufen">Privatwald in Lippe: halten, fördern oder verkaufen</a>.</p>
+<p>Was Ihre Waldfläche heute wert ist, zeigt unsere <a href="/blog/fluechen-quick-check-wertindikation">kostenlose Wertindikation</a>. Und wenn Sie konkret über eine Abgabe nachdenken, sprechen Sie uns zum <a href="/wald-verkaufen">Verkauf einer Waldfläche im Kreis Lippe</a> an.</p>
+
+<p class="text-sm text-stone-500"><em>Stand: 24. August 2026. Quellen: Verordnung (EU) 2023/1115 in der Fassung der Verordnung (EU) 2025/2650 vom 19. Dezember 2025; Mitteilung der EU-Kommission vom 4. Mai 2026; Leitlinien der Kommission zur EU-Entwaldungsverordnung vom 20. Juli 2026; Pressemitteilung des Bundesministeriums für Landwirtschaft, Ernährung und Heimat vom 7. August 2026 mit dem Entwurf der Allgemeinen Verwaltungsvorschrift; Kabinettsbeschluss vom 12. August 2026 und Kabinettsentwurf des Durchführungsgesetzes; Pressemitteilung von AGDW und Familienbetriebe Land und Forst vom 12. August 2026. Dieser Beitrag ersetzt keine Rechtsberatung im Einzelfall.</em></p>
+`,
+  },
+  {
     slug: "batteriespeicher-ackerland-pacht-lippe",
     title:
       "Batteriespeicher statt Solarpark: Warum ein halber Hektar am Umspannwerk 2026 mehr Pacht bringt als 5 ha Ackerland",
