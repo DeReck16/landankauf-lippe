@@ -11,8 +11,12 @@ export const maxDuration = 60;
 
 // Eigene bzw. telefonisch/per E-Mail angebotene Flächen direkt in die Flächenbörse stellen
 // (lib/portal/eigene-flaechen.ts) — ohne Umweg über das Formular der Website.
-export default async function FlaechenEinstellenPage() {
+export default async function FlaechenEinstellenPage(props: PageProps<"/admin/flaechen-einstellen">) {
   const { email } = await requireAdmin();
+  // Vorbelegung per Link (z. B. von Claude vorbereitet): ?zeilen=…&eigentuemer=…&text=…&typ=…&art=pacht|kauf — veröffentlicht wird trotzdem erst nach Prüfen und „Ja“.
+  const sp = await props.searchParams;
+  const q = (k: string, max: number) => (typeof sp[k] === "string" ? (sp[k] as string).slice(0, max) : "");
+  const vorbelegt = { zeilen: q("zeilen", 4000), eigentuemer: q("eigentuemer", 120), text: q("text", 400), typ: q("typ", 40), art: q("art", 10) === "kauf" ? ("kauf" as const) : ("pacht" as const) };
   return (
     <>
       <p style={{ marginBottom: "0.75rem" }}>
@@ -28,7 +32,7 @@ export default async function FlaechenEinstellenPage() {
           </p>
         </div>
       </div>
-      <FlaechenEinstellen typen={FLAECHENTYPEN} standardEmail={email} />
+      <FlaechenEinstellen typen={FLAECHENTYPEN} standardEmail={email} vorbelegt={vorbelegt} />
     </>
   );
 }

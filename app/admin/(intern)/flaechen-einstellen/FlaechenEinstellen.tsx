@@ -13,13 +13,22 @@ const ha = (x: number | null) => (x == null ? "—" : `${x.toLocaleString("de-DE
 
 type Auswahl = { an: boolean; typ: string; text: string };
 
-export default function FlaechenEinstellen({ typen, standardEmail }: { typen: readonly string[]; standardEmail: string }) {
-  const [zeilen, setZeilen] = useState("");
-  const [art, setArt] = useState<"pacht" | "kauf">("pacht");
-  const [eigentuemer, setEigentuemer] = useState("Dennis Reckling (privat)");
+export default function FlaechenEinstellen({
+  typen,
+  standardEmail,
+  vorbelegt,
+}: {
+  typen: readonly string[];
+  standardEmail: string;
+  /** Vorbelegung aus dem Link (leer = Standard). */
+  vorbelegt: { zeilen: string; eigentuemer: string; text: string; typ: string; art: "pacht" | "kauf" };
+}) {
+  const [zeilen, setZeilen] = useState(vorbelegt.zeilen);
+  const [art, setArt] = useState<"pacht" | "kauf">(vorbelegt.art);
+  const [eigentuemer, setEigentuemer] = useState(vorbelegt.eigentuemer || "Dennis Reckling (privat)");
   const [email, setEmail] = useState(standardEmail);
-  const [standardTyp, setStandardTyp] = useState("Wiese / Grünland");
-  const [text, setText] = useState("");
+  const [standardTyp, setStandardTyp] = useState(typen.includes(vorbelegt.typ) ? vorbelegt.typ : "Wiese / Grünland");
+  const [text, setText] = useState(vorbelegt.text);
   const [vorschau, setVorschau] = useState<FlaechenZeile[] | null>(null);
   const [auswahl, setAuswahl] = useState<Auswahl[]>([]);
   const [fragen, setFragen] = useState(false);
