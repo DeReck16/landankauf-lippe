@@ -161,6 +161,7 @@ export async function boerseNeuSchreiben(): Promise<number> {
   revalidatePath("/");
   revalidatePath("/flaechenboerse");
   revalidatePath("/flaechenboerse/[code]", "page");
+  revalidatePath("/api/boerse");
   return angebote.length;
 }
 

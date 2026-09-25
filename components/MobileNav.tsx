@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import BoerseZaehler from "./boerse/BoerseZaehler";
 
 type NavItem = { href: string; label: string };
 
@@ -68,6 +69,7 @@ export default function MobileNav({ items }: { items: readonly NavItem[] }) {
                     className="block py-3 text-base text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-brand-dark)] transition-colors"
                   >
                     {item.label}
+                    {item.href === "/flaechenboerse" && <BoerseZaehler />}
                   </Link>
                 </li>
               ))}

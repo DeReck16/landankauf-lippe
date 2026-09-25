@@ -1,6 +1,7 @@
 import Link from "next/link";
 import MobileNav from "@/components/MobileNav";
 import LogoZeichen from "./LogoZeichen";
+import BoerseZaehler from "./boerse/BoerseZaehler";
 
 const nav = [
   { href: "/flaechenboerse", label: "Flächenbörse" },
@@ -32,6 +33,7 @@ export default function Header() {
               className="whitespace-nowrap text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-brand-dark)] transition-colors"
             >
               {item.label}
+              {item.href === "/flaechenboerse" && <BoerseZaehler />}
             </Link>
           ))}
         </nav>
