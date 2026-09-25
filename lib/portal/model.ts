@@ -137,6 +137,8 @@ export type KundeRecord = {
   rolle: Rolle;
   art: Art;
   email: string;
+  /** Name laut Anfrage (bei eingestellten Flächen der Eigentümer) — trennt Eigentümer mit gleicher E-Mail-Adresse. */
+  name?: string;
   angelegtAm: string;
   angelegtVon: string;
   einladung?: {

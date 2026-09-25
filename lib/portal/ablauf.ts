@@ -94,18 +94,22 @@ export async function kundeSicherstellen(lead: LeadView, von: string): Promise<M
   const email = T.wert(lead.email).toLowerCase();
   if (!rr) throw new Error("Die Anfrage ist weder als Angebot noch als Gesuch (mit Kauf/Pacht) eingeordnet.");
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Die Anfrage hat keine gültige E-Mail-Adresse.");
+  const name = T.wert(lead.name).trim().slice(0, 200) || undefined;
   return aendereKunde(
     lead.id,
     (k) => {
       // Solange nicht unterschrieben ist, folgt der Kunde der (evtl. korrigierten) Einordnung.
       if (k.vertrag) return false;
-      if (k.rolle === rr.rolle && k.art === rr.art && k.email === email) return false;
+      if (k.rolle === rr.rolle && k.art === rr.art && k.email === email && k.name === name) return false;
       k.rolle = rr.rolle;
       k.art = rr.art;
       k.email = email;
+      if (name) k.name = name;
+      else delete k.name;
     },
     () => {
       const k = M.neuerKunde(lead.id, rr.rolle, rr.art, email, von);
+      if (name) k.name = name;
       M.ereignis(k, von, "kunde-angelegt", `Kundenakte angelegt (${M.ROLLE_NAME[rr.rolle]}, ${rr.art === "kauf" ? "Kauf" : "Pacht"})`);
       return k;
     },

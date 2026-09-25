@@ -139,7 +139,7 @@ export function anfrageVorschlag(l: LeadView, k: M.KundeRecord | null, u: Anfrag
   const was = angebot ? (rr.art === "kauf" ? "Verkaufsangebot" : "Pachtangebot") : rr.art === "kauf" ? "Kaufgesuch" : "Pachtgesuch";
   // Gleicher Anbieter mit weiteren Flächen: keine zweite Einladung (läuft schon bzw. Vereinbarung liegt vor).
   if (angebot && u.kunden) {
-    const sperre = einladungGesperrt({ id: l.id, rolle: rr.rolle, art: rr.art, email: an }, k, u.kunden.values(), jetzt.getTime());
+    const sperre = einladungGesperrt({ id: l.id, rolle: rr.rolle, art: rr.art, email: an, name: T.wert(l.name) }, k, u.kunden.values(), jetzt.getTime());
     if (sperre) return beantwortet(`${was}: ${sperre}`, art);
   }
   // Ohne E-Mail-Adresse ist keine Online-Einladung möglich (die Anfrage selbst ist unveränderlich) — also anrufen.

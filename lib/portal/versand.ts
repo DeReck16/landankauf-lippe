@@ -98,7 +98,7 @@ export async function verwaltungsMailSenden(von: string, auftrag: VersandAuftrag
   // Anfrage eingeladen wurde oder die Vereinbarung dort unterschrieben ist (lib/portal/anbieter-gruppe.ts).
   if ((zweck === "einladung" || zweck === "erinnerung") && rolle === "anbieter") {
     const rr = T.rolleVonLead(geladen.lead);
-    const sperre = rr ? einladungGesperrt({ id, rolle: rr.rolle, art: rr.art, email: an }, kunde, await alleKunden()) : null;
+    const sperre = rr ? einladungGesperrt({ id, rolle: rr.rolle, art: rr.art, email: an, name: T.wert(geladen.lead.name) }, kunde, await alleKunden()) : null;
     if (sperre) return nein(sperre);
   }
   // Einladung und Erinnerung nie mit einem abgelaufenen Link verschicken.

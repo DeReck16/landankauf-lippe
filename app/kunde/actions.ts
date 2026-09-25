@@ -171,7 +171,7 @@ export async function kundenvertragAktion(_prev: UnterschriftState, fd: FormData
   });
   if (!r.ok) return { status: "fehler", text: r.fehler };
   // Anbieter mit mehreren Flächen: eine Unterschrift gilt für alle seine Anfragen (lib/portal/anbieter-gruppe.ts).
-  const uebertragen = kunde.rolle === "anbieter" ? await anbieterAbgleichJetzt("kunde") : [];
+  const uebertragen = kunde.rolle === "anbieter" ? (await anbieterAbgleichJetzt("kunde", kunde.email)).filter((x) => x.vertrag?.uebernommenVon === kunde.id) : [];
   revalidatePath("/kunde", "layout");
   revalidatePath("/admin", "layout");
   redirect(

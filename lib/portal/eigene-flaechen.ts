@@ -188,7 +188,7 @@ export async function flaechenEinstellen(opts: {
     ergebnisse.push(...online);
     await boerseNeuSchreiben();
     // Hat der Eigentümer die Vereinbarung schon über eine andere Fläche unterschrieben, gilt sie auch hier.
-    await anbieterAbgleichJetzt(von);
+    await anbieterAbgleichJetzt(von, email);
   }
   return ergebnisse;
 }

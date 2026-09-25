@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { gleichePerson } from "@/lib/portal/anbieter-gruppe";
 import * as M from "@/lib/portal/model";
 import { kundenUebersicht, type KundenVorgang } from "@/lib/portal/sicht";
 import { requireKunde } from "@/lib/portal/sitzung";
@@ -65,7 +66,9 @@ export default async function KundePage(props: PageProps<"/kunde">) {
         const stufe = M.stufe(k);
         // Mehrere Flächen desselben Anbieters: eine Bestätigung gilt für alle (lib/portal/anbieter-gruppe.ts).
         const mehrereFlaechen =
-          k.rolle === "anbieter" && !k.vertrag && sitzung.kunden.filter((x) => x.rolle === "anbieter" && x.art === k.art && !x.vertrag && !x.gesperrt).length > 1;
+          k.rolle === "anbieter" &&
+          !k.vertrag &&
+          sitzung.kunden.filter((x) => x.rolle === "anbieter" && x.art === k.art && !x.vertrag && !x.gesperrt && gleichePerson(k.name ?? k.stammdaten?.name, x.name ?? x.stammdaten?.name)).length > 1;
         const einmalHinweis = mehrereFlaechen ? (
           <p className="lfk-klein" style={{ marginTop: "0.6rem" }}>
             Sie haben mehrere Flächen bei uns: Angaben und Bestätigung sind nur einmal nötig — die Vereinbarung gilt dann für alle Ihre Flächen.
