@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { logoSvg } from "@/lib/logo";
 
 export const alt = "Lippe Forst — Ackerland, Wiesen & Wald im Kreis Lippe verkaufen";
 export const size = { width: 1200, height: 630 };
@@ -24,27 +25,7 @@ export default async function OGImage() {
       >
         {/* Top: brand + eyebrow */}
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-          <div
-            style={{
-              width: 56,
-              height: 56,
-              borderRadius: "50%",
-              background: "#2f5d3a",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
-            }}
-          >
-            <div
-              style={{
-                width: 26,
-                height: 26,
-                borderRadius: "50%",
-                background: "#c89b3c",
-              }}
-            />
-          </div>
+          <img src={`data:image/svg+xml;base64,${Buffer.from(logoSvg()).toString("base64")}`} width={56} height={56} alt="" style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.4)", borderRadius: 11 }} />
           <div style={{ display: "flex", flexDirection: "column" }}>
             <span
               style={{
@@ -74,21 +55,22 @@ export default async function OGImage() {
 
         {/* Middle: headline */}
         <div style={{ display: "flex", flexDirection: "column", maxWidth: 980 }}>
-          <p
+          {/* Zwei feste Zeilen: <br /> kennt der OG-Renderer nicht (sonst läuft die Zeile rechts aus dem Bild). */}
+          <div
             style={{
+              display: "flex",
+              flexDirection: "column",
               fontSize: 78,
               lineHeight: 1.05,
               fontWeight: 600,
               fontFamily: "serif",
               color: "#faf8f3",
-              margin: 0,
               letterSpacing: "-0.015em",
             }}
           >
-            Ihre Fläche verdient
-            <br />
-            einen guten Nachfolger.
-          </p>
+            <span>Ihre Fläche verdient</span>
+            <span>einen guten Nachfolger.</span>
+          </div>
           <p
             style={{
               marginTop: 26,

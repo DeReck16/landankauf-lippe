@@ -70,7 +70,7 @@ export default function RootLayout({
     name: site.name,
     legalName: site.contact.company,
     image: `${site.url}/opengraph-image`,
-    logo: `${site.url}/icon`,
+    logo: `${site.url}/icon-512.png`,
     url: site.url,
     address: {
       "@type": "PostalAddress",

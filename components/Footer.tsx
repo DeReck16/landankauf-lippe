@@ -2,6 +2,7 @@ import Link from "next/link";
 import SisterSites from "@/components/SisterSites";
 import { site, services, whatsappLink } from "@/lib/site";
 import { CITIES, FLAECHENTYPEN } from "@/lib/cities";
+import LogoZeichen from "./LogoZeichen";
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -68,9 +69,7 @@ export default function Footer() {
       <div className="container-page px-5 py-16 grid gap-10 md:grid-cols-4">
         <div className="md:col-span-2">
           <div className="flex items-center gap-2 mb-4">
-            <span aria-hidden className="block w-7 h-7 rounded-full bg-[color:var(--color-brand)] relative">
-              <span className="absolute inset-1.5 rounded-full bg-[color:var(--color-accent)]/90" />
-            </span>
+            <LogoZeichen id="fuss" className="block w-7 h-7 shrink-0" />
             <span className="font-serif text-lg font-semibold text-white">{site.name}</span>
           </div>
           <p className="text-sm leading-relaxed text-white/70 max-w-md">

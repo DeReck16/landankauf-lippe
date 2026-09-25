@@ -1,5 +1,6 @@
 import Link from "next/link";
 import MobileNav from "@/components/MobileNav";
+import LogoZeichen from "./LogoZeichen";
 
 const nav = [
   { href: "/flaechenboerse", label: "Flächenbörse" },
@@ -18,9 +19,7 @@ export default function Header() {
     <header className="sticky top-0 z-30 backdrop-blur bg-[color:var(--color-bg)]/85 border-b border-[color:var(--color-line)]">
       <div className="container-page flex items-center justify-between h-16 px-5">
         <Link href="/" className="flex items-center gap-2">
-          <span aria-hidden className="block w-7 h-7 rounded-full bg-[color:var(--color-brand)] relative">
-            <span className="absolute inset-1.5 rounded-full bg-[color:var(--color-accent)]/90" />
-          </span>
+          <LogoZeichen id="kopf" className="block w-7 h-7 shrink-0" />
           <span className="font-serif text-lg font-semibold tracking-tight">
             Lippe Forst
           </span>

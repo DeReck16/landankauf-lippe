@@ -106,7 +106,7 @@ export function ratgeberSchema(r: RatgeberMeta) {
     publisher: {
       "@type": "Organization",
       name: site.name,
-      logo: { "@type": "ImageObject", url: `${site.url}/icon` },
+      logo: { "@type": "ImageObject", url: `${site.url}/icon-512.png` },
     },
   };
   const brotkrumen = {

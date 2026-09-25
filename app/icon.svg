@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<title>Lippe Forst</title>
+<defs><clipPath id="kachel"><rect width="64" height="64" rx="12"/></clipPath></defs>
+<rect width="64" height="64" rx="12" fill="#2f5d3a"/>
+<g clip-path="url(#kachel)"><circle cx="32" cy="118" r="70" fill="#c89b3c"/></g>
+<path d="M 32 5 Q 36.5 14.375 44 20 L 38 20 Q 41.75 30 48 36 L 42 36 Q 45.75 43.5 52 48 L 12 48 Q 18.25 43.5 22 36 L 16 36 Q 22.25 30 26 20 L 20 20 Q 27.5 14.375 32 5 Z" fill="#faf8f3"/>
+</svg>
