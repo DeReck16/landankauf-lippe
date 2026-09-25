@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import type { LeadView } from "@/lib/admin/model";
 import { VORLAGEN, istFreigegeben, kundenVorlage } from "@/lib/vertraege/vorlagen";
 import { einladungsLink } from "./ablauf";
+import { einladungGesperrt } from "./anbieter-gruppe";
 import type { AnfrageAktion, AnfrageMail, AnfrageVorschlag } from "./anfrage-typen";
 import { entwuerfeKunde } from "./entwuerfe";
 import * as M from "./model";
@@ -19,7 +20,13 @@ import { einladungBis } from "./token";
 // (anfrageVorschlagAktion) — nur, wenn der Vorschlag noch dem bestätigten Stand
 // entspricht (Signatur). Nichts geht ohne Klick raus.
 
-export type AnfrageUmgebung = { einstellungen: M.Einstellungen; basis: string; jetzt?: Date };
+export type AnfrageUmgebung = {
+  einstellungen: M.Einstellungen;
+  basis: string;
+  jetzt?: Date;
+  /** Alle Kundenakten — damit ein Anbieter mit mehreren Flächen nur einmal eingeladen wird (lib/portal/anbieter-gruppe.ts). */
+  kunden?: Map<string, M.KundeRecord>;
+};
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const NEUER_LINK = "[persönlicher Link — wird beim Klick neu erstellt]";
@@ -130,6 +137,11 @@ export function anfrageVorschlag(l: LeadView, k: M.KundeRecord | null, u: Anfrag
     return beantwortet(`${M.ROLLE_NAME[rr.rolle]} ${stand} — keine Einladung mehr nötig, nur noch als beantwortet markieren`, art);
   }
   const was = angebot ? (rr.art === "kauf" ? "Verkaufsangebot" : "Pachtangebot") : rr.art === "kauf" ? "Kaufgesuch" : "Pachtgesuch";
+  // Gleicher Anbieter mit weiteren Flächen: keine zweite Einladung (läuft schon bzw. Vereinbarung liegt vor).
+  if (angebot && u.kunden) {
+    const sperre = einladungGesperrt({ id: l.id, rolle: rr.rolle, art: rr.art, email: an }, k, u.kunden.values(), jetzt.getTime());
+    if (sperre) return beantwortet(`${was}: ${sperre}`, art);
+  }
   // Ohne E-Mail-Adresse ist keine Online-Einladung möglich (die Anfrage selbst ist unveränderlich) — also anrufen.
   if (!emailOk) {
     return beantwortet(`${was} ohne gültige E-Mail-Adresse — anrufen, dann als beantwortet markieren (eine Online-Einladung braucht eine E-Mail-Adresse)`, art);

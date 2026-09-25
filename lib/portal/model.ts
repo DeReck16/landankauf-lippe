@@ -122,6 +122,11 @@ export type KundenVertrag = {
   bestaetigungGesendetAm: string | null;
   /** Nur Suchende: die bei Unterschrift geltenden Provisionskonditionen samt Version. */
   konditionen: VertragsKonditionen | null;
+  /**
+   * Anbieter mit mehreren Flächen: dieselbe Vereinbarung, unterschrieben über eine andere Anfrage
+   * (lib/portal/anbieter-gruppe.ts). Alle Kopien teilen die dokumentId — Kündigung/Widerruf gilt für alle.
+   */
+  uebernommenVon?: string;
 };
 
 export type Erklaerung = { am: string; eingang: Eingang; erfasstVon: string; notiz?: string; bestaetigtAm?: string };
@@ -134,7 +139,18 @@ export type KundeRecord = {
   email: string;
   angelegtAm: string;
   angelegtVon: string;
-  einladung?: { nonce: string; bis: string; erstelltAm: string; von: string; gesendetAm?: string; angenommenAm?: string };
+  einladung?: {
+    nonce: string;
+    bis: string;
+    erstelltAm: string;
+    von: string;
+    gesendetAm?: string;
+    angenommenAm?: string;
+    /** Anbieter mit mehreren Flächen: eingeladen über diese andere Anfrage — keine eigene Einladungs-Mail. */
+    ueber?: string;
+    /** Nur vermerkt (Kopie der Einladung von `ueber`) — für diese Anfrage wurde nie ein eigener Link verschickt. */
+    kopie?: true;
+  };
   /** Sitzungen, die vor diesem Zeitpunkt ausgestellt wurden, gelten nicht mehr. */
   zugangAb?: string;
   gesperrt?: { am: string; von: string };

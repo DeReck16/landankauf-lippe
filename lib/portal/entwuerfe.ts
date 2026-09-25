@@ -220,7 +220,11 @@ export function entwuerfeKunde(opts: {
     wirkung: "Vermerkt „Einladung gesendet“ in der Kundenakte.",
     gesendetAm: kunde?.einladung?.gesendetAm,
     faellig: Boolean(link && !abgelaufen && !kunde?.einladung?.gesendetAm),
-    gesperrt: !link ? "Erst „Einladung erstellen“ klicken — dann steht der persönliche Link im Text." : linkAbgelaufen,
+    gesperrt: kunde?.einladung?.ueber
+      ? `Die Einladung läuft über Anfrage ${kunde.einladung.ueber} (gleicher Anbieter) — eine Vereinbarung gilt für alle seine Flächen, keine zweite Mail.`
+      : !link
+        ? "Erst „Einladung erstellen“ klicken — dann steht der persönliche Link im Text."
+        : linkAbgelaufen,
   });
   if (kunde?.einladung && !unterschrieben && link) {
     liste.push({
@@ -248,7 +252,7 @@ export function entwuerfeKunde(opts: {
       tipp: "Freundliche Erinnerung mit demselben Einladungslink.",
       wirkung: "Wird im Verlauf der Anfrage gespeichert.",
       gesendetAm: zuletzt(kunde.mails, "erinnerung"),
-      gesperrt: linkAbgelaufen,
+      gesperrt: kunde.einladung.ueber ? `Die Einladung läuft über Anfrage ${kunde.einladung.ueber} (gleicher Anbieter) — dort erinnern, keine zweite Mail.` : linkAbgelaufen,
     });
   }
   return liste;

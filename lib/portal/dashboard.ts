@@ -7,6 +7,7 @@ import { boerseLuecken, haText } from "@/lib/boerse";
 import { ladeNeu, ladePortal } from "@/lib/admin/neu";
 import type { AnfrageVorschlag, AntwortEntwurf, NachfassKandidat } from "./anfrage-typen";
 import { anfrageVorschlagSicher } from "./anfrage-vorschlag";
+import { anbieterAbgleich } from "./anbieter-gruppe";
 import { antwortEntwurf } from "./antwort";
 import { katasterNachholen } from "./kataster";
 import { assistentPlan, type AssistentChip, type AssistentPlan } from "./assistent";
@@ -169,7 +170,11 @@ function chipsFuer(ctx: VorgangKontext, rolle: M.Rolle, jetzt: Date): AssistentC
   if (k.gesperrt) out.push({ text: "Zugang gesperrt", art: "rot", tipp: "Zugang zum Kundenbereich gesperrt — in der Anfrage entsperren" });
 
   if (k.vertrag) {
-    out.push({ text: `Vertrag mit Lippe Forst unterschrieben am ${tag(k.vertrag.signatur.am)}`, art: "ok", tipp: `„${k.vertrag.titel}“ online unterschrieben von „${k.vertrag.signatur.name}“` });
+    out.push({
+      text: `Vertrag mit Lippe Forst unterschrieben am ${tag(k.vertrag.signatur.am)}${k.vertrag.uebernommenVon ? ` (über ${k.vertrag.uebernommenVon})` : ""}`,
+      art: "ok",
+      tipp: `„${k.vertrag.titel}“ online unterschrieben von „${k.vertrag.signatur.name}“${k.vertrag.uebernommenVon ? ` — über Anfrage ${k.vertrag.uebernommenVon}, gilt für alle Flächen dieses Anbieters` : ""}`,
+    });
   } else {
     const e = k.einladung;
     const erinnert = k.mails.find((m) => m.zweck === "erinnerung" && m.ok)?.am;
@@ -178,9 +183,11 @@ function chipsFuer(ctx: VorgangKontext, rolle: M.Rolle, jetzt: Date): AssistentC
     } else {
       const gesendet = e.gesendetAm ?? k.mails.find((m) => (m.zweck === "einladung" || m.zweck === "erinnerung") && m.ok)?.am;
       out.push(
-        gesendet
-          ? { text: `Einladung gesendet am ${tag(gesendet)}`, art: "ok", tipp: "Einladungs-Mail mit dem persönlichen Link ist raus" }
-          : { text: "Link erstellt, nicht gesendet", art: "warn", tipp: "Der Einladungslink besteht, die Einladungs-Mail ist aber noch nicht raus" },
+        e.ueber
+          ? { text: `eingeladen über ${e.ueber}`, art: "ok", tipp: `Gleicher Anbieter: Die Einladung läuft über Anfrage ${e.ueber} — eine Vereinbarung gilt für alle seine Flächen, keine zweite Mail` }
+          : gesendet
+            ? { text: `Einladung gesendet am ${tag(gesendet)}`, art: "ok", tipp: "Einladungs-Mail mit dem persönlichen Link ist raus" }
+            : { text: "Link erstellt, nicht gesendet", art: "warn", tipp: "Der Einladungslink besteht, die Einladungs-Mail ist aber noch nicht raus" },
       );
       if (Date.parse(e.bis) < jetzt.getTime()) out.push({ text: `Link abgelaufen am ${tag(e.bis)}`, art: "rot", tipp: "Der Einladungslink ist abgelaufen — „Erinnerung senden“ erstellt automatisch einen neuen" });
       if (erinnert) out.push({ text: `erinnert am ${tag(erinnert)}`, art: "grau", tipp: "Letzte Erinnerungs-Mail" });
@@ -243,12 +250,20 @@ export const ladeDashboard = cache(async (email: string): Promise<Dashboard> => 
   const [{ leads, zustand }, portal, neu, basis] = await Promise.all([ladeVerwaltung(), ladePortal(), ladeNeu(email), basisUrl()]);
   const jetzt = new Date();
   const byId = new Map(leads.map((l) => [l.id, l]));
-  const u = { einstellungen: portal.einstellungen, basis, bewertungsUrl: M.bewertungsUrl(portal.einstellungen, process.env.GOOGLE_REVIEW_URL), jetzt };
+  const u = { einstellungen: portal.einstellungen, basis, bewertungsUrl: M.bewertungsUrl(portal.einstellungen, process.env.GOOGLE_REVIEW_URL), jetzt, kunden: portal.kunden };
 
   const jetztDran: DashVorgang[] = [];
   const warten: DashVorgang[] = [];
   const abgeschlossen: DashVorgang[] = [];
   const gesehen: string[] = [];
+
+  // Anbieter mit mehreren Flächen: eine Einladung, eine Unterschrift — Vereinbarung übertragen bzw.
+  // laufende Einladung vermerken, bevor die Vorgänge berechnet werden (lib/portal/anbieter-gruppe.ts).
+  try {
+    await anbieterAbgleich({ leads, kunden: portal.kunden, zustand, von: email });
+  } catch (err) {
+    console.error("[dashboard] Anbieter-Abgleich fehlgeschlagen", err);
+  }
 
   for (const [key, meta] of Object.entries(zustand.paare)) {
     if (meta.status === "vorschlag" || meta.status === "verworfen") continue;

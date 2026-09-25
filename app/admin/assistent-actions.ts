@@ -7,6 +7,7 @@ import { LEAD_STATUS, leadView } from "@/lib/admin/model";
 import { requireAdmin } from "@/lib/admin/session";
 import { listLeads, readZustand } from "@/lib/admin/store";
 import * as A from "@/lib/portal/ablauf";
+import { anbieterAbgleichFuer } from "@/lib/portal/anbieter-gruppe";
 import { anfrageVorschlag } from "@/lib/portal/anfrage-vorschlag";
 import { ASSISTENT_AKTIONEN, alleAktionen, assistentEntwurf, assistentPlan, type AssistentAktionId, type AssistentMail, type AssistentUmgebung } from "@/lib/portal/assistent";
 import { entwuerfeKunde } from "@/lib/portal/entwuerfe";
@@ -138,6 +139,8 @@ export async function assistentAktion(fd: FormData): Promise<AssistentState> {
   const signatur = feld(fd, "signatur", 64);
   if (!istPaarKey(key) || !ASSISTENT_AKTIONEN.includes(id)) return { status: "fehler", titel: "Ungültige Anfrage.", zeilen: [], am };
 
+  // Anbieter mit mehreren Flächen: vorher abgleichen, damit keine zweite Einladung entsteht.
+  await anbieterAbgleichFuer(key.split("~")[0], email);
   const ctx = await V.ladeVorgangKontext(key);
   if (!ctx) return { status: "fehler", titel: "Vorgang nicht gefunden.", zeilen: [], am };
   const u = await umgebung();
@@ -445,7 +448,8 @@ export async function anfrageVorschlagAktion(fd: FormData): Promise<AssistentSta
   if (!geladen) return { status: "fehler", titel: "Anfrage nicht gefunden.", zeilen: [], am };
   const { lead } = geladen;
   const u = await umgebung();
-  const a = anfrageVorschlag(lead, await ladeKunde(id), u).aktion;
+  const kunden = new Map((await alleKunden()).map((k) => [k.id, k]));
+  const a = anfrageVorschlag(lead, await ladeKunde(id), { ...u, kunden }).aktion;
   // Nur ausführen, was bestätigt wurde — sonst neu anzeigen (z. B. schon beantwortet oder neuer Link erstellt).
   if (lead.status !== "neu" || a.id !== aktion || a.signatur !== signatur) {
     revalidatePath("/admin", "layout");

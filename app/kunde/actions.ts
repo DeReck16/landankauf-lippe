@@ -10,6 +10,7 @@ import { erklaerungenKaufabsicht, erklaerungenKundenvertrag, erklaerungenPachtve
 import { anfrageHerkunft, basisUrl, beendeKundenSitzung, requireKundeId, starteKundenSitzung } from "@/lib/portal/sitzung";
 import { aendereKunde, alleKunden, istKundeId, istPaarKey, ladeEinstellungen, ladeKunde } from "@/lib/portal/speicher";
 import { kennung } from "@/lib/portal/token";
+import { anbieterAbgleichJetzt } from "@/lib/portal/anbieter-gruppe";
 
 // Server Actions des Kundenbereichs. Jede Action prüft die Sitzung selbst und
 // arbeitet nur mit Datensätzen, die zur angemeldeten E-Mail-Adresse gehören.
@@ -169,8 +170,15 @@ export async function kundenvertragAktion(_prev: UnterschriftState, fd: FormData
     herkunft: { ...herkunft, sitzung: kennung(`${sitzung.email}:${sitzung.seit}`) },
   });
   if (!r.ok) return { status: "fehler", text: r.fehler };
+  // Anbieter mit mehreren Flächen: eine Unterschrift gilt für alle seine Anfragen (lib/portal/anbieter-gruppe.ts).
+  const uebertragen = kunde.rolle === "anbieter" ? await anbieterAbgleichJetzt("kunde") : [];
   revalidatePath("/kunde", "layout");
-  redirect(`/kunde?m=${encodeURIComponent("Vielen Dank — Ihr Vertrag ist unterschrieben. Die Bestätigung mit dem PDF ist per E-Mail unterwegs.")}`);
+  revalidatePath("/admin", "layout");
+  redirect(
+    `/kunde?m=${encodeURIComponent(
+      `Vielen Dank — Ihr Vertrag ist unterschrieben. Die Bestätigung mit dem PDF ist per E-Mail unterwegs.${uebertragen.length ? ` Die Vereinbarung gilt für alle Ihre Flächen bei Lippe Forst (${uebertragen.length + 1}).` : ""}`,
+    )}`,
+  );
 }
 
 export async function beginnwunschAktion(fd: FormData): Promise<void> {

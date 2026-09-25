@@ -35,7 +35,11 @@ export default async function KuendigungPage(props: PageProps<"/kunde/kuendigung
     );
   }
   const vorauswahl = typeof sp.k === "string" ? sp.k : "";
-  const eigene = (sitzung?.kunden ?? []).filter((k) => k.vertrag && !k.kuendigung && !k.widerruf);
+  // Eine Vereinbarung für mehrere Flächen (gleiche dokumentId, lib/portal/anbieter-gruppe.ts) nur einmal anbieten — die Kündigung gilt für alle.
+  const offen = (sitzung?.kunden ?? []).filter((k) => k.vertrag && !k.kuendigung && !k.widerruf);
+  const flaechenJeVertrag = new Map<string, number>();
+  for (const k of offen) flaechenJeVertrag.set(k.vertrag!.dokumentId, (flaechenJeVertrag.get(k.vertrag!.dokumentId) ?? 0) + 1);
+  const eigene = offen.filter((k, i) => offen.findIndex((x) => x.vertrag!.dokumentId === k.vertrag!.dokumentId) === i);
   const gewaehlt = eigene.find((k) => k.id === vorauswahl) ?? eigene[0];
   const fehler = typeof sp.fehler === "string" ? FEHLER[sp.fehler] : undefined;
 
@@ -58,7 +62,8 @@ export default async function KuendigungPage(props: PageProps<"/kunde/kuendigung
               <select name="vertrag" defaultValue={gewaehlt?.id} className="field-select" title="Welchen Vertrag möchten Sie kündigen?">
                 {eigene.map((k) => (
                   <option key={k.id} value={k.id}>
-                    {k.vertrag!.titel} vom {datumDe(k.vertrag!.signatur.am)} ({k.id})
+                    {k.vertrag!.titel} vom {datumDe(k.vertrag!.signatur.am)} ({k.id}
+                    {(flaechenJeVertrag.get(k.vertrag!.dokumentId) ?? 1) > 1 ? `, gilt für ${flaechenJeVertrag.get(k.vertrag!.dokumentId)} Flächen` : ""})
                   </option>
                 ))}
               </select>

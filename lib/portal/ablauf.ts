@@ -403,6 +403,7 @@ export async function widerrufErfassen(kundeId: string, eingang: M.Eingang, von:
     x.widerruf = { am: new Date().toISOString(), eingang, erfasstVon: von, ...(notiz ? { notiz } : {}) };
     M.ereignis(x, von, "widerruf", `Widerruf ${EINGANG_TEXT[eingang]} eingegangen${notiz ? `: ${notiz}` : ""}`);
   });
+  await aufGleicheVereinbarung(k, "widerruf", von);
   if (eingang === "online" && k.widerruf) {
     const name = k.stammdaten?.name || k.vertrag?.signatur.name || "";
     const betreff = `Eingangsbestätigung Ihres Widerrufs (${k.id})`;
@@ -432,12 +433,31 @@ export async function widerrufErfassen(kundeId: string, eingang: M.Eingang, von:
   return k;
 }
 
+/**
+ * Anbieter mit mehreren Flächen teilen eine Vereinbarung (gleiche dokumentId, lib/portal/anbieter-gruppe.ts):
+ * Widerruf bzw. Kündigung über eine Anfrage gilt für alle Anfragen mit derselben Vereinbarung.
+ */
+async function aufGleicheVereinbarung(k: M.KundeRecord, art: "widerruf" | "kuendigung", von: string): Promise<void> {
+  const dok = k.vertrag?.dokumentId;
+  const erkl = k[art];
+  if (!dok || !erkl) return;
+  for (const x of await alleKunden()) {
+    if (x.id === k.id || x.vertrag?.dokumentId !== dok || x[art]) continue;
+    await aendereKunde(x.id, (y) => {
+      if (!y.vertrag || y[art]) return false;
+      y[art] = { ...erkl };
+      M.ereignis(y, von, art, `${art === "widerruf" ? "Widerruf" : "Kündigung"} der Vereinbarung über Anfrage ${k.id} — gilt auch für diese Fläche (gleiche Vereinbarung)`);
+    }).catch((err) => console.error("[ablauf] gleiche Vereinbarung nicht angepasst", x.id, err));
+  }
+}
+
 export async function kuendigungErfassen(kundeId: string, eingang: M.Eingang, von: string, notiz: string): Promise<M.KundeRecord> {
   const k = await aendereKunde(kundeId, (x) => {
     if (!x.vertrag || x.kuendigung || x.widerruf) return false;
     x.kuendigung = { am: new Date().toISOString(), eingang, erfasstVon: von, ...(notiz ? { notiz } : {}) };
     M.ereignis(x, von, "kuendigung", `Kündigung ${EINGANG_TEXT[eingang]} eingegangen${notiz ? `: ${notiz}` : ""}`);
   });
+  await aufGleicheVereinbarung(k, "kuendigung", von);
   if (eingang === "online" && k.kuendigung) {
     const name = k.stammdaten?.name || k.vertrag?.signatur.name || "";
     const betreff = `Bestätigung Ihrer Kündigung (${k.id})`;

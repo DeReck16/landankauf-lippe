@@ -63,6 +63,14 @@ export default async function KundePage(props: PageProps<"/kunde">) {
 
       {liste.map(({ kunde: k, lead, vorgaenge }) => {
         const stufe = M.stufe(k);
+        // Mehrere Flächen desselben Anbieters: eine Bestätigung gilt für alle (lib/portal/anbieter-gruppe.ts).
+        const mehrereFlaechen =
+          k.rolle === "anbieter" && !k.vertrag && sitzung.kunden.filter((x) => x.rolle === "anbieter" && x.art === k.art && !x.vertrag && !x.gesperrt).length > 1;
+        const einmalHinweis = mehrereFlaechen ? (
+          <p className="lfk-klein" style={{ marginTop: "0.6rem" }}>
+            Sie haben mehrere Flächen bei uns: Angaben und Bestätigung sind nur einmal nötig — die Vereinbarung gilt dann für alle Ihre Flächen.
+          </p>
+        ) : null;
         const widerruf = M.widerrufMoeglich(k);
         const vertragDok = k.vertrag ? k.dokumente.find((d) => d.id === k.vertrag!.dokumentId) : undefined;
         const schritte = [
@@ -87,6 +95,7 @@ export default async function KundePage(props: PageProps<"/kunde">) {
                 </Link>
               </div>
             )}
+            {!k.stammdaten && einmalHinweis}
             {k.stammdaten && !k.vertrag && stufe !== "gesperrt" && (
               <div className="lfk-knopfreihe">
                 <Link href={`/kunde/vertrag?k=${k.id}`} className="btn-primary" title="Den vollständigen Vertrag lesen und online unterschreiben">
@@ -97,6 +106,7 @@ export default async function KundePage(props: PageProps<"/kunde">) {
                 </Link>
               </div>
             )}
+            {k.stammdaten && stufe !== "gesperrt" && einmalHinweis}
 
             {k.vertrag && (
               <>

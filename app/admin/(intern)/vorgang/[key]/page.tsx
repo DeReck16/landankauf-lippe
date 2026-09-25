@@ -53,6 +53,7 @@ import MailEntwurf from "../../MailEntwurf";
 import Assistent from "../../Assistent";
 import { DokumentListe, KundenStand, Meldung, Verlauf } from "../../teile";
 import { SchrittLeiste } from "../../Schritte";
+import { anbieterAbgleichFuer } from "@/lib/portal/anbieter-gruppe";
 
 export const metadata: Metadata = { title: "Vorgang" };
 
@@ -816,6 +817,8 @@ export default async function VorgangPage(props: PageProps<"/admin/vorgang/[key]
   // „Vertragstext ansehen“ aus dem Assistenten öffnet die Vorschau gleich aufgeklappt.
   const vorschau = sp.vorschau === "1";
   if (!/^LL-[A-Z0-9]+~LL-[A-Z0-9]+$/.test(key)) notFound();
+  // Anbieter mit mehreren Flächen: vorher abgleichen (eine Einladung, eine Unterschrift für alle Flächen).
+  if (/^LL-[A-Z0-9]+~LL-[A-Z0-9]+$/.test(key)) await anbieterAbgleichFuer(key.split("~")[0], email);
   const [ctx, portal, neu, basis] = await Promise.all([ladeVorgangKontext(key), ladePortal(), ladeNeu(email), basisUrl()]);
   if (!ctx) notFound();
   const zurueck = `/admin/vorgang/${key}`;

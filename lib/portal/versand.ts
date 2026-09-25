@@ -6,7 +6,8 @@ import { kundenMail } from "./mail";
 import * as M from "./model";
 import { NACHFASS_PAUSE_TAGE } from "./nachfassen";
 import { SPERRE_UNTERSCHRIFT, beideUnterschrieben } from "./schritte";
-import { aendereKunde, aendereVorgang, istKundeId, istPaarKey, ladeKunde, ladeVorgang } from "./speicher";
+import { einladungGesperrt } from "./anbieter-gruppe";
+import { aendereKunde, aendereVorgang, alleKunden, istKundeId, istPaarKey, ladeKunde, ladeVorgang } from "./speicher";
 import * as T from "./texte";
 import * as V from "./vorgang";
 
@@ -92,6 +93,13 @@ export async function verwaltungsMailSenden(von: string, auftrag: VersandAuftrag
     const [aId, gId] = key.split("~");
     const [ka, kg] = await Promise.all([ladeKunde(aId), ladeKunde(gId)]);
     if (!beideUnterschrieben(ka, kg)) return nein(SPERRE_UNTERSCHRIFT);
+  }
+  // Anbieter mit mehreren Flächen: nur eine Einladung — keine zweite Mail, wenn schon über eine andere
+  // Anfrage eingeladen wurde oder die Vereinbarung dort unterschrieben ist (lib/portal/anbieter-gruppe.ts).
+  if ((zweck === "einladung" || zweck === "erinnerung") && rolle === "anbieter") {
+    const rr = T.rolleVonLead(geladen.lead);
+    const sperre = rr ? einladungGesperrt({ id, rolle: rr.rolle, art: rr.art, email: an }, kunde, await alleKunden()) : null;
+    if (sperre) return nein(sperre);
   }
   // Einladung und Erinnerung nie mit einem abgelaufenen Link verschicken.
   if ((zweck === "einladung" || zweck === "erinnerung") && kunde?.einladung && Date.parse(kunde.einladung.bis) < Date.now()) {

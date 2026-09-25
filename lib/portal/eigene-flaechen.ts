@@ -3,6 +3,7 @@ import { formatGroesse, type Art, type BoerseMeta, type KatasterDaten, type Lead
 import { dateiAnlegen, mutateZustand } from "@/lib/admin/store";
 import { boerseNeuSchreiben, neuerBoerseCode } from "@/lib/boerse";
 import { FLAECHENTYPEN } from "@/lib/lead-options";
+import { anbieterAbgleichJetzt } from "./anbieter-gruppe";
 import { bodenrichtwert, brwArtFuer, flurstueckAusText, flurstueckSuchen, type BrwTreffer, type FlurstueckTreffer } from "./kataster";
 
 // Flächen selbst einstellen (Verwaltung → „Flächen einstellen“, Dennis 25.09.2026: eigene
@@ -186,6 +187,8 @@ export async function flaechenEinstellen(opts: {
     });
     ergebnisse.push(...online);
     await boerseNeuSchreiben();
+    // Hat der Eigentümer die Vereinbarung schon über eine andere Fläche unterschrieben, gilt sie auch hier.
+    await anbieterAbgleichJetzt(von);
   }
   return ergebnisse;
 }

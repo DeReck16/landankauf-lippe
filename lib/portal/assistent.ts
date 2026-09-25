@@ -528,6 +528,10 @@ function schrittEinladung(b: Bau): Teil {
       uebersprungen.push(`${s.wer} hat den Vertrag mit Lippe Forst bereits unterschrieben — wird übersprungen.`);
       continue;
     }
+    if (s.k?.einladung?.ueber) {
+      uebersprungen.push(`${s.wer} ist schon eingeladen — über Anfrage ${s.k.einladung.ueber} (gleicher Anbieter, eine Vereinbarung für alle Flächen) — keine zweite Einladung.`);
+      continue;
+    }
     const neu = M.stufe(s.k) === "neu";
     const es = einladungsStand(s, b.jetzt);
     if (!neu && es.erreicht) {
@@ -607,6 +611,11 @@ function schrittUnterschrift(b: Bau): Teil {
       continue;
     }
     const es = einladungsStand(s, b.jetzt);
+    if (s.k?.einladung?.ueber) {
+      // Erinnern nur über die Anfrage, über die eingeladen wurde — keine zweite Mail an denselben Anbieter.
+      warten.push({ text: `Unterschrift ${s.artikel.gen} ${s.name} (Vertrag mit Lippe Forst) — eingeladen über Anfrage ${s.k.einladung.ueber}; die Vereinbarung gilt nach der Unterschrift für alle seine Flächen`, seit: s.k.einladung.gesendetAm ?? s.k.einladung.erstelltAm });
+      continue;
+    }
     warten.push({ text: `Unterschrift ${s.artikel.gen} ${s.name} (Vertrag mit Lippe Forst) — ${M.STUFE_INFO[M.stufe(s.k)].label}; ${es.text}`, seit: es.letzte ?? s.k?.einladung?.erstelltAm });
     const problem = einladungsProblem(b, s);
     if (problem) {
