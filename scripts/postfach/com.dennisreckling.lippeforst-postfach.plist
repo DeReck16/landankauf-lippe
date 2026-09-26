@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<!-- Postfach-Abgleich Lippe Forst (scripts/postfach/abgleich.py): taeglich 07:40 die Antworten
+<!-- ABGESCHALTET seit 26.09.2026: Der Abgleich laeuft jetzt als Claude-Routine
+     lippeforst-postfach-abgleich. Diese Datei ist nur noch Rueckfallvorlage — nicht
+     zusaetzlich einrichten, sonst laeuft der Abgleich doppelt.
+
+     Postfach-Abgleich Lippe Forst (scripts/postfach/abgleich.py): taeglich 07:40 die Antworten
      von Interessenten aus dem Anfragenpostfach an lippeforst.de/admin melden.
      Einrichten:
        cp scripts/postfach/com.dennisreckling.lippeforst-postfach.plist ~/Library/LaunchAgents/

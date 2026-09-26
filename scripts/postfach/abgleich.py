@@ -3,7 +3,8 @@
 """Postfach-Abgleich Lippe Forst: Antworten von Interessenten aus dem Anfragenpostfach
 (info@tr-immobilien.com, Outlook auf dem Mac) an die Verwaltung auf lippeforst.de melden.
 
-Laeuft taeglich per launchd (com.dennisreckling.lippeforst-postfach, 07:40) — von Hand:
+Laeuft taeglich ~07:40 als Claude-Routine lippeforst-postfach-abgleich (seit 26.09.2026;
+der launchd-Job com.dennisreckling.lippeforst-postfach ist aus) — von Hand:
     /usr/bin/python3 scripts/postfach/abgleich.py [--tage 14] [--trocken]
 
 Ablauf:
