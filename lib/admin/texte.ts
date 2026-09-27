@@ -1,9 +1,12 @@
+import { GRUSS } from "@/lib/portal/gruss";
+import { grobeGroesse } from "@/lib/portal/texte";
 import { formatGroesse, type LeadView } from "./model";
 
 // Anonyme Hinweistexte für beide Seiten eines Paares — ohne Namen, Kontakt-
-// daten oder Flurstück. Nur Gemeinde, Flächentyp, Größe und Art. Die Texte
-// sind Grundlage der E-Mail-Entwürfe im Matching (lib/portal/entwuerfe.ts);
-// verschickt wird nur auf ausdrücklichen Klick der Verwaltung.
+// daten oder Flurstück. Nur Gemeinde, Flächentyp, gerundete Größe und Art (die
+// genaue Größe würde zusammen mit dem Ort das Flurstück verraten). Die Texte
+// sind Grundlage der E-Mail-Entwürfe (lib/portal/entwuerfe.ts); verschickt wird
+// auf Klick der Verwaltung bzw. über eine eingeschaltete Automatik-Regel.
 
 function typText(typ: string): string {
   if (typ === "Wiese / Grünland") return "Grünland";
@@ -17,14 +20,6 @@ function anrede(lead: LeadView): string {
   return name ? `Guten Tag ${name},` : "Guten Tag,";
 }
 
-const ABSCHLUSS = `Mit freundlichen Grüßen
-Dennis Reckling
---
-Lippe Forst · lippeforst.de
-Bahnhofstraße 70b · 32805 Horn-Bad Meinberg
-TR Vertriebs GmbH · Amtsgericht Lemgo HRB 11734
-Geschäftsführer: Dennis Reckling, Martin Thomann`;
-
 /** Absatz mit dem Link zum Zustimmen (direkt in den Kundenbereich) — ohne Link: Antwort per E-Mail. */
 function zustimmungsAbsatz(link: string | null | undefined, frage: string): string {
   if (!link) return `${frage} Dann antworten Sie bitte kurz auf diese E-Mail.`;
@@ -34,19 +29,28 @@ ${link}
 Kein Interesse? Das können Sie dort ebenfalls mit einem Klick mitteilen — oder Sie antworten einfach auf diese E-Mail.`;
 }
 
-export function hinweisAnSuchenden(angebot: LeadView, gesuch: LeadView, gemeindeAngebot: string, link?: string | null): string {
-  const groesse = formatGroesse(angebot.groesseWert);
+export function hinweisAnSuchenden(
+  angebot: LeadView,
+  gesuch: LeadView,
+  gemeindeAngebot: string,
+  link?: string | null,
+  opt: { eigeneFlaeche?: boolean } = {},
+): string {
+  const groesse = grobeGroesse(angebot.groesseWert);
   const art = angebot.art === "kauf" ? "zum Verkauf" : "zur Verpachtung";
   const ort = gemeindeAngebot || "Ihrer Suchregion";
+  const eigen = opt.eigeneFlaeche
+    ? `\n\nZur Offenheit: Diese Fläche gehört dem Geschäftsführer von Lippe Forst bzw. seiner Familie. Für sie fällt keine Provision an — auch nicht nach Ihrem Nachweisvertrag.`
+    : "";
   return `${anrede(gesuch)}
 
-zu Ihrem Gesuch haben wir ein passendes Angebot: ${typText(angebot.typ)}${groesse !== "Größe offen" ? `, ca. ${groesse}` : ""}, im Raum ${ort}, ${art}.
+zu Ihrem Gesuch haben wir ein passendes Angebot: ${typText(angebot.typ)}${groesse ? `, ${groesse}` : ""}, im Raum ${ort}, ${art}.${eigen}
 
 Den Eigentümer fragen wir gleichzeitig, ob er mit einem Kontakt einverstanden ist. Ihre Kontaktdaten geben wir erst weiter, wenn Sie beide zugestimmt haben.
 
 ${zustimmungsAbsatz(link, "Haben Sie Interesse?")}
 
-${ABSCHLUSS}`;
+${GRUSS}`;
 }
 
 export function hinweisAnAnbieter(angebot: LeadView, gesuch: LeadView, gemeindeGesuch: string, link?: string | null): string {
@@ -61,5 +65,5 @@ Den Interessenten fragen wir gleichzeitig, ob er mit einem Kontakt einverstanden
 
 ${zustimmungsAbsatz(link, "Dürfen wir Sie miteinander in Kontakt bringen?")}
 
-${ABSCHLUSS}`;
+${GRUSS}`;
 }

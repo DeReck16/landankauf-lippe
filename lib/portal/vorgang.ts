@@ -978,11 +978,12 @@ async function abschlussMails(ctx: VorgangKontext, grundlage: "pachtvertrag" | "
       zeilen.push("", `Als Dankeschön für Ihren Abschluss erhalten Sie einen Treue-Gutschein über ${M.euro(gutschein.betrag)} für Ihr nächstes Geschäft mit Lippe Forst: Code ${gutschein.code}.`, gutscheinBedingungen(gutschein));
     }
     zeilen.push("", `Ihr Kundenbereich: ${site.url}/kunde`, "", GRUSS);
-    const betreff = `Landpachtvertrag geschlossen — Ihr Exemplar (${ctx.key})`;
+    const betreff = `Landpachtvertrag geschlossen — Ihr Exemplar (${ctx.key.split("~")[rolle === "anbieter" ? 0 : 1]})`;
     const text = zeilen.join("\n");
-    const r = await kundenMail({ an: k.email, betreff, text, anhaenge: pdf ? [pdf] : [] });
+    const mailId = M.kurzId("M");
+    const r = await kundenMail({ an: k.email, betreff, text, anhaenge: pdf ? [pdf] : [], postausgang: { zweck: "abschluss", bezug: { typ: "vorgang", key: ctx.key, mailId } } });
     await aendereVorgang(ctx.key, ctx.art, (x) => {
-      x.mails.unshift({ id: M.kurzId("M"), am: jetzt(), von: "system", an: k.email, betreff, text, zweck: "abschluss", test: r.test, ok: r.ok, fehler: r.fehler, anhang: pdf?.dateiname });
+      x.mails.unshift({ id: mailId, am: jetzt(), von: "system", an: k.email, betreff, text, zweck: "abschluss", test: r.test, ok: r.ok, fehler: r.fehler, anhang: pdf?.dateiname, ...(r.eingereiht ? { eingereiht: true } : {}) });
     });
   }
 }
@@ -998,9 +999,10 @@ async function gutscheinMail(ctx: VorgangKontext, k: M.KundeRecord, l: LeadView,
     "",
     GRUSS,
   ].join("\n");
-  const r = await kundenMail({ an: k.email, betreff, text });
+  const mailId = M.kurzId("M");
+  const r = await kundenMail({ an: k.email, betreff, text, postausgang: { zweck: "gutschein", bezug: { typ: "vorgang", key: ctx.key, mailId } } });
   await aendereVorgang(ctx.key, ctx.art, (x) => {
-    x.mails.unshift({ id: M.kurzId("M"), am: jetzt(), von: "system", an: k.email, betreff, text, zweck: "gutschein", test: r.test, ok: r.ok, fehler: r.fehler });
+    x.mails.unshift({ id: mailId, am: jetzt(), von: "system", an: k.email, betreff, text, zweck: "gutschein", test: r.test, ok: r.ok, fehler: r.fehler, ...(r.eingereiht ? { eingereiht: true } : {}) });
   });
 }
 

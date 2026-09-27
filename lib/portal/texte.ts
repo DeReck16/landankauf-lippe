@@ -90,11 +90,40 @@ export function flaechenSumme(flaechen: Flaeche[]): string {
   return haText(summeHa(flaechen));
 }
 
-/** Anonyme Eckdaten der Gegenseite (vor der Freigabe). */
+/**
+ * Größe für anonyme Texte, gerundet — die genaue Zahl würde zusammen mit dem Ort das
+ * Flurstück verraten (und damit den Nachweis vorwegnehmen): unter 0,25 ha „unter 0,5 ha“,
+ * bis 5 ha auf halbe Hektar, bis 20 ha auf ganze, darüber auf 5 ha.
+ */
+function gerundet(ha: number): number {
+  return ha <= 5 ? Math.max(0.5, Math.round(ha * 2) / 2) : ha <= 20 ? Math.round(ha) : Math.round(ha / 5) * 5;
+}
+
+const haZahl = (n: number) => n.toLocaleString("de-DE", { maximumFractionDigits: 1 });
+
+export function grobeHa(ha: number | null | undefined): string | null {
+  if (ha == null || !Number.isFinite(ha) || ha <= 0) return null;
+  if (ha < 0.25) return "unter 0,5 ha";
+  return `ca. ${haZahl(gerundet(ha))} ha`;
+}
+
+/** Gerundete Größe bzw. Spanne eines Angebots für anonyme Texte ("" = unbekannt). */
+export function grobeGroesse(g: { minHa: number | null; maxHa: number | null }): string {
+  const { minHa, maxHa } = g;
+  const ok = (x: number | null): x is number => x != null && Number.isFinite(x) && x > 0;
+  if (ok(minHa) && ok(maxHa) && minHa !== maxHa) {
+    const a = gerundet(Math.min(minHa, maxHa));
+    const b = gerundet(Math.max(minHa, maxHa));
+    return a === b ? `ca. ${haZahl(a)} ha` : `ca. ${haZahl(a)}–${haZahl(b)} ha`;
+  }
+  return grobeHa(ok(minHa) ? minHa : ok(maxHa) ? maxHa : null) ?? "";
+}
+
+/** Anonyme Eckdaten der Gegenseite (vor der Freigabe) — Angebote mit gerundeter Größe. */
 export function anonymeEckdaten(l: LeadView, lage: string): { typ: string; groesse: string; lage: string; art: string } {
   return {
     typ: typText(l.typ),
-    groesse: formatGroesse(l.groesseWert),
+    groesse: l.rolle === "angebot" ? grobeGroesse(l.groesseWert) || "Größe offen" : formatGroesse(l.groesseWert),
     lage: lage || "Kreis Lippe und Umgebung",
     art: l.art === "kauf" ? (l.rolle === "angebot" ? "zum Verkauf" : "Kaufgesuch") : l.rolle === "angebot" ? "zur Verpachtung" : "Pachtgesuch",
   };

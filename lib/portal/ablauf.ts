@@ -7,6 +7,7 @@ import { FIRMA, FIRMA_ANSCHRIFT } from "@/lib/vertraege/firma";
 import { site } from "@/lib/site";
 import { VORLAGEN, istFreigegeben, kundenVorlage, type VorlageId } from "@/lib/vertraege/vorlagen";
 import { dokumentBytes, pdfAblegen, protokollDokument } from "./dokumente";
+import { GRUSS } from "./gruss";
 import { adminInfo, kundenMail, type Anhang } from "./mail";
 import * as M from "./model";
 import { aendereKunde, alleKunden, ladeKunde } from "./speicher";
@@ -19,13 +20,7 @@ import { einladungBis, einladungToken, loginToken, neueNonce, pruefeEinladung, p
 /** Monate Provisionsschutz für weitere Flächen desselben Anbieters (Nachweisvertrag § 3 Abs. 4). */
 export const SCHUTZ_MONATE = 24;
 
-export const GRUSS = [
-  "Mit freundlichen Grüßen",
-  "Lippe Forst",
-  "",
-  `${FIRMA.name} · ${FIRMA.strasse} · ${FIRMA.plz} ${FIRMA.ort}`,
-  `${FIRMA.registergericht} ${FIRMA.registernummer} · Geschäftsführer: ${FIRMA.geschaeftsfuehrer}`,
-].join("\n");
+export { GRUSS };
 
 /** Link in die Verwaltung für Ereignis-Mails (immer die kanonische Domain). */
 export function verwaltungsLink(pfad: string): string {
@@ -370,11 +365,19 @@ export async function vertragsbestaetigungSenden(kundeId: string, von: string, p
   const betreff = `Ihr Vertrag mit Lippe Forst — Bestätigung und Vertragstext (${k.id})`;
   const text = zeilen.join("\n");
   const anhang: Anhang = { dateiname: doc.dateiname, inhalt: bytes };
-  const r = await kundenMail({ an: k.email, betreff, text, anhaenge: [anhang] });
+  const mailId = M.kurzId("M");
+  const r = await kundenMail({ an: k.email, betreff, text, anhaenge: [anhang], postausgang: { zweck: "vertragsbestaetigung", bezug: { typ: "kunde", id: k.id, mailId } } });
   await aendereKunde(k.id, (x) => {
-    x.mails.unshift({ id: M.kurzId("M"), am: new Date().toISOString(), von, an: x.email, betreff, text, zweck: "vertragsbestaetigung", test: r.test, ok: r.ok, fehler: r.fehler, anhang: doc.dateiname });
+    x.mails.unshift({ id: mailId, am: new Date().toISOString(), von, an: x.email, betreff, text, zweck: "vertragsbestaetigung", test: r.test, ok: r.ok, fehler: r.fehler, anhang: doc.dateiname, ...(r.eingereiht ? { eingereiht: true } : {}) });
     if (r.ok && x.vertrag && !x.vertrag.bestaetigungGesendetAm) x.vertrag.bestaetigungGesendetAm = new Date().toISOString();
-    M.ereignis(x, von, "bestaetigung", r.ok ? `Vertragsbestätigung mit PDF an ${x.email} gesendet${r.test ? " (Testmodus: nur protokolliert)" : ""}` : `Vertragsbestätigung NICHT gesendet: ${r.fehler ?? "Fehler"}`);
+    M.ereignis(
+      x,
+      von,
+      "bestaetigung",
+      r.ok
+        ? `Vertragsbestätigung mit PDF an ${x.email} gesendet${r.test ? " (Testmodus: nur protokolliert)" : ""}`
+        : `Vertragsbestätigung NICHT gesendet: ${r.fehler ?? "Fehler"}${r.eingereiht ? " — liegt im Postausgang und wird automatisch erneut versucht" : ""}`,
+    );
   });
   return r.ok;
 }
@@ -423,9 +426,10 @@ export async function widerrufErfassen(kundeId: string, eingang: M.Eingang, von:
       "",
       GRUSS,
     ].join("\n");
-    const r = await kundenMail({ an: k.email, betreff, text });
+    const mailId = M.kurzId("M");
+    const r = await kundenMail({ an: k.email, betreff, text, postausgang: { zweck: "widerruf-bestaetigung", bezug: { typ: "kunde", id: k.id, mailId } } });
     await aendereKunde(k.id, (x) => {
-      x.mails.unshift({ id: M.kurzId("M"), am: new Date().toISOString(), von: "system", an: x.email, betreff, text, zweck: "widerruf-bestaetigung", test: r.test, ok: r.ok, fehler: r.fehler });
+      x.mails.unshift({ id: mailId, am: new Date().toISOString(), von: "system", an: x.email, betreff, text, zweck: "widerruf-bestaetigung", test: r.test, ok: r.ok, fehler: r.fehler, ...(r.eingereiht ? { eingereiht: true } : {}) });
       if (x.widerruf && r.ok) x.widerruf.bestaetigtAm = new Date().toISOString();
     });
   }
@@ -483,9 +487,10 @@ export async function kuendigungErfassen(kundeId: string, eingang: M.Eingang, vo
       "",
       GRUSS,
     ].join("\n");
-    const r = await kundenMail({ an: k.email, betreff, text });
+    const mailId = M.kurzId("M");
+    const r = await kundenMail({ an: k.email, betreff, text, postausgang: { zweck: "kuendigung-bestaetigung", bezug: { typ: "kunde", id: k.id, mailId } } });
     await aendereKunde(k.id, (x) => {
-      x.mails.unshift({ id: M.kurzId("M"), am: new Date().toISOString(), von: "system", an: x.email, betreff, text, zweck: "kuendigung-bestaetigung", test: r.test, ok: r.ok, fehler: r.fehler });
+      x.mails.unshift({ id: mailId, am: new Date().toISOString(), von: "system", an: x.email, betreff, text, zweck: "kuendigung-bestaetigung", test: r.test, ok: r.ok, fehler: r.fehler, ...(r.eingereiht ? { eingereiht: true } : {}) });
       if (x.kuendigung && r.ok) x.kuendigung.bestaetigtAm = new Date().toISOString();
     });
   }

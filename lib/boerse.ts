@@ -158,9 +158,16 @@ export async function boerseNeuSchreiben(): Promise<number> {
   return angebote.length;
 }
 
-/** Angebot zu einer Börsen-Kennung (für das Verknüpfen eines Interessenten). */
-export function angebotZuCode(anfragen: Record<string, { boerse?: BoerseMeta }>, code: string): string | null {
-  for (const [id, m] of Object.entries(anfragen)) if (m.boerse?.code === code) return id;
+/**
+ * Angebot zu einer Börsen-Kennung (für das Verknüpfen eines Interessenten). Mit `nurOnline`
+ * nur Angebote, die gerade veröffentlicht sind — vergebene oder zurückgezogene nicht.
+ */
+export function angebotZuCode(anfragen: Record<string, { boerse?: BoerseMeta; status?: string }>, code: string, opt: { nurOnline?: boolean } = {}): string | null {
+  for (const [id, m] of Object.entries(anfragen)) {
+    if (m.boerse?.code !== code) continue;
+    if (opt.nurOnline && (!m.boerse.online || m.status === "erledigt" || m.status === "archiv")) return null;
+    return id;
+  }
   return null;
 }
 

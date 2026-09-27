@@ -3,7 +3,7 @@
 // Signatur bleibt (FormData rein) — LeadForm muss nicht angepasst werden.
 
 export type LeadResult =
-  | { ok: true; id: string; delivered?: { resend: boolean; formspree: boolean; blob: boolean } }
+  | { ok: true; id: string; bestaetigung?: boolean; delivered?: { resend: boolean; formspree: boolean; blob: boolean } }
   | { ok: false; error: string };
 
 /** gclid (Google-Klick-ID) aus dem von AdsConversions gesetzten Cookie lesen. */

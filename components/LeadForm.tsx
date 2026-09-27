@@ -92,11 +92,11 @@ export default function LeadForm({
   source = "homepage",
   variant = "card",
   title = "Kostenlose Anfrage",
-  subtitle = "Wir melden uns innerhalb von 24 Stunden persönlich bei Ihnen — diskret und unverbindlich.",
+  subtitle = "Wir antworten in der Regel innerhalb eines Werktags per E-Mail — diskret und unverbindlich.",
   boerse,
 }: Props) {
   const [isPending, startTransition] = useTransition();
-  const [success, setSuccess] = useState<string | null>(null);
+  const [success, setSuccess] = useState<{ id: string; bestaetigung: boolean } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [intent, setIntent] = useState<string>(defaultIntent);
   const gesuch = isGesuchIntent(intent);
@@ -117,7 +117,7 @@ export default function LeadForm({
         // auslösen. Sonst zählt jeder Spam-Bot als Lead (Befund 01.08.2026:
         // 79 GA4-Events in 30 Tagen bei 2 echten Leads im Blob-Backup).
         if (!DROPPED_IDS.has(res.id)) fireFormConversion(userData, submittedGesuch);
-        setSuccess(res.id);
+        setSuccess({ id: res.id, bestaetigung: Boolean(res.bestaetigung) });
         formEl.reset();
       } else {
         setError(res.error);
@@ -130,9 +130,9 @@ export default function LeadForm({
       <div className={variant === "card" ? "card text-center" : "text-center"}>
         <h3 className="font-serif text-2xl mb-2">Vielen Dank!</h3>
         <p className="text-[color:var(--color-ink-soft)]">
-          Wir haben Ihre Anfrage erhalten. Sie hören innerhalb von 24 Stunden persönlich von uns.
+          Wir haben Ihre Anfrage erhalten.{success.bestaetigung ? " Eine Eingangsbestätigung mit Ihrer Vorgangsnummer ist per E-Mail unterwegs." : ""} Unsere Antwort folgt in der Regel innerhalb eines Werktags per E-Mail.
         </p>
-        <p className="mt-4 text-xs text-[color:var(--color-muted)]">Vorgang {success}</p>
+        <p className="mt-4 text-xs text-[color:var(--color-muted)]">Vorgang {success.id}</p>
       </div>
     );
   }
@@ -186,23 +186,28 @@ export default function LeadForm({
             {FLAECHENTYPEN.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
-        <div>
-          <label className="field-label" htmlFor="groesse">
-            {gesuch ? "Gewünschte Größe" : "Größe (in Hektar oder m²)"}
-          </label>
-          <input id="groesse" name="groesse" placeholder={gesuch ? "z. B. 5–10 ha" : "z. B. 1,5 ha"} className="field-input" />
-        </div>
-        <div>
-          <label className="field-label" htmlFor="ort">
-            {gesuch ? "Wo suchen Sie?" : "Gemeinde / Gemarkung"}
-          </label>
-          <input
-            id="ort"
-            name="ort"
-            placeholder={gesuch ? "z. B. Lemgo, Kalletal, Lage" : "z. B. Detmold, Leopoldstal"}
-            className="field-input"
-          />
-        </div>
+        {/* Interesse an einem Börsen-Angebot: Größe und Lage stehen im Angebot — nicht erneut abfragen. */}
+        {!boerse && (
+          <>
+            <div>
+              <label className="field-label" htmlFor="groesse">
+                {gesuch ? "Gewünschte Größe" : "Größe (in Hektar oder m²)"}
+              </label>
+              <input id="groesse" name="groesse" placeholder={gesuch ? "z. B. 5–10 ha" : "z. B. 1,5 ha"} className="field-input" />
+            </div>
+            <div>
+              <label className="field-label" htmlFor="ort">
+                {gesuch ? "Wo suchen Sie?" : "Gemeinde / Gemarkung"}
+              </label>
+              <input
+                id="ort"
+                name="ort"
+                placeholder={gesuch ? "z. B. Lemgo, Kalletal, Lage" : "z. B. Detmold, Leopoldstal"}
+                className="field-input"
+              />
+            </div>
+          </>
+        )}
         {!gesuch && (
           <div className="sm:col-span-2">
             <label className="field-label" htmlFor="flurstueck">Flur / Flurstück (optional)</label>
@@ -250,11 +255,11 @@ export default function LeadForm({
         <p className="mt-4 text-sm text-red-700 bg-red-50 border border-red-100 rounded-md px-3 py-2">{error}</p>
       )}
       <div className="mt-6 flex flex-col sm:flex-row sm:items-center gap-3">
-        <button type="submit" className="btn-primary" disabled={isPending}>
+        <button type="submit" className="btn-primary" disabled={isPending} title="Schickt Ihre Anfrage an Lippe Forst — Sie erhalten eine Eingangsbestätigung per E-Mail">
           {isPending ? "Wird gesendet…" : "Anfrage absenden"}
         </button>
         <ul className="text-xs text-[color:var(--color-muted)] leading-relaxed space-y-0.5">
-          <li>✓ Antwort innerhalb 24 h</li>
+          <li>✓ Antwort in der Regel innerhalb eines Werktags per E-Mail</li>
           {/* Suchende zahlen im Erfolgsfall eine Provision — „Keine Provision“ gilt nur für Eigentümer. */}
           <li>{gesuch ? "✓ Provision nur bei Erfolg" : "✓ Keine Provision für Eigentümer"}</li>
           <li>✓ Völlige Diskretion</li>

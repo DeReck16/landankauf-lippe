@@ -105,6 +105,10 @@ export type GesendeteMail = {
   ok: boolean;
   fehler?: string;
   anhang?: string;
+  /** Gescheitert und im Postausgang abgelegt — wird automatisch erneut versucht. */
+  eingereiht?: boolean;
+  /** Später aus dem Postausgang erfolgreich gesendet. */
+  nachgesendetAm?: string;
 };
 
 export type KundenVertrag = {

@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse, after } from "next/server";
 import { site } from "@/lib/site";
-import { dataPrefix, hasBlobToken } from "@/lib/admin/config";
+import { antwortAdresse, dataPrefix, hasBlobToken, kundenAbsender } from "@/lib/admin/config";
 import { orteErgaenzen } from "@/lib/admin/daten";
-import { dateiAnlegen, mutateZustand, readZustand } from "@/lib/admin/store";
+import { dateiAnlegen, drosseln, kurzwert, mutateZustand, readZustand } from "@/lib/admin/store";
 import { angebotZuCode } from "@/lib/boerse";
 import { isGesuchIntent } from "@/lib/lead-options";
 import { leadView } from "@/lib/admin/model";
 import { katasterNachholen } from "@/lib/portal/kataster";
+import { eingangPruefen, eingangsbestaetigung, type Eingabe } from "@/lib/portal/eingang";
+import { sendeMitPostausgang } from "@/lib/portal/mail";
+import { automatikNachAnfrage } from "@/lib/portal/automatik";
 
 /**
  * Zentraler Lead-Endpoint (alle Formulare gehen hierüber).
@@ -17,32 +20,16 @@ import { katasterNachholen } from "@/lib/portal/kataster";
  *      der Verwaltung unter /admin. Nur mit Token lesbar, nie öffentlich.
  *   4. Console   — letzter Floor in den Runtime-Logs.
  * Gibt ok:true zurück, sobald mindestens ein Kanal greift (Blob zählt).
+ *
+ * Schutz vor Missbrauch: Felder werden geprüft und gekürzt (lib/portal/eingang.ts),
+ * je Absender (Kurzwert der IP-Adresse, keine Klartext-IP) höchstens 5 Anfragen in
+ * 10 Minuten und 20 am Tag, insgesamt höchstens 120 je Stunde. Danach 429 — dann
+ * gehen weder Mails raus noch werden Daten angelegt.
  */
 
 export const runtime = "nodejs";
 
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xlgrjjvp";
-
-function fmt(v?: unknown) {
-  return (v ?? "—").toString().trim() || "—";
-}
-
-type Input = {
-  intent: string;
-  flaechentyp: string;
-  groesse: string;
-  ort: string;
-  flurstueck: string;
-  message: string;
-  name: string;
-  phone: string;
-  email: string;
-  source: string;
-  consent: string;
-  gclid: string;
-  /** Kennung eines Flächenbörse-Angebots (LF-1234), sonst „—“. */
-  boerse: string;
-};
 
 async function sendResend(
   apiKey: string | undefined,
@@ -68,7 +55,7 @@ async function sendResend(
   }
 }
 
-async function sendFormspree(input: Input, subject: string, id: string): Promise<boolean> {
+async function sendFormspree(input: Eingabe, subject: string, id: string): Promise<boolean> {
   try {
     const res = await fetch(FORMSPREE_ENDPOINT, {
       method: "POST",
@@ -100,13 +87,23 @@ async function sendFormspree(input: Input, subject: string, id: string): Promise
   }
 }
 
-// Nach der Antwort laufen noch Ortssuche und Kataster-Abfrage (after) — die langsamen NRW-Dienste brauchen etwas Zeit.
+/** IP-Adresse des Absenders (Vercel setzt x-forwarded-for) — nur für den Kurzwert der Drosselung. */
+function ipVon(req: NextRequest): string {
+  return (req.headers.get("x-forwarded-for")?.split(",")[0] || req.headers.get("x-real-ip") || "unbekannt").trim().slice(0, 64);
+}
+
+const ZU_VIELE = "Es sind gerade sehr viele Anfragen eingegangen. Bitte versuchen Sie es in einigen Minuten erneut — oder schreiben Sie uns eine E-Mail an info@tr-immobilien.com.";
+
+// Nach der Antwort laufen noch Ortssuche, Kataster-Abfrage und Eingangsbestätigung (after).
 export const maxDuration = 30;
 
 export async function POST(req: NextRequest) {
   let body: Record<string, unknown>;
   try {
-    body = (await req.json()) as Record<string, unknown>;
+    const roh = await req.text();
+    if (roh.length > 20_000) return NextResponse.json({ ok: false, error: "Die Anfrage ist zu lang." }, { status: 413 });
+    body = JSON.parse(roh) as Record<string, unknown>;
+    if (!body || typeof body !== "object" || Array.isArray(body)) throw new Error("kein Objekt");
   } catch {
     return NextResponse.json({ ok: false, error: "invalid-json" }, { status: 400 });
   }
@@ -114,35 +111,21 @@ export async function POST(req: NextRequest) {
   // Honeypot — Bots füllen versteckte Felder, echte Menschen nicht.
   if (body._hp) return NextResponse.json({ ok: true, id: "HONEYPOT" });
 
-  const input: Input = {
-    intent: fmt(body.intent),
-    flaechentyp: fmt(body.flaechentyp),
-    groesse: fmt(body.groesse),
-    ort: fmt(body.ort),
-    flurstueck: fmt(body.flurstueck),
-    message: fmt(body.message),
-    name: fmt(body.name),
-    phone: fmt(body.phone),
-    email: fmt(body.email),
-    source: fmt(body.source),
-    consent: fmt(body.consent),
-    gclid: fmt(body.gclid),
-    boerse: typeof body.boerse === "string" && /^LF-\d{4}$/.test(body.boerse.trim()) ? body.boerse.trim() : "—",
-  };
+  const pr = eingangPruefen(body);
+  if (!pr.ok) return NextResponse.json({ ok: false, error: pr.fehler }, { status: 400 });
+  if (pr.spam) return NextResponse.json({ ok: true, id: "SPAM" });
+  const input = pr.eingabe;
 
-  // Leichter Spam-Filter: Links im Namen sind ein sehr starkes Bot-Signal.
-  if (/https?:\/\/|\[url=|<a\s/i.test(input.name)) {
-    return NextResponse.json({ ok: true, id: "SPAM" });
-  }
-
-  if (!input.email || input.email === "—") {
-    return NextResponse.json({ ok: false, error: "Bitte geben Sie eine E-Mail-Adresse an." }, { status: 400 });
-  }
-  if (!input.name || input.name === "—") {
-    return NextResponse.json({ ok: false, error: "Bitte geben Sie Ihren Namen an." }, { status: 400 });
-  }
-  if (input.consent !== "on") {
-    return NextResponse.json({ ok: false, error: "Bitte stimmen Sie der Datenschutzerklärung zu." }, { status: 400 });
+  // Drosselung je Absender und insgesamt (nur mit Speicher — ohne ihn gibt es auch keine Zähler).
+  if (hasBlobToken()) {
+    const ip = kurzwert(ipVon(req), "lead");
+    const jeAbsender = await drosseln("lead", ip, [
+      { sekunden: 600, max: 5 },
+      { sekunden: 86_400, max: 20 },
+    ]);
+    if (!jeAbsender) return NextResponse.json({ ok: false, error: ZU_VIELE }, { status: 429 });
+    const gesamt = await drosseln("lead-gesamt", "alle", [{ sekunden: 3600, max: 120 }]);
+    if (!gesamt) return NextResponse.json({ ok: false, error: ZU_VIELE }, { status: 429 });
   }
 
   const id = `LL-${Date.now().toString(36).toUpperCase()}`;
@@ -188,12 +171,13 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Interesse aus der Flächenbörse: gleich mit dem Angebot verknüpfen (Paar „vorgemerkt“).
-  // Weiter geht es danach im normalen Ablauf: Einladung → Provisionsvereinbarung → Zustimmung → Freigabe.
+  // Interesse aus der Flächenbörse: gleich mit dem Angebot verknüpfen (Paar „vorgemerkt“) —
+  // nur für Angebote, die gerade online stehen (keine vergebenen oder zurückgezogenen).
+  // Weiter geht es danach im normalen Ablauf: Einladung → Nachweisvertrag → Zustimmung → Freigabe.
   if (blobOk && input.boerse !== "—" && isGesuchIntent(input.intent)) {
     try {
       const { zustand } = await readZustand();
-      const angebotId = angebotZuCode(zustand.anfragen, input.boerse);
+      const angebotId = angebotZuCode(zustand.anfragen, input.boerse, { nurOnline: true });
       if (angebotId) {
         const key = `${angebotId}~${id}`;
         await mutateZustand("Flächenbörse", (z) => {
@@ -227,12 +211,33 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Eingangsbestätigung an den Kunden (vom Kunden selbst ausgelöst, rein informativ) —
+  // höchstens zwei je Adresse und Tag, damit das Formular nicht zum Mailversand an fremde
+  // Adressen taugt. Im Testmodus steht sie nur im Log; scheitert der Versand, Postausgang.
+  let bestaetigung = false;
+  if (blobOk) {
+    bestaetigung = await drosseln("bestaetigung", kurzwert(input.email, "bestaetigung"), [{ sekunden: 86_400, max: 2 }]);
+    if (bestaetigung) {
+      const b = eingangsbestaetigung(input, id, receivedAt);
+      after(() =>
+        sendeMitPostausgang({ an: [input.email], betreff: b.betreff, text: b.text, von: kundenAbsender(), replyTo: antwortAdresse() }, "eingangsbestaetigung", { typ: "keiner" }).then(
+          (r) => {
+            if (!r.ok && !r.test) console.error("[lead] Eingangsbestätigung nicht gesendet", id, r.fehler);
+          },
+          (err) => console.error("[lead] Eingangsbestätigung", id, err),
+        ),
+      );
+    }
+    // Automatik (nur wenn eingeschaltet): Matching für die neue Anfrage.
+    after(() => automatikNachAnfrage(id).catch((err) => console.error("[lead] automatik", id, err)));
+  }
+
   // Testmodus: Mit Daten-Präfix (lokale Tests, z. B. LF_DATA_PREFIX="dev/") geht
   // weder eine Mail über Resend noch eine Kopie an Formspree raus — sonst landen
   // Testanfragen im echten Postfach. Die Anfrage liegt nur im Blob (unter dem Präfix).
   if (dataPrefix()) {
     console.log(`[lead] Testmodus (${dataPrefix()}): ${id} nur im Speicher abgelegt — kein Resend, kein Formspree.`);
-    return NextResponse.json({ ok: true, id, delivered: { resend: false, formspree: false, blob: blobOk }, test: true });
+    return NextResponse.json({ ok: true, id, bestaetigung, delivered: { resend: false, formspree: false, blob: blobOk }, test: true });
   }
 
   // 2 + 3: Resend + Formspree parallel
@@ -246,5 +251,5 @@ export async function POST(req: NextRequest) {
     console.log(text);
   }
 
-  return NextResponse.json({ ok: true, id, delivered: { resend: resendOk, formspree: formspreeOk, blob: blobOk } });
+  return NextResponse.json({ ok: true, id, bestaetigung, delivered: { resend: resendOk, formspree: formspreeOk, blob: blobOk } });
 }
