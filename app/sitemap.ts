@@ -16,6 +16,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "ackerland-verkaufen",
     "wiese-verkaufen",
     "wald-verkaufen",
+    "acker-oder-wald-geerbt",
     "services/vns-oekopunkte",
     "services/lohnunternehmer",
     "ratgeber/bodenrichtwerte-lippe",

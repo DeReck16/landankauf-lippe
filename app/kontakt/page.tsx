@@ -18,7 +18,7 @@ export default function Page() {
       <PageHero
         eyebrow="Kontakt"
         title="Sprechen Sie mit uns — direkt, persönlich, ohne Umwege."
-        subtitle="E-Mail, WhatsApp oder Formular — egal welchen Weg Sie wählen, wir antworten innerhalb von 24 Stunden. Erstgespräche sind immer kostenlos und unverbindlich."
+        subtitle="E-Mail, WhatsApp oder Formular — egal welchen Weg Sie wählen, wir antworten in der Regel innerhalb eines Werktags. Erstgespräche sind immer kostenlos und unverbindlich."
       />
 
       <section className="section">
@@ -79,7 +79,7 @@ export default function Page() {
               <ol className="list-decimal pl-5 space-y-1">
                 <li>Ihre Anfrage geht per E-Mail an <span className="font-mono text-xs">{site.contact.email}</span> und wird zusätzlich in unserem geschützten Speicher gesichert.</li>
                 <li>Wir bestätigen Eingang innerhalb weniger Stunden, in der Regel persönlich per E-Mail.</li>
-                <li>Innerhalb von 24 Stunden bekommen Sie eine erste Wert- oder Beratungsindikation.</li>
+                <li>In der Regel innerhalb eines Werktags bekommen Sie per E-Mail eine erste Wert- oder Beratungsindikation.</li>
                 <li>Bei Interesse vereinbaren wir einen unverbindlichen Vor-Ort-Termin oder ein Telefonat.</li>
               </ol>
               <p className="mt-2 text-xs text-[color:var(--color-muted)]">
@@ -88,7 +88,7 @@ export default function Page() {
             </div>
           </div>
           <div id="formular" className="order-1 lg:order-2 scroll-mt-24">
-            <LeadForm source="kontakt" defaultIntent="Allgemein" title="Schreiben Sie uns" subtitle="Wir melden uns innerhalb von 24 Stunden persönlich." />
+            <LeadForm source="kontakt" defaultIntent="Allgemein" title="Schreiben Sie uns" subtitle="Wir melden uns in der Regel innerhalb eines Werktags per E-Mail." />
           </div>
         </div>
       </section>

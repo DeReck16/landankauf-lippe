@@ -81,7 +81,7 @@ export default async function OGImage() {
               maxWidth: 900,
             }}
           >
-            Direktankauf, Verpachtung &amp; Bewertung von Ackerland, Wiesen und Wald — fair, regional, diskret.
+            Ankauf, Vermittlung &amp; Bewertung von Ackerland, Wiesen und Wald — fair, regional, diskret.
           </p>
         </div>
 
@@ -90,7 +90,7 @@ export default async function OGImage() {
           {[
             "Für Eigentümer ohne Provision",
             "100 % Diskretion",
-            "Antwort in 24 h",
+            "Antwort meist binnen 1 Werktag",
           ].map((t) => (
             <div
               key={t}

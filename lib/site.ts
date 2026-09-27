@@ -3,9 +3,9 @@ export const site = {
   domain: "lippeforst.de",
   url: "https://lippeforst.de",
   shortDescription:
-    "Lippe Forst — fairer Ankauf von Ackerland, Wiesen und Wald im Kreis Lippe. Persönlich, regional, für Eigentümer ohne Maklergebühren.",
+    "Lippe Forst — Ankauf und Vermittlung von Ackerland, Wiesen und Wald im Kreis Lippe. Wir kaufen selbst oder vermitteln Käufer und Pächter — für Eigentümer ohne Provision.",
   longDescription:
-    "Lippe Forst kauft, pachtet und bewertet Ackerland, Wiesen und Wald im Kreis Lippe und im Umland. Zusätzlich beraten wir bei Vertragsnaturschutz und Ökopunkten und vermitteln Lohnunternehmer für Mahd, Pflege und Forstarbeiten.",
+    "Lippe Forst kauft Ackerland, Wiesen und Wald im Kreis Lippe und im Umland selbst (Direktankauf ohne Makler und Provision) oder vermittelt Käufer und Pächter — für Eigentümer kostenlos. Dazu bewerten wir Flächen, beraten zu Vertragsnaturschutz und Ökopunkten und nennen Lohnunternehmer für Mahd, Pflege und Forstarbeiten.",
   contact: {
     company: "TR Vertriebs GmbH",
     contactPerson: "Dennis Reckling",
@@ -70,16 +70,16 @@ export const services = [
   {
     slug: "flaeche-verkaufen",
     title: "Fläche verkaufen",
-    short: "Diskreter Direktankauf",
+    short: "Direktankauf oder Vermittlung",
     description:
-      "Wir kaufen Ihr Ackerland, Grünland oder Waldgrundstück direkt — ohne Makler, ohne Provision, mit fairem Marktpreis nach Bodenrichtwert.",
+      "Die TR Vertriebs GmbH kauft Ihr Ackerland, Grünland oder Waldgrundstück selbst — ohne Makler, ohne Provision, zu einem fairen Preis auf Basis der Bodenrichtwerte. Oder wir vermitteln einen passenden Käufer — für Sie als Eigentümer ebenfalls kostenlos.",
   },
   {
     slug: "flaeche-verpachten",
     title: "Fläche verpachten",
-    short: "Langfristige Pachtverträge",
+    short: "Pächter vermitteln",
     description:
-      "Sichere Pachteinnahmen ohne eigenen Aufwand. Wir bewirtschaften Ihre Fläche selbst oder vermitteln zuverlässige Pächter aus der Region.",
+      "Sichere Pachteinnahmen ohne eigenen Aufwand: Wir vermitteln zuverlässige Pächter aus der Region — für Sie als Eigentümer kostenlos, auf Wunsch mit Online-Pachtvertrag.",
   },
   {
     slug: "solarpark-verpachten",
@@ -107,7 +107,7 @@ export const services = [
     title: "Lohnunternehmer",
     short: "Mahd, Pflege, Forstarbeiten",
     description:
-      "Wir vermitteln verlässliche Lohnunternehmer aus dem Kreis Lippe für Mahd, Heuwerbung, Heckenpflege, Forstarbeit und alles, was rund um die Fläche anfällt.",
+      "Wir nennen Ihnen Lohnunternehmer aus dem Kreis Lippe für Mahd, Heuwerbung, Heckenpflege, Forstarbeit und alles, was rund um die Fläche anfällt.",
   },
 ] as const;
 

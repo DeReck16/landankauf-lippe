@@ -12,26 +12,27 @@ export const metadata: Metadata = seitenMetadaten({
   title: "Ackerland & Wald verkaufen im Kreis Lippe – Lippe Forst",
   absolut: true,
   description:
-    "Fläche im Kreis Lippe verkaufen oder verpachten? Wir kaufen Ackerland, Wiesen und Wald direkt — für Eigentümer ohne Provision. Erstbewertung in 24 h.",
+    "Fläche im Kreis Lippe verkaufen oder verpachten? Wir kaufen selbst oder vermitteln — für Eigentümer ohne Provision. Antwort meist innerhalb eines Werktags.",
   pfad: "/",
 });
 import QuickValuation from "@/components/QuickValuation";
 import BoerseAbschnitt from "@/components/boerse/BoerseAbschnitt";
 import VideoEmbed from "@/components/VideoEmbed";
+import AblaufFristen from "@/components/AblaufFristen";
 import { site, services, flaechenTypen, whatsappLink } from "@/lib/site";
 
 const faq: { q: string; a: string; aJsx?: ReactNode }[] = [
   {
     q: "Wie schnell bekomme ich eine Preisindikation?",
-    a: "Nach Eingang Ihrer Anfrage melden wir uns innerhalb von 24 Stunden mit einer ersten Wertindikation. Diese basiert auf den aktuellen Bodenrichtwerten des Gutachterausschusses Kreis Lippe sowie auf realen Vergleichsverkäufen, die wir aus der Region kennen.",
+    a: "Nach Eingang Ihrer Anfrage melden wir uns in der Regel innerhalb eines Werktags per E-Mail mit einer ersten Wertindikation. Sie beruht auf den aktuellen Bodenrichtwerten (BORIS NRW) und den Kaufpreisen, die der Grundstücksmarktbericht Kreis Lippe ausweist.",
   },
   {
     q: "Fallen Maklergebühren oder Provisionen an?",
-    a: "Für Eigentümer nicht. Wir kaufen direkt, ohne Maklerkette: Als Verkäufer oder Verpächter zahlen Sie keine Provision, keine Bewertungsgebühr und keine versteckten Kosten. Beim Verkauf fallen nur die üblichen Notar- und Grundbuchkosten an. Wer über uns eine Fläche pachtet oder kauft, zahlt nur im Erfolgsfall eine Provision — die Konditionen erhält er vorher schriftlich.",
+    a: "Für Eigentümer nicht — auf beiden Wegen. Kauft die TR Vertriebs GmbH (Betreiberin von Lippe Forst) Ihre Fläche selbst, gibt es keinen Makler und keine Provision. Vermitteln wir einen Käufer oder Pächter, ist das für Sie als Eigentümer ebenfalls kostenlos; nur wer über uns kauft oder pachtet, zahlt im Erfolgsfall eine Provision — die Konditionen erhält er vorher schriftlich. Eine Bewertungsgebühr gibt es nicht. Die Notar- und Grundbuchkosten des Kaufvertrags trägt nach der gesetzlichen Regel der Käufer.",
   },
   {
     q: "Was ist, wenn die Fläche verpachtet ist?",
-    a: "Wir kaufen Flächen auch mit laufendem Pachtvertrag. In den meisten Fällen übernehmen wir den Pachtvertrag mit. Ihr Pächter wird vor dem Verkauf transparent informiert. Vorkaufsrechte werden selbstverständlich beachtet.",
+    a: "Kein Hindernis — ob wir selbst kaufen oder einen Käufer vermitteln: Ein bestehender Pachtvertrag geht beim Verkauf auf den Käufer über („Kauf bricht nicht Pacht“, §§ 593b, 566 BGB). Ihr Pächter wird vor dem Verkauf transparent informiert; gesetzliche Vorkaufsrechte werden beachtet.",
   },
   {
     q: "Mein Grundstück liegt in einer Erbengemeinschaft — geht das trotzdem?",
@@ -47,7 +48,7 @@ const faq: { q: string; a: string; aJsx?: ReactNode }[] = [
   },
   {
     q: "Gilt das Grundstücksverkehrsgesetz für meinen Verkauf?",
-    a: "Bei landwirtschaftlichen Flächen ab 1 ha greift in NRW grundsätzlich das Grundstücksverkehrsgesetz (GrdstVG) inklusive Genehmigungspflicht und siedlungsrechtlichem Vorkaufsrecht. Wir kennen den Ablauf und kümmern uns mit Ihrem Notar darum, dass alles glatt läuft.",
+    a: "Der Verkauf land- oder forstwirtschaftlicher Flächen von mehr als 1 ha braucht in NRW eine Genehmigung nach dem Grundstückverkehrsgesetz (GrdstVG); ab 2 ha kann zusätzlich ein siedlungsrechtliches Vorkaufsrecht bestehen. Die Behörde entscheidet binnen eines Monats, in Ausnahmefällen binnen zwei oder drei Monaten. Den Antrag stellt der Notar — wir kennen den Ablauf und stimmen uns mit ihm ab.",
   },
   {
     q: "Kaufen Sie auch Wohnimmobilien — etwa das Wohnhaus zur Hofstelle?",
@@ -119,7 +120,7 @@ export default function Home() {
               Ihre Fläche verdient<br />einen guten Nachfolger.
             </h1>
             <p className="mt-6 text-lg md:text-xl text-white/85 max-w-xl leading-relaxed">
-              Wir kaufen, pachten und bewerten Ackerland, Wiesen und Wald im Kreis Lippe — fair, regional, persönlich. Für Eigentümer ohne Provision, ohne Druck. <strong className="text-white">Diskretion ist Standard, nicht Aufpreis.</strong>
+              Wir kaufen Ackerland, Wiesen und Wald im Kreis Lippe selbst — oder vermitteln Ihnen Käufer und Pächter. Fair, regional, persönlich. Für Eigentümer ohne Provision, ohne Druck. <strong className="text-white">Diskretion ist Standard, nicht Aufpreis.</strong>
             </p>
             <div className="mt-5 inline-flex items-center gap-2 text-xs uppercase tracking-wider text-[color:var(--color-accent)] border border-white/15 rounded-full px-3 py-1.5">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-[color:var(--color-accent)]" />
@@ -142,8 +143,8 @@ export default function Home() {
             </div>
             <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-6 text-sm text-white/70 max-w-xl">
               <div>
-                <p className="font-serif text-2xl text-white">24 h</p>
-                <p>Antwortzeit</p>
+                <p className="font-serif text-2xl text-white">1 Werktag</p>
+                <p>Antwort in der Regel</p>
               </div>
               <div>
                 <p className="font-serif text-2xl text-white">0 %</p>
@@ -164,7 +165,7 @@ export default function Home() {
               <LeadForm
                 source="hero"
                 title="Was ist Ihre Fläche wert?"
-                subtitle="Tragen Sie Ihre Daten ein — wir melden uns innerhalb von 24 Stunden mit einer ehrlichen Einschätzung."
+                subtitle="Tragen Sie Ihre Daten ein — wir melden uns in der Regel innerhalb eines Werktags per E-Mail mit einer ehrlichen Einschätzung."
               />
             </div>
           </div>
@@ -213,13 +214,13 @@ export default function Home() {
               Wir kommen selbst aus dem Kreis Lippe — aus Leopoldstal, Horn-Bad Meinberg. Wir kennen die Flurstücke entlang der Egge, die alten Eichen am Püngelsberg, die Wiesen am Triftenberge.
             </p>
             <p className="mt-4 text-[color:var(--color-ink-soft)] leading-relaxed">
-              Flächen, die wir übernehmen, werden nicht zerstückelt, nicht spekulativ weitergereicht und nicht versiegelt. Wir bewirtschaften sie selbst, verpachten an verlässliche regionale Landwirte oder bringen sie in Vertragsnaturschutz und Ökopunkte ein. Was wir kaufen, bleibt im Lipper Land.
+              Flächen, die wir selbst kaufen, werden nicht zerstückelt, nicht spekulativ weitergereicht und nicht versiegelt: Wir verpachten sie an regionale Landwirte oder bringen sie in Vertragsnaturschutz und Ökopunkte ein. Was wir kaufen, bleibt im Lipper Land. Und wo wir vermitteln, stellen wir Ihnen Käufer und Pächter vor — die Entscheidung bleibt bei Ihnen.
             </p>
             <ul className="mt-6 space-y-2 prose-lippe">
-              <li><strong>Direkter Ankauf</strong> ohne Maklerkette und ohne Versteckspiel.</li>
+              <li><strong>Zwei Wege</strong>: Direktankauf ohne Makler und Provision — oder Vermittlung, für Sie als Eigentümer kostenlos.</li>
               <li><strong>Faire Preise</strong> auf Basis aktueller Bodenrichtwerte des Gutachterausschusses Lippe.</li>
               <li><strong>Erbengemeinschaften & komplexe Eigentumslagen</strong> sind unser Spezialgebiet.</li>
-              <li><strong>Diskretion</strong> ist Standard — kein Schaufenster, keine Aushängung, keine Anzeige.</li>
+              <li><strong>Diskretion</strong> ist Standard — kein Aushang, kein Inserat mit Namen oder Flurstück; in die Flächenbörse nur anonym und nur mit Ihrer Zustimmung.</li>
             </ul>
             <div className="mt-8">
               <Link href="/ueber-uns" className="btn-secondary">Über uns</Link>
@@ -238,7 +239,7 @@ export default function Home() {
                   />
                 </div>
                 <div className="p-6">
-                  <p className="eyebrow">Direktankauf</p>
+                  <p className="eyebrow">Direktankauf oder Vermittlung</p>
                   <h3 className="font-serif text-2xl mt-1">{t.label}</h3>
                   <p className="text-sm text-[color:var(--color-ink-soft)] mt-1">{t.description}</p>
                   <p className="mt-3 text-sm font-medium text-[color:var(--color-brand)]">
@@ -259,12 +260,12 @@ export default function Home() {
             <hr className="divider mt-3 bg-[color:var(--color-accent)]" />
             <h2 className="text-3xl md:text-4xl text-white">Was Sie uns sagen, bleibt zwischen uns.</h2>
             <p className="mt-4 text-white/80 leading-relaxed">
-              Verkauf, Erbauseinandersetzung, Pachtwechsel — das sind sensible Themen. Bei uns gibt es keine Aushängung, kein Inserat, kein „Schaufenster“. Nachbarn, Pächter, andere Landwirte erfahren nichts, ohne Ihre ausdrückliche Zustimmung.
+              Verkauf, Erbauseinandersetzung, Pachtwechsel — das sind sensible Themen. Bei uns gibt es keine Aushängung und kein Inserat mit Ihrem Namen oder Flurstück. In unsere Flächenbörse kommt eine Fläche nur anonym und nur mit Ihrer ausdrücklichen Zustimmung. Nachbarn, Pächter, andere Landwirte erfahren nichts, ohne dass Sie zustimmen.
             </p>
           </div>
           <ul className="space-y-3 text-white/85">
             {[
-              "Keine Vermarktung Ihrer Fläche im Internet oder vor Ort",
+              "Im Internet nur anonym und nur mit Ihrer Zustimmung — nie mit Namen, Flurstück oder genauer Lage",
               "Keine Weitergabe Ihrer Daten an Dritte ohne ausdrückliche Zustimmung",
               "Die Wert-Indikation läuft komplett in Ihrem Browser — Ihre Eingaben erreichen uns nicht",
               "Vor-Ort-Termine in Zivil, ohne Beschriftung, ohne Aufmerksamkeit",
@@ -312,33 +313,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* PROZESS */}
-      <section className="section bg-[color:var(--color-brand)] text-white">
-        <div className="container-page">
-          <div className="max-w-2xl">
-            <span className="eyebrow text-[color:var(--color-accent)]">In 4 Schritten</span>
-            <hr className="divider mt-3 bg-[color:var(--color-accent)]" />
-            <h2 className="text-3xl md:text-4xl text-white">So einfach läuft es ab.</h2>
-            <p className="mt-4 text-white/85 text-lg">
-              Vom ersten Kontakt bis zur Auszahlung — ohne Bürokratie, ohne unklare Termine.
-            </p>
-          </div>
-          <ol className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4 text-white/90">
-            {[
-              { n: "01", t: "Anfrage", d: "Sie nennen uns Größe, Lage und Anliegen — über das Formular, per E-Mail oder WhatsApp." },
-              { n: "02", t: "Indikation", d: "Innerhalb von 24 Stunden erhalten Sie eine erste, ehrliche Preisindikation." },
-              { n: "03", t: "Vor-Ort-Termin", d: "Wir schauen uns die Fläche gemeinsam an — kostenlos und unverbindlich." },
-              { n: "04", t: "Notar & Auszahlung", d: "Termin beim Notar Ihrer Wahl — Auszahlung erfolgt innerhalb weniger Wochen." },
-            ].map((s) => (
-              <li key={s.n} className="border-l-2 border-white/30 pl-5">
-                <p className="font-serif text-3xl text-[color:var(--color-accent)]">{s.n}</p>
-                <h3 className="mt-1 text-white text-xl">{s.t}</h3>
-                <p className="mt-2 text-sm text-white/80 leading-relaxed">{s.d}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
+      {/* ABLAUF MIT FRISTEN (beide Wege) */}
+      <AblaufFristen />
 
       {/* REGION */}
       <section className="section">
@@ -396,7 +372,7 @@ export default function Home() {
         <div className="container-narrow text-center">
           <h2 className="text-3xl md:text-4xl">Bereit für ein erstes Gespräch?</h2>
           <p className="mt-4 text-[color:var(--color-ink-soft)] text-lg">
-            Schreiben Sie uns — über das Formular, per E-Mail oder WhatsApp. Wir melden uns innerhalb von 24 Stunden.
+            Schreiben Sie uns — über das Formular, per E-Mail oder WhatsApp. Wir melden uns in der Regel innerhalb eines Werktags per E-Mail.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Link href="/kontakt#formular" className="btn-primary">Anfrage starten</Link>

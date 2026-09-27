@@ -43,8 +43,8 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const { type, city } = p;
   // Ziel: höchstens 60 Zeichen inklusive „ | Lippe Forst“ (Layout-Template).
   const basis = `${TITEL_KURZ[type.slug] ?? type.label} verkaufen in ${city.name}`;
-  const title = basis.length <= 31 ? `${basis} – Direktankauf` : basis;
-  const desc = `Sie wollen ${type.label} ${city.display} verkaufen? Wir kaufen direkt — fair, diskret, ohne Maklergebühr. Antwort innerhalb von 24 Stunden.`;
+  const title = basis.length <= 31 ? `${basis} – ohne Provision` : basis;
+  const desc = `Sie wollen ${type.label} ${city.display} verkaufen? Wir kaufen selbst oder vermitteln einen Käufer — fair, diskret, ohne Provision für Sie. Antwort meist binnen eines Werktags.`;
   return seitenMetadaten({ title, description: desc, pfad: `/${slug}` });
 }
 
@@ -69,9 +69,9 @@ export default async function Page({ params }: { params: Promise<Params> }) {
   const ld = {
     "@context": "https://schema.org",
     "@type": "Service",
-    serviceType: `${type.label} Direktankauf`,
+    serviceType: `${type.label}: Direktankauf und Vermittlung`,
     name: `${type.label} verkaufen ${city.name}`,
-    description: `Direktankauf von ${type.pluralGenitiv} in der Stadt/Gemeinde ${city.name}, Kreis Lippe.`,
+    description: `Direktankauf von ${type.pluralGenitiv} durch die TR Vertriebs GmbH oder Vermittlung an Käufer — in der Stadt/Gemeinde ${city.name}, Kreis Lippe; für Eigentümer ohne Provision.`,
     provider: {
       "@type": "RealEstateAgent",
       name: site.name,
@@ -97,7 +97,7 @@ export default async function Page({ params }: { params: Promise<Params> }) {
       <PageHero
         eyebrow={`${type.label} · ${city.name}`}
         title={`${type.label} verkaufen ${city.display} — fair, diskret, ohne Provision.`}
-        subtitle={`${type.description} Wir kaufen ${type.pluralGenitiv} ${city.display} direkt — auf Basis aktueller Bodenrichtwerte und realer Vergleichsverkäufe.`}
+        subtitle={`${type.description} Die TR Vertriebs GmbH kauft ${type.pluralGenitiv} ${city.display} selbst — oder wir vermitteln einen Käufer. Auf Basis aktueller Bodenrichtwerte und des Grundstücksmarktberichts.`}
         primaryCta={{ href: "#anfrage", label: "Kostenlose Indikation" }}
       />
 
@@ -114,11 +114,11 @@ export default async function Page({ params }: { params: Promise<Params> }) {
 
             <h2>Was wir Ihnen bieten</h2>
             <ul>
-              <li><strong>Direkter Ankauf</strong> ohne Maklerkette und ohne Provision</li>
-              <li><strong>Faire Wertindikation</strong> in 24 h, basierend auf Grundstücksmarktbericht 2026 und realen Vergleichsverkäufen {city.display}</li>
-              <li><strong>Diskretion</strong> — kein Inserat, keine Aushängung, keine Weitergabe Ihrer Daten ohne Ihre Zustimmung</li>
+              <li><strong>Zwei Wege</strong> — Direktankauf durch die TR Vertriebs GmbH ohne Makler und Provision, oder Vermittlung an einen Käufer, für Sie kostenlos</li>
+              <li><strong>Faire Wertindikation</strong> in der Regel innerhalb eines Werktags, auf Basis der Bodenrichtwerte und des Grundstücksmarktberichts 2026</li>
+              <li><strong>Diskretion</strong> — kein Aushang, kein Inserat mit Namen oder Flurstück, in der Flächenbörse nur anonym und nur mit Ihrer Zustimmung</li>
               <li><strong>Erbengemeinschaften</strong> sind unser Spezialgebiet — wir koordinieren mit Notar, Grundbuchamt und allen Miteigentümern</li>
-              <li><strong>Pachtverhältnisse</strong> übernehmen wir; Vorkaufsrechte beachten wir selbstverständlich</li>
+              <li><strong>Pachtverhältnisse</strong> gehen beim Verkauf auf den Käufer über; gesetzliche Vorkaufsrechte beachten wir</li>
             </ul>
 
             <h2>Marktdaten {city.name}</h2>
@@ -162,7 +162,7 @@ export default async function Page({ params }: { params: Promise<Params> }) {
               defaultIntent="Verkaufen"
               defaultFlaechentyp={defaultFlaechentyp as never}
               title={`${type.label}-Verkaufsanfrage`}
-              subtitle={`Wir melden uns innerhalb von 24 Stunden mit einer ehrlichen Einschätzung Ihrer Fläche ${city.display}.`}
+              subtitle={`Wir melden uns in der Regel innerhalb eines Werktags per E-Mail mit einer ehrlichen Einschätzung Ihrer Fläche ${city.display}.`}
             />
           </aside>
         </div>

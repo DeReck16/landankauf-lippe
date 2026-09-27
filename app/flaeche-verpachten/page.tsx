@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
+import AblaufFristen from "@/components/AblaufFristen";
 import { seitenMetadaten } from "@/lib/seo";
 
 export const metadata: Metadata = seitenMetadaten({
   title: "Fläche verpachten in Lippe – fairer Pachtzins",
   description:
-    "Ackerland, Wiese oder Wald im Kreis Lippe verpachten? Wir bewirtschaften selbst oder vermitteln einen verlässlichen Pächter aus der Region. Fairer Pachtzins.",
+    "Ackerland oder Wiese im Kreis Lippe verpachten? Wir vermitteln einen verlässlichen Pächter aus der Region — für Sie als Eigentümer kostenlos, auf Wunsch mit Online-Pachtvertrag.",
   pfad: "/flaeche-verpachten",
 });
 
@@ -17,7 +18,7 @@ export default function Page() {
       <PageHero
         eyebrow="Verpachtung"
         title="Verpachten ohne Kopfschmerzen — verlässliche Pächter aus dem Lipper Land."
-        subtitle="Sie wollen Ihre Fläche nicht verkaufen, sondern Pachteinnahmen generieren — ohne sich um Mahd, Pflege oder Bürokratie kümmern zu müssen? Wir sind Ihr direkter Ansprechpartner."
+        subtitle="Sie wollen Ihre Fläche nicht verkaufen, sondern Pachteinnahmen generieren — ohne sich um Mahd, Pflege oder Bürokratie kümmern zu müssen? Wir vermitteln Ihnen passende Pächter — für Sie als Eigentümer kostenlos."
         primaryCta={{ href: "#anfrage", label: "Pacht-Angebot anfragen" }}
         secondaryCta={{ href: "/flaeche-bewerten", label: "Pachtwert ermitteln" }}
       />
@@ -27,14 +28,12 @@ export default function Page() {
           <article className="prose-lippe">
             <span className="eyebrow">Wie wir verpachten</span>
             <hr className="divider mt-3" />
-            <h2>Zwei Wege — Sie entscheiden, was passt.</h2>
-            <h3>Option 1 — Wir pachten direkt</h3>
+            <h2>So vermitteln wir Ihre Fläche.</h2>
             <p>
-              Sie verpachten Ihre Fläche an uns. Wir bewirtschaften sie entweder selbst oder vergeben sie an einen Unterpächter aus unserem Netzwerk. Sie haben einen einzigen Ansprechpartner, einen einzigen Pachtzahler und müssen sich um nichts mehr kümmern.
+              Wir stellen Ihre Fläche passenden Betrieben aus der Region vor — zuerst anonym, Kontaktdaten erst nach Ihrer Zustimmung. Für Sie als Eigentümer ist das kostenlos; nur der Pächter zahlt im Erfolgsfall eine Provision. Den Pachtvertrag schließen Sie direkt mit dem Pächter, auf Wunsch online über unsere Vorlage (Textform, § 585a BGB).
             </p>
-            <h3>Option 2 — Wir vermitteln einen Pächter</h3>
             <p>
-              Sie wollen lieber direkt mit einem Landwirt zusammenarbeiten? Wir kennen die Lipper Betriebe und vermitteln Ihnen einen passenden Pächter — mit fairem Vertrag, ohne Vermittlungsprovision für Sie.
+              Möchten Sie doch lieber verkaufen? Die TR Vertriebs GmbH (Betreiberin von Lippe Forst) kauft geeignete Flächen auch selbst — ohne Makler und ohne Provision. Mehr unter <Link href="/flaeche-verkaufen">Fläche verkaufen</Link>.
             </p>
 
             <h2>Pachtspiegel Kreis Lippe</h2>
@@ -42,8 +41,8 @@ export default function Page() {
               Die Pachtpreise im Kreis Lippe variieren stark — je nach Bodenqualität (Bodenpunkte), Lage, Erschließung und Bewirtschaftbarkeit. Grobe Orientierung für 2026:
             </p>
             <ul>
-              <li><strong>Ackerland:</strong> 350 – 750 €/ha/Jahr (Schwerpunkt Lippe)</li>
-              <li><strong>Grünland:</strong> 180 – 380 €/ha/Jahr</li>
+              <li><strong>Ackerland:</strong> 250 – 750 €/ha/Jahr — gute Lagen (Bonität 55+, hofnah) 550 – 750, schwere Lagen 250 – 380</li>
+              <li><strong>Grünland:</strong> 120 – 380 €/ha/Jahr — intensiv nutzbar 250 – 380, extensiv oft nur Pflegeentgelt</li>
               <li><strong>Hangflächen / extensiv:</strong> oft nur Pflegeentgelt — hier lohnt sich ein Blick auf <Link href="/services/vns-oekopunkte">Vertragsnaturschutz</Link></li>
               <li><strong>Sondernutzung Photovoltaik:</strong> 2.500 – 4.500 €/ha/Jahr, an Spitzenstandorten bis ca. 5.000 €, langfristige Verträge — Details auf <Link href="/solarpark-verpachten">Solarpark verpachten</Link></li>
             </ul>
@@ -62,7 +61,7 @@ export default function Page() {
 
             <h2>Was uns wichtig ist</h2>
             <p>
-              Wir verpachten nicht an den Höchstbietenden, sondern an Betriebe, die mit der Fläche sorgsam umgehen. Wer von uns pachtet, weiß: regelmäßige Pflege, Düngung im Rahmen, keine Maximalausnutzung. So bleibt Ihre Fläche auch in 20 Jahren noch eine wertvolle Fläche.
+              Wir schlagen nicht einfach den Höchstbietenden vor, sondern Betriebe, die mit der Fläche sorgsam umgehen: regelmäßige Pflege, Düngung im Rahmen, keine Maximalausnutzung. So bleibt Ihre Fläche auch in 20 Jahren noch eine wertvolle Fläche. An wen Sie verpachten, entscheiden Sie.
             </p>
           </article>
           <aside id="anfrage" className="lg:sticky lg:top-24 self-start">
@@ -70,11 +69,13 @@ export default function Page() {
               source="flaeche-verpachten"
               defaultIntent="Verpachten"
               title="Pacht-Anfrage"
-              subtitle="Wir melden uns innerhalb von 24 Stunden mit einem konkreten Vorschlag."
+              subtitle="Wir melden uns in der Regel innerhalb eines Werktags per E-Mail mit einem konkreten Vorschlag."
             />
           </aside>
         </div>
       </section>
+
+      <AblaufFristen art="pacht" />
     </>
   );
 }

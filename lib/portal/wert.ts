@@ -105,9 +105,11 @@ export function genauer(typ: FlaechenTyp, hatFlurstueck: boolean): { faktoren: s
 
 
 /** Pachtspannen je Hektar und Jahr (Seite /flaeche-verpachten, Stand 2026). */
+// Orientierungsspannen, einheitlich mit Website und Blog (Ackerland 250–750, gute Lagen 550–750;
+// Grünland 120–380, intensiv nutzbar 250–380 €/ha und Jahr).
 export const PACHT_SPANNE: Partial<Record<FlaechenTyp, [number, number]>> = {
-  ackerland: [350, 750],
-  gruenland: [180, 380],
+  ackerland: [250, 750],
+  gruenland: [120, 380],
 };
 
 /**

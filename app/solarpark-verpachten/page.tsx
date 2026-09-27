@@ -94,7 +94,7 @@ export default function Page() {
                 </tr>
                 <tr>
                   <td className="p-3 border border-[color:var(--color-line)]">Grünlandpacht Kreis Lippe</td>
-                  <td className="p-3 border border-[color:var(--color-line)] text-right">180 – 380 €</td>
+                  <td className="p-3 border border-[color:var(--color-line)] text-right">120 – 380 €</td>
                 </tr>
                 <tr>
                   <td className="p-3 border border-[color:var(--color-line)]">Freiflächen-Photovoltaik</td>
@@ -158,7 +158,7 @@ export default function Page() {
               source="solarpark-verpachten"
               defaultIntent="Energiepacht (Solar/Wind)"
               title="Kostenloser Solar-Flächen-Check"
-              subtitle="Gemarkung und Flurstück genügen — wir prüfen Eignung, Kulisse und Netznähe und melden uns innerhalb von 24 Stunden mit einer ehrlichen Einschätzung."
+              subtitle="Gemarkung und Flurstück genügen — wir prüfen Eignung, Kulisse und Netznähe und melden uns in der Regel innerhalb eines Werktags per E-Mail mit einer ehrlichen Einschätzung."
             />
           </aside>
         </div>

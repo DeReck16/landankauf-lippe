@@ -34,7 +34,7 @@ export default function Page() {
 
             <h2>Warum die Spanne so groß ist: Boden + Aufwuchs</h2>
             <p>
-              Ein Waldpreis besteht aus zwei Komponenten: dem <strong>Bodenwert</strong> (in NRW meist 0,3–1 €/m²) und dem <strong>Bestandswert</strong> — dem stehenden Holz. Ein hiebsreifer 100-jähriger Buchen- oder Eichenbestand kann den Hektarpreis vervielfachen, während eine frisch geräumte Käferfläche kaum mehr als den Bodenwert bringt.
+              Ein Waldpreis besteht aus zwei Komponenten: dem <strong>Bodenwert</strong> (in Lippe typischerweise 0,30–1,50 €/m²) und dem <strong>Bestandswert</strong> — dem stehenden Holz. Ein hiebsreifer 100-jähriger Buchen- oder Eichenbestand kann den Hektarpreis vervielfachen, während eine frisch geräumte Käferfläche kaum mehr als den Bodenwert bringt.
             </p>
             <div className="overflow-x-auto">
             <table className="w-full mt-3 border-collapse text-sm">
@@ -85,7 +85,7 @@ export default function Page() {
 
             <h2>Was ist Ihr Wald konkret wert?</h2>
             <p>
-              Wir bewerten Bestand, Erschließung und Marktlage kostenlos — und machen bei Interesse ein direktes Ankaufangebot ohne Makler: <Link href="/wald-verkaufen">Wald verkaufen</Link> oder <Link href="/flaeche-bewerten">erst bewerten lassen</Link>.
+              Wir bewerten Bestand, Erschließung und Marktlage kostenlos. Möchten Sie verkaufen, kauft die TR Vertriebs GmbH auch selbst — ohne Makler, ohne Provision — oder wir vermitteln einen Käufer, für Sie ebenfalls kostenlos: <Link href="/wald-verkaufen">Wald verkaufen</Link> oder <Link href="/flaeche-bewerten">erst bewerten lassen</Link>.
             </p>
           </article>
           <aside className="lg:sticky lg:top-24 self-start">
@@ -93,7 +93,7 @@ export default function Page() {
               source="ratgeber-wald-preis-nrw"
               defaultIntent="Bewertung"
               title="Wald-Werteinschätzung"
-              subtitle="Bestand, Baumarten, Erschließung — wir sagen Ihnen in 24 h, was Ihr Wald heute realistisch bringt."
+              subtitle="Bestand, Baumarten, Erschließung — wir sagen Ihnen in der Regel innerhalb eines Werktags per E-Mail, was Ihr Wald heute realistisch bringt."
             />
           </aside>
         </div>

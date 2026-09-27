@@ -25,25 +25,25 @@ export default function Page() {
         <div className="container-narrow prose-lippe">
           <h2>Wer hinter Lippe Forst steht</h2>
           <p>
-            Hinter Lippe Forst steht die <strong>{site.contact.company}</strong> mit Sitz in {site.contact.city}, geführt von {site.contact.contactPerson}. Wir sind kein bundesweit tätiger Makler, kein Investmentfonds und keine anonyme Plattform. Wir sind das Unternehmen aus dem Lipper Land, das Sie auch im Dorf treffen können.
+            Hinter Lippe Forst steht die <strong>{site.contact.company}</strong> mit Sitz in {site.contact.city}, geführt von {site.contact.contactPerson}. Wir kaufen Flächen selbst und vermitteln Käufer und Pächter — aber nicht als bundesweit tätiger Makler, Investmentfonds oder anonyme Plattform, sondern als Unternehmen aus dem Lipper Land, das Sie auch im Dorf treffen können.
           </p>
 
           <h2>Warum wir das machen</h2>
           <p>
-            Wir bewirtschaften eigene Wald- und Wiesenflächen im Bereich Leopoldstal, Horn-Bad Meinberg, an der Egge und um den Püngelsberg. Wir kennen den Förster, den Jäger und den Lohnunternehmer, die hier arbeiten. Aus dieser Praxis ist das Geschäftsmodell entstanden: Wir kaufen, pachten und bewirtschaften Flächen — und beraten andere Eigentümer auf dem gleichen Weg.
+            Wir bewirtschaften eigene Wald- und Wiesenflächen im Bereich Leopoldstal, Horn-Bad Meinberg, an der Egge und um den Püngelsberg. Wir kennen den Förster, den Jäger und den Lohnunternehmer, die hier arbeiten. Aus dieser Praxis ist das Geschäftsmodell entstanden: Wir kaufen Flächen selbst, vermitteln Käufer und Pächter und beraten andere Eigentümer auf dem gleichen Weg. Bieten wir eigene Flächen an, sagen wir das offen — und nehmen dafür keine Provision.
           </p>
 
           <h2>Unsere Grundregeln</h2>
           <ul>
-            <li><strong>Direkt</strong> — keine Maklerkette, für Eigentümer kein Provisionsaufschlag, kein Inserat.</li>
+            <li><strong>Fair für Eigentümer</strong> — beim Direktankauf keine Provision, bei der Vermittlung für Eigentümer kostenlos, kein Inserat mit Namen oder Flurstück.</li>
             <li><strong>Diskret</strong> — was Sie uns sagen, bleibt zwischen uns.</li>
             <li><strong>Ehrlich</strong> — wir nennen Preise, die wir auch begründen können.</li>
             <li><strong>Nachhaltig</strong> — was wir kaufen, bleibt im Lipper Land. Keine Spekulation, keine Versiegelung.</li>
           </ul>
 
-          <h2>Mit wem wir zusammenarbeiten</h2>
+          <h2>Mit wem wir zu tun haben</h2>
           <p>
-            Für VNS- und Naturschutzberatung arbeiten wir mit der <Link href="https://www.biologischestationlippe.de" target="_blank" rel="noopener">Biologischen Station Lippe</Link>, der UNB Kreis Lippe und der Landwirtschaftskammer NRW (Kreisstellen Höxter, Lippe, Paderborn) zusammen. Für forstliche Themen mit Wald und Holz NRW. Für Lohnarbeiten mit etablierten Betrieben aus dem Kreis. Für rechtliche und notarielle Themen mit Notaren der Region.
+            Bei Vertragsnaturschutz und Ökopunkten stimmen wir uns mit den zuständigen Stellen ab — etwa der Unteren Naturschutzbehörde des Kreises, der <Link href="https://www.biologischestationlippe.de" target="_blank" rel="noopener">Biologischen Station Lippe</Link> oder der Landwirtschaftskammer NRW; bei Waldfragen mit Wald und Holz NRW. Für Lohnarbeiten nennen wir Ihnen Betriebe aus der Region. Kaufverträge beurkundet der Notar Ihrer Wahl; eine Rechtsberatung im Einzelfall leisten wir nicht.
           </p>
 
           <h2>Sie haben Fragen?</h2>

@@ -9,7 +9,7 @@ import { seitenMetadaten } from "@/lib/seo";
 export const metadata: Metadata = seitenMetadaten({
   title: "Wiese & Grünland verkaufen im Kreis Lippe",
   description:
-    "Wiese oder Grünland im Kreis Lippe verkaufen? Wir kaufen auch extensive Mähwiesen, Streuobstwiesen und Hangflächen — direkt, ohne Provision, mit Diskretion.",
+    "Wiese oder Grünland im Kreis Lippe verkaufen? Wir kaufen auch extensive Mähwiesen, Streuobstwiesen und Hangflächen selbst — oder vermitteln einen Käufer. Ohne Provision für Sie.",
   pfad: "/wiese-verkaufen",
 });
 
@@ -19,7 +19,7 @@ export default function Page() {
       <PageHero
         eyebrow="Wiese · Grünland · Streuobst"
         title="Wiese verkaufen im Kreis Lippe — auch wenn niemand sie pachten will."
-        subtitle="Extensive Mähwiesen, Streuobstwiesen, Hangflächen und Talauen sind oft schwer zu verpachten — aber für uns interessant. Wir kaufen Grünland in allen Lipper Gemeinden zum fairen Marktpreis."
+        subtitle="Extensive Mähwiesen, Streuobstwiesen, Hangflächen und Talauen sind oft schwer zu verpachten — aber für uns interessant. Die TR Vertriebs GmbH kauft Grünland in allen Lipper Gemeinden selbst — oder wir vermitteln Ihnen einen Käufer."
         primaryCta={{ href: "#anfrage", label: "Unverbindlich bewerten" }}
         whatsappCta={{
           href: whatsappLink("Guten Tag, ich möchte meine Wiese / mein Grünland im Kreis Lippe verkaufen — bitte um eine diskrete Erstbewertung."),
@@ -78,12 +78,12 @@ export default function Page() {
 
             <h2>Wiesen mit Pachtvertrag</h2>
             <p>
-              Auch verpachtete Wiesen kaufen wir an. Bei Pachtverhältnissen mit langer Restlaufzeit oder Sonderpachten sprechen wir das mit Ihnen und dem Pächter ab. Vorkaufsrechte werden selbstverständlich beachtet.
+              Auch verpachtete Wiesen kaufen oder vermitteln wir; der Pachtvertrag geht beim Verkauf auf den Käufer über. Bei Pachtverhältnissen mit langer Restlaufzeit oder Sonderpachten sprechen wir das mit Ihnen und dem Pächter ab. Gesetzliche Vorkaufsrechte werden beachtet.
             </p>
 
             <h2>Was die Kontaktaufnahme kostet</h2>
             <p>
-              Nichts. Wir machen Ihnen ein konkretes Kaufangebot, sobald wir die Eckdaten Ihrer Wiese kennen. Sie entscheiden, ob Sie verkaufen möchten — kein Druck, keine Provision, keine versteckten Kosten.
+              Nichts. Beim Direktankauf macht Ihnen die TR Vertriebs GmbH ein konkretes Kaufangebot, sobald wir die Eckdaten Ihrer Wiese kennen; bei der Vermittlung zahlt nur der Käufer im Erfolgsfall eine Provision. Sie entscheiden, ob Sie verkaufen möchten — kein Druck, keine Provision, keine versteckten Kosten.
             </p>
           </article>
           <aside id="anfrage" className="order-1 lg:order-2 lg:sticky lg:top-24 self-start">
@@ -92,7 +92,7 @@ export default function Page() {
               defaultIntent="Verkaufen"
               defaultFlaechentyp="Wiese / Grünland"
               title="Wiesen-Anfrage"
-              subtitle="Wir melden uns innerhalb von 24 Stunden mit einer ehrlichen Einschätzung."
+              subtitle="Wir melden uns in der Regel innerhalb eines Werktags per E-Mail mit einer ehrlichen Einschätzung."
             />
           </aside>
         </div>

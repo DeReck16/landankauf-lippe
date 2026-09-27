@@ -9,7 +9,7 @@ import { seitenMetadaten } from "@/lib/seo";
 export const metadata: Metadata = seitenMetadaten({
   title: "Ackerland verkaufen in Lippe – ohne Provision",
   description:
-    "Ackerland im Kreis Lippe verkaufen? Wir kaufen direkt — fair, diskret, ohne Maklerkette. In Detmold, Lemgo, Bad Salzuflen, Horn-Bad Meinberg und ganz Lippe.",
+    "Ackerland im Kreis Lippe verkaufen? Wir kaufen selbst oder vermitteln einen Käufer — fair, diskret, ohne Provision für Sie. In Detmold, Lemgo, Horn-Bad Meinberg und ganz Lippe.",
   pfad: "/ackerland-verkaufen",
 });
 
@@ -18,8 +18,8 @@ export default function Page() {
     <>
       <PageHero
         eyebrow="Ackerland · Kreis Lippe"
-        title="Ackerland im Kreis Lippe verkaufen — direkt, fair, ohne Provision."
-        subtitle="Wir kaufen Ackerland in allen 16 Lipper Kommunen und im angrenzenden Umland — auch verpachtet, auch aus einer Erbengemeinschaft."
+        title="Ackerland im Kreis Lippe verkaufen — fair und ohne Provision für Sie."
+        subtitle="Die TR Vertriebs GmbH kauft Ackerland in allen 16 Lipper Kommunen und im angrenzenden Umland selbst — oder wir vermitteln Ihnen einen Käufer. Auch verpachtet, auch aus einer Erbengemeinschaft."
         primaryCta={{ href: "#anfrage", label: "Unverbindlich bewerten" }}
         whatsappCta={{
           href: whatsappLink("Guten Tag, ich möchte mein Ackerland im Kreis Lippe verkaufen — bitte um eine diskrete Erstbewertung."),
@@ -53,12 +53,12 @@ export default function Page() {
       <section className="section">
         <div className="container-page grid gap-12 lg:grid-cols-[1.2fr_1fr]">
           <article className="prose-lippe order-2 lg:order-1">
-            <h2>Warum Ackerland im Kreis Lippe direkt verkaufen?</h2>
+            <h2>Direkt an uns verkaufen oder vermitteln lassen?</h2>
             <p>
               Der Markt für landwirtschaftliche Flächen in Ostwestfalen-Lippe ist eng. Nachfrage durch Landwirte, Investoren und Stiftungen ist hoch — was bedeutet, dass Sie als Verkäufer in der starken Position sind. Voraussetzung: Sie kennen den realen Marktwert und wissen, was bei einem Verkauf rechtlich beachtet werden muss.
             </p>
             <p>
-              Wir kaufen Ackerland direkt. Das spart Ihnen die Maklerprovision (üblich: 3–5 % vom Kaufpreis), die Wartezeit für eine Vermarktung und die offene Aushängung. Sie bekommen eine ehrliche Wertindikation, einen klaren Zeitplan und einen Notartermin — fertig.
+              Beim Direktankauf kauft die TR Vertriebs GmbH Ihr Ackerland selbst: kein Makler, keine Provision, keine Wartezeit für eine Vermarktung und kein Aushang. Möchten Sie lieber einen anderen Käufer finden, vermitteln wir — für Sie als Eigentümer ebenfalls kostenlos; nur der Käufer zahlt im Erfolgsfall eine Provision. Auf beiden Wegen bekommen Sie eine ehrliche Wertindikation und einen klaren Zeitplan bis zum Notartermin.
             </p>
 
             <h2>Bodenrichtwerte für Ackerland im Kreis Lippe</h2>
@@ -71,7 +71,7 @@ export default function Page() {
 
             <h2>Verpachtetes Ackerland verkaufen</h2>
             <p>
-              Ihre Fläche ist verpachtet? Kein Problem. Wir kaufen auch mit laufendem Pachtvertrag und übernehmen den bestehenden Vertrag. Der Pächter wird vor dem Verkauf transparent informiert. Ein gesetzliches Vorkaufsrecht hat er nicht — ist im Pachtvertrag eines vereinbart, berücksichtigen wir es. In der Regel laufen solche Verkäufe völlig geräuschlos ab.
+              Ihre Fläche ist verpachtet? Kein Problem. Ein laufender Pachtvertrag geht beim Verkauf auf den Käufer über („Kauf bricht nicht Pacht“) — egal, ob wir selbst kaufen oder einen Käufer vermitteln. Der Pächter wird vor dem Verkauf transparent informiert. Ein gesetzliches Vorkaufsrecht hat er nicht — ist im Pachtvertrag eines vereinbart, berücksichtigen wir es. In der Regel laufen solche Verkäufe völlig geräuschlos ab.
             </p>
 
             <h2>Ackerland aus Erbengemeinschaft verkaufen</h2>
@@ -86,7 +86,7 @@ export default function Page() {
 
             <h2>Genehmigungspflicht nach GrdstVG</h2>
             <p>
-              Ab 1 ha greift in NRW das Grundstücksverkehrsgesetz. Der Kaufvertrag muss durch die Landwirtschaftskammer genehmigt werden, und das siedlungsrechtliche Vorkaufsrecht kann ausgeübt werden. Mehr dazu in unserem <Link href="/ratgeber/grundstuecksverkehrsgesetz">Ratgeber</Link>. Wir kennen den Ablauf und übernehmen die Koordination mit Notar und Behörde.
+              Für land- oder forstwirtschaftliche Flächen von mehr als 1 ha braucht der Kaufvertrag in NRW eine Genehmigung nach dem Grundstückverkehrsgesetz (GrdstVG); zuständig ist die Kreisstelle der Landwirtschaftskammer als Landesbeauftragte. Ab 2 ha kann zusätzlich ein siedlungsrechtliches Vorkaufsrecht ausgeübt werden. Die Behörde entscheidet binnen eines Monats, in Ausnahmefällen binnen zwei oder drei Monaten. Mehr dazu in unserem <Link href="/ratgeber/grundstuecksverkehrsgesetz">Ratgeber</Link>. Wir kennen den Ablauf und stimmen uns mit Notar und Behörde ab.
             </p>
           </article>
           <aside id="anfrage" className="order-1 lg:order-2 lg:sticky lg:top-24 self-start">
@@ -95,7 +95,7 @@ export default function Page() {
               defaultIntent="Verkaufen"
               defaultFlaechentyp="Ackerland"
               title="Ackerland-Verkaufsanfrage"
-              subtitle="Antwort innerhalb von 24 Stunden — diskret und unverbindlich."
+              subtitle="Antwort in der Regel innerhalb eines Werktags per E-Mail — diskret und unverbindlich."
             />
           </aside>
         </div>

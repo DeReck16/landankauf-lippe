@@ -61,7 +61,7 @@ export default function Footer() {
                 {i < liste.length - 1 ? ", " : ""}
               </span>
             ))}
-            . Sprechen Sie uns an, wir kaufen auch dort.
+            . Sprechen Sie uns an — wir kaufen oder vermitteln auch dort.
           </p>
         </div>
       </div>
@@ -114,6 +114,7 @@ export default function Footer() {
           <ul className="space-y-2 text-sm text-white/70">
             <li><Link href="/flaeche-bewerten" className="hover:text-white">Sofort-Wertindikation</Link></li>
             <li><Link href="/blog" className="hover:text-white">Blog &amp; Aktuelles</Link></li>
+            <li><Link href="/acker-oder-wald-geerbt" className="hover:text-white">Acker oder Wald geerbt?</Link></li>
             <li><Link href="/ratgeber/bodenrichtwerte-lippe" className="hover:text-white">Bodenrichtwerte Lippe</Link></li>
             <li><Link href="/ratgeber/grundstuecksverkehrsgesetz" className="hover:text-white">Grundstücksverkehrsgesetz</Link></li>
             <li><Link href="/ratgeber/ackerland-preis-nrw" className="hover:text-white">Ackerland-Preise NRW</Link></li>

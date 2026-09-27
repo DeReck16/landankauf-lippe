@@ -5,7 +5,7 @@ import { ratgeberSchema, seitenMetadaten } from "@/lib/seo";
 
 const TITEL = "Grundstücksverkehrsgesetz NRW für Verkäufer";
 const BESCHREIBUNG =
-  "Genehmigungspflicht, siedlungsrechtliches Vorkaufsrecht, Landwirtschaftskammer: Was beim Verkauf landwirtschaftlicher Flächen ab 1 ha in NRW zu beachten ist.";
+  "Genehmigungspflicht ab mehr als 1 ha, siedlungsrechtliches Vorkaufsrecht ab 2 ha, Fristen der Behörde: Was beim Verkauf land- und forstwirtschaftlicher Flächen in NRW zu beachten ist.";
 const PFAD = "/ratgeber/grundstuecksverkehrsgesetz";
 
 export const metadata: Metadata = seitenMetadaten({
@@ -20,7 +20,7 @@ export default function Page() {
       <PageHero
         eyebrow="Ratgeber"
         title="Grundstücksverkehrsgesetz NRW — der praktische Leitfaden für Verkäufer."
-        subtitle="Beim Verkauf landwirtschaftlicher Flächen ab 1 Hektar in NRW greifen Sonderregeln. Hier ein verständlicher Überblick — ohne Juristen-Deutsch."
+        subtitle="Beim Verkauf land- und forstwirtschaftlicher Flächen über 1 Hektar greifen in NRW Sonderregeln. Hier ein verständlicher Überblick — ohne Juristen-Deutsch."
       />
 
       <section className="section">
@@ -28,15 +28,15 @@ export default function Page() {
           <article className="prose-lippe">
             <h2>Worum geht’s?</h2>
             <p>
-              Das Grundstücksverkehrsgesetz (GrdstVG) regelt den Verkauf landwirtschaftlich genutzter Flächen. Ziel: Erhalt der Agrarstruktur, Vermeidung der Zersplitterung von Betrieben und Verhinderung „ungesunder“ Bodenverteilung. In NRW gilt eine <strong>Genehmigungsschwelle von 1 Hektar</strong> — Flächen ab dieser Größe brauchen eine Genehmigung der Landwirtschaftskammer.
+              Das Grundstücksverkehrsgesetz (GrdstVG) regelt den Verkauf landwirtschaftlich genutzter Flächen. Ziel: Erhalt der Agrarstruktur, Vermeidung der Zersplitterung von Betrieben und Verhinderung „ungesunder“ Bodenverteilung. In NRW sind Verkäufe bis 1 Hektar genehmigungsfrei; <strong>Flächen von mehr als 1 Hektar</strong> brauchen eine Genehmigung. Zuständig ist die Kreisstelle der Landwirtschaftskammer als Landesbeauftragte.
             </p>
 
             <h2>Was bedeutet das konkret?</h2>
             <ol className="list-decimal pl-5 mt-4 space-y-2 text-[color:var(--color-ink-soft)]">
               <li>Sie und der Käufer schließen einen notariellen Kaufvertrag.</li>
-              <li>Der Notar leitet den Vertrag der Landwirtschaftskammer NRW (Genehmigungsbehörde) zu.</li>
-              <li>Die Behörde prüft innerhalb von max. 3 Monaten, ob die Voraussetzungen für eine Genehmigung vorliegen.</li>
-              <li>Parallel wird das siedlungsrechtliche Vorkaufsrecht der NRW.URBAN bzw. eines beliehenen Siedlungsunternehmens (in NRW: Landgesellschaft) geprüft. Übt es das Vorkaufsrecht aus, „schlüpft“ es in den Vertrag und wird zum Käufer.</li>
+              <li>Der Notar beantragt die Genehmigung bei der Genehmigungsbehörde (Kreisstelle der Landwirtschaftskammer NRW).</li>
+              <li>Die Behörde entscheidet binnen eines Monats; mit Zwischenbescheid binnen zwei, bei einem möglichen Vorkaufsrecht binnen drei Monaten (§ 6 GrdstVG). Entscheidet sie nicht fristgerecht, gilt die Genehmigung als erteilt.</li>
+              <li>Ab 2 Hektar wird parallel das siedlungsrechtliche Vorkaufsrecht geprüft. In NRW übt es das gemeinnützige Siedlungsunternehmen NRW.URBAN aus — eine eigene Landgesellschaft gibt es in NRW nicht. Übt es das Vorkaufsrecht aus, „schlüpft“ es in den Vertrag und wird zum Käufer.</li>
               <li>Bei Genehmigung: Eigentumsübergang läuft normal über das Grundbuch.</li>
             </ol>
 
@@ -52,13 +52,13 @@ export default function Page() {
 
             <h2>Wer profitiert vom siedlungsrechtlichen Vorkaufsrecht?</h2>
             <p>
-              In NRW ist das die <strong>NRW.URBAN</strong> bzw. die <strong>Landgesellschaft NRW</strong>. Sie übt das Vorkaufsrecht aus, wenn der Käufer kein Landwirt ist und ein örtlicher Landwirt das Grundstück zu denselben Konditionen erwerben möchte. In der Praxis kommt das eher selten vor, ist aber im Hinterkopf zu behalten.
+              Ausgeübt wird es in NRW vom gemeinnützigen Siedlungsunternehmen <strong>NRW.URBAN</strong> — bei Flächen ab 2 Hektar, wenn der Käufer kein Landwirt ist und ein örtlicher Landwirt das Grundstück dringend braucht und zu denselben Konditionen übernehmen möchte. In der Praxis kommt das eher selten vor, ist aber im Hinterkopf zu behalten.
             </p>
 
-            <h2>Was wir als Käufer tun</h2>
+            <h2>Was wir tun — als Käufer oder als Vermittler</h2>
             <ul>
               <li>Wir kennen den Ablauf und stimmen den Notarvertrag entsprechend ab</li>
-              <li>Wir kommunizieren mit der Landwirtschaftskammer und ziehen die Genehmigung zügig durch</li>
+              <li>Wir stimmen uns mit Notar und Behörde ab, damit der Antrag vollständig ist</li>
               <li>Wir planen die behördliche Bearbeitungsdauer von Anfang an ein — keine Hängepartien</li>
               <li>Bei verpachteten Flächen: Pächter wird transparent eingebunden</li>
             </ul>
@@ -76,7 +76,7 @@ export default function Page() {
               source="ratgeber-grundstuecksverkehrsgesetz"
               defaultIntent="Verkaufen"
               title="Verkaufsanfrage"
-              subtitle="Wir kümmern uns um Genehmigung, Vorkaufsrecht und alles was dazu gehört."
+              subtitle="Wir kennen Genehmigung und Vorkaufsrecht — ob wir selbst kaufen oder einen Käufer vermitteln."
             />
           </aside>
         </div>

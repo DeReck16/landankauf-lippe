@@ -231,7 +231,7 @@ export default async function ArticlePage({
                 a.category === "VNS" ? "VNS / Ökopunkte" : "Bewertung"
               }
               title="Direkt anfragen"
-              subtitle="Wir antworten innerhalb von 24 Stunden persönlich."
+              subtitle="Wir antworten in der Regel innerhalb eines Werktags per E-Mail."
             />
           </aside>
         </div>

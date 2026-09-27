@@ -117,7 +117,7 @@ export default function Page() {
               source="windkraft-verpachten"
               defaultIntent="Energiepacht (Solar/Wind)"
               title="Kostenloser Wind-Flächen-Check"
-              subtitle="Gemarkung und Flurstück genügen — wir prüfen die Lage zur Windkulisse und melden uns innerhalb von 24 Stunden mit einer ehrlichen Einschätzung."
+              subtitle="Gemarkung und Flurstück genügen — wir prüfen die Lage zur Windkulisse und melden uns in der Regel innerhalb eines Werktags per E-Mail mit einer ehrlichen Einschätzung."
             />
           </aside>
         </div>

@@ -92,7 +92,7 @@ export default function Page() {
 
             <h2>Vom Durchschnittspreis zum konkreten Angebot</h2>
             <p>
-              Statistik ist der Anfang, nicht das Ende. Wir bewerten Ihre Fläche kostenlos anhand von Bonität, Zuschnitt, Pachtstatus und echten Vergleichsverkäufen aus Ihrer Gemarkung — und sagen Ihnen, was heute realistisch erzielbar ist. Wenn es passt, kaufen wir direkt an: <Link href="/ackerland-verkaufen">Ackerland verkaufen</Link> oder erst einmal <Link href="/flaeche-bewerten">kostenlos bewerten lassen</Link>.
+              Statistik ist der Anfang, nicht das Ende. Wir bewerten Ihre Fläche kostenlos anhand von Bonität, Zuschnitt, Pachtstatus und den amtlichen Werten für Ihre Lage — und sagen Ihnen, was heute realistisch erzielbar ist. Wenn es passt, kauft die TR Vertriebs GmbH selbst — oder wir vermitteln einen Käufer, für Sie ebenfalls ohne Provision: <Link href="/ackerland-verkaufen">Ackerland verkaufen</Link> oder erst einmal <Link href="/flaeche-bewerten">kostenlos bewerten lassen</Link>.
             </p>
           </article>
           <aside className="lg:sticky lg:top-24 self-start">
@@ -100,7 +100,7 @@ export default function Page() {
               source="ratgeber-ackerland-preis-nrw"
               defaultIntent="Bewertung"
               title="Was ist Ihr Acker wert?"
-              subtitle="Kostenlose Werteinschätzung auf Basis echter Vergleichsverkäufe aus Ihrer Gemarkung — in 24 h."
+              subtitle="Kostenlose Werteinschätzung auf Basis der Bodenrichtwerte und des Grundstücksmarktberichts — in der Regel innerhalb eines Werktags per E-Mail."
             />
           </aside>
         </div>

@@ -60,7 +60,7 @@ export default function Page() {
 
             <h2>Was Sie als Eigentümer von uns bekommen</h2>
             <ul>
-              <li>Erste Wertindikation per E-Mail innerhalb von 24 Stunden</li>
+              <li>Erste Wertindikation per E-Mail, in der Regel innerhalb eines Werktags</li>
               <li>Ausführliche schriftliche Einschätzung mit Begründung — auf Wunsch</li>
               <li>Hinweis auf Förderpotenziale wie VNS, Ökopunkte oder Photovoltaik-Pacht</li>
               <li>Kein Drängen auf Verkauf, keine versteckten Kosten</li>
@@ -80,7 +80,7 @@ export default function Page() {
               source="flaeche-bewerten"
               defaultIntent="Bewertung"
               title="Bewertungsanfrage"
-              subtitle="Kostenlos und unverbindlich. Antwort innerhalb von 24 Stunden."
+              subtitle="Kostenlos und unverbindlich. Antwort in der Regel innerhalb eines Werktags per E-Mail."
             />
           </aside>
         </div>

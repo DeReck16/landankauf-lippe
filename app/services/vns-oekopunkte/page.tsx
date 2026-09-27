@@ -14,7 +14,7 @@ export const metadata: Metadata = seitenMetadaten({
 const faq = [
   {
     q: "Wie viel sind Ökopunkte in NRW wert?",
-    a: "Je nach Maßnahme und Gebietskulisse zwischen ca. 0,80 und 3,50 € pro Ökopunkt. Ein Hektar Aufwertung (z. B. Acker zu Wiese) erzeugt häufig 50.000 bis 200.000 Punkte. Im Kreis Lippe und Umfeld liegt der erzielbare Verkaufspreis je nach Nachfragelage bei 1,20 bis 2,50 € pro Punkt — das entspricht einem Erlös von mehreren Zehntausend Euro pro Hektar bei Eigentumserhalt.",
+    a: "Im Kreis Lippe und im OWL-Raum werden derzeit etwa 0,50 bis 1,20 € je Werteinheit (Ökopunkt) gezahlt — je nach Maßnahme, Gebietskulisse und Nachfrage. Ein Hektar Acker, der zu artenreichem Grünland aufgewertet wird, erzeugt rund 80.000 Werteinheiten; das entspricht grob 40.000 bis 96.000 € einmalig, bei Eigentumserhalt. Verbindlich wird der Preis erst mit einem konkreten Käufer.",
   },
   {
     q: "Wann lohnt sich Vertragsnaturschutz NRW für mich?",
@@ -122,7 +122,7 @@ export default function Page() {
               source="vns-oekopunkte"
               defaultIntent="VNS / Ökopunkte"
               title="Förderberatung anfragen"
-              subtitle="Wir prüfen Ihre Fläche kostenlos und melden uns innerhalb von 24 Stunden."
+              subtitle="Wir prüfen Ihre Fläche kostenlos und melden uns in der Regel innerhalb eines Werktags per E-Mail."
             />
           </aside>
         </div>

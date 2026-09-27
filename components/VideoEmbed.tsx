@@ -14,7 +14,7 @@ export default function VideoEmbed() {
           <hr className="divider mt-3 bg-[color:var(--color-accent)]" />
           <h2 className="text-3xl md:text-4xl text-white">In 42 Sekunden, was wir machen.</h2>
           <p className="mt-4 text-white/80 leading-relaxed">
-            Wie aus einer brachliegenden Wiese ein verlässlicher Ertrag wird — über Direktankauf, Vertragsnaturschutz, Ökopunkte oder eine kombinierte Strategie. Ohne Voice-Over, in Ihrem Tempo.
+            Wie aus einer brachliegenden Wiese ein verlässlicher Ertrag wird — über Direktankauf, Vermittlung, Vertragsnaturschutz, Ökopunkte oder eine kombinierte Strategie. Ohne Voice-Over, in Ihrem Tempo.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/flaeche-bewerten" className="btn-on-dark">

@@ -25,7 +25,7 @@ export default function Page() {
           <article className="prose-lippe">
             <span className="eyebrow">Was wir vermitteln</span>
             <hr className="divider mt-3" />
-            <h2>Leistungen unserer Partnerbetriebe</h2>
+            <h2>Leistungen der Betriebe, die wir Ihnen nennen</h2>
             <ul>
               <li><strong>Mahd & Heuwerbung</strong> — Schlegelmäher, Kreiselmäher, Schwadenwerber, Pressen (Rund-, Quaderballen)</li>
               <li><strong>Mulchen & Pflege extensiver Flächen</strong> — auch Hangflächen mit ferngesteuertem oder spezialisiertem Gerät</li>
@@ -40,7 +40,7 @@ export default function Page() {
             <h2>Wie funktioniert die Vermittlung?</h2>
             <ol className="list-decimal pl-5 mt-4 space-y-2 text-[color:var(--color-ink-soft)]">
               <li>Sie schildern uns kurz, was auf Ihrer Fläche zu tun ist (Größe, Lage, Termin).</li>
-              <li>Wir schlagen Ihnen 1–2 passende Betriebe aus unserem Netzwerk vor.</li>
+              <li>Wir nennen Ihnen 1–2 Betriebe aus der Region, die für so etwas in Frage kommen.</li>
               <li>Sie bekommen ein konkretes Angebot — direkt vom Betrieb, ohne Aufschlag.</li>
               <li>Sie entscheiden, ob und mit wem Sie arbeiten möchten.</li>
             </ol>
@@ -52,7 +52,7 @@ export default function Page() {
 
             <h2>Kombination mit Verkauf, Pacht oder Förderung</h2>
             <p>
-              Lohnunternehmer-Vermittlung ist häufig Teil eines größeren Pakets: Wir verpachten Ihre Fläche an einen unserer Partner, kümmern uns parallel um den VNS-Antrag und vermitteln den Lohnunternehmer für die naturschutzkonforme Mahd. So haben Sie für alles, was rund um Ihre Fläche anfällt, einen einzigen Ansprechpartner.
+              Oft gehört die Pflege zu einem größeren Vorhaben: Wir vermitteln einen Pächter oder kaufen die Fläche selbst, geben Hinweise zum VNS-Antrag und nennen einen Betrieb für die naturschutzkonforme Mahd. So haben Sie für das, was rund um Ihre Fläche anfällt, einen Ansprechpartner.
             </p>
           </article>
           <aside id="anfrage" className="lg:sticky lg:top-24 self-start">

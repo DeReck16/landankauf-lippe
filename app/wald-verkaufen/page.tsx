@@ -9,7 +9,7 @@ import { seitenMetadaten } from "@/lib/seo";
 export const metadata: Metadata = seitenMetadaten({
   title: "Wald verkaufen in Lippe – Privatwald-Ankauf",
   description:
-    "Privatwald, Misch- oder Nadelholzbestand im Kreis Lippe verkaufen? Wir kaufen Forstflächen im Teutoburger Wald und der Egge — fair, diskret, ohne Provision.",
+    "Privatwald im Kreis Lippe verkaufen? Wir kaufen Forstflächen im Teutoburger Wald und der Egge selbst oder vermitteln einen Käufer — fair, diskret, ohne Provision für Sie.",
   pfad: "/wald-verkaufen",
 });
 
@@ -95,7 +95,7 @@ export default function Page() {
               defaultIntent="Verkaufen"
               defaultFlaechentyp="Wald / Forst"
               title="Wald-Anfrage"
-              subtitle="Beschreiben Sie uns kurz Größe, Lage und Bestand — wir antworten innerhalb von 24 Stunden."
+              subtitle="Beschreiben Sie uns kurz Größe, Lage und Bestand — wir antworten in der Regel innerhalb eines Werktags per E-Mail."
             />
           </aside>
         </div>
