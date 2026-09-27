@@ -43,6 +43,18 @@ export default function Page() {
             Zur Zustellung Ihrer Anfrage nutzen wir den E-Mail-Versanddienst Resend (Resend, Inc., USA). Mit Resend besteht ein Auftragsverarbeitungsvertrag. Zusätzlich speichern wir jede Anfrage in einem zugriffsgeschützten Speicher unseres Hosters Vercel mit Standort Frankfurt am Main, damit keine Anfrage verloren geht. Antworten, die Sie uns zu Ihrer Anfrage per E-Mail schicken, ordnen wir dort Ihrer Anfrage zu (nur der Text Ihrer Nachricht, ohne Anhänge).
           </p>
           <p>
+            <strong>Eingangsbestätigung:</strong> Nach dem Absenden erhalten Sie automatisch eine kurze Bestätigung per E-Mail mit Ihrer Vorgangsnummer — ausgelöst durch Ihr Absenden, ohne Werbung (Art. 6 Abs. 1 lit. b DSGVO).
+          </p>
+          <p>
+            <strong>Schutz vor Missbrauch:</strong> Um das Formular, den Anmeldelink und die Online-Erklärungen (Widerruf, Kündigung) vor automatisierten Massenanfragen zu schützen, speichern wir zu jedem Aufruf nur einen nicht umkehrbaren, mit einem geheimen Schlüssel gebildeten Kurzwert Ihrer IP-Adresse bzw. E-Mail-Adresse und den Zeitpunkt. Zeitpunkte außerhalb der Prüffenster (höchstens 24 Stunden) werden beim nächsten Abgleich verworfen (Art. 6 Abs. 1 lit. f DSGVO; unser berechtigtes Interesse ist der sichere Betrieb).
+          </p>
+          <p>
+            <strong>Amtliche Flächendaten:</strong> Nennen Sie ein Flurstück, fragt unser Server das Liegenschaftskataster (ALKIS NRW) und die Bodenrichtwerte (BORIS NRW) bei Geobasis NRW ab — nur mit Gemeinde, Gemarkung, Flur und Flurstück, ohne Ihren Namen oder Ihre Kontaktdaten. So können wir die Wertindikation auf den amtlichen Richtwert stützen (Art. 6 Abs. 1 lit. b DSGVO).
+          </p>
+          <p>
+            <strong>Zustellung von Systemmails:</strong> Kann eine E-Mail (etwa eine Vertrags- oder Widerrufsbestätigung) nicht sofort zugestellt werden, legen wir sie in einem Postausgang in unserem Speicher ab und versuchen den Versand automatisch erneut; nach erfolgreichem Versand wird sie als erledigt markiert.
+          </p>
+          <p>
             Als Ausfallsicherung übermitteln wir Ihre Anfrage außerdem an den Formulardienst Formspree (Formspree, Inc., USA), der sie uns per E-Mail zustellt. Formspree verarbeitet die Daten als Auftragsverarbeiter auf Servern in den USA; die Übermittlung stützt sich auf die EU-Standardvertragsklauseln (Art. 46 Abs. 2 lit. c DSGVO). Rechtsgrundlage ist unser berechtigtes Interesse, keine Anfrage durch einen technischen Ausfall zu verlieren (Art. 6 Abs. 1 lit. f DSGVO).
           </p>
           <p>
@@ -53,7 +65,7 @@ export default function Page() {
           </p>
 
           <p>
-            <strong>Flächenbörse:</strong> Mit Ihrer ausdrücklichen Einwilligung zeigen wir Ihr Angebot (Verkauf oder Verpachtung) anonym in unserer Flächenbörse auf lippeforst.de — nur mit Flächentyp, ungefährer Größe, grober Lage (Gemeinde) und einem kurzen Text, nie mit Namen, Kontaktdaten oder Flurstück (Art. 6 Abs. 1 lit. a DSGVO). Sie können die Einwilligung jederzeit widerrufen; dann nehmen wir das Angebot sofort von der Website. Wer über die Börse Interesse anmeldet, wird wie jede andere Anfrage behandelt (siehe oben).
+            <strong>Flächenbörse:</strong> Mit Ihrer ausdrücklichen Einwilligung zeigen wir Ihr Angebot (Verkauf oder Verpachtung) anonym in unserer Flächenbörse auf lippeforst.de — nur mit Flächentyp, gerundeter Größe, Gemeinde, einem kurzen Text und, soweit Sie sie angegeben haben, Angaben wie Pachtstatus („frei ab“), Bodengüte, Zuwegung sowie Preis- bzw. Pachtvorstellung; nie mit Namen, Kontaktdaten oder Flurstück (Art. 6 Abs. 1 lit. a DSGVO). Über die Veröffentlichung informieren wir Sie per E-Mail. Sie können die Einwilligung jederzeit widerrufen — im Kundenbereich oder mit einem Klick auf den Link in unserer E-Mail; dann nehmen wir das Angebot sofort von der Website. Flächen des Geschäftsführers von Lippe Forst bzw. seiner Familie kennzeichnen wir dort offen als „eigene Fläche“. Wer über die Börse Interesse anmeldet, wird wie jede andere Anfrage behandelt (siehe oben).
           </p>
 
           <h2>4. Kundenbereich, Online-Verträge und Dokumente</h2>
@@ -71,6 +83,9 @@ export default function Page() {
           </p>
           <p>
             <strong>E-Mails:</strong> Vertragsbestätigungen (mit PDF), Anmeldelinks, Eingangsbestätigungen und Mitteilungen zu Ihrem Vorgang versenden wir über den E-Mail-Dienst Resend (siehe Abschnitt 3). Nach einem erfolgreichen Abschluss bitten wir Sie im Kundenbereich unverbindlich um eine Bewertung; per E-Mail bitten wir nur darum, wenn Sie dem bei der Unterschrift ausdrücklich zugestimmt haben (Art. 6 Abs. 1 lit. a DSGVO) — auch diese Einwilligung können Sie jederzeit widerrufen.
+          </p>
+          <p>
+            <strong>Automatisierte Schritte:</strong> Einzelne Verfahrensschritte können wir automatisiert auslösen — etwa die Veröffentlichung in der Flächenbörse nach Ihrer Einwilligung, Einladungen und Erinnerungen oder die Freigabe der Kontaktdaten, nachdem beide Seiten zugestimmt haben. Grundlage sind stets Ihre eigenen Erklärungen; eine automatisierte Entscheidung im Sinne von Art. 22 DSGVO treffen wir nicht.
           </p>
           <p>
             <strong>Kein Tracking:</strong> Im Kundenbereich laufen weder Google Analytics noch die Conversion-Messung von Google Ads.
