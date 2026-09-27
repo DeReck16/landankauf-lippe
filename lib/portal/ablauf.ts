@@ -11,7 +11,7 @@ import { dokumentBytes, pdfAblegen, protokollDokument } from "./dokumente";
 import { GRUSS } from "./gruss";
 import { adminInfo, kundenMail, type Anhang } from "./mail";
 import * as M from "./model";
-import { aendereKunde, alleKunden, ladeKunde } from "./speicher";
+import { aendereKunde, alleKunden, ladeKunde, kundenFuerEmail } from "./speicher";
 import * as T from "./texte";
 import { einladungBis, einladungToken, erklaerungToken, loginToken, neueNonce, pruefeEinladung, pruefeLogin, pruefeZugang, vorgangsKennung, zugangToken } from "./token";
 
@@ -191,7 +191,7 @@ export async function zugangEinloesen(token: string): Promise<M.KundeRecord | nu
 /** Anmeldelink per E-Mail anfordern — Antwort immer neutral. */
 export async function anmeldelinkSenden(email: string, basis: string): Promise<void> {
   const adresse = email.trim().toLowerCase();
-  const kunden = (await alleKunden()).filter((k) => k.email === adresse && !k.gesperrt);
+  const kunden = (await kundenFuerEmail(adresse)).filter((k) => !k.gesperrt);
   if (kunden.length === 0) return;
   if (!(await mailDrosseln(`kunde:${adresse}`))) return;
   const { token, bis } = loginToken(adresse);

@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { KUNDE_COOKIE } from "@/lib/admin/config";
 import { site } from "@/lib/site";
 import type { KundeRecord } from "./model";
-import { alleKunden } from "./speicher";
+import { kundenFuerEmail } from "./speicher";
 import { pruefeSitzung, sitzungToken } from "./token";
 
 // Sitzung im Kundenbereich: eigenes Cookie (lf_kunde, Pfad /kunde), eigener
@@ -22,7 +22,8 @@ function hatZugang(k: KundeRecord, email: string, seit: number): boolean {
 export const ladeKundenSitzung = cache(async (): Promise<KundenSitzung | null> => {
   const t = pruefeSitzung((await cookies()).get(KUNDE_COOKIE)?.value);
   if (!t) return null;
-  const kunden = (await alleKunden()).filter((k) => hatZugang(k, t.e, t.i));
+  // Nur die Akten dieser Adresse lesen (E-Mail-Index), nicht alle Kundenakten.
+  const kunden = (await kundenFuerEmail(t.e)).filter((k) => hatZugang(k, t.e, t.i));
   if (kunden.length === 0) return null;
   kunden.sort((a, b) => b.angelegtAm.localeCompare(a.angelegtAm));
   return { email: t.e, seit: t.i, kunden };

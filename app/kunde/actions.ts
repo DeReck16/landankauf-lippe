@@ -68,7 +68,13 @@ export type AnmeldeState = { status: "idle" | "gesendet" | "fehler"; text?: stri
 export async function anmeldelinkAktion(_prev: AnmeldeState, fd: FormData): Promise<AnmeldeState> {
   const email = feld(fd, "email", 200).toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { status: "fehler", text: "Bitte eine gültige E-Mail-Adresse eingeben." };
-  await A.anmeldelinkSenden(email, await basisUrl());
+  // Drosselung je IP (Review S6) — die Antwort bleibt dieselbe, damit niemand ablesen kann, was passiert ist.
+  const { ip } = await anfrageHerkunft();
+  const erlaubt = await drosseln("kunde-anmelden", kurzwert(ip, "ip"), [
+    { sekunden: 600, max: 5 },
+    { sekunden: 86_400, max: 30 },
+  ]);
+  if (erlaubt) await A.anmeldelinkSenden(email, await basisUrl());
   return {
     status: "gesendet",
     text: "Wenn zu dieser Adresse ein Kundenbereich besteht, ist ein Anmeldelink unterwegs. Er gilt 20 Minuten und nur einmal.",

@@ -32,6 +32,40 @@ const EINSTELLUNGEN = "portal/einstellungen.json";
 const gesehenPfad = (email: string) =>
   `admin/gesehen/${createHash("sha256").update(email.toLowerCase()).digest("hex").slice(0, 24)}.json`;
 
+/**
+ * Index E-Mail → Kundenakten (Review S6): Anmeldung und Kundenbereich lesen nur die Akten dieser
+ * Adresse statt aller. `vollstaendig` = einmal gegen alle Akten abgeglichen (ältere Akten von vor
+ * dem Index); neue Akten und Adressänderungen trägt aendereKunde selbst ein.
+ */
+type EmailIndex = { v: 1; ids: string[]; vollstaendig?: boolean };
+const emailIndexPfad = (email: string) => `portal/index/email/${createHash("sha256").update(email.trim().toLowerCase()).digest("hex").slice(0, 32)}.json`;
+
+async function indexErgaenzen(email: string, id: string): Promise<void> {
+  if (!email) return;
+  await jsonAendern<EmailIndex>(emailIndexPfad(email), () => ({ v: 1, ids: [] }), (d) => {
+    if (d.ids.includes(id)) return false;
+    d.ids.push(id);
+  });
+}
+
+/** Alle Kundenakten zu einer E-Mail-Adresse (ohne alle Akten zu lesen, sobald der Index steht). */
+export async function kundenFuerEmail(email: string): Promise<KundeRecord[]> {
+  const e = email.trim().toLowerCase();
+  if (!e) return [];
+  const idx = await jsonLesen<EmailIndex>(emailIndexPfad(e));
+  if (idx?.daten.vollstaendig) {
+    const liste = await Promise.all(idx.daten.ids.map((id) => ladeKunde(id)));
+    return liste.filter((k): k is KundeRecord => Boolean(k && k.email === e));
+  }
+  // Einmalig: gegen alle Akten abgleichen und den Index vollständig machen.
+  const alle = (await alleKunden()).filter((k) => k.email === e);
+  await jsonAendern<EmailIndex>(emailIndexPfad(e), () => ({ v: 1, ids: [] }), (d) => {
+    d.ids = [...new Set([...d.ids, ...alle.map((k) => k.id)])];
+    d.vollstaendig = true;
+  }).catch((err) => console.error("[speicher] E-Mail-Index nicht geschrieben", err));
+  return alle;
+}
+
 export async function ladeKunde(id: string): Promise<KundeRecord | null> {
   if (!istKundeId(id)) return null;
   const res = await jsonLesen<KundeRecord>(kundePfad(id));
@@ -49,6 +83,8 @@ export async function aendereKunde(
 ): Promise<KundeRecord> {
   if (!istKundeId(id)) throw new Error("Ungültige Kunden-ID");
   let fehlt = false;
+  let emailVorher: string | null = null;
+  let angelegt = false;
   const k = await jsonAendern<KundeRecord>(
     kundePfad(id),
     () => {
@@ -60,12 +96,17 @@ export async function aendereKunde(
     },
     (d, neu) => {
       if (fehlt || !d) return false;
+      emailVorher = d.email;
+      angelegt = neu;
       const r = aendern(kundeNormal(d));
       // Ein neu angelegter Kunde wird immer gespeichert — auch wenn `aendern` nichts mehr zu tun hat.
       return neu ? undefined : r;
     },
   );
   if (fehlt || !k) throw new Error("Kunde nicht gefunden");
+  if (angelegt || emailVorher !== k.email) {
+    await indexErgaenzen(k.email, id).catch((err) => console.error("[speicher] E-Mail-Index nicht ergänzt", id, err));
+  }
   return kundeNormal(k);
 }
 
