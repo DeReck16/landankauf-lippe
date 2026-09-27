@@ -4,8 +4,9 @@ import { mutateZustand } from "./store";
 
 // Löschwunsch nach Art. 17 DSGVO (Review S5): Das System vermerkt den Wunsch, archiviert die Anfrage,
 // nimmt ein Börsen-Angebot offline und hält die Monatsfrist (Art. 12 Abs. 3 DSGVO) als Aufgabe im
-// Dashboard fest. Gelöscht bzw. — bei Verträgen mit Aufbewahrungspflicht — gesperrt wird bewusst von
-// Hand im Speicher; danach „Als erledigt vermerken“.
+// Dashboard fest; die Aufgabe führt direkt zu „Vorgang endgültig löschen (DSGVO)“ (lib/admin/loeschen.ts,
+// Verträge mit Aufbewahrungspflicht werden dabei nur gesperrt). „Ohne Löschen erledigt“ ist für Wünsche,
+// die sich anders erledigt haben (zurückgenommen, unberechtigt).
 
 export const LOESCH_FRIST_TAGE = 30;
 
@@ -37,7 +38,7 @@ export async function loeschwunschErledigt(id: string, von: string): Promise<boo
     if (!meta?.loeschwunsch || meta.loeschwunsch.erledigtAm) return;
     z.anfragen[id] = { ...meta, loeschwunsch: { ...meta.loeschwunsch, erledigtAm: am, erledigtVon: von }, geaendert: { am, von } };
     ok = true;
-    return { was: "Löschwunsch als erledigt vermerkt (von Hand gelöscht bzw. gesperrt)", ref: id };
+    return { was: "Löschwunsch ohne Löschen als erledigt vermerkt", ref: id };
   });
   return ok;
 }

@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { requireAdmin } from "@/lib/admin/session";
 import { datumZeit } from "@/lib/admin/format";
+import { grabsteine } from "@/lib/admin/loeschen";
 import { ladePortal } from "@/lib/admin/neu";
+import { readZustand } from "@/lib/admin/store";
 import * as M from "@/lib/portal/model";
 import { REGELN, automatikVon, regelWirksam } from "@/lib/portal/automatik-regeln";
 import { VORLAGEN, VORLAGEN_REIHENFOLGE, aktuelleFreigabe, vorlageHash } from "@/lib/vertraege/vorlagen";
@@ -29,7 +31,8 @@ function zahl(n: number): string {
 export default async function VorlagenPage(props: PageProps<"/admin/vorlagen">) {
   await requireAdmin();
   const sp = await props.searchParams;
-  const { einstellungen: e } = await ladePortal();
+  const [{ einstellungen: e }, { zustand }] = await Promise.all([ladePortal(), readZustand()]);
+  const geloescht = grabsteine(zustand);
   const k = M.aktuelleKonditionen(e);
   const zurueck = "/admin/vorlagen";
   const envUrl = process.env.GOOGLE_REVIEW_URL || "";
@@ -296,6 +299,54 @@ export default async function VorlagenPage(props: PageProps<"/admin/vorlagen">) 
             Alle Sitzungen beenden
           </BestaetigenKnopf>
         </form>
+      </section>
+
+      <section className="lfa-panel" id="geloescht">
+        <h2 className="lfa-h2" title="Endgültig gelöschte Vorgänge (Art. 17 DSGVO) — übrig ist nur ein Grabstein ohne Personendaten">Gelöschte Vorgänge</h2>
+        {geloescht.length === 0 ? (
+          <p className="lfa-klein">Noch keine. Gelöscht wird in der Anfrage unter „Datenschutz“ mit „Vorgang endgültig löschen (DSGVO)“.</p>
+        ) : (
+          <div style={{ overflowX: "auto" }}>
+            <table className="lfa-liste">
+              <thead>
+                <tr>
+                  <th>Vorgang</th>
+                  <th title="Monat des Eingangs">Eingang</th>
+                  <th>Art</th>
+                  <th>Gelöscht</th>
+                  <th title="Wegen Aufbewahrungspflicht nur gesperrt — bis zu diesem Tag, danach löschen">Gesperrt bis</th>
+                </tr>
+              </thead>
+              <tbody>
+                {geloescht.map((g) => (
+                  <tr key={g.id}>
+                    <td>
+                      <Link href={`/admin/anfrage/${g.id}`} title="Grabstein öffnen: was gelöscht und was nur gesperrt ist">
+                        {g.id}
+                      </Link>
+                      {g.stand !== "fertig" && <span className="lfa-badge lfa-badge-rot" title="Nicht vollständig gelöscht — im Grabstein „Löschen fortsetzen“">unvollständig</span>}
+                    </td>
+                    <td>{g.monat.split("-").reverse().join("/")}</td>
+                    <td>{g.art}</td>
+                    <td>
+                      {datumZeit(g.geloeschtAm)} · {g.geloeschtVon}
+                    </td>
+                    <td>{g.gesperrt.length ? g.gesperrt.map((p) => p.bis).sort().at(-1)!.split("-").reverse().join(".") : "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colSpan={5} title="Summe aller gelöschten Vorgänge">
+                    <strong>Summe: {geloescht.length} gelöscht</strong>
+                    {` · ${geloescht.filter((g) => g.gesperrt.length).length} mit gesperrten Unterlagen`}
+                    {geloescht.some((g) => g.stand !== "fertig") ? ` · ${geloescht.filter((g) => g.stand !== "fertig").length} unvollständig` : ""}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        )}
       </section>
     </>
   );

@@ -174,8 +174,8 @@ function AufgabeKnopf({ a, test }: { a: Aufgabe; test: boolean }) {
       );
     case "loeschwunsch":
       return (
-        <Link href={a.href} className="lfa-knopf lfa-anfrage-knopf" title="Öffnet die Anfrage (Abschnitt Datenschutz): was zu löschen bzw. zu sperren ist, dann „Als erledigt vermerken“">
-          Öffnen
+        <Link href={a.href} className="lfa-knopf lfa-anfrage-knopf" title="Öffnet die Anfrage direkt beim Knopf „Vorgang endgültig löschen (DSGVO)“ — dort steht, was gelöscht und was nur gesperrt wird">
+          Zum Löschen
         </Link>
       );
     case "ankauf":

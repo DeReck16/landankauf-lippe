@@ -13,6 +13,7 @@ import { createLoginToken, verifyLoginToken } from "@/lib/admin/token";
 import { endSession, requireAdmin, startSession } from "@/lib/admin/session";
 import { alleSitzungenBeenden } from "@/lib/admin/sitzungen";
 import { loeschwunschErledigt, loeschwunschVermerken } from "@/lib/admin/loeschwunsch";
+import { vorgangLoeschen } from "@/lib/admin/loeschen";
 import { linkEinloesen, mailDrosseln, mutateZustand, readZustand, listLeads } from "@/lib/admin/store";
 import { sendeAnmeldelink } from "@/lib/admin/mail";
 import { orteErgaenzen } from "@/lib/admin/daten";
@@ -245,7 +246,7 @@ export async function wegFormular(formData: FormData): Promise<void> {
   redirect(`${zurueck}?m=${encodeURIComponent(m)}&mt=${ok ? "ok" : "fehler"}#weg`);
 }
 
-/** Löschwunsch (Art. 17 DSGVO) vermerken bzw. nach dem Löschen von Hand als erledigt vermerken. */
+/** Löschwunsch (Art. 17 DSGVO) vermerken bzw. ohne Löschen als erledigt vermerken (z. B. zurückgenommen). */
 export async function loeschwunschFormular(formData: FormData): Promise<void> {
   const { email } = await requireAdmin();
   const id = text(formData, "id", 40);
@@ -256,10 +257,32 @@ export async function loeschwunschFormular(formData: FormData): Promise<void> {
     ? "Nichts geändert."
     : was === "erledigt"
       ? "Löschwunsch als erledigt vermerkt."
-      : "Löschwunsch vermerkt — die Anfrage ist archiviert, ein Börsen-Angebot offline. Bitte innerhalb der Frist von Hand löschen bzw. (bei Verträgen) sperren; die Aufgabe steht im Dashboard.";
+      : "Löschwunsch vermerkt — die Anfrage ist archiviert, ein Börsen-Angebot offline. Innerhalb der Frist mit „Vorgang endgültig löschen (DSGVO)“ erledigen; die Aufgabe steht im Dashboard.";
   revalidatePath("/admin", "layout");
   menueErneuern();
   redirect(`/admin/anfrage/${id}?m=${encodeURIComponent(m)}&mt=${ok ? "ok" : "fehler"}#datenschutz`);
+}
+
+/**
+ * „Vorgang endgültig löschen (DSGVO)“ (lib/admin/loeschen.ts). Nur mit „Ja – endgültig löschen“ aus der
+ * Abfrage auf der Seite; was gelöscht und was gesperrt wird, prüft der Server frisch.
+ */
+export async function vorgangLoeschenAktion(formData: FormData): Promise<void> {
+  const { email } = await requireAdmin();
+  const id = text(formData, "id", 40);
+  if (!/^LL-[A-Z0-9]+$/.test(id)) throw new Error("Ungültige Anfrage-ID");
+  if (text(formData, "bestaetigt", 5) !== "ja") redirect(`/admin/anfrage/${id}?m=${encodeURIComponent("Nicht gelöscht — bitte mit „Ja – endgültig löschen“ bestätigen.")}&mt=fehler#loeschen`);
+  const r = await vorgangLoeschen(id, email);
+  revalidatePath("/admin", "layout");
+  revalidatePath("/kunde", "layout");
+  menueErneuern();
+  const fertig = r.ok && r.grabstein.stand === "fertig";
+  const m = !r.ok
+    ? `Nicht gelöscht: ${r.gruende.join(" ")}`
+    : fertig
+      ? `Vorgang ${id} ist endgültig gelöscht.${r.grabstein.gesperrt.length ? " Verträge bzw. Nachweise bleiben bis zum Ende der Aufbewahrungsfrist gesperrt." : ""}`
+      : `Löschen unvollständig (${(r.grabstein.fehler ?? []).join("; ")}) — bitte „Löschen fortsetzen“.`;
+  redirect(`/admin/anfrage/${id}?m=${encodeURIComponent(m)}&mt=${fertig ? "ok" : "fehler"}#loeschen`);
 }
 
 /**

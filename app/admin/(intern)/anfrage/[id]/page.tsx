@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/admin/session";
+import { loeschPlan } from "@/lib/admin/loeschen";
 import { verlaufLesen } from "@/lib/admin/store";
 import { ladeVerwaltung } from "@/lib/admin/daten";
 import { findeKandidaten, punkteFuer } from "@/lib/admin/matching";
@@ -36,8 +37,12 @@ import LinkKopieren from "../../LinkKopieren";
 import MailEntwurf from "../../MailEntwurf";
 import { DokumentListe, KundenStand, Meldung, Puls, Verlauf, VorgangLink } from "../../teile";
 import BoersePanel, { BoerseHerkunft } from "./BoersePanel";
+import Grabstein, { vorschauAus } from "./Grabstein";
+import LoeschenKnopf from "./LoeschenKnopf";
 
 export const metadata: Metadata = { title: "Anfrage" };
+// „Vorgang endgültig löschen (DSGVO)“ läuft als Aktion dieser Seite und räumt viele Dateien auf.
+export const maxDuration = 60;
 
 function zahlFeld(v: number | null | undefined): string {
   return v == null ? "" : String(v).replace(".", ",");
@@ -47,9 +52,21 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
   const { email } = await requireAdmin();
   const { id } = await props.params;
   const sp = await props.searchParams;
-  const [{ leads, zustand }, portal, neu] = await Promise.all([ladeVerwaltung(), ladePortal(), ladeNeu(email)]);
+  if (!/^LL-[A-Z0-9]+$/.test(id)) notFound();
+  // Vorschau fürs Löschen (was gelöscht, was nur gesperrt wird) — liest nur, parallel zum Rest.
+  const [{ leads, zustand }, portal, neu, plan] = await Promise.all([
+    ladeVerwaltung(),
+    ladePortal(),
+    ladeNeu(email),
+    loeschPlan(id).catch((err) => {
+      console.error("[anfrage] Lösch-Vorschau", id, err);
+      return null;
+    }),
+  ]);
   const l = leads.find((x) => x.id === id);
-  if (!l) notFound();
+  // Gelöscht (oder Löschen begonnen): nur noch der Grabstein ohne Personendaten.
+  if (!l) return <Grabstein id={id} grabstein={zustand.geloescht?.[id] ?? null} plan={plan} sp={sp} />;
+  const vorschau = plan ? vorschauAus(plan) : null;
 
   const kunde = portal.kunden.get(l.id) ?? null;
   const rr = rolleVonLead(l);
@@ -423,6 +440,13 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
                   <div className="lfa-abschnitt">
                     <h3 className="lfa-h3">Verlauf der Kundenakte</h3>
                     <Verlauf ereignisse={kunde.ereignisse} mails={kunde.mails} neuIds={neuIds} />
+                  </div>
+                )}
+
+                {kunde && vorschau && (
+                  <div className="lfa-abschnitt">
+                    <h3 className="lfa-h3" title="Löscht die Kundenakte zusammen mit der ganzen Anfrage — unterschriebene Verträge bleiben nur gesperrt">Kundenakte löschen</h3>
+                    <LoeschenKnopf id={l.id} vorschau={vorschau} />
                   </div>
                 )}
               </>
@@ -802,22 +826,22 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
           </section>
 
           <section className="lfa-panel" id="datenschutz">
-            <h2 className="lfa-h2" title="Löschwunsch nach Art. 17 DSGVO — vermerken, Frist im Blick behalten, von Hand löschen bzw. sperren">Datenschutz</h2>
+            <h2 className="lfa-h2" title="Löschwunsch nach Art. 17 DSGVO vermerken, Frist im Blick behalten und den Vorgang endgültig löschen — Verträge bleiben dabei nur gesperrt">Datenschutz</h2>
             {l.meta.loeschwunsch ? (
               <div className={`lfa-hinweis ${l.meta.loeschwunsch.erledigtAm ? "lfa-hinweis-ok" : "lfa-hinweis-fehler"}`}>
                 <strong>Löschwunsch vom {datumZeit(l.meta.loeschwunsch.am)}</strong> ({l.meta.loeschwunsch.von}){l.meta.loeschwunsch.notiz ? ` — ${l.meta.loeschwunsch.notiz}` : ""}
                 {l.meta.loeschwunsch.erledigtAm ? (
-                  <div className="lfa-klein">Erledigt am {datumZeit(l.meta.loeschwunsch.erledigtAm)} von {l.meta.loeschwunsch.erledigtVon ?? "—"}.</div>
+                  <div className="lfa-klein">Ohne Löschen als erledigt vermerkt am {datumZeit(l.meta.loeschwunsch.erledigtAm)} von {l.meta.loeschwunsch.erledigtVon ?? "—"}.</div>
                 ) : (
                   <>
                     <div className="lfa-klein" style={{ margin: "0.3rem 0" }}>
-                      Frist: {datumZeit(l.meta.loeschwunsch.frist)} (ein Monat, Art. 12 Abs. 3 DSGVO). Von Hand im Speicher löschen: die Anfrage (leads/…/{l.id}.json), ggf. Kundenakte (portal/kunden/{l.id}.json), Verlauf (admin/verlauf/{l.id}.json). Bei unterschriebenem Vertrag nicht löschen, sondern sperren (Zugang sperren) — Aufbewahrungsfristen nach HGB/AO.
+                      Frist: {datumZeit(l.meta.loeschwunsch.frist)} (ein Monat, Art. 12 Abs. 3 DSGVO). Erledigen mit „Vorgang endgültig löschen (DSGVO)“ unten — unterschriebene Verträge, Nachweise und Provisionen bleiben dabei nur gesperrt.
                     </div>
                     <form action={loeschwunschFormular}>
                       <input type="hidden" name="id" value={l.id} />
                       <input type="hidden" name="was" value="erledigt" />
-                      <BestaetigenKnopf className="lfa-knopf lfa-knopf-hell lfa-knopf-klein" frage="Löschwunsch als erledigt vermerken (Daten sind von Hand gelöscht bzw. gesperrt)?" tipp="Vermerkt nur die Erledigung — gelöscht wird nichts automatisch.">
-                        Als erledigt vermerken
+                      <BestaetigenKnopf className="lfa-knopf lfa-knopf-leise lfa-knopf-klein" frage="Löschwunsch ohne Löschen als erledigt vermerken (z. B. zurückgenommen oder unberechtigt)?" tipp="Vermerkt nur, dass der Wunsch erledigt ist — gelöscht wird dabei nichts. Zum Löschen den Knopf „Vorgang endgültig löschen (DSGVO)“ nehmen.">
+                        Ohne Löschen erledigt
                       </BestaetigenKnopf>
                     </form>
                   </>
@@ -828,11 +852,44 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
                 <input type="hidden" name="id" value={l.id} />
                 <input type="hidden" name="was" value="vermerken" />
                 <input name="notiz" className="field-input" style={{ flex: "1 1 16rem" }} placeholder="z. B. per E-Mail vom … (optional)" maxLength={300} title="Woher der Wunsch kam — nur intern" />
-                <BestaetigenKnopf className="lfa-knopf lfa-knopf-leise lfa-knopf-klein" frage="Löschwunsch vermerken? Die Anfrage wird archiviert, ein Börsen-Angebot geht offline; im Dashboard steht die Aufgabe mit Frist." tipp="Art. 17 DSGVO: vermerkt den Wunsch mit Monatsfrist. Gelöscht wird von Hand im Speicher (bei Verträgen stattdessen sperren). Es geht keine E-Mail raus.">
+                <BestaetigenKnopf className="lfa-knopf lfa-knopf-leise lfa-knopf-klein" frage="Löschwunsch vermerken? Die Anfrage wird archiviert, ein Börsen-Angebot geht offline; im Dashboard steht die Aufgabe mit Frist." tipp="Art. 17 DSGVO: vermerkt den Wunsch mit Monatsfrist und erinnert im Dashboard an „Vorgang endgültig löschen (DSGVO)“. Es geht keine E-Mail raus.">
                   Löschwunsch vermerken
                 </BestaetigenKnopf>
               </form>
             )}
+
+            <div className="lfa-abschnitt" id="loeschen">
+              <h3 className="lfa-h3" title="Löscht alles zu dieser Anfrage — außer dem, was aufbewahrt werden muss">Vorgang endgültig löschen</h3>
+              {!plan ? (
+                <p className="lfa-klein">Die Vorschau ist gerade nicht verfügbar (Speicher nicht erreichbar) — bitte die Seite neu laden.</p>
+              ) : (
+                <>
+                  <p className="lfa-klein" style={{ margin: "0 0 0.5rem" }}>
+                    <strong>Wird gelöscht:</strong> {plan.loeschen.map((p) => p.was.split(" (")[0]).join(" · ")}.{" "}
+                    <strong>Nur gesperrt (Aufbewahrungspflicht):</strong>{" "}
+                    {plan.sperren.length === 0 ? "nichts" : plan.sperren.map((p) => `${p.was} bis ${p.bis.split("-").reverse().join(".")}`).join("; ")}. Gelöscht wird erst nach der Bestätigung.
+                  </p>
+                  {plan.blockiert.length > 0 && (
+                    <div className="lfa-hinweis lfa-hinweis-fehler">
+                      <strong>Gerade nicht möglich</strong> — die Daten werden für die laufende Abwicklung noch gebraucht (Art. 17 Abs. 1 lit. a DSGVO):
+                      <ul className="lfa-loeschen-liste">
+                        {plan.blockiert.flatMap((b) =>
+                          b.gruende.map((g) => (
+                            <li key={`${b.ref}|${g}`}>
+                              <Link href={`/admin/vorgang/${b.ref}`} title="Vorgang öffnen und dort abschließen bzw. beenden">
+                                Vorgang {b.ref}
+                              </Link>
+                              : {g}
+                            </li>
+                          )),
+                        )}
+                      </ul>
+                    </div>
+                  )}
+                  {vorschau && <LoeschenKnopf id={l.id} vorschau={vorschau} />}
+                </>
+              )}
+            </div>
           </section>
 
           <section className="lfa-panel">

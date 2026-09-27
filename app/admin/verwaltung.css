@@ -823,3 +823,21 @@ a.lfa-kachel:hover { border-color: var(--color-brand); }
   .lfa-aufgabe-knopf { flex: 1 1 100%; }
   .lfa-aufgabe-knopf .lfa-knopf { width: 100%; }
 }
+
+/* Vorgang endgültig löschen (DSGVO) — app/admin/(intern)/anfrage/[id]/LoeschenKnopf.tsx */
+.lfa-knopf-gefahr { background: #b3432f; border-color: #b3432f; color: #fff; }
+.lfa-knopf-gefahr:hover { background: #8a2a1d; border-color: #8a2a1d; }
+.lfa-loeschen {
+  display: grid;
+  gap: 0.6rem;
+  min-width: 0;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid #f5c6c0;
+  border-radius: 0.8rem;
+  background: #fdf4f2;
+}
+.lfa-loeschen-frage { margin: 0; font-size: 0.92rem; color: #8a2a1d; }
+.lfa-loeschen-spalten { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 0.6rem 1.2rem; }
+.lfa-loeschen-titel { margin: 0 0 0.3rem; font-size: 0.84rem; font-weight: 600; color: var(--color-ink); }
+.lfa-loeschen-liste { margin: 0.2rem 0 0; padding-left: 1.1rem; display: grid; gap: 0.2rem; font-size: 0.84rem; overflow-wrap: anywhere; }
+.lfa-loeschen-hinweis { margin: 0; color: #5e4410; }

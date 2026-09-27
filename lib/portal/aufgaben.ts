@@ -135,11 +135,11 @@ export function aufgabenAus(d: Dashboard, jetzt = new Date(d.am)): Aufgabe[] {
       prio: 1,
       zeichen: "!",
       titel: `${l.name} · Löschwunsch`,
-      grund: `Von Hand löschen bzw. (bei Vertrag) sperren — Frist ${new Date(l.frist).toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}${ueber ? " (überschritten)" : ""}.`,
+      grund: `Mit „Vorgang endgültig löschen (DSGVO)“ erledigen — Verträge bleiben dabei nur gesperrt. Frist ${new Date(l.frist).toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}${ueber ? " (überschritten)" : ""}.`,
       seit: l.am,
       ueberfaellig: ueber,
       neu: false,
-      href: `/admin/anfrage/${l.id}#datenschutz`,
+      href: `/admin/anfrage/${l.id}#loeschen`,
       quelle: { typ: "loeschwunsch", l },
     });
   }
