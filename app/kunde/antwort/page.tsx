@@ -21,9 +21,9 @@ type Option = { titel: string; text: string; tipp: string };
 function option(art: RueckmeldungArt, sucheKauf: boolean): Option {
   switch (art) {
     case "verkaufen":
-      return { titel: "Ja, ich möchte verkaufen", text: "Wir melden uns mit den nächsten Schritten — für Sie als Eigentümer kostenlos.", tipp: "Sie möchten Ihre Fläche verkaufen — wir melden uns per E-Mail" };
+      return { titel: "Ja, ich möchte verkaufen", text: "Wir melden uns mit den nächsten Schritten — ob Direktankauf durch die TR Vertriebs GmbH oder Vermittlung an einen Käufer: für Sie als Eigentümer ohne Provision.", tipp: "Sie möchten Ihre Fläche verkaufen — wir melden uns per E-Mail" };
     case "verpachten":
-      return { titel: "Ja, ich möchte verpachten", text: "Wir suchen passende Pächter und melden uns — für Sie als Eigentümer kostenlos.", tipp: "Sie möchten Ihre Fläche verpachten — wir melden uns per E-Mail" };
+      return { titel: "Ja, ich möchte verpachten", text: "Wir suchen passende Pächter und melden uns — die Vermittlung ist für Sie als Eigentümer kostenlos.", tipp: "Sie möchten Ihre Fläche verpachten — wir melden uns per E-Mail" };
     case "suche":
       return {
         titel: `Ja, ich suche weiter eine Fläche ${sucheKauf ? "zum Kauf" : "zur Pacht"}`,

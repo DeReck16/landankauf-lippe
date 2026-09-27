@@ -17,15 +17,36 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },
-      // Verwaltung: nie indexieren (Seiten sind dynamisch, Next setzt no-store selbst).
+      // Verwaltung: nie indexieren (Seiten sind dynamisch, Next setzt no-store selbst) und nie einbetten
+      // (überschreibt SAMEORIGIN; die CSP mit frame-ancestors 'none' setzt proxy.ts).
       {
         source: "/admin/:path*",
-        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+          { key: "X-Frame-Options", value: "DENY" },
+        ],
       },
-      // Kundenbereich: ebenfalls nie indexieren (persönliche Links, Verträge).
+      // Kundenbereich: ebenfalls nie indexieren (persönliche Links, Verträge) und nie einbetten.
       {
         source: "/kunde/:path*",
-        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+          { key: "X-Frame-Options", value: "DENY" },
+        ],
+      },
+      {
+        source: "/admin",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+          { key: "X-Frame-Options", value: "DENY" },
+        ],
+      },
+      {
+        source: "/kunde",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+          { key: "X-Frame-Options", value: "DENY" },
+        ],
       },
     ];
   },

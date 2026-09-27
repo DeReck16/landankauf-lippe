@@ -119,7 +119,9 @@ const BETREFF: Record<AntwortThema, string> = {
   allgemein: "Ihre Anfrage bei Lippe Forst",
 };
 
-const VERMITTLUNG = "Möchten Sie die Fläche verkaufen oder verpachten? Wir finden auf Wunsch einen passenden Käufer oder Pächter – für Sie als Eigentümer kostenlos.";
+// Beide Wege wahrheitsgemäß getrennt (Dennis 27.09.2026): Direktankauf ohne Provision, Vermittlung für Eigentümer kostenlos.
+const VERMITTLUNG =
+  "Möchten Sie die Fläche verkaufen oder verpachten? Die TR Vertriebs GmbH (Betreiberin von Lippe Forst) kauft geeignete Flächen auch selbst – dann ohne Makler und ohne Provision. Oder wir vermitteln Ihnen einen passenden Käufer oder Pächter – für Sie als Eigentümer ebenfalls kostenlos; nur der Käufer bzw. Pächter zahlt im Erfolgsfall eine Provision.";
 
 /**
  * Das fertige Antwortschreiben zu einer Anfrage (ohne Rückmeldung) bzw. zu einem
@@ -224,19 +226,19 @@ export function antwortEntwurf(opts: { lead: LeadView; kunde: M.KundeRecord | nu
     }
     case "verkauf":
       koerper.push(
-        `Dabei unterstützen wir Sie gern: Wir stellen Ihre Fläche passenden Käufern vor – für Sie als Eigentümer kostenlos.${verpachtet ? " Eine laufende Verpachtung ist dabei kein Hindernis – der Pachtvertrag geht beim Verkauf auf den Käufer über." : ""}`,
+        `Dabei unterstützen wir Sie gern, auf zwei Wegen: Die TR Vertriebs GmbH (Betreiberin von Lippe Forst) kauft geeignete Flächen auch selbst – ohne Makler und ohne Provision. Oder wir stellen Ihre Fläche passenden Käufern vor – für Sie als Eigentümer ebenfalls kostenlos; nur der Käufer zahlt im Erfolgsfall eine Provision.${verpachtet ? " Eine laufende Verpachtung ist dabei kein Hindernis – der Pachtvertrag geht beim Verkauf auf den Käufer über." : ""}`,
       );
       if (w) koerper.push("", `Zur ersten Orientierung: ${w.satz} ${amtlich ? "Innerhalb der Richtwertzone" : "Wo Ihre Fläche innerhalb dieser Spanne liegt,"} hängt ${amtlich ? "der Preis " : ""}vor allem von ${nf.faktoren} ab.`);
       koerper.push(
         "",
         r
-          ? "Damit wir Ihre Fläche Interessenten vorstellen dürfen, schließen wir mit Ihnen online eine kurze, kostenlose Vereinbarung – antworten Sie einfach kurz, dann schicken wir Ihnen den Zugang."
-          : "Damit wir Ihre Fläche Interessenten vorstellen dürfen, schließen wir mit Ihnen online eine kurze, kostenlose Vereinbarung. Wählen Sie dazu über Ihren persönlichen Link unten „Ja, ich möchte verkaufen“ – dann schicken wir Ihnen den Zugang.",
+          ? "Für den Direktankauf genügt eine kurze Antwort. Für die Vermittlung schließen wir mit Ihnen online eine kurze, kostenlose Vereinbarung – antworten Sie einfach kurz, dann schicken wir Ihnen den Zugang."
+          : "Für den Direktankauf genügt eine kurze Antwort. Für die Vermittlung schließen wir mit Ihnen online eine kurze, kostenlose Vereinbarung. Wählen Sie dazu über Ihren persönlichen Link unten „Ja, ich möchte verkaufen“ – dann schicken wir Ihnen den Zugang.",
       );
       break;
     case "verpachtung":
       koerper.push(
-        "Dabei unterstützen wir Sie gern: Wir vermitteln zuverlässige Pächter aus der Region – für Sie als Eigentümer kostenlos.",
+        "Dabei unterstützen wir Sie gern: Wir vermitteln zuverlässige Pächter aus der Region – für Sie als Eigentümer kostenlos; nur der Pächter zahlt im Erfolgsfall eine Provision. Möchten Sie lieber verkaufen, kauft die TR Vertriebs GmbH (Betreiberin von Lippe Forst) geeignete Flächen auch selbst – ohne Makler und ohne Provision.",
         "",
         r
           ? "Damit wir Ihre Fläche Interessenten vorstellen dürfen, schließen wir mit Ihnen online eine kurze, kostenlose Vereinbarung – antworten Sie einfach kurz, dann schicken wir Ihnen den Zugang."
@@ -244,7 +246,7 @@ export function antwortEntwurf(opts: { lead: LeadView; kunde: M.KundeRecord | nu
       );
       break;
     case "vergleich":
-      koerper.push("Beides vermitteln wir – für Sie als Eigentümer kostenlos. Beim Verkauf erhalten Sie einmalig den Kaufpreis; bei der Verpachtung bleibt die Fläche in Ihrem Eigentum und bringt laufende Pachteinnahmen.");
+      koerper.push("Beides ist möglich: Pächter vermitteln wir Ihnen kostenlos. Verkaufen können Sie an einen von uns vermittelten Käufer (für Sie ebenfalls kostenlos) oder direkt an die TR Vertriebs GmbH, die Betreiberin von Lippe Forst (ohne Makler, ohne Provision). Beim Verkauf erhalten Sie einmalig den Kaufpreis; bei der Verpachtung bleibt die Fläche in Ihrem Eigentum und bringt laufende Pachteinnahmen.");
       if (w) koerper.push("", `Zur Orientierung beim Verkauf: ${w.satz}`);
       koerper.push("", "Schreiben Sie uns gern kurz, was Ihnen wichtiger ist – ein einmaliger Erlös oder regelmäßige Einnahmen –, dann empfehlen wir Ihnen den passenden Weg.");
       break;
