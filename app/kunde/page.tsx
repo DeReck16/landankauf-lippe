@@ -163,10 +163,31 @@ export default async function KundePage(props: PageProps<"/kunde">) {
               </>
             )}
 
+            {k.rolle === "anbieter" && lead?.meta.boerse?.einwilligung && !k.widerruf && !k.kuendigung && (
+              <p className="lfk-klein" style={{ marginTop: "0.9rem" }} title="Stand Ihrer Fläche in der anonymen Flächenbörse auf lippeforst.de">
+                <strong>Flächenbörse:</strong>{" "}
+                {lead.meta.boerse.online ? (
+                  <>
+                    anonym online{lead.meta.boerse.seit ? ` seit ${datumDe(lead.meta.boerse.seit)}` : ""} (Kennung {lead.meta.boerse.code}) —{" "}
+                    <a href={`/flaechenboerse/${lead.meta.boerse.code}`} target="_blank" rel="noopener" title="Ihr Angebot so ansehen, wie Interessenten es sehen (neuer Tab)">
+                      ansehen
+                    </a>
+                    .
+                  </>
+                ) : lead.meta.boerse.offline ? (
+                  "derzeit nicht online."
+                ) : (
+                  "Ihre Einwilligung liegt vor — wir prüfen die Angaben und stellen die Fläche dann anonym online."
+                )}{" "}
+                Möchten Sie das nicht mehr, entfernen Sie das Häkchen unter „Angaben ändern“.
+              </p>
+            )}
+
             {widerruf && k.vertrag && (
               <div className="lfk-hinweis" style={{ marginTop: "1rem", marginBottom: 0 }}>
                 <p style={{ marginBottom: "0.6rem" }}>
                   <strong>Widerrufsrecht:</strong> Sie können diesen Vertrag bis zum {datumDe(k.vertrag.widerrufsfristEnde)} ohne Angabe von Gründen widerrufen.
+                  {!k.vertrag.beginnwunschAm && ` Kontakte geben wir deshalb frühestens ab dem ${datumDe(M.freigabeFruehestens(k.vertrag.signatur.am))} frei (Ende der Widerrufsfrist plus vier Tage) — passende Flächen stellen wir Ihnen vorher schon anonym vor.`}
                 </p>
                 <Link href={`/kunde/widerruf?k=${k.id}`} className="lfk-knopf-warn" title="Widerrufsfunktion: öffnet die Widerrufserklärung — dort bestätigen Sie den Widerruf">
                   Vertrag widerrufen

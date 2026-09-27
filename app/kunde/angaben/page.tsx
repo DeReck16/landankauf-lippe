@@ -95,12 +95,39 @@ export default async function AngabenPage(props: PageProps<"/kunde/angaben">) {
         )}
 
         {anbieter && (
+          <fieldset className="lfk-auswahl">
+            <legend className="field-label">Zu Ihrer Fläche (freiwillig)</legend>
+            <p className="lfk-klein" style={{ margin: "0 0 0.5rem" }}>
+              Hilft uns bei der Einschätzung und Interessenten bei der Entscheidung. Nichts davon ist Pflicht; ändern können Sie es jederzeit.
+            </p>
+            <div className="lfk-raster">
+              <label>
+                <span className="field-label">{kunde.art === "kauf" ? "Preisvorstellung" : "Pachtvorstellung"}</span>
+                <input name="a_preis" defaultValue={kunde.flaechenAngaben?.preis ?? ""} maxLength={80} className="field-input" placeholder={kunde.art === "kauf" ? "z. B. VB 3,50 €/m²" : "z. B. 400 €/ha und Jahr"} title="Ihre Vorstellung — unverbindlich, gern auch „offen“" />
+              </label>
+              <label>
+                <span className="field-label">Frei ab / Pachtstatus</span>
+                <input name="a_frei" defaultValue={kunde.flaechenAngaben?.frei ?? ""} maxLength={80} className="field-input" placeholder="z. B. frei ab 01.10.2027" title="Ab wann die Fläche frei ist, oder bis wann sie noch verpachtet ist" />
+              </label>
+              <label>
+                <span className="field-label">Ackerzahl (falls bekannt)</span>
+                <input name="a_ackerzahl" defaultValue={kunde.flaechenAngaben?.ackerzahl ?? ""} maxLength={40} className="field-input" placeholder="z. B. 45" title="Bodengüte laut Einheitswert- oder Grundsteuerbescheid — nur bei Acker oder Grünland" />
+              </label>
+              <label>
+                <span className="field-label">Zuwegung</span>
+                <input name="a_zuwegung" defaultValue={kunde.flaechenAngaben?.zuwegung ?? ""} maxLength={80} className="field-input" placeholder="z. B. über öffentlichen Wirtschaftsweg" title="Wie man zur Fläche kommt — bitte ohne Straßennamen oder Hausnummern" />
+              </label>
+            </div>
+          </fieldset>
+        )}
+
+        {anbieter && (
           <div>
             <input type="hidden" name="boerse_feld" value="1" />
             <label className="lfk-check lfk-check-frei" title="Freiwillig und jederzeit widerrufbar — ohne Häkchen erscheint Ihre Fläche nicht öffentlich">
               <input type="checkbox" name="boerse" value="1" defaultChecked={Boolean(lead?.meta.boerse?.einwilligung)} />
               <span>
-                Freiwillig: Meine Fläche darf anonym in der <a href="/flaechenboerse" target="_blank" rel="noopener" title="Flächenbörse in neuem Tab ansehen">Flächenbörse</a> auf lippeforst.de erscheinen — nur mit Flächentyp, ungefährer Größe und grober Lage (z. B. „Ackerland, ca. 5 ha, Raum Lemgo“), ohne Namen, Flurstück oder genaue Lage. Das lässt sich jederzeit widerrufen: einfach das Häkchen hier entfernen.
+                Freiwillig: Meine Fläche darf anonym in der <a href="/flaechenboerse" target="_blank" rel="noopener" title="Flächenbörse in neuem Tab ansehen">Flächenbörse</a> auf lippeforst.de erscheinen — mit Flächentyp, gerundeter Größe und Gemeinde (z. B. „Ackerland, ca. 5 ha, Raum Lemgo“), dazu, soweit angegeben, meine Angaben oben (Preis- bzw. Pachtvorstellung, frei ab, Ackerzahl, Zuwegung) und eine kurze Beschreibung durch Lippe Forst — nie mit Namen, Flurstück oder genauer Lage. Das lässt sich jederzeit widerrufen: einfach das Häkchen hier entfernen.
               </span>
             </label>
           </div>
