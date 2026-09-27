@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse, after } from "next/server";
-import { put } from "@vercel/blob";
 import { site } from "@/lib/site";
 import { dataPrefix, hasBlobToken } from "@/lib/admin/config";
 import { orteErgaenzen } from "@/lib/admin/daten";
-import { mutateZustand, readZustand } from "@/lib/admin/store";
+import { dateiAnlegen, mutateZustand, readZustand } from "@/lib/admin/store";
 import { angebotZuCode } from "@/lib/boerse";
 import { isGesuchIntent } from "@/lib/lead-options";
 import { leadView } from "@/lib/admin/model";
@@ -182,16 +181,7 @@ export async function POST(req: NextRequest) {
   if (hasBlobToken()) {
     try {
       const date = new Date().toISOString().slice(0, 10);
-      await put(
-        `${dataPrefix()}leads/${date}/${id}.json`,
-        JSON.stringify({ id, receivedAt, ...input }, null, 2),
-        {
-          access: "private",
-          token: process.env.LF_BLOB_READ_WRITE_TOKEN,
-          contentType: "application/json",
-          addRandomSuffix: false,
-        },
-      );
+      await dateiAnlegen(`leads/${date}/${id}.json`, JSON.stringify({ id, receivedAt, ...input }, null, 2), "application/json");
       blobOk = true;
     } catch (err) {
       console.error("[lead] blob exception", err);

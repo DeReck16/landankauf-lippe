@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Lokaler Test-Speicher (LF_SPEICHER=lokal)
+.lokal-speicher/

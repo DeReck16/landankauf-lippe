@@ -1,8 +1,8 @@
 import "server-only";
 import { revalidatePath, revalidateTag } from "next/cache";
-import { blobToken, dataPrefix, hasBlobToken } from "@/lib/admin/config";
+import { hasBlobToken } from "@/lib/admin/config";
 import { leadView, type BoerseMeta, type LeadView } from "@/lib/admin/model";
-import { jsonAendern, listLeads, mutateZustand, readZustand } from "@/lib/admin/store";
+import { jsonAendern, listLeads, mutateZustand, readZustand, websiteDateiLesen } from "@/lib/admin/store";
 import { grobeLage } from "@/lib/admin/matching";
 import { FLAECHENTYPEN } from "@/lib/lead-options";
 import { adminInfo } from "@/lib/portal/mail";
@@ -48,16 +48,9 @@ const LEER: BoerseDatei = { v: 1, stand: "", provision: "", angebote: [] };
 export async function ladeBoerse(): Promise<BoerseDatei> {
   if (!hasBlobToken()) return LEER;
   try {
-    const token = blobToken();
-    const storeId = token.split("_")[3];
-    // Cache-Buster: Das Blob-CDN hält überschriebene Dateien sonst bis zu einer Minute alt vor.
     // Gecacht wird die Seite selbst (ISR, 5 Minuten, beim Veröffentlichen sofort erneuert).
-    const res = await fetch(`https://${storeId}.private.blob.vercel-storage.com/${dataPrefix()}${BOERSE_PFAD}?cache=0&r=${Date.now()}`, {
-      headers: { authorization: `Bearer ${token}` },
-      next: { revalidate: 300, tags: [BOERSE_TAG] },
-    });
-    if (!res.ok) return LEER;
-    const d = (await res.json()) as Partial<BoerseDatei>;
+    const d = await websiteDateiLesen<Partial<BoerseDatei>>(BOERSE_PFAD, { revalidate: 300, tags: [BOERSE_TAG] });
+    if (!d) return LEER;
     // Ältere Dateien kennen nur Kaufangebote (ohne „art“).
     const angebote = Array.isArray(d.angebote) ? d.angebote.map((a) => ({ ...a, art: a.art === "pacht" ? ("pacht" as const) : ("kauf" as const) })) : [];
     return { ...LEER, ...d, angebote };

@@ -33,8 +33,19 @@ export function blobToken(): string {
   return token;
 }
 
+/**
+ * Lokaler Dateispeicher statt Blob — nur für Tests und lokale Simulation
+ * (LF_SPEICHER=lokal, Ordner LF_SPEICHER_PFAD). Auf Vercel ausgeschlossen, damit
+ * eine falsch gesetzte Variable nie echte Daten ins Leere schreibt.
+ */
+export function lokalerSpeicher(): string | null {
+  if (process.env.LF_SPEICHER !== "lokal") return null;
+  if (process.env.VERCEL) throw new Error("LF_SPEICHER=lokal ist auf Vercel nicht erlaubt.");
+  return process.env.LF_SPEICHER_PFAD || `${process.cwd()}/.lokal-speicher`;
+}
+
 export function hasBlobToken(): boolean {
-  return Boolean(process.env.LF_BLOB_READ_WRITE_TOKEN);
+  return Boolean(process.env.LF_BLOB_READ_WRITE_TOKEN) || lokalerSpeicher() !== null;
 }
 
 export function dataPrefix(): string {
