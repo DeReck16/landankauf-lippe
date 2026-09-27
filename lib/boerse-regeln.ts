@@ -45,6 +45,16 @@ export function zahlDe(n: number, stellen = 2): string {
 }
 
 /** Öffentliche Größe — gerundet (bis 5 ha auf 0,5 ha, bis 20 ha auf 1 ha, darüber auf 5 ha). */
+/**
+ * Größe für die öffentliche Datei gerundet (Review S8): Die genaue Fläche erscheint nie auf der Website —
+ * auch nicht im Seitenquelltext —, sonst ließe sich das Flurstück im Kataster suchen.
+ */
+export function oeffentlicheHa(ha: number | null): number | null {
+  if (ha == null || !Number.isFinite(ha) || ha <= 0) return null;
+  if (ha < 0.25) return 0.2;
+  return ha <= 5 ? Math.max(0.5, Math.round(ha * 2) / 2) : ha <= 20 ? Math.round(ha) : Math.round(ha / 5) * 5;
+}
+
 export function haText(ha: number | null): string {
   if (ha == null || !Number.isFinite(ha) || ha <= 0) return "Größe auf Anfrage";
   if (ha < 0.25) return "unter 0,5 ha";

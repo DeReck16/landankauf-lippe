@@ -91,3 +91,13 @@ test("Online-Pachtvertrag: Unternehmer ↔ Verbraucher und Wald sind gesperrt", 
   assert.deepEqual(arten, ["fernabsatz", "wald"]);
   assert.deepEqual(V.pachtOnlineSperren({ angebot: leadView(lead, {}), anbieter: null, suchender: null }, null), []);
 });
+
+test("Börse: öffentliche Größe gerundet — nie die genaue Fläche", async () => {
+  const { oeffentlicheHa, haText } = await import("@/lib/boerse-regeln");
+  assert.equal(oeffentlicheHa(0.1832), 0.2);
+  assert.equal(haText(oeffentlicheHa(0.1832)), "unter 0,5 ha");
+  assert.equal(oeffentlicheHa(4.37), 4.5);
+  assert.equal(oeffentlicheHa(12.61), 13);
+  assert.equal(oeffentlicheHa(23.9), 25);
+  assert.equal(oeffentlicheHa(null), null);
+});
