@@ -19,6 +19,8 @@ const KUNDE_OEFFENTLICH = /^\/kunde\/(einladung|anmelden|widerruf|kuendigung|ant
  * Oberfläche nutzt style-Attribute, und ein Nonce würde 'unsafe-inline' für Styles aushebeln.
  */
 function weiterMitCsp(request: NextRequest): NextResponse {
+  // PDF-Abrufe (Route-Handler) ohne CSP: Der PDF-Betrachter des Browsers verträgt „object-src 'none'“ nicht.
+  if (/^\/(kunde|admin)\/dokument\//.test(request.nextUrl.pathname)) return NextResponse.next();
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const dev = process.env.NODE_ENV === "development";
   const csp = [
