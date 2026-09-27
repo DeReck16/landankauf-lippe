@@ -12,6 +12,7 @@ import {
   vorlageFreigebenAktion,
   vorlageZurueckziehenAktion,
 } from "../../portal-actions";
+import { alleSitzungenBeendenAktion } from "../../actions";
 import BestaetigenKnopf from "../BestaetigenKnopf";
 import AlleFreigeben from "../AlleFreigeben";
 import { Meldung } from "../teile";
@@ -202,6 +203,18 @@ export default async function VorlagenPage(props: PageProps<"/admin/vorlagen">) 
             <input name="betrag" defaultValue={zahl(e.gutschein?.betrag ?? 100)} inputMode="decimal" className="field-input" title="Wert des Gutscheins (Standard 100 €)" />
           </label>
           <button type="submit" className="lfa-knopf lfa-knopf-klein" title="Einstellung zum Treue-Gutschein speichern">Speichern</button>
+        </form>
+      </section>
+
+      <section className="lfa-panel" id="sicherheit">
+        <h2 className="lfa-h2">Sicherheit</h2>
+        <p className="lfa-klein" style={{ marginBottom: "0.6rem" }}>
+          Gerät verloren oder Anmeldelink an eine falsche Adresse gegangen? „Alle Sitzungen beenden“ meldet alle Geräte aller Verwaltungs-Zugänge ab. Dieses Gerät bleibt angemeldet (es bekommt sofort eine neue Sitzung); alle anderen brauchen einen neuen Anmeldelink.
+        </p>
+        <form action={alleSitzungenBeendenAktion}>
+          <BestaetigenKnopf className="lfa-knopf lfa-knopf-hell lfa-knopf-klein" frage="Wirklich alle anderen Sitzungen der Verwaltung beenden?" tipp="Meldet alle anderen Geräte ab (alle Admins). Es geht keine E-Mail raus.">
+            Alle Sitzungen beenden
+          </BestaetigenKnopf>
         </form>
       </section>
     </>

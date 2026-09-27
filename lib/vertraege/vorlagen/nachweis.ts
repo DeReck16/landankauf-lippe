@@ -20,7 +20,7 @@ type ArtText = {
 
 const TEXT: Record<"pacht" | "kauf", ArtText> = {
   pacht: {
-    titel: "Nachweis- und Vermittlungsvertrag – Pachtflächen",
+    titel: "Nachweisvertrag – Pachtflächen",
     suche: "landwirtschaftlich oder forstwirtschaftlich nutzbare Flächen zur Pacht",
     vertrag: "Pachtvertrag",
     vertraege: "Pachtverträgen",
@@ -28,7 +28,7 @@ const TEXT: Record<"pacht" | "kauf", ArtText> = {
     anderer: "Kaufvertrag",
   },
   kauf: {
-    titel: "Nachweis- und Vermittlungsvertrag – Flächenkauf",
+    titel: "Nachweisvertrag – Flächenkauf",
     suche: "landwirtschaftlich oder forstwirtschaftlich nutzbare Flächen zum Kauf",
     vertrag: "Kaufvertrag",
     vertraege: "Kaufverträgen",
@@ -62,6 +62,8 @@ export function nachweisRender(art: "pacht" | "kauf") {
       p("(2) Vor einer Freigabe erhält der Auftraggeber zu passenden Flächen nur anonyme Eckdaten (Gemeinde, Flächentyp, ungefähre Größe, Pacht oder Kauf). Stimmen der Auftraggeber und der Anbieter dem Kontakt zu, gibt Lippe Forst dem Auftraggeber im Kundenbereich Name und Kontaktdaten des Anbieters sowie die Flächenangaben (Gemarkung, Flur, Flurstück, Größe) bekannt („Freigabe“). Mit der Freigabe ist die Gelegenheit zum Vertragsschluss nachgewiesen."),
       p("(3) Lippe Forst ist zu einer bestimmten Tätigkeit oder einem Erfolg nicht verpflichtet. Der Auftraggeber ist frei, ob er einen Vertrag schließt."),
       p(`(4) Lippe Forst darf auch für den ${t.gegenueber} tätig werden; von ihm verlangt Lippe Forst keine Vergütung. Lippe Forst verhält sich gegenüber beiden Seiten unparteiisch.`),
+      p("(5) Die TR Vertriebs GmbH kauft land- und forstwirtschaftliche Flächen auch selbst (Direktankauf). Flächen, die sie selbst erwirbt, vermittelt sie nicht; ein Anspruch auf den Nachweis bestimmter Flächen besteht nicht."),
+      p("(6) Flächen, die dem Geschäftsführer der TR Vertriebs GmbH oder seinen Angehörigen gehören, kennzeichnet Lippe Forst schon in den anonymen Eckdaten und vor jeder Freigabe als „eigene Fläche“."),
     );
 
     // § 2 Provision
@@ -85,6 +87,7 @@ export function nachweisRender(art: "pacht" | "kauf") {
     provision.push(
       p(`(5) Abweichungen vom angebotenen Preis, von der Laufzeit oder den übrigen Bedingungen sowie der Abschluss über einen Teil der nachgewiesenen Flächen lassen den Anspruch unberührt, soweit der geschlossene Vertrag dem nachgewiesenen wirtschaftlich gleichwertig ist.`),
       p(`(6) Der ${t.gegenueber} zahlt keine Provision. Weitere Kosten, Gebühren oder Auslagen berechnet Lippe Forst dem Auftraggeber nicht; bleibt der Erfolg aus, ist nichts zu zahlen.`),
+      p("(7) Für Verträge über eine als „eigene Fläche“ gekennzeichnete Fläche (§ 1 Abs. 6) schuldet der Auftraggeber keine Provision."),
     );
     b.push(...provision);
 
@@ -144,7 +147,7 @@ export function nachweisRender(art: "pacht" | "kauf") {
 
     return {
       titel: t.titel,
-      untertitel: `zwischen ${FIRMA.name} („${FIRMA.marke}“) und dem Auftraggeber · Provision nur im Erfolgsfall`,
+      untertitel: `Nachweis- und Vermittlungsvertrag zwischen ${FIRMA.name} („${FIRMA.marke}“) und dem Auftraggeber · Provision nur im Erfolgsfall`,
       bloecke: b,
     };
   };
@@ -238,9 +241,9 @@ function platzhalter(eigenschaft: NachweisDaten["eigenschaft"]): NachweisDaten {
 
 export const NACHWEIS_PACHT: Vorlage<NachweisDaten> = {
   id: "nachweis-pacht",
-  version: "2026-09-24",
-  titel: "Nachweis-/Vermittlungsvertrag Pacht (Suchende)",
-  beschreibung: "Maklervertrag mit Pacht-Suchenden: Provision nur im Erfolgsfall (Standard: eine volle Jahrespacht zzgl. USt), Provisionsschutz, Mitteilungspflicht; für Verbraucher mit Widerrufsbelehrung und Pflichtinformationen.",
+  version: "2026-09-27",
+  titel: "Nachweisvertrag Pacht (Suchende)",
+  beschreibung: "Maklervertrag mit Pacht-Suchenden: Provision nur im Erfolgsfall (Standard: eine volle Jahrespacht zzgl. USt), keine Provision für eigene Flächen, Direktankauf offengelegt, Provisionsschutz, Mitteilungspflicht; für Verbraucher mit Widerrufsbelehrung und Pflichtinformationen.",
   render: nachweisRender("pacht"),
   varianten: [
     { name: "Verbraucher", daten: platzhalter("verbraucher") },
@@ -250,9 +253,9 @@ export const NACHWEIS_PACHT: Vorlage<NachweisDaten> = {
 
 export const NACHWEIS_KAUF: Vorlage<NachweisDaten> = {
   id: "nachweis-kauf",
-  version: "2026-09-24",
-  titel: "Nachweis-/Vermittlungsvertrag Kauf (Suchende)",
-  beschreibung: "Maklervertrag mit Kauf-Suchenden: Provision nur im Erfolgsfall (Standard: 3,59 % des Kaufpreises zzgl. USt), entsteht mit Beurkundung bzw. Wirksamkeit; für Verbraucher mit Widerrufsbelehrung und Pflichtinformationen.",
+  version: "2026-09-27",
+  titel: "Nachweisvertrag Kauf (Suchende)",
+  beschreibung: "Maklervertrag mit Kauf-Suchenden: Provision nur im Erfolgsfall (Standard: 3,59 % des Kaufpreises zzgl. USt), entsteht mit Beurkundung bzw. Wirksamkeit, keine Provision für eigene Flächen, Direktankauf offengelegt; für Verbraucher mit Widerrufsbelehrung und Pflichtinformationen.",
   render: nachweisRender("kauf"),
   varianten: [
     { name: "Verbraucher", daten: platzhalter("verbraucher") },

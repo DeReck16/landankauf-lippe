@@ -32,6 +32,7 @@ function render(d: AnbieterDaten) {
     p("(2) Lippe Forst sucht passende Interessenten, stellt ihnen die Fläche zunächst nur mit anonymen Eckdaten vor (Gemeinde, Flächentyp, ungefähre Größe, Pacht oder Kauf) und stellt den Kontakt erst her, wenn beide Seiten zugestimmt haben („Freigabe“). Danach verhandeln Anbieter und Interessent direkt miteinander."),
     p(`(3) Auf Wunsch stellt Lippe Forst eine Vorlage für den ${vertrag} bereit und ermöglicht den Abschluss online. Lippe Forst ist nicht Vertragspartei und erbringt keine rechtliche oder steuerliche Beratung im Einzelfall.`),
     p("(4) Eine Pflicht zum Abschluss besteht für den Anbieter zu keiner Zeit. Lippe Forst ist zu einer bestimmten Tätigkeit oder einem Erfolg nicht verpflichtet."),
+    p("(5) Die TR Vertriebs GmbH kauft geeignete Flächen auch selbst. Bietet sie dem Anbieter an, eine Fläche selbst zu kaufen (Direktankauf), geschieht das offen als eigenes Kaufangebot und nicht als Vermittlung; eine Provision fällt dabei für keine Seite an. Der Anbieter ist frei, ein solches Angebot abzulehnen; diese Vereinbarung bleibt davon unberührt."),
   );
 
   b.push(
@@ -74,7 +75,7 @@ function render(d: AnbieterDaten) {
 
   b.push(
     para("Online-Abschluss und Schlussbestimmungen"),
-    p("(1) Die Vereinbarung kommt zustande, wenn der Anbieter sie im Kundenbereich durch Eingabe seines Namens und Betätigen der Schaltfläche „Verbindlich unterzeichnen“ abschließt. Er erhält sie anschließend als PDF mit Unterschriftsprotokoll per E-Mail."),
+    p("(1) Die Vereinbarung kommt zustande, wenn der Anbieter sie im Kundenbereich durch Eingabe seines Namens und Betätigen der Schaltfläche „Vereinbarung kostenlos bestätigen“ abschließt. Er erhält sie anschließend als PDF mit Unterschriftsprotokoll per E-Mail."),
     p("(2) Änderungen bedürfen der Textform. Es gilt deutsches Recht. Ist der Anbieter Kaufmann, ist Gerichtsstand der Sitz der TR Vertriebs GmbH."),
     p("(3) Sollte eine Bestimmung unwirksam sein, bleibt die Vereinbarung im Übrigen wirksam (§ 306 BGB)."),
   );
@@ -82,6 +83,7 @@ function render(d: AnbieterDaten) {
   b.push(
     kasten("Kurz gesagt", [
       "Sie zahlen nichts. Ihre Kontaktdaten gibt Lippe Forst erst weiter, wenn Sie dem konkreten Interessenten zugestimmt haben. Sie können jederzeit aussteigen.",
+      "Schließen Sie innerhalb von 24 Monaten nach einer Freigabe mit einem von Lippe Forst nachgewiesenen Interessenten ab, teilen Sie uns das bitte kurz mit — auch nach dem Aussteigen. Kosten entstehen Ihnen dadurch nicht.",
     ]),
   );
 
@@ -107,9 +109,9 @@ function platzhalter(art: AnbieterDaten["art"], eigenschaft: AnbieterDaten["eige
 
 export const ANBIETER: Vorlage<AnbieterDaten> = {
   id: "anbieter",
-  version: "2026-09-24",
+  version: "2026-09-27",
   titel: "Vereinbarung für Anbieter (ohne Provision)",
-  beschreibung: "Unentgeltliche Vereinbarung mit Eigentümern: Einwilligung in die Weitergabe der Kontaktdaten nach Freigabe, Mitteilungspflicht über Abschlüsse, jederzeit kündbar.",
+  beschreibung: "Unentgeltliche Vereinbarung mit Eigentümern: Einwilligung in die Weitergabe der Kontaktdaten nach Freigabe, Mitteilungspflicht über Abschlüsse (24 Monate), Direktankauf durch die TR Vertriebs GmbH offengelegt, jederzeit kündbar.",
   render,
   varianten: [
     { name: "Verpachtung, Verbraucher", daten: platzhalter("pacht", "verbraucher") },

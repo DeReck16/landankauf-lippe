@@ -8,6 +8,7 @@ import { FLAECHENTYPEN } from "@/lib/lead-options";
 import { isAdminEmail } from "@/lib/admin/config";
 import { createLoginToken, verifyLoginToken } from "@/lib/admin/token";
 import { endSession, requireAdmin, startSession } from "@/lib/admin/session";
+import { alleSitzungenBeenden } from "@/lib/admin/sitzungen";
 import { linkEinloesen, mailDrosseln, mutateZustand, readZustand, listLeads } from "@/lib/admin/store";
 import { sendeAnmeldelink } from "@/lib/admin/mail";
 import { orteErgaenzen } from "@/lib/admin/daten";
@@ -74,6 +75,20 @@ export async function anmeldungBestaetigen(formData: FormData): Promise<void> {
 export async function abmelden(): Promise<void> {
   await endSession();
   redirect("/admin/anmelden?abgemeldet=1");
+}
+
+/**
+ * Alle Sitzungen der Verwaltung beenden (z. B. Gerät verloren): alle Geräte aller Admins müssen sich
+ * neu anmelden — dieses Gerät bekommt sofort eine neue Sitzung.
+ */
+export async function alleSitzungenBeendenAktion(): Promise<void> {
+  const { email } = await requireAdmin();
+  await alleSitzungenBeenden(email);
+  // Eine Sekunde später ausstellen, damit die neue Sitzung sicher nach dem Sperrzeitpunkt liegt.
+  await new Promise((r) => setTimeout(r, 1100));
+  await startSession(email);
+  await mutateZustand(email, () => ({ was: "Alle Sitzungen der Verwaltung beendet (alle Geräte müssen sich neu anmelden)" }));
+  redirect(`/admin/vorlagen?m=${encodeURIComponent("Alle anderen Sitzungen sind beendet — dieses Gerät ist neu angemeldet.")}&mt=ok#sicherheit`);
 }
 
 // ---------------------------------------------------------------------------

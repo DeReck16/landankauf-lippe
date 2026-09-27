@@ -1,6 +1,6 @@
 import "server-only";
 import { listLeads, mutateZustand, readZustand } from "@/lib/admin/store";
-import { leadView, type LeadView, type MatchMeta, type MatchStatus, type Zustand } from "@/lib/admin/model";
+import { istEigeneFlaeche, leadView, type LeadView, type MatchMeta, type MatchStatus, type Zustand } from "@/lib/admin/model";
 import { dokumentHash } from "@/lib/vertraege/hash";
 import type { Dokument } from "@/lib/vertraege/dokument";
 import { site } from "@/lib/site";
@@ -34,6 +34,67 @@ export const PACHTANZEIGE_STELLE =
 /** Genehmigungsbehörde nach dem Grundstückverkehrsgesetz (§ 5 Abs. 1 Nr. 3 ZustVO Agrar NRW). */
 export const GRDSTVG_STELLE =
   "die Geschäftsführung der Kreisstelle der Landwirtschaftskammer Nordrhein-Westfalen als Landesbeauftragte — für den Kreis Lippe die Kreisstellen Höxter, Lippe, Paderborn in Brakel";
+
+/** Kreise, für die die Kreisstellen Höxter, Lippe, Paderborn (Brakel) zuständig sind. */
+const KREISE_BRAKEL = new Set(["Lippe", "Höxter", "Paderborn"]);
+
+/** Kreis (bzw. kreisfreie Stadt) der angebotenen Fläche laut Kataster (ALKIS NRW) — sonst null. */
+export function kreisDerFlaeche(angebot: Pick<LeadView, "meta">): string | null {
+  const k = angebot.meta.kataster?.flurstueck?.kreis?.trim();
+  return k ? k.replace(/^(Kreis|Landkreis)\s+/i, "") : null;
+}
+
+/**
+ * Zuständige Stelle für die Pachtanzeige nach Lage der Flächen (§ 6 LPachtVG: Hofstelle des Verpächters,
+ * sonst Lage der Flächen). Ohne Kataster-Kreis oder im Bezirk Höxter/Lippe/Paderborn der bisherige Text.
+ */
+export function pachtanzeigeStelle(kreis: string | null | undefined): string {
+  if (!kreis || KREISE_BRAKEL.has(kreis)) return PACHTANZEIGE_STELLE;
+  return `die Geschäftsführerin oder der Geschäftsführer der Kreisstelle der Landwirtschaftskammer Nordrhein-Westfalen als Landesbeauftragte(r) am Ort der Hofstelle des Verpächters, sonst am Ort der Flächen (die Flächen liegen im Gebiet ${kreis}); liegt die Hofstelle außerhalb Nordrhein-Westfalens, die dort nach Landesrecht zuständige Behörde`;
+}
+
+/** Kurzfassung für Mails. */
+export function pachtanzeigeKurz(kreis: string | null | undefined): string {
+  if (!kreis || KREISE_BRAKEL.has(kreis)) return "der Landwirtschaftskammer NRW an (§ 2 Landpachtverkehrsgesetz; für den Kreis Lippe die Kreisstellen Höxter, Lippe, Paderborn in Brakel)";
+  return `der zuständigen Kreisstelle der Landwirtschaftskammer NRW an (§ 2 Landpachtverkehrsgesetz; zuständig ist die Kreisstelle am Ort Ihrer Hofstelle, sonst am Ort der Flächen — hier ${kreis})`;
+}
+
+/** Genehmigungsstelle nach dem GrdstVG nach Lage des Grundstücks. */
+export function grdstvgStelle(kreis: string | null | undefined): string {
+  if (!kreis || KREISE_BRAKEL.has(kreis)) return GRDSTVG_STELLE;
+  return `die Geschäftsführung der Kreisstelle der Landwirtschaftskammer Nordrhein-Westfalen als Landesbeauftragte, in deren Bezirk das Grundstück liegt (hier: ${kreis})`;
+}
+
+/** Aus der Anfrage abgeleitete Angaben, die im Vertragstext stehen (bei Speichern und „Zur Unterschrift“ aufgefrischt). */
+function abgeleitet(ctx: Pick<VorgangKontext, "angebot">): { kreis: string | null; eigeneFlaeche: boolean } {
+  return { kreis: kreisDerFlaeche(ctx.angebot), eigeneFlaeche: istEigeneFlaeche(ctx.angebot, ctx.angebot.meta) };
+}
+
+/** Eigene Fläche des Geschäftsführers bzw. seiner Familie im Vorgang (Dennis 27.09.2026: offengelegt, ohne Provision). */
+export function vorgangEigeneFlaeche(ctx: Pick<VorgangKontext, "angebot">): boolean {
+  return istEigeneFlaeche(ctx.angebot, ctx.angebot.meta);
+}
+
+export type PachtSperre = { art: "fernabsatz" | "wald"; text: string };
+
+/**
+ * Wann der Online-Landpachtvertrag nicht ohne begründete Ausnahme passt (Review S3):
+ * – Verpächter Unternehmer, Pächter Verbraucher: Fernabsatzvertrag mit Widerrufsrecht des Pächters
+ *   (§§ 312c, 312g BGB) — die Vorlage enthält dafür keine Widerrufsbelehrung.
+ * – Wald: Die Vorlage ist ein Landpachtvertrag (§ 585 BGB); Forstflächen fallen nur darunter, wenn sie
+ *   zur Nutzung in einem überwiegend landwirtschaftlichen Betrieb verpachtet werden (§ 585 Abs. 3 BGB).
+ */
+export function pachtOnlineSperren(ctx: Pick<VorgangKontext, "anbieter" | "suchender" | "angebot">, d: M.PachtDaten | null): PachtSperre[] {
+  const out: PachtSperre[] = [];
+  if (ctx.anbieter?.stammdaten?.eigenschaft === "unternehmer" && ctx.suchender?.stammdaten?.eigenschaft === "verbraucher") {
+    out.push({ art: "fernabsatz", text: "Verpächter handelt als Unternehmer, Pächter als Verbraucher — online geschlossen wäre der Pachtvertrag ein Fernabsatzvertrag mit Widerrufsrecht des Pächters (§§ 312c, 312g BGB), die Vorlage enthält dafür keine Widerrufsbelehrung." });
+  }
+  const wald = /wald|forst|gehölz/i;
+  if (wald.test(ctx.angebot.typ) || wald.test(d?.nutzungsart ?? "") || (d?.flaechen ?? []).some((f) => wald.test(f.nutzung))) {
+    out.push({ art: "wald", text: "Wald bzw. Forstflächen — die Vorlage ist ein Landpachtvertrag für landwirtschaftliche Flächen; Forstflächen fallen nur darunter, wenn sie in einem überwiegend landwirtschaftlichen Betrieb genutzt werden (§ 585 Abs. 3 BGB)." });
+  }
+  return out;
+}
 
 export type VorgangKontext = {
   key: string;
@@ -264,6 +325,8 @@ export function pachtVorschlag(ctx: VorgangKontext): M.PachtDaten {
     wasserverband: "verpaechter",
     verpflichtungen: "",
     besonderes: "",
+    anzeigeKreis: abgeleitet(ctx).kreis,
+    eigeneFlaeche: abgeleitet(ctx).eigeneFlaeche,
   };
 }
 
@@ -303,13 +366,15 @@ export function pachtVorlagenDaten(key: string, d: M.PachtDaten): PachtvertragDa
     pachtzins: zins,
     jahrespacht: jp != null ? M.euro(jp) : "«noch offen»",
     staffel: staffel ? `${staffel} (übrige Pachtjahre wie oben)` : "",
+    einmalzahlung: d.einmalzahlung != null && d.einmalzahlung > 0 ? `${M.euro(d.einmalzahlung)}${d.umsatzsteuer === "zuzueglich" ? " zzgl. Umsatzsteuer" : ""}` : "",
     zahlweise: `${d.zahlweise === "halbjaehrlich" ? "in zwei gleichen Raten" : "jährlich"} ${d.faelligkeit || "nach Vereinbarung"}`.trim(),
     umsatzsteuer: d.umsatzsteuer,
     konto: d.iban ? `${d.kontoinhaber ? `${d.kontoinhaber}, ` : ""}IBAN ${d.iban}` : "",
     wasserverband: d.wasserverband,
     verpflichtungen: d.verpflichtungen,
     besonderes: d.besonderes,
-    anzeigeStelle: PACHTANZEIGE_STELLE,
+    anzeigeStelle: pachtanzeigeStelle(d.anzeigeKreis),
+    eigeneFlaeche: Boolean(d.eigeneFlaeche),
   };
 }
 
@@ -332,14 +397,18 @@ export function pachtLuecken(d: M.PachtDaten): string[] {
   return l;
 }
 
-export async function pachtSpeichern(key: string, art: M.Art, daten: M.PachtDaten, von: string): Promise<{ ok: boolean; fehler?: string }> {
+export async function pachtSpeichern(key: string, art: M.Art, eingabe: M.PachtDaten, von: string): Promise<{ ok: boolean; fehler?: string }> {
   let fehler = "";
+  const ctx = await ladeVorgangKontext(key);
+  const a = ctx ? abgeleitet(ctx) : null;
+  const daten: M.PachtDaten = a ? { ...eingabe, anzeigeKreis: a.kreis, eigeneFlaeche: a.eigeneFlaeche } : eingabe;
   await aendereVorgang(key, art, (x) => {
     if (x.pachtvertrag && x.pachtvertrag.status !== "entwurf" && x.pachtvertrag.status !== "verworfen") {
       fehler = "Der Pachtvertrag ist bereits zur Unterschrift freigegeben — erst „Zurück zum Entwurf“ wählen.";
       return false;
     }
     const neu = !x.pachtvertrag || x.pachtvertrag.status === "verworfen";
+    const ausnahme = neu ? undefined : x.pachtvertrag?.ausnahme;
     x.pachtvertrag = {
       status: "entwurf",
       daten,
@@ -347,6 +416,7 @@ export async function pachtSpeichern(key: string, art: M.Art, daten: M.PachtDate
       von,
       geaendertAm: jetzt(),
       unterschriften: {},
+      ...(ausnahme ? { ausnahme } : {}),
     };
     M.ereignis(x, von, "pacht-entwurf", neu ? "Pachtvertrag vorbereitet (Entwurf)" : "Pachtvertrag-Entwurf geändert");
   });
@@ -362,23 +432,54 @@ async function parteiWiderrufen(key: string): Promise<boolean> {
 }
 
 export async function pachtZurUnterschrift(key: string, von: string): Promise<{ ok: boolean; fehler?: string }> {
-  const [v, e] = await Promise.all([ladeVorgang(key), ladeEinstellungen()]);
-  if (!v?.pachtvertrag || v.pachtvertrag.status !== "entwurf") return { ok: false, fehler: "Kein Entwurf vorhanden." };
+  const [ctx, e] = await Promise.all([ladeVorgangKontext(key), ladeEinstellungen()]);
+  const v = ctx?.vorgang;
+  if (!ctx || !v?.pachtvertrag || v.pachtvertrag.status !== "entwurf") return { ok: false, fehler: "Kein Entwurf vorhanden." };
   if (!M.aktiveFreigabe(v)) return { ok: false, fehler: "Erst nach der Freigabe möglich." };
-  if (await parteiWiderrufen(key)) return { ok: false, fehler: WIDERRUFEN_FEHLER };
+  if (ctx.anbieter?.widerruf || ctx.suchender?.widerruf) return { ok: false, fehler: WIDERRUFEN_FEHLER };
   if (!istFreigegeben(e, "pachtvertrag")) return { ok: false, fehler: "Die Vorlage „Landpachtvertrag“ ist nicht freigegeben (Verwaltung → Vorlagen)." };
-  const luecken = pachtLuecken(v.pachtvertrag.daten);
+  const sperren = pachtOnlineSperren(ctx, v.pachtvertrag.daten);
+  if (sperren.length && !v.pachtvertrag.ausnahme) {
+    return {
+      ok: false,
+      fehler: `Online-Pachtvertrag gesperrt: ${sperren.map((x) => x.text).join(" ")} Den Vertrag außerhalb der Plattform schließen und über „Außerhalb geschlossen“ erfassen — oder im Vorgang (Abschnitt „Landpachtvertrag“) eine begründete Ausnahme vermerken.`,
+    };
+  }
+  // Aus der Anfrage abgeleitete Angaben (zuständige Stelle, eigene Fläche) mit dem Text festschreiben.
+  const a = abgeleitet(ctx);
+  const daten: M.PachtDaten = { ...v.pachtvertrag.daten, anzeigeKreis: a.kreis, eigeneFlaeche: a.eigeneFlaeche };
+  const luecken = pachtLuecken(daten);
   if (luecken.length) return { ok: false, fehler: `Es fehlen: ${luecken.join(", ")}.` };
-  const hash = pachtHash(key, v.pachtvertrag.daten);
+  const hash = pachtHash(key, daten);
   await aendereVorgang(key, v.art, (x) => {
     if (!x.pachtvertrag || x.pachtvertrag.status !== "entwurf") return false;
+    x.pachtvertrag.daten = daten;
     x.pachtvertrag.status = "zur_unterschrift";
     x.pachtvertrag.textHash = hash;
     x.pachtvertrag.unterschriften = {};
     x.pachtvertrag.geaendertAm = jetzt();
-    M.ereignis(x, von, "pacht-zur-unterschrift", "Pachtvertrag zur Unterschrift freigegeben — beide Seiten sehen ihn im Kundenbereich");
+    M.ereignis(x, von, "pacht-zur-unterschrift", `Pachtvertrag zur Unterschrift freigegeben — beide Seiten sehen ihn im Kundenbereich${x.pachtvertrag.ausnahme ? ` (Ausnahme: ${x.pachtvertrag.ausnahme.grund})` : ""}`);
   });
   return { ok: true };
+}
+
+/**
+ * Begründete Ausnahme für den Online-Pachtvertrag trotz Hinweis (Unternehmer ↔ Verbraucher, Wald) —
+ * nur im Entwurf, mit Begründung; steht im Verlauf des Vorgangs.
+ */
+export async function pachtAusnahmeSetzen(key: string, von: string, grund: string): Promise<{ ok: boolean; fehler?: string }> {
+  const g = grund.trim();
+  if (g.length < 10) return { ok: false, fehler: "Bitte die Ausnahme kurz begründen (mindestens 10 Zeichen), z. B. „Pächter ist überwiegend landwirtschaftlicher Betrieb (§ 585 Abs. 3 BGB)“." };
+  const v = await ladeVorgang(key);
+  if (!v?.pachtvertrag || v.pachtvertrag.status !== "entwurf") return { ok: false, fehler: "Nur im Entwurf möglich." };
+  let ok = false;
+  await aendereVorgang(key, v.art, (x) => {
+    if (!x.pachtvertrag || x.pachtvertrag.status !== "entwurf") return false;
+    x.pachtvertrag.ausnahme = { am: jetzt(), von, grund: g.slice(0, 300) };
+    M.ereignis(x, von, "pacht-ausnahme", `Online-Pachtvertrag trotz Hinweis zugelassen: ${g.slice(0, 300)}`);
+    ok = true;
+  });
+  return ok ? { ok: true } : { ok: false, fehler: "Nicht gespeichert — der Stand hat sich geändert." };
 }
 
 export async function pachtZurueck(key: string, von: string, verwerfen: boolean): Promise<void> {
@@ -490,30 +591,34 @@ export async function pachtAbschliessen(key: string, dokumentId: string): Promis
   });
   const bemessung = M.massgeblicheJahrespacht(pv.daten);
   const konditionen = ctx.suchender?.vertrag?.konditionen ?? null;
-  const provision = provisionNeu("pachtvertrag", "pacht", bemessung, konditionen, "faellig", "system", konditionen ? undefined : "Kein unterschriebener Nachweisvertrag des Suchenden gefunden — Anspruch prüfen.");
+  // Eigene Fläche des Geschäftsführers bzw. seiner Familie: offengelegt, keine Provision (Dennis 27.09.2026).
+  const eigen = pv.daten.eigeneFlaeche ?? vorgangEigeneFlaeche(ctx);
+  const provision = eigen ? null : provisionNeu("pachtvertrag", "pacht", bemessung, konditionen, "faellig", "system", konditionen ? undefined : "Kein unterschriebener Nachweisvertrag des Suchenden gefunden — Anspruch prüfen.");
   const e = await ladeEinstellungen();
   const gutschein = gutscheinNeu(e, ctx.suchender, "system");
   await aendereVorgang(key, ctx.art, (x) => {
     if (x.dokumente.some((d) => d.id === dokumentId)) return false;
     x.dokumente.unshift(meta);
-    x.provisionen.unshift(provision);
+    if (provision) x.provisionen.unshift(provision);
     if (gutschein && !x.gutschein) x.gutschein = gutschein;
     M.ereignis(x, "system", "pacht-abgeschlossen", "Pachtvertrag von beiden Seiten unterschrieben — abgeschlossen, PDF abgelegt");
-    M.ereignis(x, "system", "provision", `Provision fällig: ${M.euro(provision.netto)} netto / ${M.euro(provision.brutto)} brutto (Bemessung: Jahrespacht ${M.euro(bemessung)})`);
+    M.ereignis(x, "system", "provision", provision ? `Provision fällig: ${M.euro(provision.netto)} netto / ${M.euro(provision.brutto)} brutto (Bemessung: Jahrespacht ${M.euro(bemessung)})` : "Eigene Fläche des Geschäftsführers bzw. seiner Familie — keine Provision");
     if (gutschein && x.gutschein?.code === gutschein.code) M.ereignis(x, "system", "gutschein", `Treue-Gutschein ${gutschein.code} über ${M.euro(gutschein.betrag)} an den Pächter ausgegeben`);
   });
   await paarAendern("system", key, (m) => {
     m.status = "abschluss";
-    return "Pachtvertrag geschlossen — Provision erfasst";
+    return provision ? "Pachtvertrag geschlossen — Provision erfasst" : "Pachtvertrag geschlossen — eigene Fläche, keine Provision";
   });
   // Vergeben: das Angebot verschwindet aus der Flächenbörse.
   await boerseOfflineNehmen([ctx.angebot.id], "vergeben (Pachtvertrag geschlossen)", "system").catch((err) => console.error("[vorgang] Börse", err));
-  await abschlussMails(ctx, "pachtvertrag", { dateiname: meta.dateiname, inhalt: bytes }, gutschein);
-  await adminInfo(`Provision fällig: Pachtvertrag ${kundenName(ctx.anbieter, ctx.angebot)} ↔ ${kundenName(ctx.suchender, ctx.gesuch)}`, [
+  await abschlussMails(ctx, "pachtvertrag", { dateiname: meta.dateiname, inhalt: bytes }, gutschein, provision);
+  await adminInfo(provision ? `Provision fällig: Pachtvertrag ${kundenName(ctx.anbieter, ctx.angebot)} ↔ ${kundenName(ctx.suchender, ctx.gesuch)}` : `Pachtvertrag geschlossen (eigene Fläche, ohne Provision): ${kundenName(ctx.anbieter, ctx.angebot)} ↔ ${kundenName(ctx.suchender, ctx.gesuch)}`, [
     `Der Pachtvertrag im Vorgang ${key} ist von beiden Seiten unterschrieben.`,
     `Maßgebliche Jahrespacht: ${M.euro(bemessung)}`,
-    `Provision (Konditionen Nr. ${konditionen?.version ?? "?"}): ${M.euro(provision.netto)} netto, ${M.euro(provision.brutto)} brutto — Schuldner: Pächter ${kundenName(ctx.suchender, ctx.gesuch)}`,
-    "Rechnung bitte über die Buchhaltung stellen (hier wird keine Rechnungsnummer vergeben).",
+    provision
+      ? `Provision (Konditionen Nr. ${konditionen?.version ?? "?"}): ${M.euro(provision.netto)} netto, ${M.euro(provision.brutto)} brutto — Schuldner: Pächter ${kundenName(ctx.suchender, ctx.gesuch)}`
+      : "Eigene Fläche des Geschäftsführers bzw. seiner Familie — es entsteht keine Provision.",
+    ...(provision ? ["Rechnung bitte über die Buchhaltung stellen (hier wird keine Rechnungsnummer vergeben)."] : []),
     ...(gutschein ? [`Treue-Gutschein ${gutschein.code} (${M.euro(gutschein.betrag)}) an den Pächter ausgegeben.`] : []),
     "Erinnerung: Der Verpächter muss den Vertrag binnen eines Monats nach § 2 LPachtVG anzeigen.",
   ], dashboardLink(key));
@@ -536,6 +641,8 @@ export function kaufVorschlag(ctx: VorgangKontext): M.KaufDaten {
     bestehendePacht: "",
     notarWunsch: "",
     besonderes: "",
+    kreis: abgeleitet(ctx).kreis,
+    eigeneFlaeche: abgeleitet(ctx).eigeneFlaeche,
   };
 }
 
@@ -552,7 +659,8 @@ export function kaufVorlagenDaten(key: string, d: M.KaufDaten, konditionen: M.Ko
     notarWunsch: d.notarWunsch,
     besonderes: d.besonderes,
     provisionKaeufer: konditionen ? M.konditionenText("kauf", konditionen) : "laut Nachweisvertrag",
-    genehmigungStelle: GRDSTVG_STELLE,
+    genehmigungStelle: grdstvgStelle(d.kreis),
+    eigeneFlaeche: Boolean(d.eigeneFlaeche),
   };
 }
 
@@ -560,8 +668,11 @@ export function kaufDokument(key: string, d: M.KaufDaten, konditionen: M.Konditi
   return VORLAGEN.kaufabsicht.render(kaufVorlagenDaten(key, d, konditionen));
 }
 
-export async function kaufSpeichern(key: string, daten: M.KaufDaten, von: string): Promise<{ ok: boolean; fehler?: string }> {
+export async function kaufSpeichern(key: string, eingabe: M.KaufDaten, von: string): Promise<{ ok: boolean; fehler?: string }> {
   let fehler = "";
+  const ctx = await ladeVorgangKontext(key);
+  const a = ctx ? abgeleitet(ctx) : null;
+  const daten: M.KaufDaten = a ? { ...eingabe, kreis: a.kreis, eigeneFlaeche: a.eigeneFlaeche } : eingabe;
   await aendereVorgang(key, "kauf", (x) => {
     if (x.kauf && x.kauf.status !== "entwurf" && x.kauf.status !== "abgebrochen") {
       fehler = "Die Kaufabsicht liegt bereits zur Bestätigung vor — erst „Zurück zum Entwurf“ wählen.";
@@ -589,9 +700,12 @@ export async function kaufZurBestaetigung(key: string, von: string): Promise<{ o
   if (!M.aktiveFreigabe(ctx.vorgang)) return { ok: false, fehler: "Erst nach der Freigabe möglich." };
   if (ctx.anbieter?.widerruf || ctx.suchender?.widerruf) return { ok: false, fehler: WIDERRUFEN_FEHLER };
   if (!istFreigegeben(e, "kaufabsicht")) return { ok: false, fehler: "Die Vorlage „Kaufabsicht“ ist nicht freigegeben (Verwaltung → Vorlagen)." };
-  const hash = dokumentHash(kaufDokument(key, k.daten, ctx.suchender?.vertrag?.konditionen ?? null));
+  const a = abgeleitet(ctx);
+  const daten: M.KaufDaten = { ...k.daten, kreis: a.kreis, eigeneFlaeche: a.eigeneFlaeche };
+  const hash = dokumentHash(kaufDokument(key, daten, ctx.suchender?.vertrag?.konditionen ?? null));
   await aendereVorgang(key, "kauf", (x) => {
     if (!x.kauf || x.kauf.status !== "entwurf") return false;
+    x.kauf.daten = daten;
     x.kauf.status = "zur_bestaetigung";
     x.kauf.textHash = hash;
     x.kauf.bestaetigungen = {};
@@ -707,48 +821,92 @@ export async function kaufBeurkundet(
   key: string,
   von: string,
   daten: { datum: string; kaufpreis: number; genehmigung: "offen" | "nicht_noetig" | "beantragt" | "erteilt" },
-): Promise<{ ok: boolean; fehler?: string }> {
+): Promise<{ ok: boolean; fehler?: string; widerrufen?: boolean }> {
   const [ctx, e] = await Promise.all([ladeVorgangKontext(key), ladeEinstellungen()]);
   if (!ctx?.vorgang) return { ok: false, fehler: "Vorgang nicht gefunden" };
   // Wie bei externen Abschlüssen: Provision nur mit Nachweis über Lippe Forst (Freigabe, auch wenn später zurückgezogen).
   if (!ctx.vorgang.freigabe) return { ok: false, fehler: SPERRE_FREIGABE };
-  if (ctx.vorgang.provisionen.some((p) => p.grundlage === "kaufvertrag" && p.status !== "storniert")) return { ok: false, fehler: "Beurkundung ist bereits erfasst." };
+  if (ctx.vorgang.kauf?.notar?.beurkundetAm || ctx.vorgang.provisionen.some((p) => p.grundlage === "kaufvertrag" && p.status !== "storniert")) return { ok: false, fehler: "Beurkundung ist bereits erfasst." };
   const wirksam = daten.genehmigung === "nicht_noetig" || daten.genehmigung === "erteilt";
   const konditionen = ctx.suchender?.vertrag?.konditionen ?? null;
-  const provision = provisionNeu("kaufvertrag", "kauf", daten.kaufpreis, konditionen, wirksam ? "faellig" : "aufschiebend", von, konditionen ? undefined : "Kein unterschriebener Nachweisvertrag des Käufers gefunden — Anspruch prüfen.");
-  const gutschein = gutscheinNeu(e, ctx.suchender, von);
+  const eigen = ctx.vorgang.kauf?.daten.eigeneFlaeche ?? vorgangEigeneFlaeche(ctx);
+  // Hat der Käufer seinen Nachweisvertrag widerrufen, entsteht kein Anspruch aus dem Vertrag (allenfalls
+  // Wertersatz): nur vormerken, kein Gutschein, keine Abschluss-Mitteilungen (wie bei externen Abschlüssen).
+  const widerrufen = Boolean(ctx.suchender?.widerruf);
+  const provision = eigen
+    ? null
+    : widerrufen
+      ? provisionNeu("kaufvertrag", "kauf", daten.kaufpreis, konditionen, "aufschiebend", von, "Der Käufer hat seinen Nachweisvertrag widerrufen — Anspruch (ggf. Wertersatz) prüfen, nicht ungeprüft abrechnen.")
+      : provisionNeu("kaufvertrag", "kauf", daten.kaufpreis, konditionen, wirksam ? "faellig" : "aufschiebend", von, konditionen ? undefined : "Kein unterschriebener Nachweisvertrag des Käufers gefunden — Anspruch prüfen.");
+  const gutschein = widerrufen ? null : gutscheinNeu(e, ctx.suchender, von);
   await aendereVorgang(key, "kauf", (x) => {
     x.kauf ??= { status: "entwurf", daten: kaufVorschlag(ctx), erstelltAm: jetzt(), von, geaendertAm: jetzt(), bestaetigungen: {}, notar: {} };
     x.kauf.status = wirksam ? "wirksam" : "beurkundet";
     x.kauf.notar = { ...x.kauf.notar, beurkundetAm: daten.datum, kaufpreis: daten.kaufpreis, genehmigung: daten.genehmigung, ...(wirksam ? { wirksamAm: daten.datum } : {}) };
     x.kauf.geaendertAm = jetzt();
-    x.abschluss = { am: jetzt(), grundlage: "kaufvertrag" };
-    x.provisionen.unshift(provision);
+    // Nach einem Widerruf nur zur Prüfung festhalten — kein „Abschluss“ (Kundenbereich, Danke-Dialog, Bewertungsbitte bleiben aus).
+    if (!widerrufen) x.abschluss = { am: jetzt(), grundlage: "kaufvertrag" };
+    if (provision) x.provisionen.unshift(provision);
     if (gutschein && !x.gutschein) x.gutschein = gutschein;
     M.ereignis(x, von, "kauf-beurkundet", `Kaufvertrag beurkundet am ${T.tagDe(daten.datum)}, Kaufpreis ${M.euro(daten.kaufpreis)}${wirksam ? " — wirksam" : " — Genehmigung ausstehend"}`);
-    M.ereignis(x, von, "provision", `Provision ${wirksam ? "fällig" : "entstanden (aufschiebend bis zur Genehmigung)"}: ${M.euro(provision.netto)} netto / ${M.euro(provision.brutto)} brutto`);
+    M.ereignis(
+      x,
+      von,
+      "provision",
+      !provision
+        ? "Eigene Fläche des Geschäftsführers bzw. seiner Familie — keine Provision"
+        : widerrufen
+          ? `Provision vorgemerkt (Käufer hat widerrufen — prüfen): ${M.euro(provision.netto)} netto / ${M.euro(provision.brutto)} brutto`
+          : `Provision ${wirksam ? "fällig" : "entstanden (aufschiebend bis zur Genehmigung)"}: ${M.euro(provision.netto)} netto / ${M.euro(provision.brutto)} brutto`,
+    );
     if (gutschein && x.gutschein?.code === gutschein.code) M.ereignis(x, von, "gutschein", `Treue-Gutschein ${gutschein.code} über ${M.euro(gutschein.betrag)} an den Käufer ausgegeben`);
   });
-  await paarAendern(von, key, (m) => {
-    m.status = "abschluss";
-    return "Kaufvertrag beurkundet — Provision erfasst";
-  });
+  if (!widerrufen) {
+    await paarAendern(von, key, (m) => {
+      m.status = "abschluss";
+      return provision ? "Kaufvertrag beurkundet — Provision erfasst" : "Kaufvertrag beurkundet — eigene Fläche, keine Provision";
+    });
+  }
+  // Auch nach einem Widerruf ist die Fläche verkauft — sie verschwindet aus der Börse.
   await boerseOfflineNehmen([ctx.angebot.id], "vergeben (Kaufvertrag beurkundet)", von).catch((err) => console.error("[vorgang] Börse", err));
-  await abschlussMails(ctx, "kaufvertrag", null, gutschein);
-  await adminInfo(`${wirksam ? "Provision fällig" : "Provision entstanden (aufschiebend)"}: Kauf ${paarTitel(ctx, key)}`, [
-    `Kaufvertrag beurkundet am ${T.tagDe(daten.datum)}, Kaufpreis ${M.euro(daten.kaufpreis)}.`,
-    `Provision (Konditionen Nr. ${konditionen?.version ?? "?"}): ${M.euro(provision.netto)} netto, ${M.euro(provision.brutto)} brutto — Schuldner: Käufer.`,
-    wirksam ? "Rechnung bitte über die Buchhaltung stellen." : "Fällig erst mit Wirksamkeit (Genehmigung nach GrdstVG) — bitte dann im Dashboard „Kauf ist wirksam“ erfassen.",
-  ], dashboardLink(key));
-  return { ok: true };
+  if (!widerrufen) await abschlussMails(ctx, "kaufvertrag", null, gutschein, provision);
+  await adminInfo(
+    !provision
+      ? `Kaufvertrag beurkundet (eigene Fläche, ohne Provision): ${paarTitel(ctx, key)}`
+      : widerrufen
+        ? `Kauf beurkundet nach Widerruf des Käufers — Provision prüfen: ${paarTitel(ctx, key)}`
+        : `${wirksam ? "Provision fällig" : "Provision entstanden (aufschiebend)"}: Kauf ${paarTitel(ctx, key)}`,
+    [
+      `Kaufvertrag beurkundet am ${T.tagDe(daten.datum)}, Kaufpreis ${M.euro(daten.kaufpreis)}.`,
+      ...(provision
+        ? [
+            `Provision (Konditionen Nr. ${konditionen?.version ?? "?"}): ${M.euro(provision.netto)} netto, ${M.euro(provision.brutto)} brutto — Schuldner: Käufer.`,
+            widerrufen
+              ? "Der Käufer hat seinen Nachweisvertrag widerrufen — die Provision ist nur vorgemerkt. Anspruch (ggf. Wertersatz) prüfen, nicht ungeprüft abrechnen."
+              : wirksam
+                ? "Rechnung bitte über die Buchhaltung stellen."
+                : "Fällig erst mit Wirksamkeit (Genehmigung nach GrdstVG) — bitte dann im Dashboard „Kauf ist wirksam“ erfassen.",
+          ]
+        : ["Eigene Fläche des Geschäftsführers bzw. seiner Familie — es entsteht keine Provision."]),
+    ],
+    dashboardLink(key),
+  );
+  return { ok: true, widerrufen };
 }
 
 export async function kaufWirksam(key: string, von: string, datum: string): Promise<void> {
+  // Hat der Käufer widerrufen, bleibt eine vorgemerkte Provision zur Prüfung stehen (nicht automatisch fällig).
+  const gId = key.split("~")[1];
+  const widerrufen = Boolean((await ladeKunde(gId))?.widerruf);
   await aendereVorgang(key, "kauf", (x) => {
     if (!x.kauf) return false;
     x.kauf.status = "wirksam";
     x.kauf.notar = { ...x.kauf.notar, genehmigung: "erteilt", wirksamAm: datum };
     for (const p of x.provisionen) {
+      if (widerrufen && p.grundlage === "kaufvertrag" && p.status === "aufschiebend") {
+        p.verlauf.unshift({ am: jetzt(), von, was: `Kaufvertrag wirksam am ${T.tagDe(datum)} — bleibt vorgemerkt (Käufer hat widerrufen, Anspruch prüfen)` });
+        continue;
+      }
       if (p.grundlage === "kaufvertrag" && p.status === "aufschiebend") {
         p.status = "faellig";
         p.faelligAm = jetzt();
@@ -826,14 +984,17 @@ export async function externErfassen(
   // und unterschriebener Provisionsvereinbarung des Suchenden.
   if (!ctx) return { ok: false, fehler: "Vorgang nicht gefunden.", widerrufen: false };
   if (!ctx.vorgang?.freigabe) return { ok: false, fehler: SPERRE_FREIGABE, widerrufen: false };
-  if (!ctx.suchender?.vertrag) return { ok: false, fehler: "Der Suchende hat keine Provisionsvereinbarung unterschrieben — daraus entsteht kein Provisionsanspruch.", widerrufen: false };
+  const eigen = vorgangEigeneFlaeche(ctx);
+  if (!eigen && !ctx.suchender?.vertrag) return { ok: false, fehler: "Der Suchende hat keinen Nachweisvertrag unterschrieben — daraus entsteht kein Provisionsanspruch.", widerrufen: false };
   const konditionen = ctx?.suchender?.vertrag?.konditionen ?? null;
   // Hat der Suchende widerrufen, entsteht kein Provisionsanspruch aus dem Vertrag (allenfalls
   // Wertersatz): dann nur vormerken, keinen Gutschein ausgeben und keine Abschluss-Mails senden.
   const widerrufen = Boolean(ctx?.suchender?.widerruf);
-  const provision = widerrufen
-    ? provisionNeu("extern", art, daten.betrag, konditionen, "aufschiebend", von, "Der Suchende hat seinen Nachweisvertrag widerrufen — Anspruch (ggf. Wertersatz) prüfen, nicht ungeprüft abrechnen.")
-    : provisionNeu("extern", art, daten.betrag, konditionen, "faellig", von, konditionen ? "Außerhalb der Plattform geschlossen" : "Außerhalb geschlossen; kein unterschriebener Nachweisvertrag gefunden — Anspruch prüfen.");
+  const provision = eigen
+    ? null
+    : widerrufen
+      ? provisionNeu("extern", art, daten.betrag, konditionen, "aufschiebend", von, "Der Suchende hat seinen Nachweisvertrag widerrufen — Anspruch (ggf. Wertersatz) prüfen, nicht ungeprüft abrechnen.")
+      : provisionNeu("extern", art, daten.betrag, konditionen, "faellig", von, konditionen ? "Außerhalb der Plattform geschlossen" : "Außerhalb geschlossen; kein unterschriebener Nachweisvertrag gefunden — Anspruch prüfen.");
   const gutschein = widerrufen ? null : gutscheinNeu(e, ctx?.suchender ?? null, von);
   const ext: M.ExternerVertrag = {
     id: M.kurzId("EXT"),
@@ -845,31 +1006,31 @@ export async function externErfassen(
     notiz: daten.notiz,
     erfasstAm: jetzt(),
     von,
-    provisionId: provision.id,
+    provisionId: provision?.id ?? "",
   };
   await aendereVorgang(key, art, (x) => {
     x.externeVertraege.unshift(ext);
-    x.provisionen.unshift(provision);
+    if (provision) x.provisionen.unshift(provision);
     // Nach einem Widerruf wird der Vertrag nur zur Prüfung festgehalten — kein „Abschluss“
     // (sonst würden Kundenbereich, Danke-Dialog und Bewertungsbitte wieder aktiv).
     if (!widerrufen) x.abschluss ??= { am: jetzt(), grundlage: "extern" };
     if (gutschein && !x.gutschein) x.gutschein = gutschein;
     M.ereignis(x, von, "extern", `Außerhalb geschlossener ${art === "kauf" ? "Kaufvertrag" : "Pachtvertrag"} erfasst (${T.tagDe(daten.datum)}, Quelle: ${daten.quelle || "—"})`);
-    M.ereignis(x, von, "provision", `Provision ${widerrufen ? "vorgemerkt (Suchender hat widerrufen — prüfen)" : "fällig"}: ${M.euro(provision.netto)} netto / ${M.euro(provision.brutto)} brutto`);
+    M.ereignis(x, von, "provision", provision ? `Provision ${widerrufen ? "vorgemerkt (Suchender hat widerrufen — prüfen)" : "fällig"}: ${M.euro(provision.netto)} netto / ${M.euro(provision.brutto)} brutto` : "Eigene Fläche des Geschäftsführers bzw. seiner Familie — keine Provision");
     if (gutschein && x.gutschein?.code === gutschein.code) M.ereignis(x, von, "gutschein", `Treue-Gutschein ${gutschein.code} ausgegeben`);
   });
   if (!widerrufen) {
     await paarAendern(von, key, (m) => {
       m.status = "abschluss";
-      return "Außerhalb geschlossener Vertrag erfasst — Provision erfasst";
+      return provision ? "Außerhalb geschlossener Vertrag erfasst — Provision erfasst" : "Außerhalb geschlossener Vertrag erfasst — eigene Fläche, keine Provision";
     });
   }
   // Auch nach einem Widerruf ist die Fläche vergeben — sie verschwindet aus der Börse.
   await boerseOfflineNehmen([ctx.angebot.id], `vergeben (${art === "kauf" ? "Kaufvertrag" : "Pachtvertrag"} außerhalb geschlossen)`, von).catch((err) => console.error("[vorgang] Börse", err));
-  if (ctx && !widerrufen) await abschlussMails(ctx, "extern", null, gutschein);
-  await adminInfo(`${widerrufen ? "Externer Abschluss nach Widerruf — Provision prüfen" : "Provision fällig (externer Abschluss)"}: ${paarTitel(ctx, key)}`, [
+  if (ctx && !widerrufen) await abschlussMails(ctx, "extern", null, gutschein, provision);
+  await adminInfo(`${!provision ? "Externer Abschluss (eigene Fläche, ohne Provision)" : widerrufen ? "Externer Abschluss nach Widerruf — Provision prüfen" : "Provision fällig (externer Abschluss)"}: ${paarTitel(ctx, key)}`, [
     `Erfasst durch ${von}: ${art === "kauf" ? "Kaufvertrag" : "Pachtvertrag"} vom ${T.tagDe(daten.datum)}${daten.flaecheHa ? `, ${T.haText(daten.flaecheHa)}` : ""}.`,
-    `Bemessung: ${M.euro(daten.betrag)} → Provision ${M.euro(provision.netto)} netto / ${M.euro(provision.brutto)} brutto.`,
+    provision ? `Bemessung: ${M.euro(daten.betrag)} → Provision ${M.euro(provision.netto)} netto / ${M.euro(provision.brutto)} brutto.` : "Eigene Fläche des Geschäftsführers bzw. seiner Familie — es entsteht keine Provision.",
   ], dashboardLink(key));
   return { ok: true, widerrufen };
 }
@@ -958,7 +1119,7 @@ export async function kundenMeldung(key: string, art: M.Art, rolle: M.Rolle, typ
 // ---------------------------------------------------------------------------
 // Mails nach dem Abschluss (Vertrag als PDF, Gutschein getrennt, KEINE Bewertungsbitte)
 
-async function abschlussMails(ctx: VorgangKontext, grundlage: "pachtvertrag" | "kaufvertrag" | "extern", pdf: Anhang | null, gutschein: M.Gutschein | null): Promise<void> {
+async function abschlussMails(ctx: VorgangKontext, grundlage: "pachtvertrag" | "kaufvertrag" | "extern", pdf: Anhang | null, gutschein: M.Gutschein | null, provision: M.Provision | null): Promise<void> {
   const parteien: { k: M.KundeRecord | null; l: LeadView; rolle: M.Rolle }[] = [
     { k: ctx.anbieter, l: ctx.angebot, rolle: "anbieter" },
     { k: ctx.suchender, l: ctx.gesuch, rolle: "suchender" },
@@ -977,8 +1138,10 @@ async function abschlussMails(ctx: VorgangKontext, grundlage: "pachtvertrag" | "
       "der Landpachtvertrag ist von beiden Seiten online unterschrieben und damit geschlossen. Im Anhang finden Sie den vollständigen Vertrag als PDF mit dem Unterschriftsprotokoll beider Parteien; im Kundenbereich ist er ebenfalls abrufbar.",
       "",
       rolle === "anbieter"
-        ? "Bitte denken Sie daran: Als Verpächter zeigen Sie den Vertrag binnen eines Monats der Landwirtschaftskammer NRW an (§ 2 Landpachtverkehrsgesetz; für den Kreis Lippe die Kreisstellen Höxter, Lippe, Paderborn in Brakel). Verträge über Flächen bis 1 ha sind ausgenommen."
-        : "Die Provision für unseren Nachweis stellen wir Ihnen gesondert in Rechnung.",
+        ? `Bitte denken Sie daran: Als Verpächter zeigen Sie den Vertrag binnen eines Monats ${pachtanzeigeKurz(ctx.vorgang?.pachtvertrag?.daten.anzeigeKreis ?? kreisDerFlaeche(ctx.angebot))}. Verträge über Flächen bis 1 ha sind in Nordrhein-Westfalen ausgenommen.`
+        : provision
+          ? `Die Provision für unseren Nachweis beträgt ${M.euro(provision.netto)} zzgl. ${provision.ustProzent} % Umsatzsteuer = ${M.euro(provision.brutto)}${provision.bemessung != null ? ` (Bemessung: Jahrespacht ${M.euro(provision.bemessung)})` : ""}. Wir stellen sie Ihnen gesondert in Rechnung; zahlbar ${M.ZAHLUNGSZIEL_TAGE} Tage nach Zugang der Rechnung.`
+          : "Für diesen Vertrag fällt keine Provision an — die Fläche gehört dem Geschäftsführer von Lippe Forst bzw. seiner Familie.",
     ];
     if (rolle === "suchender" && gutschein) {
       zeilen.push("", `Als Dankeschön für Ihren Abschluss erhalten Sie einen Treue-Gutschein über ${M.euro(gutschein.betrag)} für Ihr nächstes Geschäft mit Lippe Forst: Code ${gutschein.code}.`, gutscheinBedingungen(gutschein));

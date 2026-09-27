@@ -10,7 +10,7 @@ import * as M from "./model";
 import { SPERRE_UNTERSCHRIFT, beideUnterschrieben } from "./schritte";
 import * as T from "./texte";
 import { antwortToken } from "./token";
-import { PACHTANZEIGE_STELLE, bewertungFaellig, bewertungsText } from "./vorgang";
+import { bewertungFaellig, bewertungsText, kreisDerFlaeche, pachtanzeigeStelle } from "./vorgang";
 
 // Fertige E-Mail-Entwürfe für jeden sinnvollen Schritt. Die Verwaltung kann
 // Betreff und Text vor dem Senden ändern und hat drei Wege: „Senden“ (über
@@ -458,6 +458,21 @@ export function entwuerfePaar(opts: {
   const frei = M.aktiveFreigabe(vorgang);
   if (frei) {
     const eckdaten = `${formatGroesse(angebot.groesseWert)} ${angebot.typ === "Wiese / Grünland" ? "Grünland" : angebot.typ} im Raum ${lageA || "Lippe"}`;
+    const eigen = istEigeneFlaeche(angebot, angebot.meta);
+    // Wald: Die Online-Vorlage ist ein Landpachtvertrag für landwirtschaftliche Flächen (§ 585 BGB).
+    const wald = /wald|forst/i.test(angebot.typ);
+    const k = suchender?.vertrag?.konditionen ?? null;
+    const provisionSatz = eigen
+      ? "Für diese Fläche fällt keine Provision an: Sie gehört dem Geschäftsführer von Lippe Forst bzw. seiner Familie."
+      : k
+        ? `Zur Provision laut Ihrem Nachweisvertrag: Kommt ein ${art === "kauf" ? "Kaufvertrag" : "Pachtvertrag"} zustande, beträgt sie ${M.konditionenText(art, k)} — zusammen ${M.bruttoText(art, k)}. Wir stellen sie nach dem ${art === "kauf" ? "Wirksamwerden des Kaufvertrags" : "Vertragsschluss"} in Rechnung; zahlbar ${M.ZAHLUNGSZIEL_TAGE} Tage nach Zugang der Rechnung. Kommt kein Vertrag zustande, zahlen Sie nichts.`
+        : "";
+    const abschlussSatz =
+      art === "kauf"
+        ? "Wenn Sie sich einig werden, bereiten Sie den Kauf über den Notar vor — auf Wunsch fassen wir die Eckdaten vorher für den Notar zusammen."
+        : wald
+          ? "Wenn Sie sich einig werden, schließen Sie den Pachtvertrag bitte direkt miteinander (unsere Online-Vorlage ist ein Landpachtvertrag für landwirtschaftliche Flächen und passt für Wald in der Regel nicht)."
+          : "Wenn Sie sich einig werden, können Sie den Pachtvertrag auf Wunsch online über Lippe Forst abschließen.";
     for (const seite of [
       { k: suchender, l: gesuch, an: anS, rolle: "suchender" as const },
       { k: anbieter, l: angebot, an: anA, rolle: "anbieter" as const },
@@ -483,7 +498,8 @@ export function entwuerfePaar(opts: {
           `Direkt zum Kundenbereich (der Link ist 14 Tage gültig und funktioniert einmal; danach melden Sie sich einfach mit Ihrer E-Mail-Adresse an):`,
           zugang,
           "",
-          `Bitte nehmen Sie direkt miteinander Kontakt auf. Wenn Sie sich einig werden, können Sie den ${art === "kauf" ? "Kauf über den Notar vorbereiten" : "Pachtvertrag auf Wunsch online über Lippe Forst abschließen"}.${seite.rolle === "suchender" ? " Bitte melden Sie uns einen Vertragsschluss kurz im Kundenbereich („Vertragsschluss melden“)." : ""}`,
+          `Bitte nehmen Sie direkt miteinander Kontakt auf. ${abschlussSatz}${seite.rolle === "suchender" ? " Bitte melden Sie uns einen Vertragsschluss kurz im Kundenbereich („Vertragsschluss melden“)." : " Kommt ein Vertrag zustande, teilen Sie uns das bitte kurz mit — Kosten entstehen Ihnen dadurch nicht."}`,
+          ...(seite.rolle === "suchender" && provisionSatz ? ["", provisionSatz] : []),
           "",
           GRUSS,
         ].join("\n"),
@@ -546,7 +562,7 @@ export function entwuerfePaar(opts: {
       text: [
         anrede(name(anbieter, angebot)),
         "",
-        `der Pachtvertrag vom ${T.datumDe(pv.abgeschlossenAm)} ist nach § 2 Landpachtverkehrsgesetz binnen eines Monats nach Abschluss anzuzeigen — zuständig ist ${PACHTANZEIGE_STELLE}. Die Anzeige ist Sache des Verpächters; den Vertrag als PDF finden Sie in Ihrem Kundenbereich.`,
+        `der Pachtvertrag vom ${T.datumDe(pv.abgeschlossenAm)} ist nach § 2 Landpachtverkehrsgesetz binnen eines Monats nach Abschluss anzuzeigen — zuständig ist ${pachtanzeigeStelle(pv.daten.anzeigeKreis ?? kreisDerFlaeche(angebot))}. Die Anzeige ist Sache des Verpächters; den Vertrag als PDF finden Sie in Ihrem Kundenbereich. Verträge über Flächen bis 1 ha sind in Nordrhein-Westfalen von der Anzeigepflicht ausgenommen.`,
         "",
         "Ist die Anzeige schon erledigt, betrachten Sie diese E-Mail bitte als gegenstandslos.",
         "",

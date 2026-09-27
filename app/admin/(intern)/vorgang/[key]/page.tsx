@@ -18,7 +18,9 @@ import {
   ladeVorgangKontext,
   pachtDokument,
   pachtLuecken,
+  pachtOnlineSperren,
   pachtVorschlag,
+  vorgangEigeneFlaeche,
   type VorgangKontext,
 } from "@/lib/portal/vorgang";
 import { istFreigegeben } from "@/lib/vertraege/vorlagen";
@@ -40,6 +42,7 @@ import {
   kaufZurBestaetigungAktion,
   kaufZurueckAktion,
   pachtAnzeigeAktion,
+  pachtAusnahmeAktion,
   pachtReparierenAktion,
   pachtSpeichernAktion,
   pachtZurUnterschriftAktion,
@@ -86,17 +89,49 @@ function PachtPanel({ ctx, portal, zurueck, vorschau }: { ctx: VorgangKontext; p
   const mp = M.massgeblicheJahrespacht(daten);
   const konditionen = ctx.suchender?.vertrag?.konditionen ?? null;
   const prov = M.provisionBerechnen("pacht", mp, konditionen ?? M.aktuelleKonditionen(portal.einstellungen));
-  const warnFernabsatz = ctx.anbieter?.stammdaten?.eigenschaft === "unternehmer" && ctx.suchender?.stammdaten?.eigenschaft === "verbraucher";
+  // Review S3: Unternehmer-Verpächter ↔ Verbraucher-Pächter und Wald sperren „Zur Unterschrift“ bis zur begründeten Ausnahme.
+  const sperren = pachtOnlineSperren(ctx, daten);
+  const ausnahme = pv?.status !== "verworfen" ? pv?.ausnahme : undefined;
+  const gesperrt = sperren.length > 0 && !ausnahme;
+  const eigen = vorgangEigeneFlaeche(ctx);
 
   return (
     <section className="lfa-panel" id="pachtvertrag">
       <h2 className="lfa-h2">Landpachtvertrag</h2>
       {!frei && <p className="lfa-hinweis">Den Pachtvertrag können Sie vorbereiten; zur Unterschrift geht er erst nach der Freigabe.</p>}
       {!vorlageFrei && <p className="lfa-hinweis lfa-hinweis-fehler">Die Vorlage „Landpachtvertrag“ ist noch nicht freigegeben (Verwaltung → Vorlagen).</p>}
-      {warnFernabsatz && (
-        <p className="lfa-hinweis lfa-hinweis-fehler" title="Verbraucherverträge im Fernabsatz: Widerrufsrecht des Pächters möglich (§§ 312c, 312g BGB)">
-          Achtung: Verpächter handelt als Unternehmer, Pächter als Verbraucher. Dann kann der Pächter den online geschlossenen Pachtvertrag ggf. widerrufen (Fernabsatz). Vor der Unterschrift anwaltlich klären oder den Vertrag außerhalb der Plattform schließen.
+      {eigen && (
+        <p className="lfa-hinweis" title="Dennis 27.09.2026: eigene Flächen offenlegen und ohne Provision anbieten">
+          Eigene Fläche (Geschäftsführer bzw. Familie) — der Vertragstext legt das offen, es entsteht keine Provision.
         </p>
+      )}
+      {sperren.length > 0 && (
+        <div className={`lfa-hinweis ${ausnahme ? "" : "lfa-hinweis-fehler"}`} role="note">
+          <strong>{ausnahme ? "Online-Pachtvertrag mit begründeter Ausnahme:" : "Online-Pachtvertrag gesperrt:"}</strong>
+          <ul className="lfa-assistent-liste" style={{ margin: "0.3rem 0" }}>
+            {sperren.map((x) => (
+              <li key={x.art}>{x.text}</li>
+            ))}
+          </ul>
+          {ausnahme ? (
+            <span className="lfa-klein">
+              Ausnahme vermerkt von {ausnahme.von} am {datumZeit(ausnahme.am)}: „{ausnahme.grund}“
+            </span>
+          ) : (
+            <span className="lfa-klein">
+              Den Vertrag außerhalb der Plattform schließen und unter „Außerhalb geschlossen“ erfassen — oder, wenn die Vorlage trotzdem passt (z. B. Pächter ist überwiegend landwirtschaftlicher Betrieb, § 585 Abs. 3 BGB; Fernabsatz anwaltlich geklärt), unten eine begründete Ausnahme vermerken.
+            </span>
+          )}
+          {!ausnahme && pv?.status === "entwurf" && (
+            <form action={pachtAusnahmeAktion} className="lfa-knopfreihe" style={{ marginTop: "0.5rem" }}>
+              <Hidden ctx={ctx} zurueck={zurueck} />
+              <input name="grund" required minLength={10} maxLength={300} className="field-input" style={{ flex: "1 1 18rem" }} placeholder="Begründung der Ausnahme" title="Warum die Online-Vorlage hier trotzdem passt — steht im Verlauf des Vorgangs" />
+              <BestaetigenKnopf className="lfa-knopf lfa-knopf-hell lfa-knopf-klein" frage="Ausnahme vermerken und den Online-Pachtvertrag für diesen Vorgang zulassen?" tipp="Vermerkt die Begründung im Vorgang; danach ist „Zur Unterschrift“ möglich. Es geht keine Mail raus.">
+                Ausnahme vermerken
+              </BestaetigenKnopf>
+            </form>
+          )}
+        </div>
       )}
       <p className="lfa-klein" style={{ marginBottom: "0.5rem" }}>
         Stand: <strong>{pv ? { entwurf: "Entwurf", zur_unterschrift: "liegt zur Unterschrift vor", abgeschlossen: "abgeschlossen", verworfen: "verworfen" }[pv.status] : "noch nicht vorbereitet"}</strong>
@@ -105,7 +140,7 @@ function PachtPanel({ ctx, portal, zurueck, vorschau }: { ctx: VorgangKontext; p
       </p>
       <p className="lfa-klein" style={{ marginBottom: "0.75rem" }}>
         Volle Jahrespacht: <strong>{M.euro(jp)}</strong> · maßgeblich für die Provision: <strong>{M.euro(mp)}</strong>
-        {daten.staffel.length ? " (Durchschnitt der ersten fünf Pachtjahre wegen Staffel)" : ""} · Provision {konditionen ? `nach Vertrag des Suchenden (Konditionen Nr. ${konditionen.version})` : "(Vorschau mit aktuellen Konditionen — Suchender hat noch nicht unterschrieben)"}: <strong>{M.euro(prov.netto)} netto / {M.euro(prov.brutto)} brutto</strong>
+        {daten.staffel.length || daten.einmalzahlung ? " (Durchschnitt der ersten fünf Pachtjahre wegen Staffel bzw. Einmalzahlung)" : ""} · Provision {konditionen ? `nach Vertrag des Suchenden (Konditionen Nr. ${konditionen.version})` : "(Vorschau mit aktuellen Konditionen — Suchender hat noch nicht unterschrieben)"}: <strong>{M.euro(prov.netto)} netto / {M.euro(prov.brutto)} brutto</strong>
       </p>
 
       {pv?.status === "zur_unterschrift" && (
@@ -220,6 +255,10 @@ function PachtPanel({ ctx, portal, zurueck, vorschau }: { ctx: VorgangKontext; p
             <span className="field-label">oder fester Betrag je Pachtjahr (€)</span>
             <input name="pachtzinsJahr" inputMode="decimal" defaultValue={zahl(daten.pachtzinsJahr)} className="field-input" placeholder="leer = €/ha × Fläche" title="Volle Jahrespacht (netto) für ein ganzes Pachtjahr — auch bei halbjährlicher Zahlung der Jahresbetrag" />
           </label>
+          <label>
+            <span className="field-label">Einmalzahlung (optional, €)</span>
+            <input name="einmalzahlung" inputMode="decimal" defaultValue={zahl(daten.einmalzahlung)} className="field-input" placeholder="z. B. 1500" title="Einmalige Zahlung des Pächters an den Verpächter für die Überlassung (Einstands- oder Abstandszahlung, netto) — steht im Vertrag und zählt für die Provision verteilt auf die ersten fünf Pachtjahre" />
+          </label>
           <label className="lfa-breit">
             <span className="field-label">Staffel (optional)</span>
             <textarea
@@ -286,9 +325,9 @@ function PachtPanel({ ctx, portal, zurueck, vorschau }: { ctx: VorgangKontext; p
           <Hidden ctx={ctx} zurueck={zurueck} />
           <BestaetigenKnopf
             className="lfa-knopf lfa-knopf-hell lfa-knopf-klein"
-            disabled={!frei || !vorlageFrei || luecken.length > 0}
+            disabled={!frei || !vorlageFrei || luecken.length > 0 || gesperrt}
             frage="Pachtvertrag jetzt beiden Seiten zur Unterschrift vorlegen — ohne Mitteilung? Danach ist der Text gesperrt (Änderungen nur über „Zurück zum Entwurf“)."
-            tipp={!frei ? "Erst nach der Freigabe" : !vorlageFrei ? "Vorlage erst freigeben" : luecken.length ? `Es fehlen: ${luecken.join(", ")}` : "Sperrt den Text und zeigt den Vertrag beiden im Kundenbereich zur Unterschrift — ohne Mail. Mit Mitteilung an beide: oben im Assistenten."}
+            tipp={!frei ? "Erst nach der Freigabe" : !vorlageFrei ? "Vorlage erst freigeben" : luecken.length ? `Es fehlen: ${luecken.join(", ")}` : gesperrt ? "Gesperrt: erst außerhalb schließen oder eine begründete Ausnahme vermerken (oben)" : "Sperrt den Text und zeigt den Vertrag beiden im Kundenbereich zur Unterschrift — ohne Mail. Mit Mitteilung an beide: oben im Assistenten."}
           >
             Zur Unterschrift freigeben (ohne Mitteilung)
           </BestaetigenKnopf>

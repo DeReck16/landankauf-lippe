@@ -42,17 +42,21 @@ function render(d: PachtvertragDaten) {
         ]),
   );
 
+  // Absätze fortlaufend nummerieren (Staffel und Einmalzahlung sind optional).
+  let abs = 0;
+  const nr = () => `(${++abs})`;
   b.push(
     para("Pachtzins"),
-    p(`(1) Der Pachtzins beträgt ${d.pachtzins}. Die volle Jahrespacht beträgt damit ${d.jahrespacht}.`),
-    ...(d.staffel ? [p(`(2) Abweichend davon gilt folgende Staffel: ${d.staffel}`)] : []),
-    p(`(${d.staffel ? 3 : 2}) Der Pachtzins ist ${d.zahlweise} zu zahlen${d.konto ? ` auf das Konto ${d.konto}` : ""}. Für die Rechtzeitigkeit kommt es auf den Zahlungseingang an.`),
+    p(`${nr()} Der Pachtzins beträgt ${d.pachtzins}. Die volle Jahrespacht beträgt damit ${d.jahrespacht}.`),
+    ...(d.staffel ? [p(`${nr()} Abweichend davon gilt folgende Staffel: ${d.staffel}`)] : []),
+    ...(d.einmalzahlung ? [p(`${nr()} Zusätzlich zahlt der Pächter dem Verpächter für die Überlassung einmalig ${d.einmalzahlung}, fällig bei Pachtbeginn, soweit unter „Besondere Vereinbarungen“ nichts anderes geregelt ist.`)] : []),
+    p(`${nr()} Der Pachtzins ist ${d.zahlweise} zu zahlen${d.konto ? ` auf das Konto ${d.konto}` : ""}. Für die Rechtzeitigkeit kommt es auf den Zahlungseingang an.`),
     p(
       d.umsatzsteuer === "zuzueglich"
-        ? `(${d.staffel ? 4 : 3}) Der Verpächter hat für die Verpachtung zur Umsatzsteuer optiert. Zum Pachtzins kommt die gesetzliche Umsatzsteuer hinzu; der Verpächter erteilt hierüber eine Rechnung.`
-        : `(${d.staffel ? 4 : 3}) Die Parteien gehen davon aus, dass die Verpachtung nicht der Umsatzsteuer unterliegt; der Pachtzins enthält keine Umsatzsteuer.`,
+        ? `${nr()} Der Verpächter hat für die Verpachtung zur Umsatzsteuer optiert. Zum Pachtzins kommt die gesetzliche Umsatzsteuer hinzu; der Verpächter erteilt hierüber eine Rechnung.`
+        : `${nr()} Die Parteien gehen davon aus, dass die Verpachtung nicht der Umsatzsteuer unterliegt; der Pachtzins enthält keine Umsatzsteuer.`,
     ),
-    p(`(${d.staffel ? 5 : 4}) Eine Anpassung des Pachtzinses richtet sich nach § 593 BGB.`),
+    p(`${nr()} Eine Anpassung des Pachtzinses richtet sich nach § 593 BGB.`),
   );
 
   b.push(
@@ -105,9 +109,17 @@ function render(d: PachtvertragDaten) {
   );
 
   b.push(
-    para("Nachweis durch Lippe Forst"),
-    p(`(1) Dieser Vertrag kam durch den Nachweis von ${FIRMA.name} („${FIRMA.marke}“) zustande. ${FIRMA.marke} ist nicht Vertragspartei; die Rechte und Pflichten aus diesem Vertrag bestehen allein zwischen Verpächter und Pächter. Die Vertragsvorlage wurde als Formular bereitgestellt und mit den Angaben der Parteien ausgefüllt; eine rechtliche oder steuerliche Beratung im Einzelfall hat ${FIRMA.marke} nicht erbracht.`),
-    p(`(2) Eine Provision schuldet ausschließlich der Pächter aufgrund seines gesonderten Vertrags mit ${FIRMA.marke}; der Verpächter schuldet keine Provision.`),
+    para(d.eigeneFlaeche ? "Anbahnung über Lippe Forst, eigene Fläche" : "Nachweis durch Lippe Forst"),
+    p(
+      d.eigeneFlaeche
+        ? `(1) Dieser Vertrag wurde über ${FIRMA.name} („${FIRMA.marke}“) angebahnt. Die Pachtsache gehört dem Geschäftsführer der ${FIRMA.name} bzw. seiner Familie („eigene Fläche“); das wurde dem Pächter vor Vertragsschluss offengelegt. ${FIRMA.marke} ist nicht Vertragspartei; die Rechte und Pflichten aus diesem Vertrag bestehen allein zwischen Verpächter und Pächter. Die Vertragsvorlage wurde als Formular bereitgestellt und mit den Angaben der Parteien ausgefüllt; eine rechtliche oder steuerliche Beratung im Einzelfall hat ${FIRMA.marke} nicht erbracht.`
+        : `(1) Dieser Vertrag kam durch den Nachweis von ${FIRMA.name} („${FIRMA.marke}“) zustande. ${FIRMA.marke} ist nicht Vertragspartei; die Rechte und Pflichten aus diesem Vertrag bestehen allein zwischen Verpächter und Pächter. Die Vertragsvorlage wurde als Formular bereitgestellt und mit den Angaben der Parteien ausgefüllt; eine rechtliche oder steuerliche Beratung im Einzelfall hat ${FIRMA.marke} nicht erbracht.`,
+    ),
+    p(
+      d.eigeneFlaeche
+        ? `(2) Für diesen Vertrag schuldet keine Partei ${FIRMA.marke} eine Provision.`
+        : `(2) Eine Provision schuldet ausschließlich der Pächter aufgrund seines gesonderten Vertrags mit ${FIRMA.marke}; der Verpächter schuldet keine Provision.`,
+    ),
     p("(3) Handelt der Verpächter nicht als Unternehmer, finden die besonderen Vorschriften über Verbraucherverträge (etwa ein Widerrufsrecht) auf diesen Pachtvertrag keine Anwendung."),
   );
 
@@ -136,7 +148,7 @@ function render(d: PachtvertragDaten) {
 
 const P = (s: string) => `«${s}»`;
 
-function platzhalter(befristet: boolean, umsatzsteuer: "ohne" | "zuzueglich", wasserverband: "verpaechter" | "paechter", staffel: boolean): PachtvertragDaten {
+function platzhalter(befristet: boolean, umsatzsteuer: "ohne" | "zuzueglich", wasserverband: "verpaechter" | "paechter", staffel: boolean, eigeneFlaeche = false): PachtvertragDaten {
   return {
     vorgang: P("Vorgang"),
     verpaechter: { name: P("Name Verpächter"), anschrift: P("Anschrift Verpächter") },
@@ -152,6 +164,7 @@ function platzhalter(befristet: boolean, umsatzsteuer: "ohne" | "zuzueglich", wa
     pachtzins: P("Pachtzins je ha und gesamt"),
     jahrespacht: P("Jahrespacht"),
     staffel: staffel ? P("Staffel") : "",
+    einmalzahlung: staffel ? P("Einmalzahlung") : "",
     zahlweise: P("Zahlweise und Fälligkeit"),
     umsatzsteuer,
     konto: P("Konto"),
@@ -159,19 +172,21 @@ function platzhalter(befristet: boolean, umsatzsteuer: "ohne" | "zuzueglich", wa
     verpflichtungen: P("bestehende Verpflichtungen"),
     besonderes: P("Besondere Vereinbarungen"),
     anzeigeStelle: P("zuständige Behörde"),
+    eigeneFlaeche,
   };
 }
 
 export const PACHTVERTRAG: Vorlage<PachtvertragDaten> = {
   id: "pachtvertrag",
-  version: "2026-09-24",
+  version: "2026-09-27",
   titel: "Landpachtvertrag",
-  beschreibung: "Vollständiger Landpachtvertrag zwischen Anbieter (Verpächter) und Suchendem (Pächter), online in Textform unterschrieben.",
+  beschreibung: "Vollständiger Landpachtvertrag zwischen Anbieter (Verpächter) und Suchendem (Pächter), online in Textform unterschrieben — nur für landwirtschaftliche Flächen (nicht für reinen Wald); Variante „eigene Fläche“ ohne Provision.",
   render,
   varianten: [
     { name: "befristet, ohne USt, Wasserverband Verpächter", daten: platzhalter(true, "ohne", "verpaechter", false) },
     { name: "befristet, mit Staffel, USt-Option, Wasserverband Pächter", daten: platzhalter(true, "zuzueglich", "paechter", true) },
     { name: "unbefristet, ohne USt, Wasserverband Verpächter", daten: platzhalter(false, "ohne", "verpaechter", false) },
     { name: "unbefristet, mit Staffel, USt-Option, Wasserverband Pächter", daten: platzhalter(false, "zuzueglich", "paechter", true) },
+    { name: "eigene Fläche (ohne Provision), befristet, ohne USt", daten: platzhalter(true, "ohne", "verpaechter", false, true) },
   ],
 };

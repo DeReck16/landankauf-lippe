@@ -39,6 +39,28 @@ export type PdfMeta = { dokumentId: string; kurztitel: string; fusszeile: string
 
 type Schriften = { normal: PDFFont; fett: PDFFont; kursiv: PDFFont };
 
+/** Buchstaben ohne Zerlegung in Grundbuchstabe + Akzent (NFD hilft hier nicht). */
+const BUCHSTABEN: Record<string, string> = { ł: "l", Ł: "L", đ: "d", Đ: "D", ı: "i", ħ: "h", Ħ: "H", ŧ: "t", Ŧ: "T", ŋ: "n", Ŋ: "N", ĸ: "k", ſ: "s" };
+
+/**
+ * Zeichen außerhalb von WinAnsi lesbar ersetzen statt „?“ — wichtig für Namen im Vertrag und im
+ * Unterschriftsprotokoll (z. B. „Łukasz Dvořák“ → „Lukasz Dvorak“): erst feste Ersetzungen, dann
+ * Akzente abtrennen (NFD) und nur den Grundbuchstaben behalten.
+ */
+function umschreiben(font: PDFFont, ch: string): string {
+  if (ch in BUCHSTABEN) return BUCHSTABEN[ch];
+  const basis = ch.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  if (basis && basis !== ch) {
+    try {
+      font.encodeText(basis);
+      return basis;
+    } catch {
+      /* weiter unten „?“ */
+    }
+  }
+  return "?";
+}
+
 function saeubererText(font: PDFFont, cache: Map<string, string>, text: string): string {
   let out = "";
   for (const ch of text) {
@@ -50,7 +72,7 @@ function saeubererText(font: PDFFont, cache: Map<string, string>, text: string):
           font.encodeText(ch);
           ersetzt = ch;
         } catch {
-          ersetzt = "?";
+          ersetzt = umschreiben(font, ch);
         }
       }
       cache.set(ch, ersetzt);

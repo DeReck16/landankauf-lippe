@@ -57,6 +57,8 @@ export type PachtvertragDaten = {
   pachtzins: string;
   jahrespacht: string;
   staffel: string;
+  /** Einmalige Zahlung des Pächters (formatiert) oder "" */
+  einmalzahlung: string;
   zahlweise: string;
   umsatzsteuer: "ohne" | "zuzueglich";
   konto: string;
@@ -64,6 +66,8 @@ export type PachtvertragDaten = {
   verpflichtungen: string;
   besonderes: string;
   anzeigeStelle: string;
+  /** Eigene Fläche des Geschäftsführers bzw. seiner Familie — offengelegt, keine Provision. */
+  eigeneFlaeche: boolean;
 };
 
 export type KaufabsichtDaten = {
@@ -79,6 +83,8 @@ export type KaufabsichtDaten = {
   besonderes: string;
   provisionKaeufer: string;
   genehmigungStelle: string;
+  /** Eigene Fläche des Geschäftsführers bzw. seiner Familie — offengelegt, keine Provision. */
+  eigeneFlaeche: boolean;
 };
 
 export type Vorlage<D> = {

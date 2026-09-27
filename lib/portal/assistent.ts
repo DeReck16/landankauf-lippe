@@ -21,7 +21,7 @@ import * as M from "./model";
 import { SPERRE_FREIGABE, vertragGueltig, vorgangSchritte } from "./schritte";
 import * as T from "./texte";
 import { einladungBis } from "./token";
-import { bewertungFaellig, freigabePruefung, kaufVorschlag, pachtLuecken, pachtVorschlag, type VorgangKontext } from "./vorgang";
+import { bewertungFaellig, freigabePruefung, kaufVorschlag, pachtLuecken, pachtOnlineSperren, pachtVorschlag, vorgangEigeneFlaeche, type VorgangKontext } from "./vorgang";
 
 export * from "./assistent-typen";
 
@@ -948,9 +948,13 @@ function schrittPacht(b: Bau, v: M.VorgangRecord, hinweise: AssistentHinweis[]):
   const pv = v.pachtvertrag;
   const vorlageFrei = istFreigegeben(u.einstellungen, "pachtvertrag");
   const konditionen = ctx.suchender?.vertrag?.konditionen ?? null;
-  if (ctx.anbieter?.stammdaten?.eigenschaft === "unternehmer" && ctx.suchender?.stammdaten?.eigenschaft === "verbraucher") {
-    hinweise.push({ warn: true, text: "Achtung: Verpächter handelt als Unternehmer, Pächter als Verbraucher — der Pächter kann einen online geschlossenen Pachtvertrag ggf. widerrufen (Fernabsatz). Vor der Unterschrift klären oder den Vertrag außerhalb der Plattform schließen." });
+  // Review S3: Unternehmer ↔ Verbraucher und Wald sperren den Online-Pachtvertrag bis zur begründeten Ausnahme.
+  const sperren = pachtOnlineSperren(ctx, pv && pv.status !== "verworfen" ? pv.daten : null);
+  const ausnahme = pv && pv.status !== "verworfen" ? pv.ausnahme : undefined;
+  for (const x of sperren) {
+    hinweise.push({ warn: !ausnahme, text: ausnahme ? `Ausnahme vermerkt („${ausnahme.grund}“): ${x.text}` : `Online-Pachtvertrag gesperrt: ${x.text} Außerhalb schließen und erfassen oder im Formular eine begründete Ausnahme vermerken.` });
   }
+  if (vorgangEigeneFlaeche(ctx)) hinweise.push({ text: "Eigene Fläche (Geschäftsführer bzw. Familie): offengelegt, es entsteht keine Provision." });
   const zinsFelder = (d?: M.PachtDaten): AssistentFeld[] => [
     {
       name: "zins",
@@ -1047,7 +1051,9 @@ function schrittPacht(b: Bau, v: M.VorgangRecord, hinweise: AssistentHinweis[]):
       ? `Im Entwurf fehlt noch: ${rest.join(", ")} — bitte im Formular „Landpachtvertrag“ ergänzen und „Entwurf speichern“.`
       : !vorlageFrei
         ? "Die Vorlage „Landpachtvertrag“ ist noch nicht freigegeben (Verwaltung → Vorlagen)."
-        : undefined;
+        : sperren.length && !ausnahme
+          ? `Online-Pachtvertrag gesperrt: ${sperren.map((x) => x.text).join(" ")} Außerhalb schließen und erfassen oder im Formular eine begründete Ausnahme vermerken.`
+          : undefined;
     const s = seite(b, "suchender");
     return {
       stand: `Pachtvertrag im Entwurf: Jahrespacht ${M.euro(jp)} (netto)${mp !== jp ? `, maßgeblich für die Provision ${M.euro(mp)}` : ""} · Provision ${M.euro(prov.netto)} netto / ${M.euro(prov.brutto)} brutto${konditionen ? ` (Konditionen Nr. ${konditionen.version})` : ""}.`,

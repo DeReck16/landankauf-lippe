@@ -227,6 +227,10 @@ export async function pachtSpeichernAktion(fd: FormData): Promise<void> {
     pachtzinsJeHa: zahl(feld(fd, "pachtzinsJeHa", 20)),
     pachtzinsJahr: zahl(feld(fd, "pachtzinsJahr", 20)),
     staffel: staffelAusText(feld(fd, "staffel", 600)),
+    einmalzahlung: (() => {
+      const e = zahl(feld(fd, "einmalzahlung", 20));
+      return e != null && e > 0 ? e : null;
+    })(),
     zahlweise: feld(fd, "zahlweise", 20) === "halbjaehrlich" ? "halbjaehrlich" : "jaehrlich",
     faelligkeit: feld(fd, "faelligkeit", 120),
     umsatzsteuer: feld(fd, "umsatzsteuer", 20) === "zuzueglich" ? "zuzueglich" : "ohne",
@@ -248,6 +252,12 @@ export async function pachtZurUnterschriftAktion(fd: FormData): Promise<void> {
   const r = await V.pachtZurUnterschrift(paarKey(fd), email);
   if (!r.ok) zurueck(fd, r.fehler ?? "Nicht möglich.", "fehler", "pachtvertrag");
   zurueck(fd, "Pachtvertrag liegt beiden Seiten zur Unterschrift vor. Jetzt die Entwürfe „Pachtvertrag zur Unterschrift“ senden.", "ok", "pachtvertrag");
+}
+
+export async function pachtAusnahmeAktion(fd: FormData): Promise<void> {
+  const { email } = await requireAdmin();
+  const r = await V.pachtAusnahmeSetzen(paarKey(fd), email, feld(fd, "grund", 300));
+  zurueck(fd, r.ok ? "Ausnahme vermerkt — der Pachtvertrag kann jetzt zur Unterschrift." : (r.fehler ?? "Nicht möglich."), r.ok ? "ok" : "fehler", "pachtvertrag");
 }
 
 export async function pachtZurueckAktion(fd: FormData): Promise<void> {
@@ -318,7 +328,13 @@ export async function kaufBeurkundetAktion(fd: FormData): Promise<void> {
   const genehmigung = (["offen", "nicht_noetig", "beantragt", "erteilt"] as const).includes(g as never) ? (g as "offen") : "offen";
   if (!datum || kaufpreis == null || kaufpreis <= 0) zurueck(fd, "Bitte Datum der Beurkundung und Kaufpreis angeben.", "fehler", "kauf");
   const r = await V.kaufBeurkundet(paarKey(fd), email, { datum, kaufpreis, genehmigung });
-  zurueck(fd, r.ok ? "Beurkundung erfasst — Provision angelegt." : (r.fehler ?? "Nicht möglich."), r.ok ? "ok" : "fehler", "kauf");
+  if (!r.ok) zurueck(fd, r.fehler ?? "Nicht möglich.", "fehler", "kauf");
+  zurueck(
+    fd,
+    r.widerrufen ? "Beurkundung erfasst. Der Käufer hat widerrufen — die Provision ist nur vorgemerkt; bitte prüfen." : "Beurkundung erfasst (bei eigener Fläche ohne Provision).",
+    r.widerrufen ? "fehler" : "ok",
+    "kauf",
+  );
 }
 
 export async function kaufWirksamAktion(fd: FormData): Promise<void> {
@@ -356,7 +372,7 @@ export async function externErfassenAktion(fd: FormData): Promise<void> {
     fd,
     r.widerrufen
       ? "Vertrag erfasst. Der Suchende hat widerrufen — die Provision ist nur vorgemerkt; bitte prüfen."
-      : "Außerhalb geschlossenen Vertrag erfasst — Provision fällig.",
+      : "Außerhalb geschlossenen Vertrag erfasst (Provision fällig — bei eigener Fläche keine).",
     r.widerrufen ? "fehler" : "ok",
     "provision",
   );

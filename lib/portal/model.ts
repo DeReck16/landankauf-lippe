@@ -204,6 +204,11 @@ export type PachtDaten = {
   pachtzinsJahr: number | null;
   /** Abweichende Jahrespacht einzelner Pachtjahre (Staffelpacht), z. B. Jahr 3 → 9.000 €. */
   staffel: { pachtjahr: number; betrag: number }[];
+  /**
+   * Einmalige Zahlung des Pächters an den Verpächter für die Überlassung (Einstands-/Abstandszahlung, netto).
+   * Zählt für die Provision gleichmäßig verteilt auf die ersten fünf Pachtjahre (Nachweisvertrag Pacht, § 2 Abs. 2).
+   */
+  einmalzahlung?: number | null;
   zahlweise: "jaehrlich" | "halbjaehrlich";
   faelligkeit: string;
   umsatzsteuer: "ohne" | "zuzueglich";
@@ -212,6 +217,13 @@ export type PachtDaten = {
   wasserverband: "verpaechter" | "paechter";
   verpflichtungen: string;
   besonderes: string;
+  /**
+   * Kreis der Flächen laut Kataster (ALKIS) — bestimmt die zuständige Stelle für die Pachtanzeige.
+   * Wird beim Speichern und bei „Zur Unterschrift“ aus der Anfrage übernommen.
+   */
+  anzeigeKreis?: string | null;
+  /** Eigene Fläche des Geschäftsführers bzw. seiner Familie (offengelegt, keine Provision) — aus der Anfrage übernommen. */
+  eigeneFlaeche?: boolean;
 };
 
 export type PachtvertragStand = {
@@ -226,6 +238,11 @@ export type PachtvertragStand = {
   abgeschlossenAm?: string;
   /** Erinnerung an die Anzeige nach § 2 LPachtVG (Verpächter, binnen eines Monats). */
   anzeigeErledigtAm?: string;
+  /**
+   * Begründete Ausnahme der Verwaltung: Online-Pachtvertrag trotz Hinweis (Verpächter Unternehmer +
+   * Pächter Verbraucher, oder Wald — z. B. § 585 Abs. 3 BGB). Ohne sie bleibt „Zur Unterschrift“ gesperrt.
+   */
+  ausnahme?: { am: string; von: string; grund: string };
 };
 
 export type KaufDaten = {
@@ -237,6 +254,10 @@ export type KaufDaten = {
   bestehendePacht: string;
   notarWunsch: string;
   besonderes: string;
+  /** Kreis der Flächen laut Kataster — bestimmt die Genehmigungsstelle nach dem GrdstVG. */
+  kreis?: string | null;
+  /** Eigene Fläche des Geschäftsführers bzw. seiner Familie (offengelegt, keine Provision). */
+  eigeneFlaeche?: boolean;
 };
 
 export type KaufStand = {
@@ -706,11 +727,13 @@ export function massgeblicheJahrespacht(d: PachtDaten): number | null {
   const basis = jahrespacht(d);
   if (basis == null) return null;
   const staffel = (d.staffel ?? []).filter((s) => s.pachtjahr >= 1 && Number.isFinite(s.betrag) && s.betrag >= 0);
-  if (staffel.length === 0) return basis;
+  const einmal = d.einmalzahlung != null && Number.isFinite(d.einmalzahlung) && d.einmalzahlung > 0 ? d.einmalzahlung : 0;
+  if (staffel.length === 0 && einmal === 0) return basis;
   const jahre = Math.max(1, Math.min(STAFFEL_JAHRE, d.laufzeitJahre && d.laufzeitJahre > 0 ? Math.floor(d.laufzeitJahre) : STAFFEL_JAHRE));
   let summe = 0;
   for (let j = 1; j <= jahre; j++) summe += staffel.find((s) => s.pachtjahr === j)?.betrag ?? basis;
-  return runde2(summe / jahre);
+  // Einmalzahlungen gleichmäßig auf dieselben Pachtjahre verteilt hinzurechnen (Nachweisvertrag Pacht, § 2 Abs. 2).
+  return runde2((summe + einmal) / jahre);
 }
 
 export type ProvisionsBetrag = { netto: number | null; brutto: number | null; bemessung: number | null };
@@ -721,9 +744,13 @@ export function provisionBerechnen(art: Art, bemessung: number | null, k: Kondit
   const betrag = art === "pacht" ? bemessung * k.pachtJahrespachten : (bemessung * k.kaufProzent) / 100;
   const faktor = 1 + k.ustProzent / 100;
   const modus = art === "pacht" ? k.ust.pacht : k.ust.kauf;
-  return modus === "zuzueglich"
-    ? { netto: runde2(betrag), brutto: runde2(betrag * faktor), bemessung }
-    : { netto: runde2(betrag / faktor), brutto: runde2(betrag), bemessung };
+  // Wie auf der Rechnung: Umsatzsteuer auf den gerundeten Nettobetrag (bzw. Netto aus dem gerundeten Brutto).
+  if (modus === "zuzueglich") {
+    const netto = runde2(betrag);
+    return { netto, brutto: runde2(netto * faktor), bemessung };
+  }
+  const brutto = runde2(betrag);
+  return { netto: runde2(brutto / faktor), brutto, bemessung };
 }
 
 /** Kurzbeschreibung der Konditionen für Texte (z. B. „1 Jahrespacht zzgl. 19 % USt“). */

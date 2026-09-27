@@ -46,7 +46,11 @@ function render(d: KaufabsichtDaten) {
 
   b.push(
     para("Provision"),
-    p(`Der Käufer schuldet ${FIRMA.marke} aufgrund seines gesonderten Nachweisvertrags eine Provision von ${d.provisionKaeufer}; sie entsteht erst mit dem Abschluss des notariellen Kaufvertrags und wird erst fällig, wenn dieser wirksam ist (z. B. nach Erteilung einer erforderlichen Genehmigung). Der Verkäufer schuldet keine Provision.`),
+    p(
+      d.eigeneFlaeche
+        ? `Die Fläche gehört dem Geschäftsführer der ${FIRMA.name} (Betreiberin von ${FIRMA.marke}) bzw. seiner Familie („eigene Fläche“); das ist dem Käufer offengelegt. Für diesen Kauf schuldet keine Partei ${FIRMA.marke} eine Provision.`
+        : `Der Käufer schuldet ${FIRMA.marke} aufgrund seines gesonderten Nachweisvertrags eine Provision von ${d.provisionKaeufer}. Sie entsteht mit der notariellen Beurkundung des Kaufvertrags — bedarf er einer behördlichen Genehmigung (z. B. nach dem Grundstückverkehrsgesetz) oder steht er unter einer aufschiebenden Bedingung, erst mit seiner Wirksamkeit — und ist 14 Tage nach Zugang der Rechnung fällig. Der Verkäufer schuldet keine Provision.`,
+    ),
   );
 
   b.push(para("Besonderes"), p(d.besonderes || "Keine besonderen Vereinbarungen."));
@@ -65,29 +69,32 @@ function render(d: KaufabsichtDaten) {
 
 const P = (s: string) => `«${s}»`;
 
+function platzhalter(eigeneFlaeche: boolean): KaufabsichtDaten {
+  return {
+    vorgang: P("Vorgang"),
+    verkaeufer: { name: P("Name Verkäufer"), anschrift: P("Anschrift Verkäufer") },
+    kaeufer: { name: P("Name Käufer"), anschrift: P("Anschrift Käufer"), betrieb: P("Betrieb") },
+    flaechen: [{ bezeichnung: P("Gemarkung, Flur, Flurstück"), groesse: P("Größe"), nutzung: P("Nutzung") }],
+    gesamtFlaeche: P("Gesamtfläche"),
+    kaufpreis: P("Kaufpreis"),
+    uebergabe: P("Übergabe"),
+    bestehendePacht: P("bestehende Pacht"),
+    notarWunsch: P("Notar"),
+    besonderes: P("Besonderes"),
+    provisionKaeufer: P("Provision Käufer"),
+    genehmigungStelle: P("Genehmigungsbehörde"),
+    eigeneFlaeche,
+  };
+}
+
 export const KAUFABSICHT: Vorlage<KaufabsichtDaten> = {
   id: "kaufabsicht",
-  version: "2026-09-24",
+  version: "2026-09-27",
   titel: "Kaufabsicht / Eckdaten für den Notar",
   beschreibung: "Unverbindliche Zusammenfassung der verhandelten Eckdaten eines Flächenkaufs zur Vorbereitung der notariellen Beurkundung.",
   render,
   varianten: [
-    {
-      name: "Standard",
-      daten: {
-        vorgang: P("Vorgang"),
-        verkaeufer: { name: P("Name Verkäufer"), anschrift: P("Anschrift Verkäufer") },
-        kaeufer: { name: P("Name Käufer"), anschrift: P("Anschrift Käufer"), betrieb: P("Betrieb") },
-        flaechen: [{ bezeichnung: P("Gemarkung, Flur, Flurstück"), groesse: P("Größe"), nutzung: P("Nutzung") }],
-        gesamtFlaeche: P("Gesamtfläche"),
-        kaufpreis: P("Kaufpreis"),
-        uebergabe: P("Übergabe"),
-        bestehendePacht: P("bestehende Pacht"),
-        notarWunsch: P("Notar"),
-        besonderes: P("Besonderes"),
-        provisionKaeufer: P("Provision Käufer"),
-        genehmigungStelle: P("Genehmigungsbehörde"),
-      },
-    },
+    { name: "Standard", daten: platzhalter(false) },
+    { name: "eigene Fläche (ohne Provision)", daten: platzhalter(true) },
   ],
 };
