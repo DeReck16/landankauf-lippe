@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/admin/session";
+import { verlaufLesen } from "@/lib/admin/store";
 import { ladeVerwaltung } from "@/lib/admin/daten";
 import { findeKandidaten, punkteFuer } from "@/lib/admin/matching";
 import { LEAD_STATUS, MATCH_STATUS, ableitenAusAnliegen, formatGroesse, parseGroesse, type LeadStatus } from "@/lib/admin/model";
@@ -16,7 +17,7 @@ import { basisUrl } from "@/lib/portal/sitzung";
 import { anschrift, datumDe, flaecheZeile, rolleVonLead } from "@/lib/portal/texte";
 import { VORLAGEN, istFreigegeben, kundenVorlage } from "@/lib/vertraege/vorlagen";
 import { BERATUNG_THEMEN, RUECKMELDUNG_NAME, antwortGruppe, antwortOptionen, istBeratungThema, istRueckmeldungArt, themaVorschlag } from "@/lib/portal/rueckmeldung-typen";
-import { anfrageSpeichern, ortNeuSuchen, postfachFormular, rueckmeldungErfassen, wegFormular } from "../../../actions";
+import { anfrageSpeichern, loeschwunschFormular, ortNeuSuchen, postfachFormular, rueckmeldungErfassen, wegFormular } from "../../../actions";
 import { ANKAUF_ERGEBNIS_NAME, WEG_NAME, WEG_TIPP } from "@/lib/portal/weg";
 import {
   bestaetigungSendenAktion,
@@ -57,7 +58,9 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
   const geparst = parseGroesse(l.groesse);
   const orte = punkteFuer(l, zustand.orte);
   const eigeneKandidaten = findeKandidaten(leads, zustand).kandidaten.filter((k) => k.angebot.id === l.id || k.gesuch.id === l.id);
-  const verlauf = zustand.protokoll.filter((p) => p.ref === l.id || p.ref?.split("~").includes(l.id)).slice(0, 30);
+  // Verlauf je Anfrage aus eigener Datei (bleibt vollständig), ergänzt um ältere Einträge aus dem Protokoll.
+  const verlaufAlle = await verlaufLesen(l.id, zustand.protokoll).catch(() => zustand.protokoll.filter((p) => p.ref === l.id || p.ref?.split("~").includes(l.id)));
+  const verlauf = verlaufAlle.slice(0, 60);
   const einzel = l.rolle !== "gesuch";
   const minAlt = zahlFeld(l.groesseWert.minHa);
   const maxAlt = einzel ? minAlt : zahlFeld(l.groesseWert.maxHa);
@@ -798,8 +801,42 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
             </div>
           </section>
 
+          <section className="lfa-panel" id="datenschutz">
+            <h2 className="lfa-h2" title="Löschwunsch nach Art. 17 DSGVO — vermerken, Frist im Blick behalten, von Hand löschen bzw. sperren">Datenschutz</h2>
+            {l.meta.loeschwunsch ? (
+              <div className={`lfa-hinweis ${l.meta.loeschwunsch.erledigtAm ? "lfa-hinweis-ok" : "lfa-hinweis-fehler"}`}>
+                <strong>Löschwunsch vom {datumZeit(l.meta.loeschwunsch.am)}</strong> ({l.meta.loeschwunsch.von}){l.meta.loeschwunsch.notiz ? ` — ${l.meta.loeschwunsch.notiz}` : ""}
+                {l.meta.loeschwunsch.erledigtAm ? (
+                  <div className="lfa-klein">Erledigt am {datumZeit(l.meta.loeschwunsch.erledigtAm)} von {l.meta.loeschwunsch.erledigtVon ?? "—"}.</div>
+                ) : (
+                  <>
+                    <div className="lfa-klein" style={{ margin: "0.3rem 0" }}>
+                      Frist: {datumZeit(l.meta.loeschwunsch.frist)} (ein Monat, Art. 12 Abs. 3 DSGVO). Von Hand im Speicher löschen: die Anfrage (leads/…/{l.id}.json), ggf. Kundenakte (portal/kunden/{l.id}.json), Verlauf (admin/verlauf/{l.id}.json). Bei unterschriebenem Vertrag nicht löschen, sondern sperren (Zugang sperren) — Aufbewahrungsfristen nach HGB/AO.
+                    </div>
+                    <form action={loeschwunschFormular}>
+                      <input type="hidden" name="id" value={l.id} />
+                      <input type="hidden" name="was" value="erledigt" />
+                      <BestaetigenKnopf className="lfa-knopf lfa-knopf-hell lfa-knopf-klein" frage="Löschwunsch als erledigt vermerken (Daten sind von Hand gelöscht bzw. gesperrt)?" tipp="Vermerkt nur die Erledigung — gelöscht wird nichts automatisch.">
+                        Als erledigt vermerken
+                      </BestaetigenKnopf>
+                    </form>
+                  </>
+                )}
+              </div>
+            ) : (
+              <form action={loeschwunschFormular} className="lfa-knopfreihe">
+                <input type="hidden" name="id" value={l.id} />
+                <input type="hidden" name="was" value="vermerken" />
+                <input name="notiz" className="field-input" style={{ flex: "1 1 16rem" }} placeholder="z. B. per E-Mail vom … (optional)" maxLength={300} title="Woher der Wunsch kam — nur intern" />
+                <BestaetigenKnopf className="lfa-knopf lfa-knopf-leise lfa-knopf-klein" frage="Löschwunsch vermerken? Die Anfrage wird archiviert, ein Börsen-Angebot geht offline; im Dashboard steht die Aufgabe mit Frist." tipp="Art. 17 DSGVO: vermerkt den Wunsch mit Monatsfrist. Gelöscht wird von Hand im Speicher (bei Verträgen stattdessen sperren). Es geht keine E-Mail raus.">
+                  Löschwunsch vermerken
+                </BestaetigenKnopf>
+              </form>
+            )}
+          </section>
+
           <section className="lfa-panel">
-            <h2 className="lfa-h2">Verlauf der Anfrage</h2>
+            <h2 className="lfa-h2" title={verlaufAlle.length > verlauf.length ? `Die neuesten ${verlauf.length} von ${verlaufAlle.length} Einträgen` : "Alle Änderungen und gesendeten Auskünfte zu dieser Anfrage"}>Verlauf der Anfrage</h2>
             {verlauf.length === 0 ? (
               <p className="lfa-klein">Noch keine Änderungen.</p>
             ) : (

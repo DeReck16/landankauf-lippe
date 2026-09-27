@@ -47,6 +47,7 @@ export function letzterKontakt(l: LeadView, k: M.KundeRecord | null, protokoll: 
   const aktiv = k?.ereignisse.find((e) => e.von === "kunde" || e.von.startsWith("kunde:"));
   if (aktiv) liste.push({ am: aktiv.am, text: `im Kundenbereich: ${kuerzen(aktiv.text, 60)}` });
   if (l.meta.nachgefasstAm) liste.push({ am: l.meta.nachgefasstAm, text: "nachgefasst" });
+  if (l.meta.letzterKontakt) liste.push({ am: l.meta.letzterKontakt, text: "E-Mail gesendet" });
   if (l.meta.rueckmeldung) liste.push({ am: l.meta.rueckmeldung.am, text: `Rückmeldung: ${RUECKMELDUNG_NAME[l.meta.rueckmeldung.art]}` });
   // E-Mail des Kunden aus dem Anfragenpostfach (Postfach-Abgleich) — neueste zuerst gespeichert.
   const post = l.meta.postfach?.[0];

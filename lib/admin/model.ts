@@ -71,7 +71,9 @@ export type LeadMeta = {
    */
   eigeneFlaeche?: boolean;
   /** Löschwunsch nach Art. 17 DSGVO — vermerkt, Anfrage archiviert; gelöscht wird von Hand. */
-  loeschwunsch?: { am: string; von: string; frist: string; erledigtAm?: string };
+  loeschwunsch?: { am: string; von: string; frist: string; erledigtAm?: string; erledigtVon?: string; notiz?: string };
+  /** Letzte erfolgreich gesendete Mail an den Kunden (auch ohne Kundenakte) — für „Nachfassen“. */
+  letzterKontakt?: string;
 };
 
 /** Gehört das Angebot dem Geschäftsführer bzw. seiner Familie (eigene Fläche, ohne Provision)? */

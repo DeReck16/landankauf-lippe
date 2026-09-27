@@ -11,6 +11,7 @@ import { isAdminEmail } from "@/lib/admin/config";
 import { createLoginToken, verifyLoginToken } from "@/lib/admin/token";
 import { endSession, requireAdmin, startSession } from "@/lib/admin/session";
 import { alleSitzungenBeenden } from "@/lib/admin/sitzungen";
+import { loeschwunschErledigt, loeschwunschVermerken } from "@/lib/admin/loeschwunsch";
 import { linkEinloesen, mailDrosseln, mutateZustand, readZustand, listLeads } from "@/lib/admin/store";
 import { sendeAnmeldelink } from "@/lib/admin/mail";
 import { orteErgaenzen } from "@/lib/admin/daten";
@@ -239,6 +240,22 @@ export async function wegFormular(formData: FormData): Promise<void> {
   }
   revalidatePath("/admin", "layout");
   redirect(`${zurueck}?m=${encodeURIComponent(m)}&mt=${ok ? "ok" : "fehler"}#weg`);
+}
+
+/** Löschwunsch (Art. 17 DSGVO) vermerken bzw. nach dem Löschen von Hand als erledigt vermerken. */
+export async function loeschwunschFormular(formData: FormData): Promise<void> {
+  const { email } = await requireAdmin();
+  const id = text(formData, "id", 40);
+  if (!/^LL-[A-Z0-9]+$/.test(id)) throw new Error("Ungültige Anfrage-ID");
+  const was = text(formData, "was", 20);
+  const ok = was === "erledigt" ? await loeschwunschErledigt(id, email) : await loeschwunschVermerken(id, email, text(formData, "notiz", 300));
+  const m = !ok
+    ? "Nichts geändert."
+    : was === "erledigt"
+      ? "Löschwunsch als erledigt vermerkt."
+      : "Löschwunsch vermerkt — die Anfrage ist archiviert, ein Börsen-Angebot offline. Bitte innerhalb der Frist von Hand löschen bzw. (bei Verträgen) sperren; die Aufgabe steht im Dashboard.";
+  revalidatePath("/admin", "layout");
+  redirect(`/admin/anfrage/${id}?m=${encodeURIComponent(m)}&mt=${ok ? "ok" : "fehler"}#datenschutz`);
 }
 
 /**

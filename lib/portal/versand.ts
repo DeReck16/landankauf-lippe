@@ -163,6 +163,8 @@ export async function verwaltungsMailSenden(von: string, auftrag: VersandAuftrag
     await mutateZustand(von, (z) => {
       const meta = { ...(z.anfragen[id] ?? {}) };
       const teile: string[] = [];
+      // Letzter Kontakt auch ohne Kundenakte festhalten (das globale Protokoll ist begrenzt).
+      if (res.ok) meta.letzterKontakt = jetzt;
       if (ohneAkte) {
         const art = zweck === "nachfassen" ? "Nachfass-Mail" : "E-Mail";
         teile.push(`${art} ${res.ok ? "gesendet" : "NICHT gesendet"}: „${betreff}“ an ${an}${res.test ? " (Testmodus)" : ""}${res.ok ? "" : ` — ${res.fehler ?? "Fehler"}`}`);
@@ -179,8 +181,8 @@ export async function verwaltungsMailSenden(von: string, auftrag: VersandAuftrag
         geaendert = true;
         teile.push(ohneAkte || nachgefasst ? "Status → Beantwortet" : "Status → Beantwortet (E-Mail gesendet)");
       }
-      if (geaendert) {
-        meta.geaendert = { am: jetzt, von };
+      if (geaendert || res.ok) {
+        if (geaendert) meta.geaendert = { am: jetzt, von };
         z.anfragen[id] = meta;
       }
       if (teile.length === 0) return;
