@@ -1,6 +1,7 @@
 import "server-only";
 import { leadView, type BoerseMeta, type LeadView } from "@/lib/admin/model";
 import { listLeads, mutateZustand, readZustand } from "@/lib/admin/store";
+import { haText } from "@/lib/boerse-regeln";
 import { anfrageBezug } from "./entwuerfe";
 import { GRUSS } from "./gruss";
 import { kundenMail } from "./mail";
@@ -35,7 +36,7 @@ export function einwilligungsBestaetigung(l: LeadView, b: BoerseMeta, basis: str
 export function boerseOnlineText(l: LeadView, b: BoerseMeta, basis: string): { betreff: string; text: string } {
   const name = T.wert(l.name);
   const link = `${basis}/kunde/boerse?t=${encodeURIComponent(boerseToken(l.id))}`;
-  const groesse = b.groesseHa ? `ca. ${String(b.groesseHa).replace(".", ",")} ha` : "";
+  const groesse = b.groesseHa ? haText(b.groesseHa) : "";
   const eckdaten = [b.typ, groesse, b.lage].filter(Boolean).join(", ");
   return {
     betreff: `Ihre Fläche steht jetzt anonym in der Flächenbörse (${b.code})`,
