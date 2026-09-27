@@ -1,39 +1,19 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/admin/session";
-import { ladeVerwaltung } from "@/lib/admin/daten";
-import { findeKandidaten } from "@/lib/admin/matching";
-import { ladeNeu, ladePortal } from "@/lib/admin/neu";
-import { VORLAGEN_REIHENFOLGE, istFreigegeben } from "@/lib/vertraege/vorlagen";
+import { menueZahlen } from "@/lib/admin/menue";
 import { testModus } from "@/lib/admin/config";
-import { ladeDashboard } from "@/lib/portal/dashboard";
 import { abmelden } from "../actions";
-import HauptNav from "./HauptNav";
+import HauptNav, { type NavZahlen } from "./HauptNav";
 
 export default async function InternLayout({ children }: { children: React.ReactNode }) {
   const { email } = await requireAdmin();
-  const [{ leads, zustand }, portal, neu] = await Promise.all([ladeVerwaltung(), ladePortal(), ladeNeu(email)]);
-  const kandidaten = findeKandidaten(leads, zustand).kandidaten.filter((k) => !k.meta);
-  // Zähler fürs Dashboard (dieselbe Berechnung wie die Seite — pro Aufruf zwischengespeichert).
-  let jetztDran = 0;
-  let jetztNeu = 0;
+  // Zwischengespeicherte Menü-Zähler (lib/admin/menue.ts) — kein Neuberechnen des Dashboards je Seite.
+  let z: NavZahlen = { aufgaben: 0, dringend: 0, aufgabenNeu: 0, neueAnfragen: 0, offeneVorschlaege: 0, neueVorschlaege: 0, neueEreignisse: 0, vorlagenOffen: 0 };
   try {
-    const dash = await ladeDashboard(email);
-    jetztDran = dash.jetzt.length;
-    jetztNeu = dash.jetzt.filter((x) => x.neu > 0).length;
+    z = await menueZahlen(email);
   } catch (err) {
-    console.error("[verwaltung] Dashboard-Zähler nicht berechenbar", err);
+    console.error("[verwaltung] Menü-Zähler nicht berechenbar", err);
   }
-  const z = {
-    jetztDran,
-    jetztNeu,
-    neueAnfragen: leads.filter((l) => l.status !== "archiv" && neu.anfrage(l)).length,
-    offeneVorschlaege: kandidaten.length,
-    neueVorschlaege: kandidaten.filter((k) => neu.vorschlag(k.key)).length,
-    neueEreignisse:
-      [...portal.kunden.values()].filter((k) => neu.kunde(k).length > 0).length +
-      [...portal.vorgaenge.values()].filter((v) => neu.vorgang(v).length > 0).length,
-    vorlagenOffen: VORLAGEN_REIHENFOLGE.filter((id) => !istFreigegeben(portal.einstellungen, id)).length,
-  };
 
   return (
     <>

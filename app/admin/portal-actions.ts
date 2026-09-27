@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { menueErneuern } from "@/lib/admin/menue";
 import { requireAdmin } from "@/lib/admin/session";
 import { mutateZustand } from "@/lib/admin/store";
 import { VORLAGEN, VORLAGEN_REIHENFOLGE, istVorlageId, kundenVorlage, istFreigegeben, vorlageHash } from "@/lib/vertraege/vorlagen";
@@ -41,6 +42,7 @@ function zurueckZiel(fd: FormData): string {
 
 function zurueck(fd: FormData, meldung: string, art: "ok" | "fehler" = "ok", anker = ""): never {
   revalidatePath("/admin", "layout");
+  menueErneuern();
   const ziel = zurueckZiel(fd);
   const a = /^[A-Za-z0-9_~-]{1,80}$/.test(anker) ? `#${anker}` : "";
   redirect(`${ziel}?m=${encodeURIComponent(meldung)}&mt=${art}${a}`);
@@ -581,6 +583,7 @@ export async function mailSendenAktion(_prev: MailState, fd: FormData): Promise<
     text: feld(fd, "text", 20000),
   });
   if (r.versucht) revalidatePath("/admin", "layout");
+  menueErneuern();
   return r.ok ? { status: "ok", text: r.text, am: r.am } : { status: "fehler", text: r.text };
 }
 
@@ -591,6 +594,7 @@ export async function gesehenAktion(keys: string[]): Promise<void> {
   const { email } = await requireAdmin();
   if (!Array.isArray(keys)) return;
   await markiereGesehen(email, keys.map(String));
+  menueErneuern();
 }
 
 export async function alleGesehenAktion(fd: FormData): Promise<void> {

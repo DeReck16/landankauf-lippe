@@ -788,3 +788,38 @@ a.lfa-kachel:hover { border-color: var(--color-brand); }
 .lfa-anfrage-feld { display: flex; flex-direction: column; gap: 0.25rem; max-width: 18rem; }
 .lfa-weg { display: flex; flex-direction: column; gap: 0.6rem; }
 .lfa-weg-wahl { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+/* ---------------------------------------------------------------------------
+   Dashboard-Aufgabenliste (Review 27.09.2026): je Zeile Zeichen, Titel + Grund,
+   EIN Knopf; Details aufklappbar. Bei 375 px stapelt sich der Knopf unter den Text. */
+.lfa-aufgaben { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; }
+.lfa-aufgabe {
+  min-width: 0;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--color-line);
+  border-radius: 0.8rem;
+  background: var(--color-surface);
+}
+.lfa-aufgabe-p1 { border-left: 4px solid #b3432f; }
+.lfa-aufgabe-p2 { border-left: 4px solid var(--color-accent); }
+.lfa-aufgabe-p3 { border-left: 4px solid var(--color-brand); }
+.lfa-aufgabe-warten { background: #fcfbf7; }
+.lfa-aufgabe-zeile { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.8rem; min-width: 0; }
+.lfa-aufgabe-zeichen { flex: none; width: 1.2rem; text-align: center; font-weight: 700; color: #8a2a1d; }
+.lfa-aufgabe-p2 .lfa-aufgabe-zeichen { color: var(--color-brand-dark); }
+.lfa-aufgabe-p3 .lfa-aufgabe-zeichen { color: var(--color-brand); }
+.lfa-aufgabe-text { flex: 1 1 12rem; min-width: 0; display: grid; gap: 0.15rem; font-size: 0.9rem; overflow-wrap: anywhere; }
+.lfa-aufgabe-text .lfa-badge { margin-left: 0.35rem; }
+.lfa-aufgabe-grund { color: var(--color-ink-soft); }
+.lfa-aufgabe-knopf { flex: 0 1 auto; min-width: 0; max-width: 100%; }
+.lfa-aufgabe-knopf .lfa-anfrage-aktionen, .lfa-aufgabe-knopf .lfa-assistent-form { max-width: 100%; }
+.lfa-aufgabe-aktion { display: grid; gap: 0.4rem; min-width: 0; }
+.lfa-aufgabe-offen { display: grid; gap: 0.4rem; min-width: 0; flex: 1 1 100%; }
+.lfa-aufgabe-details { margin-top: 0.35rem; }
+.lfa-aufgabe-details > summary { cursor: pointer; font-size: 0.8rem; color: var(--color-muted); width: max-content; }
+.lfa-aufgabe-inhalt { display: grid; gap: 0.5rem; min-width: 0; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed var(--color-line); }
+.lfa-sammel { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; padding: 0.7rem 0.9rem; }
+@media (max-width: 520px) {
+  .lfa-aufgabe-knopf { flex: 1 1 100%; }
+  .lfa-aufgabe-knopf .lfa-knopf { width: 100%; }
+}

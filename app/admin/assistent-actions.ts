@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { menueErneuern } from "@/lib/admin/menue";
 import { testModus } from "@/lib/admin/config";
 import { unstable_rethrow } from "next/navigation";
 import { LEAD_STATUS, leadView } from "@/lib/admin/model";
@@ -17,6 +18,7 @@ import * as M from "@/lib/portal/model";
 import * as N from "@/lib/portal/nacharbeit";
 import { NACHFASS_PAUSE_TAGE, nachfassKandidaten } from "@/lib/portal/nachfassen";
 import { postfachUebernehmen, postfachZurKenntnis } from "@/lib/portal/postfach";
+import { MAX_VERSUCHE, postausgangAbarbeiten, postausgangVerwerfen } from "@/lib/portal/postausgang";
 import { RUECKMELDUNG_NAME, istRueckmeldungArt } from "@/lib/portal/rueckmeldung-typen";
 import { SPERRE_FREIGABE } from "@/lib/portal/schritte";
 import { basisUrl } from "@/lib/portal/sitzung";
@@ -106,6 +108,7 @@ export async function assistentAktion(fd: FormData): Promise<AssistentState> {
   // Kunde unterschrieben oder jemand anderes schon geklickt), nichts tun und neu anzeigen.
   if (!a || a.signatur !== signatur) {
     revalidatePath("/admin", "layout");
+  menueErneuern();
     return {
       status: "fehler",
       titel: "Nichts ausgeführt — der Stand hat sich inzwischen geändert.",
@@ -119,6 +122,7 @@ export async function assistentAktion(fd: FormData): Promise<AssistentState> {
   let weg = false;
   const abbruch = (text: string): AssistentState => {
     revalidatePath("/admin", "layout");
+  menueErneuern();
     return ergebnis(a.knopf, [...zeilen, { art: "fehler", text }]);
   };
 
@@ -328,6 +332,7 @@ export async function assistentAktion(fd: FormData): Promise<AssistentState> {
   }
 
   revalidatePath("/admin", "layout");
+  menueErneuern();
   const r = ergebnis(a.knopf, zeilen);
   return weg ? { ...r, weg } : r;
 }
@@ -347,6 +352,7 @@ export async function vorschlagAktion(fd: FormData): Promise<AssistentState> {
   f.set("aktion", aktion);
   await paarAktion(f);
   revalidatePath("/admin", "layout");
+  menueErneuern();
   return ergebnis(aktion === "vormerken" ? "Vormerken" : "Passt nicht", [
     aktion === "vormerken"
       ? { art: "ok", text: `Paar ${namen.join(" ↔ ")} vorgemerkt — nächster Schritt: „Beide einladen“` }
@@ -367,6 +373,7 @@ export async function postfachUebernehmenAktion(fd: FormData): Promise<Assistent
   if (!istKundeId(id) || !mail || !istRueckmeldungArt(art)) return { status: "fehler", titel: "Ungültige Anfrage.", zeilen: [], am: new Date().toISOString() };
   const r = await postfachUebernehmen(id, mail, art, { von: email, basis: await basisUrl(), thema: feld(fd, "thema", 80) || undefined });
   revalidatePath("/admin", "layout");
+  menueErneuern();
   if (!r.ok) return ergebnis("Übernehmen", [{ art: "fehler", text: r.fehler }]);
   const zeilen: AssistentZeile[] = [{ art: "ok", text: `${r.name}: „${RUECKMELDUNG_NAME[art]}“ übernommen` }];
   if (r.rueckmeldung.ok) {
@@ -389,6 +396,7 @@ export async function postfachKenntnisAktion(fd: FormData): Promise<AssistentSta
   if (!istKundeId(id) || !mail) return { status: "fehler", titel: "Ungültige Anfrage.", zeilen: [], am: new Date().toISOString() };
   const r = await postfachZurKenntnis(id, mail, email);
   revalidatePath("/admin", "layout");
+  menueErneuern();
   return r.ok
     ? ergebnis("Zur Kenntnis genommen", [{ art: "ok", text: `E-Mail von ${r.name} abgehakt — Einordnung und Status der Anfrage bleiben, wie sie sind.` }])
     : ergebnis("Zur Kenntnis nehmen", [{ art: "fehler", text: r.fehler }]);
@@ -407,6 +415,7 @@ export async function anfrageStatusAktion(fd: FormData): Promise<AssistentState>
   // „Als beantwortet markieren“ gilt nur für Neues — eine veraltete Ansicht darf z. B. „kein Interesse“ (Erledigt) nicht überschreiben.
   if (status === "beantwortet" && geladen?.lead.status !== "neu") {
     revalidatePath("/admin", "layout");
+  menueErneuern();
     return {
       status: "fehler",
       titel: "Nichts geändert — die Anfrage ist schon bearbeitet.",
@@ -420,6 +429,7 @@ export async function anfrageStatusAktion(fd: FormData): Promise<AssistentState>
   f.set("status", status);
   await anfrageSpeichern(f);
   revalidatePath("/admin", "layout");
+  menueErneuern();
   const text = {
     archiv: `Anfrage von ${name} archiviert — sie erscheint nicht mehr im Dashboard und nicht im Matching`,
     in_arbeit: `Anfrage von ${name} auf „In Arbeit“ gesetzt — weiter unter „Anfragen“`,
@@ -451,6 +461,7 @@ export async function anfrageVorschlagAktion(fd: FormData): Promise<AssistentSta
   // Nur ausführen, was bestätigt wurde — sonst neu anzeigen (z. B. schon beantwortet oder neuer Link erstellt).
   if (lead.status !== "neu" || a.id !== aktion || a.signatur !== signatur) {
     revalidatePath("/admin", "layout");
+  menueErneuern();
     return {
       status: "fehler",
       titel: "Nichts ausgeführt — der Stand hat sich inzwischen geändert.",
@@ -514,7 +525,99 @@ export async function anfrageVorschlagAktion(fd: FormData): Promise<AssistentSta
     zeilen.push({ art: "fehler", text: err instanceof Error ? err.message : "Unbekannter Fehler." });
   }
   revalidatePath("/admin", "layout");
+  menueErneuern();
   return ergebnis(a.knopf, zeilen);
+}
+
+/** Höchstens so viele Einträge je Sammel-Klick (Seite: maxDuration 60 s). */
+const SAMMEL_MAX = 15;
+
+/**
+ * Sammel-Einladung (Dashboard): alle bestätigten Einladungen nacheinander senden — jede Anfrage wird
+ * frisch geprüft (Signatur wie beim Einzelknopf); was sich inzwischen geändert hat, wird übersprungen.
+ */
+export async function sammelEinladenAktion(fd: FormData): Promise<AssistentState> {
+  const { email } = await requireAdmin();
+  const eintraege = fd.getAll("eintrag").map(String).slice(0, SAMMEL_MAX);
+  const u = await umgebung();
+  const zeilen: AssistentZeile[] = [];
+  for (const e of eintraege) {
+    const [id, sig] = e.split("|");
+    if (!istKundeId(id) || !sig) continue;
+    const g = await A.ladeLead(id);
+    const name = wert(g?.lead.name) || id;
+    if (!g) {
+      zeilen.push({ art: "fehler", text: `${id}: Anfrage nicht gefunden` });
+      continue;
+    }
+    const v = anfrageVorschlag(g.lead, await ladeKunde(id), u);
+    if (g.lead.status !== "neu" || v.aktion.id !== "einladen" || v.aktion.signatur !== sig) {
+      zeilen.push({ art: "info", text: `${name}: übersprungen — der Stand hat sich geändert` });
+      continue;
+    }
+    if (v.aktion.gesperrt) {
+      zeilen.push({ art: "fehler", text: `${name}: ${v.aktion.gesperrt}` });
+      continue;
+    }
+    try {
+      await anfrageEinladen(g.lead, email, u, zeilen);
+    } catch (err) {
+      unstable_rethrow(err);
+      zeilen.push({ art: "fehler", text: `${name}: ${err instanceof Error ? err.message : "Fehler"}` });
+    }
+  }
+  revalidatePath("/admin", "layout");
+  menueErneuern();
+  return ergebnis("Alle Einladungen senden", zeilen);
+}
+
+/** Sammel-Erinnerung (Dashboard „Warten“): fällige Erinnerungen mehrerer Vorgänge — je Vorgang frisch geprüft. */
+export async function sammelErinnernAktion(fd: FormData): Promise<AssistentState> {
+  const { email } = await requireAdmin();
+  const eintraege = fd.getAll("eintrag").map(String).slice(0, SAMMEL_MAX);
+  const u = await umgebung();
+  const zeilen: AssistentZeile[] = [];
+  for (const e of eintraege) {
+    const [key, id, sig] = e.split("|");
+    if (!istPaarKey(key) || !id || !sig) continue;
+    const ctx = await V.ladeVorgangKontext(key);
+    if (!ctx) continue;
+    const a = alleAktionen(assistentPlan(ctx, u)).find((x) => x.id === id && x.signatur === sig);
+    if (!a || a.gesperrt) {
+      zeilen.push({ art: "info", text: `${key}: übersprungen — der Stand hat sich geändert` });
+      continue;
+    }
+    for (const m of a.mails) {
+      if (m.neuerLink && !(await linkErstellen(email, m, u, zeilen))) continue;
+      await mailsSenden(email, key, u, [m], zeilen);
+    }
+  }
+  revalidatePath("/admin", "layout");
+  menueErneuern();
+  return ergebnis("Fällige Erinnerungen senden", zeilen);
+}
+
+/** Postausgang: alle offenen Mails jetzt erneut senden. */
+export async function postausgangJetztAktion(): Promise<AssistentState> {
+  const { email } = await requireAdmin();
+  const r = await postausgangAbarbeiten({ alle: true, von: email, max: 20 });
+  revalidatePath("/admin", "layout");
+  menueErneuern();
+  const zeilen: AssistentZeile[] = [
+    { art: r.gesendet ? "ok" : "info", text: `${r.gesendet} ${r.gesendet === 1 ? "E-Mail" : "E-Mails"} gesendet` },
+    ...(r.offen ? [{ art: "fehler" as const, text: `${r.offen} weiterhin nicht zustellbar — nächster Versuch automatisch` }] : []),
+    ...(r.aufgegeben ? [{ art: "fehler" as const, text: `${r.aufgegeben} nach ${MAX_VERSUCHE} Versuchen aufgegeben — bitte von Hand erledigen und dann verwerfen` }] : []),
+  ];
+  return ergebnis("Postausgang senden", zeilen);
+}
+
+/** Postausgang: eine Mail als von Hand erledigt verwerfen. */
+export async function postausgangVerwerfenAktion(fd: FormData): Promise<AssistentState> {
+  const { email } = await requireAdmin();
+  const ok = await postausgangVerwerfen(feld(fd, "id", 40), email);
+  revalidatePath("/admin", "layout");
+  menueErneuern();
+  return ergebnis("Aus dem Postausgang nehmen", [ok ? { art: "ok", text: "Aus dem Postausgang genommen (von Hand erledigt)" } : { art: "fehler", text: "Nicht gefunden oder schon erledigt" }]);
 }
 
 /**
@@ -537,6 +640,7 @@ export async function antwortSendenAktion(fd: FormData): Promise<AssistentState>
   const name = wert(lead.name) || id;
   if (lead.status !== "neu") {
     revalidatePath("/admin", "layout");
+  menueErneuern();
     return {
       status: "fehler",
       titel: "Nichts gesendet — die Anfrage ist schon bearbeitet.",
@@ -560,6 +664,7 @@ export async function antwortSendenAktion(fd: FormData): Promise<AssistentState>
     zeilen.push({ art: "fehler", text: err instanceof Error ? err.message : "Unbekannter Fehler." });
   }
   revalidatePath("/admin", "layout");
+  menueErneuern();
   return ergebnis("Antwort senden", zeilen);
 }
 
@@ -636,5 +741,6 @@ export async function nachfassenAktion(fd: FormData): Promise<AssistentState> {
   }
   zeilen.unshift({ art: "info", text: `${gesendet} von ${ids.length} Nachfass-Mails ${testModus() ? "protokolliert" : "gesendet"} — je Empfänger eine eigene E-Mail.` });
   revalidatePath("/admin", "layout");
+  menueErneuern();
   return ergebnis("Nachfass-Mail senden", zeilen);
 }

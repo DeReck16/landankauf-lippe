@@ -244,9 +244,15 @@ async function r3Paare(l: Lauf, kontexte: V.VorgangKontext[]): Promise<void> {
 /** R3 · Einladung zu neuen Anfragen ohne Paar (Pacht-Gesuche; Pacht-Angebote nur mit Weg „Vermitteln“). */
 async function r3(l: Lauf, nur?: Set<string>): Promise<void> {
   if (!regelWirksam(l.a, "r3").an) return;
+  // Anfragen in einem Paar lädt der Vorgang ein (r3Paare) — sonst ginge die Einladung doppelt raus.
+  const imPaar = new Set(
+    Object.entries(l.zustand.paare)
+      .filter(([, m]) => m.status !== "verworfen")
+      .flatMap(([k]) => k.split("~")),
+  );
   for (const lead of l.leads) {
     if (nur && !nur.has(lead.id)) continue;
-    if (lead.status !== "neu") continue;
+    if (lead.status !== "neu" || imPaar.has(lead.id)) continue;
     const rr = T.rolleVonLead(lead);
     if (!rr || rr.art !== "pacht") continue;
     if (rr.rolle === "anbieter" && lead.meta.weg !== "vermittlung") continue;

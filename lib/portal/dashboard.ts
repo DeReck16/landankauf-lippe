@@ -9,7 +9,9 @@ import { ladeNeu, ladePortal } from "@/lib/admin/neu";
 import type { AnfrageVorschlag, AntwortEntwurf, NachfassKandidat } from "./anfrage-typen";
 import { anfrageVorschlagSicher } from "./anfrage-vorschlag";
 import { antwortEntwurf } from "./antwort";
-import { katasterNachholen } from "./kataster";
+import { automatikProtokoll, type AutomatikEintrag } from "./automatik";
+import { automatikVon, REGELN } from "./automatik-regeln";
+import { postausgangStand } from "./postausgang";
 import { assistentPlan, type AssistentChip, type AssistentPlan } from "./assistent";
 import * as M from "./model";
 import { nachfassKandidaten, nachfassTage } from "./nachfassen";
@@ -131,8 +133,28 @@ export type DashUebersicht = {
   neueAnfragen: number;
 };
 
+/** Widerruf bzw. Kündigung ohne Anmeldung — gilt, muss aber geprüft werden (Review K3). */
+export type DashErklaerung = { id: string; name: string; art: "widerruf" | "kuendigung"; am: string };
+/** Löschwunsch (Art. 17 DSGVO), noch nicht erledigt. */
+export type DashLoeschwunsch = { id: string; name: string; am: string; frist: string };
+/** Direktankauf gewählt, Ergebnis noch offen. */
+export type DashAnkauf = { id: string; name: string; eckdaten: string; gewaehltAm: string; angebotAm: string | null; preis: number | null };
+/** Postausgang: fehlgeschlagene Systemmails. */
+export type DashPostausgang = {
+  offen: number;
+  aufgegeben: number;
+  aeltestes: string | null;
+  liste: { id: string; betreff: string; an: string; versuche: number; erstelltAm: string; fehler: string | null; aufgegeben: boolean }[];
+};
+export type DashAutomatik = { stand: "aus" | "notaus" | "probelauf" | "an"; regeln: string[]; eintraege: AutomatikEintrag[] };
+
 export type Dashboard = {
   uebersicht: DashUebersicht;
+  erklaerungen: DashErklaerung[];
+  loeschwuensche: DashLoeschwunsch[];
+  ankauf: DashAnkauf[];
+  postausgang: DashPostausgang;
+  automatik: DashAutomatik;
   boerse: DashBoerse[];
   jetzt: DashVorgang[];
   warten: DashVorgang[];
@@ -272,8 +294,23 @@ function ereignisseFuer(v: M.VorgangRecord | null, a: M.KundeRecord | null, s: M
 }
 
 /** Das Dashboard einmal pro Seitenaufruf laden (Layout und Seite teilen sich das Ergebnis). */
-export const ladeDashboard = cache(async (email: string): Promise<Dashboard> => {
-  const [{ leads, zustand }, portal, neu, basis] = await Promise.all([ladeVerwaltung(), ladePortal(), ladeNeu(email), basisUrl()]);
+/**
+ * `basisVorgabe`: Adresse für Links in Entwürfen — für den zwischengespeicherten Menüzähler fest
+ * vorgegeben (dort sind keine Anfrage-Header verfügbar). Beim Anzeigen wird nichts geschrieben:
+ * Kataster und Anbieter-Abgleich laufen beim Eingang bzw. im täglichen Lauf.
+ */
+export const ladeDashboard = cache(async (email: string, basisVorgabe?: string): Promise<Dashboard> => {
+  const [{ leads, zustand }, portal, neu, basis, post, protokoll] = await Promise.all([
+    ladeVerwaltung(),
+    ladePortal(),
+    ladeNeu(email),
+    basisVorgabe ? Promise.resolve(basisVorgabe) : basisUrl(),
+    postausgangStand().catch((err) => {
+      console.error("[dashboard] Postausgang nicht lesbar", err);
+      return { offen: [], aufgegeben: [] };
+    }),
+    automatikProtokoll(2).catch(() => [] as AutomatikEintrag[]),
+  ]);
   const jetzt = new Date();
   const byId = new Map(leads.map((l) => [l.id, l]));
   const u = { einstellungen: portal.einstellungen, basis, bewertungsUrl: M.bewertungsUrl(portal.einstellungen, process.env.GOOGLE_REVIEW_URL), jetzt, kunden: portal.kunden };
@@ -354,11 +391,6 @@ export const ladeDashboard = cache(async (email: string): Promise<Dashboard> => 
     }));
   for (const v of vorschlaege) gesehen.push(`paar:${v.key}`);
 
-  // Amtliche Kataster-Daten (Flurstück, Bodenrichtwert) für die Antwortentwürfe einmalig nachholen —
-  // z. B. für Anfragen von vor der Einführung; danach stehen sie im Verwaltungszustand (LeadMeta.kataster).
-  const fuerEntwurf = leads.filter((l) => l.status === "neu" && (l.meta.rueckmeldung?.art === "beratung" || !T.rolleVonLead(l)));
-  const neuKataster = await katasterNachholen(fuerEntwurf, 14_000);
-  for (const l of leads) if (neuKataster[l.id]) l.meta = { ...l.meta, kataster: neuKataster[l.id] };
 
   // Rückmeldungen auf Nachfass-Mails: offen, solange die Anfrage auf „Neu“ steht (jede Bearbeitung ändert den Status).
   const offeneTickets = new Set<string>();
@@ -519,6 +551,8 @@ export const ladeDashboard = cache(async (email: string): Promise<Dashboard> => 
   const boerse: DashBoerse[] = [];
   for (const l of leads) {
     if (l.rolle !== "angebot" || (l.art !== "kauf" && l.art !== "pacht") || l.status === "archiv" || l.status === "erledigt") continue;
+    // Direktankauf (Weiche „Selbst kaufen“): nicht für die Börse.
+    if (l.meta.weg === "ankauf") continue;
     const b = l.meta.boerse;
     const luecken = b ? boerseLuecken(b, l) : ["Einwilligung des Eigentümers fehlt"];
     const eintrag: DashBoerse = {
@@ -541,8 +575,54 @@ export const ladeDashboard = cache(async (email: string): Promise<Dashboard> => 
   const rang = (x: DashBoerse) => (x.online ? 3 : !x.einwilligung ? 2 : x.luecken.length ? 1 : 0);
   boerse.sort((a, b) => rang(a) - rang(b));
 
+  // Ungeprüfte Erklärungen (Widerruf/Kündigung ohne Anmeldung), Löschwünsche, offene Direktankäufe.
+  const erklaerungen: DashErklaerung[] = [];
+  for (const k of portal.kunden.values()) {
+    const name = k.stammdaten?.name || k.name || k.id;
+    if (k.widerruf?.ungeprueft) erklaerungen.push({ id: k.id, name, art: "widerruf", am: k.widerruf.am });
+    if (k.kuendigung?.ungeprueft) erklaerungen.push({ id: k.id, name, art: "kuendigung", am: k.kuendigung.am });
+  }
+  const loeschwuensche: DashLoeschwunsch[] = leads
+    .filter((l) => l.meta.loeschwunsch && !l.meta.loeschwunsch.erledigtAm)
+    .map((l) => ({ id: l.id, name: T.wert(l.name) || l.id, am: l.meta.loeschwunsch!.am, frist: l.meta.loeschwunsch!.frist }));
+  const ankauf: DashAnkauf[] = leads
+    .filter((l) => l.meta.weg === "ankauf" && l.meta.ankauf && !l.meta.ankauf.ergebnis && l.status !== "archiv" && l.status !== "erledigt")
+    .map((l) => ({
+      id: l.id,
+      name: T.wert(l.name) || l.id,
+      eckdaten: `${l.typ}, ${formatGroesse(l.groesseWert)}, ${l.ortText || "Ort offen"}`,
+      gewaehltAm: l.meta.ankauf!.gewaehltAm,
+      angebotAm: l.meta.ankauf!.angebotAm ?? null,
+      preis: l.meta.ankauf!.preis ?? null,
+    }));
+  const postausgang: DashPostausgang = {
+    offen: post.offen.length,
+    aufgegeben: post.aufgegeben.length,
+    aeltestes: [...post.offen, ...post.aufgegeben].map((e) => e.erstelltAm).sort()[0] ?? null,
+    liste: [...post.offen, ...post.aufgegeben].slice(0, 20).map((e) => ({
+      id: e.id,
+      betreff: e.mail.betreff,
+      an: e.mail.an.join(", "),
+      versuche: e.versuche,
+      erstelltAm: e.erstelltAm,
+      fehler: e.letzterFehler ?? null,
+      aufgegeben: e.erledigt?.wie === "aufgegeben",
+    })),
+  };
+  const auto = automatikVon(portal.einstellungen.automatik);
+  const automatik: DashAutomatik = {
+    stand: auto.notAus ? "notaus" : !REGELN.some((r) => auto.regeln[r.id]) ? "aus" : auto.probelauf ? "probelauf" : "an",
+    regeln: REGELN.filter((r) => auto.regeln[r.id]).map((r) => r.id.toUpperCase()),
+    eintraege: protokoll,
+  };
+
   return {
     uebersicht: ue,
+    erklaerungen,
+    loeschwuensche,
+    ankauf,
+    postausgang,
+    automatik,
     boerse,
     jetzt: jetztDran,
     warten,

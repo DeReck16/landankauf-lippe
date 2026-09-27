@@ -5,6 +5,7 @@ import { after } from "next/server";
 import { automatikNachAnfrage } from "@/lib/portal/automatik";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { menueErneuern } from "@/lib/admin/menue";
 import { site } from "@/lib/site";
 import { FLAECHENTYPEN } from "@/lib/lead-options";
 import { isAdminEmail } from "@/lib/admin/config";
@@ -198,6 +199,7 @@ export async function anfrageSpeichern(formData: FormData): Promise<void> {
     if (lead) await orteErgaenzen(email, [leadView(lead, zustand.anfragen[id]).ortText], 15_000);
   }
   revalidatePath("/admin", "layout");
+  menueErneuern();
 }
 
 /**
@@ -239,6 +241,7 @@ export async function wegFormular(formData: FormData): Promise<void> {
     m = "Unbekannte Auswahl.";
   }
   revalidatePath("/admin", "layout");
+  menueErneuern();
   redirect(`${zurueck}?m=${encodeURIComponent(m)}&mt=${ok ? "ok" : "fehler"}#weg`);
 }
 
@@ -255,6 +258,7 @@ export async function loeschwunschFormular(formData: FormData): Promise<void> {
       ? "Löschwunsch als erledigt vermerkt."
       : "Löschwunsch vermerkt — die Anfrage ist archiviert, ein Börsen-Angebot offline. Bitte innerhalb der Frist von Hand löschen bzw. (bei Verträgen) sperren; die Aufgabe steht im Dashboard.";
   revalidatePath("/admin", "layout");
+  menueErneuern();
   redirect(`/admin/anfrage/${id}?m=${encodeURIComponent(m)}&mt=${ok ? "ok" : "fehler"}#datenschutz`);
 }
 
@@ -321,6 +325,7 @@ export async function ortNeuSuchen(formData: FormData): Promise<void> {
   });
   await orteErgaenzen(email, [ortText], 15_000);
   revalidatePath("/admin", "layout");
+  menueErneuern();
 }
 
 export type OrteState = { text?: string };
@@ -332,6 +337,7 @@ export async function alleOrteNachschlagen(): Promise<OrteState> {
   const texte = leads.map((l) => leadView(l, zustand.anfragen[l.id])).filter((l) => l.status !== "archiv").map((l) => l.ortText);
   const { neu, offen } = await orteErgaenzen(email, texte, 25_000);
   revalidatePath("/admin", "layout");
+  menueErneuern();
   if (neu === 0 && offen === 0) return { text: "Alle Orte sind bereits bekannt." };
   return {
     text: offen > 0
@@ -356,6 +362,7 @@ export async function paarAktion(formData: FormData): Promise<void> {
     const [ka, kg] = await Promise.all([ladeKunde(aId), ladeKunde(gId)]);
     if (!beideUnterschrieben(ka, kg)) {
       revalidatePath("/admin", "layout");
+  menueErneuern();
       return;
     }
   }
@@ -404,6 +411,7 @@ export async function paarAktion(formData: FormData): Promise<void> {
     return { was, ref: key };
   });
   revalidatePath("/admin", "layout");
+  menueErneuern();
 }
 
 // ---------------------------------------------------------------------------
@@ -528,6 +536,7 @@ export async function boerseAktion(formData: FormData): Promise<void> {
     if (!r.ok) fehler = true;
   }
   revalidatePath("/admin", "layout");
+  menueErneuern();
   const name = lead && lead.name !== "—" ? `${lead.name}: ` : "";
   redirect(`${zurueck}?m=${encodeURIComponent(`${vomDashboard ? name : ""}${meldung || "Keine Änderung."}`)}&mt=${fehler ? "fehler" : "ok"}#boerse`);
 }

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { menueErneuern } from "@/lib/admin/menue";
 import type { Art } from "@/lib/admin/model";
 import { requireAdmin } from "@/lib/admin/session";
 import { flaechenEinstellen, flaechenPruefen, type EinstellErgebnis, type FlaechenZeile } from "@/lib/portal/eigene-flaechen";
@@ -40,6 +41,7 @@ export async function flaechenEinstellenAktion(fd: FormData): Promise<{ ergebnis
   if (eintraege.length === 0) return { fehler: "Keine Fläche ausgewählt." };
   const ergebnisse = await flaechenEinstellen({ eintraege, art, eigentuemer, email: mail, von: email });
   revalidatePath("/admin", "layout");
+  menueErneuern();
   revalidatePath("/");
   revalidatePath("/flaechenboerse");
   return { ergebnisse };

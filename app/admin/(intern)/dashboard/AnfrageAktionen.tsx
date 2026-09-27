@@ -23,7 +23,22 @@ function datumZeit(iso: string): string {
  * `ziel`: Abschnitt, über dem die Rückmeldung erscheint. `ticket`: Rückmeldung auf eine
  * Nachfass-Mail — dann statt „Archiv (Test/Spam)“ zweitrangig „Als beantwortet markieren“.
  */
-export default function AnfrageAktionen({ id, v, test, ziel = "anfragen", ticket = false }: { id: string; v: AnfrageVorschlag; test: boolean; ziel?: string; ticket?: boolean }) {
+export default function AnfrageAktionen({
+  id,
+  v,
+  test,
+  ziel = "anfragen",
+  ticket = false,
+  kompakt = false,
+}: {
+  id: string;
+  v: AnfrageVorschlag;
+  test: boolean;
+  ziel?: string;
+  ticket?: boolean;
+  /** Aufgabenzeile: nur der Hauptknopf (und die Weiche „Selbst kaufen“), Nebenknöpfe stehen in den Details. */
+  kompakt?: boolean;
+}) {
   const [fragen, setFragen] = useState<false | "haupt" | "alternativ">(false);
   const [werte, setWerte] = useState<Record<string, string>>({});
   const [pending, starten] = useTransition();
@@ -132,7 +147,7 @@ export default function AnfrageAktionen({ id, v, test, ziel = "anfragen", ticket
             {a.link.text}
           </Link>
         )}
-        {v.antworten && (
+        {!kompakt && v.antworten && (
           <a
             href={v.antworten.href}
             className="lfa-knopf lfa-knopf-hell lfa-anfrage-knopf"
@@ -141,7 +156,7 @@ export default function AnfrageAktionen({ id, v, test, ziel = "anfragen", ticket
             Antwort schreiben
           </a>
         )}
-        {ticket ? (
+        {kompakt ? null : ticket ? (
           a.id !== "beantwortet" && (
             <EinKlick
               aktion={anfrageStatusAktion}
@@ -162,9 +177,11 @@ export default function AnfrageAktionen({ id, v, test, ziel = "anfragen", ticket
             tipp="Test, Spam oder Dublette — archivieren: nicht mehr im Dashboard, nicht im Matching und nicht beim Nachfassen. Es geht keine E-Mail raus; in der Anfrage jederzeit zurückholbar."
           />
         )}
-        <Link href={`/admin/anfrage/${id}`} className="lfa-link-knopf lfa-anfrage-oeffnen" title="Anfrage öffnen: alle Angaben, Kontakt, E-Mail-Entwürfe, Einordnung fürs Matching und Verlauf">
-          Anfrage öffnen
-        </Link>
+        {!kompakt && (
+          <Link href={`/admin/anfrage/${id}`} className="lfa-link-knopf lfa-anfrage-oeffnen" title="Anfrage öffnen: alle Angaben, Kontakt, E-Mail-Entwürfe, Einordnung fürs Matching und Verlauf">
+            Anfrage öffnen
+          </Link>
+        )}
       </div>
       {a.gesperrt && (
         <p className="lfa-assistent-sperre" role="note">

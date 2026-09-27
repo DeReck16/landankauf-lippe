@@ -7,7 +7,7 @@ import * as M from "./model";
 import { NACHFASS_PAUSE_TAGE } from "./nachfassen";
 import { SPERRE_UNTERSCHRIFT, beideUnterschrieben } from "./schritte";
 import { einladungGesperrt } from "./anbieter-gruppe";
-import { ankaufAngebotVermerken } from "./weg";
+import { ankaufAngebotVermerken, wegSetzen } from "./weg";
 import { aendereKunde, aendereVorgang, alleKunden, istKundeId, istPaarKey, ladeKunde, ladeVorgang } from "./speicher";
 import * as T from "./texte";
 import * as V from "./vorgang";
@@ -155,6 +155,8 @@ export async function verwaltungsMailSenden(von: string, auftrag: VersandAuftrag
     if (res.ok && zweck === "bewertung") await V.bewertungVermerken(key, art, rolle, von);
   }
   if (res.ok && zweck === "ankauf") await ankaufAngebotVermerken(id, von);
+  // Weiche: Wer einen Anbieter zur Vereinbarung einlädt, hat „Vermitteln“ gewählt (auch aus einem Vorgang heraus).
+  if (res.ok && zweck === "einladung" && rolle === "anbieter" && !geladen.lead.meta.weg) await wegSetzen(id, "vermittlung", von);
   // Eine neue Anfrage gilt nach der ersten Antwort als beantwortet; eine Nachfass-Mail vermerkt
   // ihr Datum und setzt „Beantwortet“ (auch aus „In Arbeit“). Ohne Kundenakte steht die Mail
   // selbst im Verlauf der Anfrage — auch, wenn sie nicht rausging.

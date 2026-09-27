@@ -4,10 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export type NavZahlen = {
-  /** Vorgänge, bei denen die Verwaltung am Zug ist (Dashboard „Jetzt dran“). */
-  jetztDran: number;
-  /** Davon mit Neuem seit dem letzten Besuch (nur dann pulsiert der Zähler). */
-  jetztNeu: number;
+  /** Aufgaben im Dashboard („Jetzt zu tun“). */
+  aufgaben: number;
+  /** Davon dringend (Fristen & Recht). */
+  dringend: number;
+  /** Davon neu seit dem letzten Besuch (nur dann bzw. bei Dringendem pulsiert der Zähler). */
+  aufgabenNeu: number;
   neueAnfragen: number;
   offeneVorschlaege: number;
   neueVorschlaege: number;
@@ -36,13 +38,13 @@ export default function HauptNav({ z }: { z: NavZahlen }) {
       <Link
         href="/admin/dashboard"
         aria-current={dashboardAktiv ? "page" : undefined}
-        title="Alles, was jetzt zu tun ist — je Vorgang ein Knopf: einladen, anonym anfragen, freigeben, Verträge, Erinnerungen, Provision"
+        title="Alles, was jetzt zu tun ist — eine Liste, je Zeile ein Knopf: Fristen, Provision, wartende Kunden, neue Anfragen, Börse"
       >
         Dashboard
         <Zaehler
-          n={z.jetztDran}
-          puls={z.jetztNeu > 0}
-          tipp={`${z.jetztDran} Vorgänge, bei denen Sie jetzt dran sind${z.jetztNeu ? `, davon ${z.jetztNeu} mit Neuem seit Ihrem letzten Besuch` : ""}`}
+          n={z.aufgaben}
+          puls={z.aufgabenNeu > 0 || z.dringend > 0}
+          tipp={`${z.aufgaben} Aufgaben unter „Jetzt zu tun“${z.dringend ? `, davon ${z.dringend} dringend (Frist oder Recht)` : ""}${z.aufgabenNeu ? `, ${z.aufgabenNeu} neu seit Ihrem letzten Besuch` : ""} — Stand höchstens eine Minute alt`}
         />
       </Link>
       <Link href="/admin" aria-current={anfragenAktiv ? "page" : undefined} title="Alle Anfragen aus dem Formular auf lippeforst.de, neueste zuerst">

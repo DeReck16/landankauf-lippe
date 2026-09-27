@@ -295,7 +295,7 @@ function AktionsForm({ a, planKey, test, gross }: { a: AssistentAktion; planKey:
   );
 }
 
-function MeldungBox({ m, planKey, test }: { m: AssistentMeldung; planKey: string; test: boolean }) {
+function MeldungBox({ m, planKey, test, ohneErste = false }: { m: AssistentMeldung; planKey: string; test: boolean; ohneErste?: boolean }) {
   const [erste, ...rest] = m.aktionen;
   return (
     <div className={`lfa-assistent-meldung lfa-assistent-meldung-${m.art}`} role="note">
@@ -305,7 +305,7 @@ function MeldungBox({ m, planKey, test }: { m: AssistentMeldung; planKey: string
         <span className="lfa-klein">{datumZeit(m.am)}</span>
       </div>
       <div className="lfa-assistent-meldungstext">{m.text}</div>
-      {erste && <AktionsForm key={erste.signatur} a={erste} planKey={planKey} test={test} gross />}
+      {erste && !ohneErste && <AktionsForm key={erste.signatur} a={erste} planKey={planKey} test={test} gross />}
       {(rest.length > 0 || m.antworten) && (
         <div className="lfa-assistent-neben">
           {m.antworten && (
@@ -331,11 +331,14 @@ export default function Assistent({
   kompakt = false,
   weitere = true,
   ohneChips = false,
+  ohneHaupt = false,
 }: {
   plan: AssistentPlan;
   kompakt?: boolean;
   weitere?: boolean;
   ohneChips?: boolean;
+  /** Der Hauptknopf steht schon in der Aufgabenzeile (Dashboard) — hier nicht noch einmal. */
+  ohneHaupt?: boolean;
 }) {
   const ergebnis = useErgebnis(plan.key);
   const ergebnisRef = useRef<HTMLDivElement>(null);
@@ -385,10 +388,10 @@ export default function Assistent({
           {h.text}
         </p>
       ))}
-      {plan.meldungen.map((m) => (
-        <MeldungBox key={m.id} m={m} planKey={plan.key} test={plan.test} />
+      {plan.meldungen.map((m, i) => (
+        <MeldungBox key={m.id} m={m} planKey={plan.key} test={plan.test} ohneErste={ohneHaupt && i === 0} />
       ))}
-      {a && <AktionsForm key={a.signatur} a={a} planKey={plan.key} test={plan.test} gross />}
+      {a && !(ohneHaupt && plan.meldungen.length === 0) && <AktionsForm key={a.signatur} a={a} planKey={plan.key} test={plan.test} gross />}
       {zusatz.length > 0 && (
         <div className="lfa-assistent-neben">
           {zusatz.map((x) => (
@@ -407,5 +410,19 @@ export default function Assistent({
         </details>
       )}
     </section>
+  );
+}
+
+/**
+ * Nur der eine Knopf eines Vorgangs — für die Aufgabenzeile im Dashboard (Details stehen aufklappbar
+ * darunter). Zeigt auch das Ergebnis nach dem Klick. `a`: der Knopf (offene Meldung vor Hauptknopf).
+ */
+export function AssistentKnopf({ plan, a }: { plan: AssistentPlan; a: AssistentAktion }) {
+  const ergebnis = useErgebnis(plan.key);
+  return (
+    <div className="lfa-aufgabe-aktion">
+      {ergebnis && <Ergebnis state={ergebnis} schliessen={() => ergebnisLoeschen(plan.key)} />}
+      <AktionsForm key={a.signatur} a={a} planKey={plan.key} test={plan.test} gross />
+    </div>
   );
 }
