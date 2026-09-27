@@ -1,8 +1,8 @@
 import "server-only";
 import { createHash, createHmac, randomUUID } from "node:crypto";
-import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { BlobError, BlobPreconditionFailedError, get, list, put } from "@vercel/blob";
+import { BlobError, BlobPreconditionFailedError, del, get, list, put } from "@vercel/blob";
 import { blobToken, dataPrefix, lokalerSpeicher, sessionSecret } from "./config";
 import { leererZustand, normalizeLead, type LeadRecord, type ProtokollEintrag, type Zustand } from "./model";
 
@@ -228,6 +228,7 @@ export async function readZustand(): Promise<{ zustand: Zustand; etag: string | 
       paare: parsed.paare ?? {},
       orte: parsed.orte ?? {},
       protokoll: parsed.protokoll ?? [],
+      geloescht: parsed.geloescht ?? {},
     },
     etag: res.etag,
   };
@@ -481,8 +482,33 @@ export async function websiteDateiLesen<T>(relPfad: string, cacheOpt: { revalida
   return (await res.json()) as T;
 }
 
-/** Alle Dateien unter einem Präfix (Pfade ohne Daten-Präfix) — für Tests. */
+/** Alle Dateien unter einem Präfix (Pfade ohne Daten-Präfix) — für Tests und das Löschen. */
 export async function dateienListen(relPrefix: string): Promise<string[]> {
   const p = dataPrefix();
   return (await auflisten(`${p}${relPrefix}`)).map((x) => x.slice(p.length));
+}
+
+/** Pfade der Anfrage-Datei(en) zu einer Vorgangsnummer (leads/<datum>/<LL-ID>.json, ohne Daten-Präfix). */
+export async function leadPfade(id: string): Promise<string[]> {
+  if (!/^LL-[A-Z0-9]+$/.test(id)) return [];
+  return (await dateienListen("leads/")).filter((p) => p.endsWith(`/${id}.json`));
+}
+
+/**
+ * Dateien endgültig löschen (nur für „Vorgang endgültig löschen (DSGVO)“, lib/admin/loeschen.ts).
+ * Pfade ohne Daten-Präfix; fehlende Dateien gelten als gelöscht. Liefert die Zahl der Pfade.
+ */
+export async function dateienLoeschen(relPfade: string[]): Promise<number> {
+  const pfade = [...new Set(relPfade.filter((p) => p && !p.startsWith("/") && !p.includes("..")))];
+  if (pfade.length === 0) return 0;
+  const voll = pfade.map((p) => `${dataPrefix()}${p}`);
+  for (const pathname of voll) leadCache.delete(pathname);
+  const lokal = lokalerSpeicher();
+  if (lokal) {
+    for (const pathname of voll) rmSync(lokalPfad(lokal, pathname), { force: true });
+    return pfade.length;
+  }
+  // In kleinen Portionen, damit ein einzelner Aufruf überschaubar bleibt.
+  for (let i = 0; i < voll.length; i += 100) await del(voll.slice(i, i + 100), { token: blobToken() });
+  return pfade.length;
 }

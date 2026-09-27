@@ -398,6 +398,12 @@ export type VorgangRecord = {
    * Übersicht der Verwaltung; Freigabe und Nachweis bleiben unverändert bestehen.
    */
   beendet?: { am: string; von: string; grund: string };
+  /**
+   * Gesperrt, weil eine Partei ihre Daten hat löschen lassen (Art. 17 Abs. 3 lit. b, Art. 18 DSGVO):
+   * Vertrag, Nachweis und Provision bleiben bis `bis` aufbewahrt, sonst keine Verarbeitung mehr
+   * (lib/admin/loeschen.ts). Die Anfrage der gelöschten Partei gibt es nicht mehr.
+   */
+  sperre?: { am: string; von: string; bis: string; grund: string; parteien: Rolle[] };
   dokumente: DokumentMeta[];
   ereignisse: Ereignis[];
   mails: GesendeteMail[];

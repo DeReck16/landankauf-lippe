@@ -1193,7 +1193,8 @@ async function gutscheinMail(ctx: VorgangKontext, k: M.KundeRecord, l: LeadView,
 // Bitte um Google-Bewertung (ohne Anreiz, an alle abgeschlossenen Kunden)
 
 export function bewertungFaellig(v: M.VorgangRecord, e: M.Einstellungen, jetztD = new Date()): M.Rolle[] {
-  if (!v.abschluss) return [];
+  // Gesperrte Vorgänge (eine Partei hat löschen lassen) werden nicht mehr bearbeitet — auch keine Bewertungsbitte.
+  if (!v.abschluss || v.sperre) return [];
   const ab = new Date(v.abschluss.am).getTime() + (e.bewertung?.nachTagen ?? 3) * 86_400_000;
   if (jetztD.getTime() < ab) return [];
   return (["anbieter", "suchender"] as M.Rolle[]).filter((r) => !v.bewertung?.[r]);

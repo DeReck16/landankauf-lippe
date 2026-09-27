@@ -1,6 +1,6 @@
 import "server-only";
 import { createHash } from "node:crypto";
-import { jsonAendern, jsonLesen, jsonListe } from "@/lib/admin/store";
+import { dateienLoeschen, jsonAendern, jsonLesen, jsonListe } from "@/lib/admin/store";
 import {
   kundeNormal,
   leereEinstellungen,
@@ -46,6 +46,30 @@ async function indexErgaenzen(email: string, id: string): Promise<void> {
     if (d.ids.includes(id)) return false;
     d.ids.push(id);
   });
+}
+
+/**
+ * Eine Akte aus dem E-Mail-Index nehmen (beim endgültigen Löschen). Bleibt der Eintrag leer, wird die
+ * Datei gelöscht. Liefert, ob der Index die Akte enthielt.
+ */
+export async function indexEntfernen(email: string, id: string): Promise<boolean> {
+  const e = email.trim().toLowerCase();
+  if (!e || e === "—") return false;
+  const pfad = emailIndexPfad(e);
+  if (!(await jsonLesen<EmailIndex>(pfad))) return false;
+  let enthalten = false;
+  const d = await jsonAendern<EmailIndex>(pfad, () => ({ v: 1, ids: [] }), (x) => {
+    enthalten = x.ids.includes(id);
+    if (!enthalten) return false;
+    x.ids = x.ids.filter((y) => y !== id);
+  });
+  if (d.ids.length === 0) await dateienLoeschen([pfad]);
+  return enthalten;
+}
+
+/** Pfad der Sperrakte einer gelöschten Anfrage (nur Aufbewahrung, lib/admin/loeschen.ts) — nie im Kundenbereich. */
+export function sperraktePfad(id: string): string {
+  return `portal/gesperrt/${id}.json`;
 }
 
 /** Alle Kundenakten zu einer E-Mail-Adresse (ohne alle Akten zu lesen, sobald der Index steht). */

@@ -70,7 +70,10 @@ export type LeadMeta = {
    * (von der Verwaltung eingestellte Flächen gelten als eigene).
    */
   eigeneFlaeche?: boolean;
-  /** Löschwunsch nach Art. 17 DSGVO — vermerkt, Anfrage archiviert; gelöscht wird von Hand. */
+  /**
+   * Löschwunsch nach Art. 17 DSGVO — vermerkt (Anfrage archiviert, Frist im Dashboard); erledigt wird er mit
+   * „Vorgang endgültig löschen (DSGVO)“ (lib/admin/loeschen.ts) oder, ohne Löschen, per „Als erledigt vermerken“.
+   */
   loeschwunsch?: { am: string; von: string; frist: string; erledigtAm?: string; erledigtVon?: string; notiz?: string };
   /** Letzte erfolgreich gesendete Mail an den Kunden (auch ohne Kundenakte) — für „Nachfassen“. */
   letzterKontakt?: string;
@@ -203,16 +206,56 @@ export type GeoEintrag = GeoTreffer | { fehlt: true; am: string };
 
 export type ProtokollEintrag = { am: string; von: string; was: string; ref?: string };
 
+/**
+ * Was nach dem endgültigen Löschen eines Vorgangs übrig bleibt (Art. 17 DSGVO, lib/admin/loeschen.ts):
+ * nur Vorgangsnummer, Monat, Art, letzter Status und wer wann gelöscht hat — keine Personendaten.
+ * `gesperrt` nennt, was wegen Aufbewahrungspflichten nur gesperrt ist (Art. 17 Abs. 3 lit. b, Art. 18).
+ */
+export type Grabstein = {
+  id: string;
+  /** Monat des Eingangs (JJJJ-MM). */
+  monat: string;
+  /** Art der Anfrage, z. B. „Angebot · Pacht“ oder „Auskunft (Bewertung)“ — nur feste Begriffe. */
+  art: string;
+  /** Letzter Bearbeitungsstand (Status der Anfrage, ggf. Stand im Kundenbereich). */
+  status: string;
+  geloeschtAm: string;
+  geloeschtVon: string;
+  /** Löschwunsch, auf den das Löschen zurückgeht (nur Daten). */
+  loeschwunsch?: { am: string; frist: string };
+  /** Gelöscht — nur Kategorien und Anzahl. */
+  umfang: { was: string; anzahl: number }[];
+  /** Wegen Aufbewahrungspflicht nur gesperrt (bis zum Datum, dann löschen). */
+  gesperrt: GesperrtPosten[];
+  /** „laeuft“ = begonnen, noch nicht fertig; „unvollstaendig“ = mit Fehlern, erneut ausführen. */
+  stand: "laeuft" | "fertig" | "unvollstaendig";
+  fehler?: string[];
+};
+
+/** Ein wegen Aufbewahrungspflicht gesperrter Posten (ohne Personendaten). */
+export type GesperrtPosten = {
+  was: string;
+  /** Gesperrt bis (JJJJ-MM-TT), danach zu löschen. */
+  bis: string;
+  grund: string;
+  /** Wo die Daten liegen: Sperrakte der Anfrage oder Vorgang (Paar-Schlüssel). */
+  ort: "sperrakte" | "vorgang";
+  ref: string;
+  dokumente: { id: string; titel: string }[];
+};
+
 export type Zustand = {
   v: 1;
   anfragen: Record<string, LeadMeta>;
   paare: Record<string, MatchMeta>;
   orte: Record<string, GeoEintrag>;
   protokoll: ProtokollEintrag[];
+  /** Gelöschte Vorgänge (Grabsteine, ohne Personendaten). */
+  geloescht?: Record<string, Grabstein>;
 };
 
 export function leererZustand(): Zustand {
-  return { v: 1, anfragen: {}, paare: {}, orte: {}, protokoll: [] };
+  return { v: 1, anfragen: {}, paare: {}, orte: {}, protokoll: [], geloescht: {} };
 }
 
 export function paarKey(angebotId: string, gesuchId: string): string {
