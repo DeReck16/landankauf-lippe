@@ -8,7 +8,8 @@ import { ergebnisSetzen } from "../ergebnisse";
 import { EinKlick } from "./EinKlick";
 
 // Knöpfe einer neuen Anfrage ohne Paar (Dashboard): genau EIN vorgeschlagener
-// Hauptknopf (lib/portal/anfrage-vorschlag.ts). Vor dem Ausführen fragt er direkt
+// Hauptknopf (lib/portal/anfrage-vorschlag.ts) — bei einem Angebot mit offenem Weg
+// daneben die Weiche „Selbst kaufen“ (Direktankauf). Vor dem Ausführen fragt er direkt
 // in der Zeile nach und zeigt, was passiert und welche Mail an wen mit welchem
 // Betreff rausgeht (Text zum Aufklappen). Daneben zweitrangig: „Antwort schreiben“
 // (nur reine Auskunft), „Archiv (Test/Spam)“ und „Anfrage öffnen“. Die Rückmeldung
@@ -23,9 +24,11 @@ function datumZeit(iso: string): string {
  * Nachfass-Mail — dann statt „Archiv (Test/Spam)“ zweitrangig „Als beantwortet markieren“.
  */
 export default function AnfrageAktionen({ id, v, test, ziel = "anfragen", ticket = false }: { id: string; v: AnfrageVorschlag; test: boolean; ziel?: string; ticket?: boolean }) {
-  const [fragen, setFragen] = useState(false);
+  const [fragen, setFragen] = useState<false | "haupt" | "alternativ">(false);
+  const [werte, setWerte] = useState<Record<string, string>>({});
   const [pending, starten] = useTransition();
-  const a = v.aktion;
+  const a = fragen === "alternativ" && v.alternativ ? v.alternativ : v.aktion;
+  const alt = v.alternativ;
 
   function ausfuehren() {
     starten(async () => {
@@ -33,6 +36,7 @@ export default function AnfrageAktionen({ id, v, test, ziel = "anfragen", ticket
       fd.set("id", id);
       fd.set("aktion", a.id);
       fd.set("signatur", a.signatur);
+      for (const f of a.felder ?? []) fd.set(f.name, werte[f.name] ?? "");
       ergebnisSetzen(ziel, await anfrageVorschlagAktion(fd));
       setFragen(false);
     });
@@ -42,6 +46,19 @@ export default function AnfrageAktionen({ id, v, test, ziel = "anfragen", ticket
     return (
       <div className="lfa-assistent-frage lfa-anfrage-frage" role="alertdialog" aria-label="Sicherheitsabfrage">
         <strong>{a.frage}</strong>
+        {(a.felder ?? []).map((f) => (
+          <label key={f.name} className="lfa-anfrage-feld">
+            <span className="field-label">{f.label}</span>
+            <input
+              className="field-input"
+              inputMode="decimal"
+              value={werte[f.name] ?? ""}
+              placeholder={f.platzhalter}
+              title={f.tipp}
+              onChange={(ev) => setWerte((w) => ({ ...w, [f.name]: ev.target.value }))}
+            />
+          </label>
+        ))}
         <div>
           <span className="lfa-assistent-zwischen">Das passiert:</span>
           <ul className="lfa-assistent-liste">
@@ -95,10 +112,21 @@ export default function AnfrageAktionen({ id, v, test, ziel = "anfragen", ticket
           className="lfa-knopf lfa-anfrage-knopf"
           disabled={Boolean(a.gesperrt) || pending}
           title={a.gesperrt ? `Gesperrt: ${a.gesperrt}` : a.tipp}
-          onClick={() => setFragen(true)}
+          onClick={() => setFragen("haupt")}
         >
           {a.knopf}
         </button>
+        {alt && (
+          <button
+            type="button"
+            className="lfa-knopf lfa-knopf-hell lfa-anfrage-knopf"
+            disabled={Boolean(alt.gesperrt) || pending}
+            title={alt.gesperrt ? `Gesperrt: ${alt.gesperrt}` : alt.tipp}
+            onClick={() => setFragen("alternativ")}
+          >
+            {alt.knopf}
+          </button>
+        )}
         {a.link && (
           <Link href={a.link.href} className="lfa-knopf lfa-knopf-leise lfa-anfrage-knopf" title={a.link.tipp}>
             {a.link.text}

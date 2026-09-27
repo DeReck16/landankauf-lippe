@@ -18,6 +18,7 @@ export default function UnterschriftFormular({
   knopfTipp,
   zusammenfassung,
   vorKnopf,
+  auswahl,
 }: {
   aktion: (prev: UnterschriftState, fd: FormData) => Promise<UnterschriftState>;
   hidden: Record<string, string>;
@@ -27,6 +28,8 @@ export default function UnterschriftFormular({
   knopfTipp: string;
   zusammenfassung?: React.ReactNode;
   vorKnopf?: React.ReactNode;
+  /** Zusätzliche Auswahl im Formular (z. B. weitere Flächen, für die eine Vereinbarung gelten soll). */
+  auswahl?: React.ReactNode;
 }) {
   const [state, action, pending] = useActionState<UnterschriftState, FormData>(aktion, { status: "idle" });
   const fehlt = new Set(state.fehlt ?? []);
@@ -52,6 +55,7 @@ export default function UnterschriftFormular({
           </label>
         ))}
       </div>
+      {auswahl}
       {zusammenfassung}
       <div className="lfk-unterschrift">
         <label className="field-label" htmlFor="unterschrift-name">

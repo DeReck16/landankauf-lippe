@@ -16,8 +16,12 @@ export type AnfrageMail = {
   zuletzt?: string;
 };
 
+/** Eingabefeld direkt an der Aktion (z. B. Kaufpreis-Angebot beim Direktankauf). */
+export type AnfrageFeld = { name: string; label: string; tipp: string; platzhalter?: string };
+
 export type AnfrageAktion = {
-  id: "einladen" | "beantwortet";
+  /** einladen = vermitteln (Vereinbarung), ankauf = selbst kaufen, ergaenzen = weitere Fläche zur Vereinbarung, beantwortet = nur Status. */
+  id: "einladen" | "beantwortet" | "ankauf" | "ergaenzen";
   knopf: string;
   tipp: string;
   /** Überschrift der Rückfrage. */
@@ -29,6 +33,7 @@ export type AnfrageAktion = {
   gesperrt?: string;
   /** Weiterführender Link neben dem Knopf, z. B. zu den Vorlagen. */
   link?: { href: string; text: string; tipp: string };
+  felder?: AnfrageFeld[];
   /** Fingerabdruck des bestätigten Stands — der Server führt nur aus, wenn er noch gilt. */
   signatur: string;
 };
@@ -38,6 +43,11 @@ export type AnfrageVorschlag = {
   /** Ein Halbsatz: warum genau dieser Vorschlag. */
   warum: string;
   aktion: AnfrageAktion;
+  /**
+   * Weiche je Angebot (Dennis 27.09.2026): Solange der Weg offen ist, steht neben „Vermitteln“
+   * die Alternative „Selbst kaufen“ (Direktankauf durch die TR Vertriebs GmbH).
+   */
+  alternativ?: AnfrageAktion;
   /** „Antwort schreiben“ im eigenen Mailprogramm (nur reine Auskunft mit E-Mail-Adresse). */
   antworten: { href: string; an: string } | null;
 };

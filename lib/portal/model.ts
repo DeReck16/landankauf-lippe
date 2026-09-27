@@ -131,6 +131,8 @@ export type KundenVertrag = {
    * (lib/portal/anbieter-gruppe.ts). Alle Kopien teilen die dokumentId — Kündigung/Widerruf gilt für alle.
    */
   uebernommenVon?: string;
+  /** Vom Anbieter ausdrücklich auf diese Fläche erstreckt (bei der Unterschrift bzw. im Kundenbereich). */
+  ergaenzt?: { am: string; wie: "unterschrift" | "kundenbereich"; ip: string; userAgent: string; sitzung: string };
 };
 
 export type Erklaerung = {

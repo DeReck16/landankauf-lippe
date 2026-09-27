@@ -15,7 +15,8 @@ import type {
   AssistentPlan,
   AssistentWarten,
 } from "./assistent-typen";
-import { entwuerfeKunde, entwuerfePaar, type Entwurf, type MailZweck } from "./entwuerfe";
+import { vereinbarungFuer } from "./anbieter-gruppe";
+import { entwuerfeKunde, entwuerfePaar, vorgemerkteFlaechen, type Entwurf, type MailZweck } from "./entwuerfe";
 import * as M from "./model";
 import { SPERRE_FREIGABE, vertragGueltig, vorgangSchritte } from "./schritte";
 import * as T from "./texte";
@@ -40,6 +41,8 @@ export type AssistentUmgebung = {
   basis: string;
   bewertungsUrl: string | null;
   jetzt?: Date;
+  /** Alle Kundenakten — für Anbieter mit mehreren Flächen („Fläche bestätigen“ statt neuer Einladung). */
+  kunden?: Map<string, M.KundeRecord>;
 };
 
 type Seite = {
@@ -53,6 +56,8 @@ type Seite = {
   artikel: (typeof M.ROLLE_ARTIKEL)[M.Rolle];
   name: string;
   an: string;
+  /** Anbieter hat die Vereinbarung schon über eine andere Fläche — er bestätigt diese nur noch (nie automatisch). */
+  vereinbarung: M.KundeRecord | null;
 };
 
 type Bau = { ctx: VorgangKontext; u: AssistentUmgebung; jetzt: Date; seiten: Seite[] };
@@ -84,12 +89,13 @@ const TAG_MS = 86_400_000;
 // ---------------------------------------------------------------------------
 // Hilfen
 
-function seitenVon(ctx: VorgangKontext): Seite[] {
+function seitenVon(ctx: VorgangKontext, u?: AssistentUmgebung): Seite[] {
   const roh: [M.Rolle, M.KundeRecord | null, LeadView][] = [
     ["anbieter", ctx.anbieter, ctx.angebot],
     ["suchender", ctx.suchender, ctx.gesuch],
   ];
   return roh.map(([rolle, k, l]) => ({
+    vereinbarung: rolle === "anbieter" && u?.kunden ? vereinbarungFuer(l, k, u.kunden.values()) : null,
     rolle,
     k,
     l,
@@ -173,12 +179,21 @@ function paarEntwuerfe(b: Bau, vorgang: M.VorgangRecord | null = b.ctx.vorgang):
 
 /** Der echte, aktuelle Entwurf für eine Seite — zum Senden (mit gültigen Links). */
 export function assistentEntwurf(ctx: VorgangKontext, u: AssistentUmgebung, zweck: MailZweck, rolle: M.Rolle): Entwurf | null {
-  if (zweck === "einladung" || zweck === "erinnerung") {
+  if (zweck === "einladung" || zweck === "erinnerung" || zweck === "ergaenzen") {
     const lead = rolle === "anbieter" ? ctx.angebot : ctx.gesuch;
     const kunde = rolle === "anbieter" ? ctx.anbieter : ctx.suchender;
-    return entwuerfeKunde({ lead, kunde, einstellungen: u.einstellungen, basis: u.basis }).find((e) => e.zweck === zweck) ?? null;
+    return (
+      entwuerfeKunde({
+        lead,
+        kunde,
+        einstellungen: u.einstellungen,
+        basis: u.basis,
+        kunden: u.kunden?.values(),
+        vorschlaege: rolle === "suchender" ? vorgemerkteFlaechen(ctx.gesuch.id, ctx.zustand, [ctx.angebot]) : undefined,
+      }).find((e) => e.zweck === zweck) ?? null
+    );
   }
-  const b: Bau = { ctx, u, jetzt: u.jetzt ?? new Date(), seiten: seitenVon(ctx) };
+  const b: Bau = { ctx, u, jetzt: u.jetzt ?? new Date(), seiten: seitenVon(ctx, u) };
   return paarEntwuerfe(b).find((e) => e.zweck === zweck && e.rolle === rolle) ?? null;
 }
 
@@ -470,6 +485,11 @@ const VORLAGEN_LINK: AssistentLink = { href: "/admin/vorlagen", text: "Zu den Vo
  * Platzhalter ersetzt — gesendet wird später der echte Entwurf.
  */
 function einladungVorschau(b: Bau, s: Seite, zweck: "einladung" | "erinnerung", neuerLink: boolean): AssistentMail | null {
+  // Vereinbarung über eine andere Fläche: statt Einladung die Bitte, diese Fläche zu bestätigen (Zugangslink).
+  if (s.vereinbarung) {
+    const e = assistentEntwurf(b.ctx, b.u, "ergaenzen", s.rolle);
+    return e ? mailAus(e, s, { hinweis: `${s.wer} hat die Vereinbarung schon über Anfrage ${s.vereinbarung.id} bestätigt — er erstreckt sie mit einem Klick auf diese Fläche (nie automatisch).` }) : null;
+  }
   let kunde = s.k;
   let probeLink: string | null = null;
   if (neuerLink) {
@@ -481,7 +501,14 @@ function einladungVorschau(b: Bau, s: Seite, zweck: "einladung" | "erinnerung", 
     };
     probeLink = einladungsLink(kunde, b.u.basis);
   }
-  const e = entwuerfeKunde({ lead: s.l, kunde, einstellungen: b.u.einstellungen, basis: b.u.basis }).find((x) => x.zweck === zweck);
+  const e = entwuerfeKunde({
+    lead: s.l,
+    kunde,
+    einstellungen: b.u.einstellungen,
+    basis: b.u.basis,
+    kunden: b.u.kunden?.values(),
+    vorschlaege: s.rolle === "suchender" ? vorgemerkteFlaechen(b.ctx.gesuch.id, b.ctx.zustand, [b.ctx.angebot]) : undefined,
+  }).find((x) => x.zweck === zweck);
   if (!e) return null;
   return mailAus(e, s, {
     text: probeLink ? e.text.split(probeLink).join(NEUER_LINK) : e.text,
@@ -530,6 +557,16 @@ function schrittEinladung(b: Bau): Teil {
     }
     if (s.k?.einladung?.ueber) {
       uebersprungen.push(`${s.wer} ist schon eingeladen — über Anfrage ${s.k.einladung.ueber} (gleicher Anbieter, eine Vereinbarung für alle Flächen) — keine zweite Einladung.`);
+      continue;
+    }
+    if (s.vereinbarung) {
+      const zuletzt = s.k?.mails.find((m) => m.zweck === "ergaenzen" && m.ok)?.am;
+      if (zuletzt) {
+        uebersprungen.push(`${s.wer} wurde am ${datum(zuletzt)} gebeten, diese Fläche zu seiner Vereinbarung (Anfrage ${s.vereinbarung.id}) hinzuzufügen.`);
+        continue;
+      }
+      const m = einladungVorschau(b, s, "einladung", false);
+      if (m) mails.push(m);
       continue;
     }
     const neu = M.stufe(s.k) === "neu";
@@ -608,6 +645,18 @@ function schrittUnterschrift(b: Bau): Teil {
     const sperre = sperrGrund(s);
     if (sperre) {
       hinweise.push({ text: sperre, warn: true });
+      continue;
+    }
+    if (s.vereinbarung) {
+      const zuletzt = s.k?.mails.find((m) => m.zweck === "ergaenzen" && m.ok)?.am;
+      warten.push({ text: `${s.wer} ${s.name}: Fläche zur bestehenden Vereinbarung (Anfrage ${s.vereinbarung.id}) im Kundenbereich hinzufügen${zuletzt ? ` — gebeten am ${datum(zuletzt)}` : ""}`, seit: zuletzt ?? s.vereinbarung.vertrag?.signatur.am });
+      const bis = zuletzt ? erinnerungGesperrtBis(zuletzt, b.jetzt) : null;
+      if (bis) {
+        zuFrueh.push({ text: `${s.wer}: zuletzt am ${datum(zuletzt)} gebeten — Erinnerung frühestens ab ${zeitKurz(bis)}`, ab: bis });
+        continue;
+      }
+      const m = einladungVorschau(b, s, "erinnerung", false);
+      if (m) mails.push(m);
       continue;
     }
     const es = einladungsStand(s, b.jetzt);
@@ -1599,7 +1648,7 @@ function signatur(basis: unknown, a: Aktion): string {
 export function assistentPlan(ctx: VorgangKontext, u: AssistentUmgebung): AssistentPlan {
   const jetzt = u.jetzt ?? new Date();
   const sch = vorgangSchritte({ art: ctx.art, meta: ctx.meta, vorgang: ctx.vorgang, anbieter: ctx.anbieter, suchender: ctx.suchender }, jetzt);
-  const b: Bau = { ctx, u, jetzt, seiten: seitenVon(ctx) };
+  const b: Bau = { ctx, u, jetzt, seiten: seitenVon(ctx, u) };
   const v = ctx.vorgang;
   const beendet = Boolean(v?.beendet && !v.abschluss && !sch.verworfen);
   const meldungen = sch.verworfen ? [] : meldungenVon(b);

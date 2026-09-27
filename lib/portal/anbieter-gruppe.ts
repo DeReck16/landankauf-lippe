@@ -18,8 +18,10 @@ import { gleichePerson } from "./anbieter-regeln";
 // durch Dennis Reckling)“), braucht je Eigentümer eine eigene Vereinbarung. Deshalb:
 // - Einladen nur einmal: Läuft schon eine Einladung über eine andere Anfrage, bekommt diese
 //   Anfrage den Vermerk „eingeladen über …“ (einladung.ueber) statt einer eigenen Mail.
-// - Unterschreiben nur einmal: Die Vereinbarung wird auf alle Anfragen desselben Anbieters
-//   übertragen (vertrag.uebernommenVon, gleiche dokumentId); Kündigung/Widerruf gilt für alle.
+// - Unterschreiben nur einmal: Bei der Unterschrift wählt der Anbieter aus, für welche seiner
+//   Flächen die Vereinbarung gilt; später hinzukommende Flächen bestätigt er im Kundenbereich
+//   (vertrag.uebernommenVon + ergaenzt, gleiche dokumentId). Nie automatisch — gleiche Adresse und
+//   gleicher Nachname beweisen nicht dieselbe Person. Kündigung/Widerruf gilt für alle.
 
 type Mitglied = { id: string; rolle: M.Rolle | string; art: M.Art | string | null; email: string; name?: string };
 
@@ -62,6 +64,13 @@ export function vertragUeber(m: Mitglied, kunden: Iterable<M.KundeRecord>): M.Ku
   return liste.find((k) => !k.vertrag?.uebernommenVon) ?? liste[0] ?? null;
 }
 
+/** Gültige Vereinbarung desselben Anbieters über eine andere Anfrage — dann genügt „Fläche bestätigen“ statt Einladung. */
+export function vereinbarungFuer(l: LeadView, k: M.KundeRecord | null, kunden: Iterable<M.KundeRecord>): M.KundeRecord | null {
+  if (k?.vertrag) return null;
+  const m = ausLead(l, k);
+  return m && m.rolle === "anbieter" ? vertragUeber(m, kunden) : null;
+}
+
 /** Über welche andere Anfrage desselben Anbieters gerade eine Einladung läuft. */
 export function einladungUeber(m: Mitglied, kunden: Iterable<M.KundeRecord>, jetzt = Date.now()): M.KundeRecord | null {
   return geschwister(m, kunden).find((k) => aktiveEinladung(k, jetzt)) ?? null;
@@ -74,7 +83,7 @@ export function einladungGesperrt(m: Mitglied, eigene: M.KundeRecord | null, kun
   const ueber = eigene?.einladung?.ueber ? alle.find((k) => k.id === eigene.einladung!.ueber) : undefined;
   if (ueber && aktiveEinladung(ueber, jetzt) && gleichePerson(m.name, kundenName(ueber))) return `Die Einladung läuft über Anfrage ${ueber.id} (gleicher Anbieter) — eine Vereinbarung gilt für alle seine Flächen, keine zweite Mail.`;
   const v = vertragUeber(m, alle);
-  if (v) return `Der Anbieter hat die Vereinbarung schon über Anfrage ${v.id} unterschrieben — sie gilt auch für diese Fläche, keine Einladung nötig.`;
+  if (v) return `Der Anbieter hat die Vereinbarung schon über Anfrage ${v.id} unterschrieben — statt einer Einladung bestätigt er diese Fläche mit einem Klick im Kundenbereich (Mail „Weitere Fläche bestätigen“).`;
   const e = einladungUeber(m, alle, jetzt);
   if (e && !aktiveEinladung(eigene, jetzt)) return `Die Einladung läuft schon über Anfrage ${e.id} (gleicher Anbieter) — nach der Unterschrift gilt die Vereinbarung automatisch auch für diese Fläche.`;
   return null;
@@ -85,31 +94,58 @@ function eigenerLink(k: M.KundeRecord, jetzt = Date.now()): boolean {
   return Boolean(k.einladung && !k.einladung.kopie && Date.parse(k.einladung.bis) > jetzt);
 }
 
-/** Vereinbarung einer Kundenakte auf eine andere Anfrage desselben Anbieters übertragen (legt die Kundenakte bei Bedarf an). */
-async function uebertragen(quelle: M.KundeRecord, l: LeadView, von: string): Promise<M.KundeRecord | null> {
-  if (!quelle.vertrag) return null;
+/**
+ * Die Vereinbarung eines Anbieters auf eine weitere seiner Anfragen erstrecken — NUR auf seine
+ * ausdrückliche Bestätigung (Häkchen bei der Unterschrift oder Knopf „Zur Vereinbarung hinzufügen“
+ * im Kundenbereich), nie automatisch: Die Unterschrift nennt bestimmte Flächen, und gleiche
+ * E-Mail-Adresse und Nachname beweisen nicht, dass es dieselbe Person ist.
+ * Legt die Kundenakte bei Bedarf an. Liefert die geänderte Akte oder null.
+ */
+export async function vereinbarungErgaenzen(
+  quelle: M.KundeRecord,
+  l: LeadView,
+  bestaetigung: { wie: "unterschrift" | "kundenbereich"; ip: string; userAgent: string; sitzung: string },
+): Promise<M.KundeRecord | null> {
+  if (!quelle.vertrag || quelle.rolle !== "anbieter") return null;
   try {
-    await A.kundeSicherstellen(l, von);
+    await A.kundeSicherstellen(l, "kunde");
   } catch (err) {
     console.error("[anbieter] Kundenakte nicht anlegbar", l.id, err);
     return null;
   }
   const doc = quelle.dokumente.find((d) => d.id === quelle.vertrag!.dokumentId);
+  const am = new Date().toISOString();
   let geaendert = false;
   const k = await aendereKunde(l.id, (x) => {
     if (x.vertrag || x.gesperrt || x.widerruf || x.kuendigung) return false;
-    x.vertrag = { ...quelle.vertrag!, uebernommenVon: quelle.vertrag!.uebernommenVon ?? quelle.id };
+    // Nur wirklich dieselbe Person mit derselben Adresse und Art.
+    if (x.email !== quelle.email || x.rolle !== "anbieter" || x.art !== quelle.art || !gleichePerson(x.name ?? x.stammdaten?.name, quelle.name ?? quelle.stammdaten?.name)) return false;
+    x.vertrag = { ...quelle.vertrag!, uebernommenVon: quelle.vertrag!.uebernommenVon ?? quelle.id, ergaenzt: { am, ...bestaetigung } };
     if (!x.stammdaten && quelle.stammdaten) x.stammdaten = { ...quelle.stammdaten };
     if (doc && !x.dokumente.some((d) => d.id === doc.id)) x.dokumente.unshift(doc);
     M.ereignis(
       x,
-      von,
+      "kunde",
       "vertrag-unterschrieben",
-      `Vereinbarung für Anbieter gilt auch für diese Fläche — unterschrieben über Anfrage ${x.vertrag.uebernommenVon} am ${T.datumDe(quelle.vertrag!.signatur.am)} von „${quelle.vertrag!.signatur.name}“`,
+      `Vereinbarung für Anbieter gilt auch für diese Fläche — vom Anbieter ${bestaetigung.wie === "unterschrift" ? "bei der Unterschrift ausgewählt" : "im Kundenbereich bestätigt"} (Vereinbarung über Anfrage ${x.vertrag.uebernommenVon}, unterschrieben am ${T.datumDe(quelle.vertrag!.signatur.am)} von „${quelle.vertrag!.signatur.name}“)`,
     );
     geaendert = true;
   });
   return geaendert ? k : null;
+}
+
+/** Weitere Anfragen desselben Anbieters ohne Vereinbarung (für die Auswahl bei der Unterschrift bzw. „hinzufügen“). */
+export function weitereFlaechenOhneVereinbarung(k: M.KundeRecord, leads: LeadView[], kunden: Iterable<M.KundeRecord>): LeadView[] {
+  if (k.rolle !== "anbieter") return [];
+  const akten = new Map([...kunden].map((x) => [x.id, x]));
+  const name = k.name ?? k.stammdaten?.name;
+  return leads.filter((l) => {
+    if (l.id === k.id || l.status === "archiv" || l.status === "erledigt") return false;
+    const x = akten.get(l.id);
+    if (x?.vertrag || x?.gesperrt) return false;
+    const m = ausLead(l, x ?? null);
+    return Boolean(m && m.rolle === "anbieter" && m.art === k.art && m.email === k.email && gleichePerson(m.name, name));
+  });
 }
 
 /**
@@ -235,7 +271,9 @@ export async function anbieterAbgleich(opts: {
         if (l.status === "archiv" || k?.vertrag || k?.gesperrt) continue;
         let neu: M.KundeRecord | null = null;
         if (quelleVertrag) {
-          if (l.status !== "erledigt") neu = await uebertragen(quelleVertrag, l, von);
+          // Vereinbarung liegt über eine andere Fläche vor: keine Einladung nötig — der Anbieter
+          // bestätigt diese Fläche selbst im Kundenbereich (nie automatisch übertragen).
+          continue;
         } else if (k?.einladung?.ueber) {
           // Gilt die Einladung, über die diese Anfrage lief, nicht mehr (oder gehört sie zu einem anderen Eigentümer):
           // auf die aktuelle Quelle umhängen oder lösen.

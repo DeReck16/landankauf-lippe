@@ -8,7 +8,6 @@ import { boerseLuecken, haText } from "@/lib/boerse";
 import { ladeNeu, ladePortal } from "@/lib/admin/neu";
 import type { AnfrageVorschlag, AntwortEntwurf, NachfassKandidat } from "./anfrage-typen";
 import { anfrageVorschlagSicher } from "./anfrage-vorschlag";
-import { anbieterAbgleich } from "./anbieter-gruppe";
 import { antwortEntwurf } from "./antwort";
 import { katasterNachholen } from "./kataster";
 import { assistentPlan, type AssistentChip, type AssistentPlan } from "./assistent";
@@ -283,14 +282,6 @@ export const ladeDashboard = cache(async (email: string): Promise<Dashboard> => 
   const warten: DashVorgang[] = [];
   const abgeschlossen: DashVorgang[] = [];
   const gesehen: string[] = [];
-
-  // Anbieter mit mehreren Flächen: eine Einladung, eine Unterschrift — Vereinbarung übertragen bzw.
-  // laufende Einladung vermerken, bevor die Vorgänge berechnet werden (lib/portal/anbieter-gruppe.ts).
-  try {
-    await anbieterAbgleich({ leads, kunden: portal.kunden, zustand, von: email });
-  } catch (err) {
-    console.error("[dashboard] Anbieter-Abgleich fehlgeschlagen", err);
-  }
 
   for (const [key, meta] of Object.entries(zustand.paare)) {
     if (meta.status === "vorschlag" || meta.status === "verworfen") continue;

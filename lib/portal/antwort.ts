@@ -1,7 +1,7 @@
 import "server-only";
-import { formatGroesse, type KatasterDaten, type LeadView, type Rueckmeldung } from "@/lib/admin/model";
-import { CITIES, type City } from "@/lib/cities";
-import { valuate, type FlaechenTyp } from "@/lib/valuation";
+import { formatGroesse, type LeadView, type Rueckmeldung } from "@/lib/admin/model";
+import type { FlaechenTyp } from "@/lib/valuation";
+import { TYP_NAME, gemeindeAus, genauer, qm, wertAusBrw, wertTyp, wertindikation } from "./wert";
 import { GRUSS } from "./ablauf";
 import type { AntwortEntwurf, AntwortThema } from "./anfrage-typen";
 import { anfrageBezug, antwortLink } from "./entwuerfe";
@@ -74,100 +74,6 @@ const TYP_STICHWORTE: [RegExp, FlaechenTyp][] = [
   [/\bwald\b|forst|holzbestand|fichte|buche|eiche|aufforst/i, "wald"],
   [/bauland|bauplatz|baugrund|bebaubar/i, "bauland"],
 ];
-
-const TYP_NAME: Record<FlaechenTyp, string> = { ackerland: "Ackerland", gruenland: "Grünland", wald: "Wald", bauland: "Bauland" };
-
-function wertTyp(flaechentyp: string): FlaechenTyp | null {
-  if (flaechentyp === "Ackerland") return "ackerland";
-  if (flaechentyp === "Wiese / Grünland") return "gruenland";
-  if (flaechentyp === "Wald / Forst") return "wald";
-  if (flaechentyp === "Bauland") return "bauland";
-  return null;
-}
-
-function norm(s: string): string {
-  return s.toLowerCase().replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss");
-}
-
-const ALIAS: [RegExp, string][] = [
-  [/(^|[^a-z])bad meinberg([^a-z]|$)/, "horn-bad-meinberg"],
-  [/(^|[^a-z])horn([^a-z]|$)/, "horn-bad-meinberg"],
-  [/(^|[^a-z])(schieder|schwalenberg)([^a-z]|$)/, "schieder-schwalenberg"],
-  [/(^|[^a-z])salzuflen([^a-z]|$)/, "bad-salzuflen"],
-];
-
-/** Lipper Gemeinde im Ortstext — ganze Wörter („Hanglage“ ist nicht Lage), längste Namen zuerst. */
-function gemeindeAus(ort: string): City | null {
-  const o = norm(ort);
-  if (!o) return null;
-  for (const c of [...CITIES].sort((a, b) => b.name.length - a.name.length)) {
-    const n = norm(c.name).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    if (new RegExp(`(^|[^a-z])${n}([^a-z]|$)`).test(o)) return c;
-  }
-  for (const [re, slug] of ALIAS) if (re.test(o)) return CITIES.find((c) => c.slug === slug) ?? null;
-  return null;
-}
-
-const euro2 = (n: number) => n.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const euroRund = (n: number) => (Math.round(n / 1000) * 1000).toLocaleString("de-DE");
-const qm = (ha: number) => Math.round(ha * 10_000).toLocaleString("de-DE");
-
-type Wert = { satz: string; kurz: string; hint: string | null };
-
-/** Wertindikation wie im Bewertungstool; Bauland nach dem Bodenrichtwert der Gemeinde (mittlere Lage). */
-function wertindikation(typ: FlaechenTyp, ha: number | null, city: City | null): Wert | null {
-  if (typ === "bauland") {
-    if (!city) return null;
-    const w = city.baulandMittlereLage;
-    const gesamt = ha != null && ha > 0 && ha <= 1 ? ` Für Ihre rund ${qm(ha)} m² wären das bei mittlerer Lage etwa ${euroRund(w * ha * 10_000)} €.` : "";
-    return {
-      satz: `Wohnbauland in mittlerer Lage liegt ${city.display} laut Grundstücksmarktbericht Kreis Lippe 2026 bei rund ${w} € je m² (Bodenrichtwert).${gesamt}`,
-      kurz: `Bauland mittlere Lage ${city.name}: ${w} €/m²${gesamt ? ` · ≈ ${euroRund(w * ha! * 10_000)} €` : ""}`,
-      hint: null,
-    };
-  }
-  if (ha == null || ha <= 0) return null;
-  const r = valuate({ typ, groesseHa: ha, gemeinde: city?.name.toLowerCase() });
-  const [a, b] = r.perM2Range;
-  const qmZahl = ha * 10_000;
-  return {
-    satz: `${TYP_NAME[typ]} ${city ? city.display : "im Kreis Lippe"} liegt nach unserer Auswertung des Grundstücksmarktberichts Kreis Lippe 2026 derzeit bei etwa ${euro2(a)} bis ${euro2(b)} € je m². Für Ihre rund ${qm(ha)} m² ergibt das grob ${euroRund(a * qmZahl)} bis ${euroRund(b * qmZahl)} €.`,
-    kurz: `${euro2(a)}–${euro2(b)} €/m² · ${euroRund(a * qmZahl)}–${euroRund(b * qmZahl)} €`,
-    hint: r.hint,
-  };
-}
-
-const datumTag = (iso: string) => (/^\d{4}-\d{2}-\d{2}/.test(iso) ? `${iso.slice(8, 10)}.${iso.slice(5, 7)}.${iso.slice(0, 4)}` : iso);
-
-/** Wertindikation aus dem amtlichen Bodenrichtwert am Flurstück (BORIS NRW) — genauer als der Kreisdurchschnitt. */
-function wertAusBrw(k: KatasterDaten): Wert | null {
-  const f = k.flurstueck;
-  const b = k.brw;
-  if (!f || !b || !f.flaecheM2) return null;
-  const ga = b.gutachterausschuss.replace(/^Der\s+/, "") || "Gutachterausschuss für Grundstückswerte";
-  const artText = b.art === "forstwirtschaft" ? "Waldflächen (Boden ohne Aufwuchs)" : b.art === "wohnbau" ? "Wohnbauland" : "landwirtschaftliche Flächen";
-  const gesamt = b.wert * f.flaecheM2;
-  return {
-    satz: `Der amtliche Bodenrichtwert für ${artText} in Ihrer Lage liegt bei ${euro2(b.wert)} € je m² (Stichtag ${datumTag(b.stichtag)}, ${ga}). Für Ihr Flurstück ${f.gemarkung}, Flur ${f.flur}, Flurstück ${f.nummer} mit amtlich ${qm(f.flaecheM2 / 10_000)} m² ergibt das rechnerisch rund ${euroRund(gesamt)} €.${b.art === "forstwirtschaft" ? " Der Wert des Holzbestands kommt hinzu." : ""}`,
-    kurz: `Bodenrichtwert ${euro2(b.wert)} €/m² (${datumTag(b.stichtag)}) · amtlich ${qm(f.flaecheM2 / 10_000)} m² · ≈ ${euroRund(gesamt)} €`,
-    hint: null,
-  };
-}
-
-/** Was den Wert innerhalb der Spanne bestimmt und was wir dafür noch wissen möchten. */
-function genauer(typ: FlaechenTyp, hatFlurstueck: boolean): { faktoren: string; nachfrage: string } {
-  const flst = hatFlurstueck ? "" : "das Flurstück und ";
-  switch (typ) {
-    case "ackerland":
-      return { faktoren: "der Bodengüte (Ackerzahl), dem Zuschnitt und der Zufahrt", nachfrage: hatFlurstueck ? "die Ackerzahl, falls Sie sie kennen" : "das Flurstück und – falls bekannt – die Ackerzahl" };
-    case "gruenland":
-      return { faktoren: "der Bewirtschaftbarkeit, einer möglichen Hanglage und Schutzgebietsauflagen", nachfrage: `${flst}die heutige Nutzung (Mahd oder Weide)` };
-    case "wald":
-      return { faktoren: "Baumarten, Alter und Zustand des Bestands sowie der Erschließung", nachfrage: `${flst}Angaben zum Bestand (Baumarten, Alter, Schäden)` };
-    default:
-      return { faktoren: "der genauen Lage, dem Zuschnitt und der Bebaubarkeit", nachfrage: hatFlurstueck ? "die genaue Adresse" : "die genaue Adresse oder das Flurstück" };
-  }
-}
 
 function aufzaehlen(teile: string[]): string {
   return teile.length <= 1 ? (teile[0] ?? "") : `${teile.slice(0, -1).join(", ")} und ${teile.at(-1)}`;

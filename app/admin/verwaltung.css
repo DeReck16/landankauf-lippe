@@ -783,3 +783,8 @@ a.lfa-kachel:hover { border-color: var(--color-brand); }
 .lfa-flaechen-wahl input { margin-top: 0.3rem; flex: none; }
 .lfa-flaechen-karte { display: grid; grid-template-columns: minmax(0, 1fr) minmax(9rem, 12rem) minmax(0, 2fr); gap: 0.5rem; align-items: center; padding-left: 1.6rem; }
 @media (max-width: 760px) { .lfa-flaechen-karte { grid-template-columns: minmax(0, 1fr); padding-left: 0; } }
+
+/* Weiche „Selbst kaufen / Vermitteln“: Eingabefeld (Kaufpreis) in der Sicherheitsabfrage */
+.lfa-anfrage-feld { display: flex; flex-direction: column; gap: 0.25rem; max-width: 18rem; }
+.lfa-weg { display: flex; flex-direction: column; gap: 0.6rem; }
+.lfa-weg-wahl { display: flex; flex-wrap: wrap; gap: 0.5rem; }

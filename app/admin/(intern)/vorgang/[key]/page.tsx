@@ -7,7 +7,7 @@ import { datumZeit } from "@/lib/admin/format";
 import { ladeNeu, ladePortal } from "@/lib/admin/neu";
 import FlaechenEditor from "@/components/portal/FlaechenEditor";
 import VertragsText from "@/components/vertrag/VertragsText";
-import { entwuerfeKunde, entwuerfePaar } from "@/lib/portal/entwuerfe";
+import { entwuerfeKunde, vorgemerkteFlaechen, entwuerfePaar } from "@/lib/portal/entwuerfe";
 import * as M from "@/lib/portal/model";
 import { basisUrl } from "@/lib/portal/sitzung";
 import { datumDe, tagDe } from "@/lib/portal/texte";
@@ -53,7 +53,6 @@ import MailEntwurf from "../../MailEntwurf";
 import Assistent from "../../Assistent";
 import { DokumentListe, KundenStand, Meldung, Verlauf } from "../../teile";
 import { SchrittLeiste } from "../../Schritte";
-import { anbieterAbgleichFuer } from "@/lib/portal/anbieter-gruppe";
 
 export const metadata: Metadata = { title: "Vorgang" };
 
@@ -818,7 +817,6 @@ export default async function VorgangPage(props: PageProps<"/admin/vorgang/[key]
   const vorschau = sp.vorschau === "1";
   if (!/^LL-[A-Z0-9]+~LL-[A-Z0-9]+$/.test(key)) notFound();
   // Anbieter mit mehreren Flächen: vorher abgleichen (eine Einladung, eine Unterschrift für alle Flächen).
-  if (/^LL-[A-Z0-9]+~LL-[A-Z0-9]+$/.test(key)) await anbieterAbgleichFuer(key.split("~")[0], email);
   const [ctx, portal, neu, basis] = await Promise.all([ladeVorgangKontext(key), ladePortal(), ladeNeu(email), basisUrl()]);
   if (!ctx) notFound();
   const zurueck = `/admin/vorgang/${key}`;
@@ -834,9 +832,10 @@ export default async function VorgangPage(props: PageProps<"/admin/vorgang/[key]
   const entwuerfe = [
     ...entwuerfePaar({ key, angebot: ctx.angebot, gesuch: ctx.gesuch, anbieter: ctx.anbieter, suchender: ctx.suchender, vorgang: v, meta: ctx.meta, zustand: ctx.zustand, einstellungen: portal.einstellungen, basis, bewertungsUrl }),
     ...(status === "vorgemerkt" || status === "angefragt"
-      ? [...entwuerfeKunde({ lead: ctx.gesuch, kunde: ctx.suchender, einstellungen: portal.einstellungen, basis }), ...entwuerfeKunde({ lead: ctx.angebot, kunde: ctx.anbieter, einstellungen: portal.einstellungen, basis })].filter(
-          (e) => e.zweck === "einladung" || e.zweck === "erinnerung",
-        )
+      ? [
+          ...entwuerfeKunde({ lead: ctx.gesuch, kunde: ctx.suchender, einstellungen: portal.einstellungen, basis, kunden: portal.kunden.values(), vorschlaege: vorgemerkteFlaechen(ctx.gesuch.id, ctx.zustand, [ctx.angebot]) }),
+          ...entwuerfeKunde({ lead: ctx.angebot, kunde: ctx.anbieter, einstellungen: portal.einstellungen, basis, kunden: portal.kunden.values() }),
+        ].filter((e) => e.zweck === "einladung" || e.zweck === "erinnerung" || e.zweck === "ergaenzen")
       : []),
   ];
 

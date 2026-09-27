@@ -9,6 +9,7 @@ import { listLeads, readZustand } from "@/lib/admin/store";
 import * as A from "@/lib/portal/ablauf";
 import { anbieterAbgleichFuer } from "@/lib/portal/anbieter-gruppe";
 import { anfrageVorschlag } from "@/lib/portal/anfrage-vorschlag";
+import { preisLesen, wegSetzen } from "@/lib/portal/weg";
 import { ASSISTENT_AKTIONEN, alleAktionen, assistentEntwurf, assistentPlan, type AssistentAktionId, type AssistentMail, type AssistentUmgebung } from "@/lib/portal/assistent";
 import { entwuerfeKunde } from "@/lib/portal/entwuerfe";
 import * as M from "@/lib/portal/model";
@@ -57,9 +58,9 @@ function plusTage(ymd: string, tage: number): string {
   return new Date(Date.UTC(y, m - 1, d + tage)).toISOString().slice(0, 10);
 }
 
-async function umgebung(): Promise<AssistentUmgebung> {
-  const einstellungen = await ladeEinstellungen();
-  return { einstellungen, basis: await basisUrl(), bewertungsUrl: M.bewertungsUrl(einstellungen, process.env.GOOGLE_REVIEW_URL) };
+async function umgebung(): Promise<AssistentUmgebung & { kunden: Map<string, M.KundeRecord> }> {
+  const [einstellungen, kunden] = await Promise.all([ladeEinstellungen(), alleKunden()]);
+  return { einstellungen, basis: await basisUrl(), bewertungsUrl: M.bewertungsUrl(einstellungen, process.env.GOOGLE_REVIEW_URL), kunden: new Map(kunden.map((k) => [k.id, k])) };
 }
 
 function ergebnis(knopf: string, zeilen: AssistentZeile[]): AssistentState {
@@ -485,13 +486,14 @@ export async function anfrageVorschlagAktion(fd: FormData): Promise<AssistentSta
   const id = feld(fd, "id", 40);
   const aktion = feld(fd, "aktion", 20);
   const signatur = feld(fd, "signatur", 64);
-  if (!istKundeId(id) || (aktion !== "einladen" && aktion !== "beantwortet")) return { status: "fehler", titel: "Ungültige Anfrage.", zeilen: [], am };
+  if (!istKundeId(id) || !["einladen", "beantwortet", "ankauf", "ergaenzen"].includes(aktion)) return { status: "fehler", titel: "Ungültige Anfrage.", zeilen: [], am };
   const geladen = await A.ladeLead(id);
   if (!geladen) return { status: "fehler", titel: "Anfrage nicht gefunden.", zeilen: [], am };
   const { lead } = geladen;
   const u = await umgebung();
-  const kunden = new Map((await alleKunden()).map((k) => [k.id, k]));
-  const a = anfrageVorschlag(lead, await ladeKunde(id), { ...u, kunden }).aktion;
+  const v = anfrageVorschlag(lead, await ladeKunde(id), u);
+  // Hauptknopf oder die Alternative der Weiche („Selbst kaufen“) — je nachdem, was bestätigt wurde.
+  const a = v.alternativ?.id === aktion ? v.alternativ : v.aktion;
   // Nur ausführen, was bestätigt wurde — sonst neu anzeigen (z. B. schon beantwortet oder neuer Link erstellt).
   if (lead.status !== "neu" || a.id !== aktion || a.signatur !== signatur) {
     revalidatePath("/admin", "layout");
@@ -514,6 +516,42 @@ export async function anfrageVorschlagAktion(fd: FormData): Promise<AssistentSta
       f.set("status", "beantwortet");
       await anfrageSpeichern(f);
       zeilen.push({ art: "ok", text: `Anfrage von ${name} als beantwortet markiert — sie steht nicht mehr unter „Neue Anfragen“` });
+    } else if (a.id === "ankauf") {
+      const rr = rolleVonLead(lead);
+      if (!rr || rr.rolle !== "anbieter") throw new Error("Selbst kaufen geht nur bei Angeboten.");
+      const preisRoh = feld(fd, "preis", 30);
+      const preis = preisRoh ? preisLesen(preisRoh) : null;
+      if (preisRoh && preis === null) return { status: "fehler", titel: "Nichts ausgeführt — der Kaufpreis ist nicht lesbar.", zeilen: [{ art: "info", text: "Bitte nur eine Zahl eintragen, z. B. 25000 oder 25.000." }], am };
+      await wegSetzen(id, "ankauf", email, { preis });
+      zeilen.push({ art: "ok", text: `Weg „Selbst kaufen“ vermerkt${preis ? ` — Kaufpreis-Angebot ${M.euro(preis)}` : ""}; die Fläche kommt nicht in Börse und Matching` });
+      const neu = await A.ladeLead(id);
+      const kunde = await ladeKunde(id);
+      const e = neu ? entwuerfeKunde({ lead: neu.lead, kunde, einstellungen: u.einstellungen, basis: u.basis }).find((x) => x.zweck === "ankauf") : undefined;
+      if (!e) {
+        zeilen.push({ art: "fehler", text: "Mail nicht gesendet — kein Entwurf für den Direktankauf möglich." });
+      } else {
+        const r = await verwaltungsMailSenden(email, { zweck: "ankauf", kundeId: id, rolle: rr.rolle, an: e.an, betreff: e.betreff, text: e.text });
+        if (r.ok) {
+          zeilen.push({ art: "ok", text: `E-Mail an ${name} (${e.an}): „${e.betreff}“` });
+          zeilen.push({ art: "ok", text: "Status → „Beantwortet“ — das Ergebnis (gekauft, abgelehnt, doch vermitteln) erfassen Sie in der Anfrage" });
+        } else {
+          zeilen.push({ art: "fehler", text: `E-Mail an ${name} (${e.an}) nicht gesendet: ${r.text}` });
+        }
+      }
+    } else if (a.id === "ergaenzen") {
+      const rr = rolleVonLead(lead);
+      const kunde = await ladeKunde(id);
+      const e = entwuerfeKunde({ lead, kunde, einstellungen: u.einstellungen, basis: u.basis, kunden: u.kunden.values() }).find((x) => x.zweck === "ergaenzen");
+      if (!rr || !e || e.gesperrt) {
+        zeilen.push({ art: "fehler", text: `Mail nicht gesendet — ${e?.gesperrt ?? "keine Bestätigung möglich"}` });
+      } else {
+        const r = await verwaltungsMailSenden(email, { zweck: "ergaenzen", kundeId: id, rolle: rr.rolle, an: e.an, betreff: e.betreff, text: e.text });
+        zeilen.push(r.ok ? { art: "ok", text: `E-Mail an ${name} (${e.an}): „${e.betreff}“` } : { art: "fehler", text: `E-Mail an ${name} (${e.an}) nicht gesendet: ${r.text}` });
+        if (r.ok) {
+          if (!lead.meta.weg) await wegSetzen(id, "vermittlung", email);
+          zeilen.push({ art: "ok", text: "Status → „Beantwortet“ — der Anbieter bestätigt die Fläche mit einem Klick im Kundenbereich" });
+        }
+      }
     } else {
       const rr = rolleVonLead(lead);
       const m = a.mails[0];
@@ -525,13 +563,19 @@ export async function anfrageVorschlagAktion(fd: FormData): Promise<AssistentSta
         zeilen.push({ art: "ok", text: `Persönlicher Einladungslink für ${name} erstellt (30 Tage gültig)` });
         kunde = await ladeKunde(id);
       }
-      const e = entwuerfeKunde({ lead, kunde, einstellungen: u.einstellungen, basis: u.basis }).find((x) => x.zweck === "einladung");
+      const e = entwuerfeKunde({ lead, kunde, einstellungen: u.einstellungen, basis: u.basis, kunden: u.kunden.values() }).find((x) => x.zweck === "einladung");
       if (!e || e.gesperrt) {
         zeilen.push({ art: "fehler", text: `E-Mail an ${m.wer}: nicht gesendet — ${e?.gesperrt ?? "keine Einladung möglich"}` });
       } else {
         const r = await verwaltungsMailSenden(email, { zweck: "einladung", kundeId: id, rolle: rr.rolle, an: e.an, betreff: e.betreff, text: e.text });
         zeilen.push(r.ok ? { art: "ok", text: `E-Mail an ${m.wer} (${e.an}): „${e.betreff}“` } : { art: "fehler", text: `E-Mail an ${m.wer} (${e.an}) nicht gesendet: ${r.text}` });
-        if (r.ok) zeilen.push({ art: "ok", text: "Status → „Beantwortet“ — die Anfrage steht nicht mehr unter „Neue Anfragen“" });
+        if (r.ok) {
+          if (rr.rolle === "anbieter" && !lead.meta.weg) {
+            await wegSetzen(id, "vermittlung", email);
+            zeilen.push({ art: "ok", text: "Weg „Vermitteln“ vermerkt" });
+          }
+          zeilen.push({ art: "ok", text: "Status → „Beantwortet“ — die Anfrage steht nicht mehr unter „Neue Anfragen“" });
+        }
       }
     }
   } catch (err) {

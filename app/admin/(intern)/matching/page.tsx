@@ -6,7 +6,7 @@ import { findeKandidaten, type Kandidat } from "@/lib/admin/matching";
 import { LEAD_STATUS, MATCH_STATUS, formatGroesse, type LeadView, type Zustand } from "@/lib/admin/model";
 import { artLabel, datum } from "@/lib/admin/format";
 import { ladeNeu, ladePortal, type Neu } from "@/lib/admin/neu";
-import { entwuerfeKunde, entwuerfePaar, type Entwurf } from "@/lib/portal/entwuerfe";
+import { entwuerfeKunde, vorgemerkteFlaechen, entwuerfePaar, type Entwurf } from "@/lib/portal/entwuerfe";
 import * as M from "@/lib/portal/model";
 import { basisUrl } from "@/lib/portal/sitzung";
 import { freigabePruefung, type VorgangKontext } from "@/lib/portal/vorgang";
@@ -122,9 +122,9 @@ function PaarKarte({
           ...entwuerfePaar({ key: k.key, angebot: k.angebot, gesuch: k.gesuch, anbieter, suchender, vorgang, meta: k.meta, zustand, einstellungen: portal.einstellungen, basis, bewertungsUrl }),
           ...(aktiv
             ? [
-                ...entwuerfeKunde({ lead: k.gesuch, kunde: suchender, einstellungen: portal.einstellungen, basis }),
-                ...entwuerfeKunde({ lead: k.angebot, kunde: anbieter, einstellungen: portal.einstellungen, basis }),
-              ].filter((e) => e.zweck === "einladung" || e.zweck === "erinnerung")
+                ...entwuerfeKunde({ lead: k.gesuch, kunde: suchender, einstellungen: portal.einstellungen, basis, kunden: portal.kunden.values(), vorschlaege: vorgemerkteFlaechen(k.gesuch.id, zustand, [k.angebot]) }),
+                ...entwuerfeKunde({ lead: k.angebot, kunde: anbieter, einstellungen: portal.einstellungen, basis, kunden: portal.kunden.values() }),
+              ].filter((e) => e.zweck === "einladung" || e.zweck === "erinnerung" || e.zweck === "ergaenzen")
             : []),
         ];
   // Fällige Einzel-Mails, die der Assistent gerade nicht selbst anbietet — sonst pulsiert nur der Assistent.

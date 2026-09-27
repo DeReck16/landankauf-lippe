@@ -1,8 +1,10 @@
 import "server-only";
-import { formatGroesse, parseGroesse, type LeadView, type Zustand } from "@/lib/admin/model";
+import { formatGroesse, istEigeneFlaeche, parseGroesse, type LeadView, type Zustand } from "@/lib/admin/model";
 import { grobeLage } from "@/lib/admin/matching";
 import { hinweisAnAnbieter, hinweisAnSuchenden } from "@/lib/admin/texte";
 import { GRUSS, einladungsLink, zugangsLink } from "./ablauf";
+import { vereinbarungFuer } from "./anbieter-gruppe";
+import { pachtFuerLead, wertFuerLead } from "./wert";
 import type { NachfassTyp } from "./anfrage-typen";
 import * as M from "./model";
 import { SPERRE_UNTERSCHRIFT, beideUnterschrieben } from "./schritte";
@@ -27,9 +29,11 @@ export type MailZweck =
   | "bewertung"
   | "nachfassen"
   | "antwort"
+  | "ergaenzen"
+  | "ankauf"
   | "frei";
 
-export const MAIL_ZWECKE: MailZweck[] = ["rueckfrage", "einladung", "erinnerung", "hinweis", "freigabe", "pachtvertrag", "kaufabsicht", "anzeige", "bewertung", "nachfassen", "antwort", "frei"];
+export const MAIL_ZWECKE: MailZweck[] = ["rueckfrage", "einladung", "erinnerung", "hinweis", "freigabe", "pachtvertrag", "kaufabsicht", "anzeige", "bewertung", "nachfassen", "antwort", "ergaenzen", "ankauf", "frei"];
 
 export type Entwurf = {
   id: string;
@@ -98,11 +102,48 @@ export function anfrageBezug(lead: LeadView, einleitung = "Ihre Anfrage"): strin
 // ---------------------------------------------------------------------------
 // Entwürfe je Anfrage (Kunde)
 
+/** Die beiden Wege für Eigentümer (Dennis 27.09.2026) — wahrheitsgemäß getrennt benannt. */
+export function wegeSatz(art: M.Art | null): string {
+  return art === "pacht"
+    ? "Zu Ihren Möglichkeiten: Wir vermitteln Ihre Fläche an einen passenden Pächter — für Sie als Eigentümer kostenlos; nur der Pächter zahlt im Erfolgsfall eine Provision. Möchten Sie lieber verkaufen, kauft die TR Vertriebs GmbH (Betreiberin von Lippe Forst) geeignete Flächen auch selbst — dann ohne Makler und ohne Provision."
+    : "Sie haben zwei Wege: Die TR Vertriebs GmbH (Betreiberin von Lippe Forst) kauft geeignete Flächen auch selbst — dann ohne Makler und ohne Provision. Oder wir vermitteln Ihre Fläche an einen passenden Käufer — für Sie als Eigentümer ebenfalls kostenlos; nur der Käufer zahlt im Erfolgsfall eine Provision.";
+}
+
+/** Provision für Suchende mit Rechenbeispiel (brutto), wie im Nachweisvertrag. */
+export function provisionMitBeispiel(art: M.Art, k: M.Konditionen): string {
+  const text = M.konditionenText(art, k);
+  if (art === "pacht") {
+    const b = M.provisionBerechnen("pacht", 2000, k);
+    return `${text} — ein Beispiel: 5 ha × 400 € = 2.000 € Jahrespacht, Provision ${M.euro(b.netto)} zzgl. USt = ${M.euro(b.brutto)} einmalig`;
+  }
+  const b = M.provisionBerechnen("kauf", 100_000, k);
+  return `${text} (zusammen ${M.bruttoText("kauf", k).replace(/ \(Gesamtbetrag.*$/, "")} inkl. USt) — ein Beispiel: bei 100.000 € Kaufpreis ${M.euro(b.brutto)} einmalig`;
+}
+
+/** Anonyme Eckdaten der Flächen, die zu einem Gesuch schon vorgemerkt sind (für die Einladung des Suchenden). */
+export function vorgemerkteFlaechen(gesuchId: string, zustand: Zustand, leads: LeadView[]): string[] {
+  const byId = new Map(leads.map((l) => [l.id, l]));
+  const out: string[] = [];
+  for (const [key, m] of Object.entries(zustand.paare)) {
+    const [aId, gId] = key.split("~");
+    if (gId !== gesuchId || (m.status !== "vorgemerkt" && m.status !== "angefragt")) continue;
+    const a = byId.get(aId);
+    if (!a) continue;
+    const e = T.anonymeEckdaten(a, grobeLage(a, zustand.orte));
+    out.push(`${e.typ}, ${e.groesse}, Raum ${e.lage}, ${e.art}${istEigeneFlaeche(a, a.meta) ? " — eigene Fläche des Geschäftsführers, ohne Provision" : ""}`);
+  }
+  return out;
+}
+
 export function entwuerfeKunde(opts: {
   lead: LeadView;
   kunde: M.KundeRecord | null;
   einstellungen: M.Einstellungen;
   basis: string;
+  /** Alle Kundenakten — für Anbieter mit mehreren Flächen („Fläche bestätigen“ statt Einladung). */
+  kunden?: Iterable<M.KundeRecord>;
+  /** Für die Einladung Suchender: schon vorgemerkte Flächen (anonyme Eckdaten). */
+  vorschlaege?: string[];
 }): Entwurf[] {
   const { lead, kunde, einstellungen, basis } = opts;
   const rr = T.rolleVonLead(lead);
@@ -124,7 +165,7 @@ export function entwuerfeKunde(opts: {
     text: [
       anrede(nm),
       "",
-      `vielen Dank für Ihre Anfrage. Damit wir ${suchender ? "passende Flächen" : "passende Interessenten"} finden, bräuchten wir noch ein paar Angaben:`,
+      `vielen Dank für Ihre Anfrage. Damit wir ${suchender ? "passende Flächen" : "Ihre Fläche richtig einschätzen"} ${suchender ? "finden" : "können"}, bräuchten wir noch ein paar Angaben:`,
       "",
       ...(suchender
         ? [
@@ -149,32 +190,112 @@ export function entwuerfeKunde(opts: {
     gesendetAm: zuletzt(kunde?.mails, "rueckfrage"),
   });
 
-  // Einladung / Erinnerung
+  // Direktankauf gewählt (Weiche „Selbst kaufen“): statt Einladung ein Kaufangebot bzw. dessen Ankündigung.
+  if (!suchender && lead.meta.weg === "ankauf") {
+    const w = wertFuerLead(lead);
+    const preis = lead.meta.ankauf?.preis ?? null;
+    liste.push({
+      id: `ankauf:${lead.id}`,
+      zweck: "ankauf",
+      rolle: rr.rolle,
+      kundeId: lead.id,
+      titel: "Direktankauf: Kaufangebot bzw. nächste Schritte",
+      an,
+      betreff: preis ? "Unser Kaufangebot für Ihre Fläche — Lippe Forst" : "Ihre Fläche: Wir kaufen selbst — Lippe Forst",
+      text: [
+        anrede(nm),
+        "",
+        "vielen Dank für Ihre Anfrage. Für Ihre Fläche kommt ein Direktankauf in Frage: Die TR Vertriebs GmbH (Betreiberin von Lippe Forst) kauft sie selbst — ohne Makler und ohne Provision.",
+        "",
+        ...(w ? [`Zur Einordnung: ${w.satz}`, ""] : []),
+        preis
+          ? `Wir bieten Ihnen für die Fläche ${M.euro(preis)} (Kaufpreis, Notar- und Grundbuchkosten übernehmen wir). Das Angebot ist unverbindlich, bis der Kaufvertrag beim Notar beurkundet ist.`
+          : "Damit wir Ihnen ein konkretes Kaufangebot machen können, sehen wir uns die Fläche genauer an. Hilfreich sind die Flurstücksangaben (Gemarkung, Flur, Flurstück) und ob die Fläche derzeit verpachtet ist.",
+        "",
+        "Möchten Sie die Fläche lieber an einen anderen Käufer oder Pächter vermitteln lassen? Auch das geht — für Sie als Eigentümer kostenlos; dann zahlt nur der Käufer bzw. Pächter im Erfolgsfall eine Provision.",
+        "",
+        "Eine kurze Antwort auf diese E-Mail genügt.",
+        "",
+        ...anfrageBezug(lead),
+        "",
+        GRUSS,
+      ].join("\n"),
+      tipp: "Direktankauf durch die TR Vertriebs GmbH: Kaufangebot (mit Preis, falls eingetragen) oder die nächsten Schritte — ohne Makler, ohne Provision.",
+      wirkung: "Die Mail wird im Verlauf gespeichert; eine neue Anfrage wird auf „Beantwortet“ gesetzt.",
+      gesendetAm: zuletzt(kunde?.mails, "ankauf"),
+      faellig: !zuletzt(kunde?.mails, "ankauf"),
+    });
+    return liste;
+  }
+
+  // Anbieter mit schon unterschriebener Vereinbarung über eine andere Fläche: nur bestätigen lassen.
+  const vereinbarung = !suchender && opts.kunden ? vereinbarungFuer(lead, kunde, opts.kunden) : null;
   const unterschrieben = Boolean(kunde?.vertrag);
+  if (vereinbarung && !unterschrieben) {
+    const gesendet = zuletzt(kunde?.mails, "ergaenzen");
+    liste.push({
+      id: `ergaenzen:${lead.id}`,
+      zweck: "ergaenzen",
+      rolle: rr.rolle,
+      kundeId: lead.id,
+      titel: "Weitere Fläche zur Vereinbarung bestätigen lassen",
+      an,
+      betreff: `${gesendet ? "Erinnerung: " : ""}Ihre weitere Fläche bei Lippe Forst — bitte kurz bestätigen`,
+      text: [
+        anrede(nm),
+        "",
+        `vielen Dank für Ihre Anfrage zu einer weiteren Fläche (${T.angebotText(lead) || "siehe unten"}). Ihre kostenlose Vereinbarung mit Lippe Forst haben Sie bereits für Ihre Fläche aus Vorgang ${vereinbarung.id} bestätigt. Soll sie auch für diese Fläche gelten, genügt ein Klick in Ihrem Kundenbereich — eine neue Unterschrift ist nicht nötig:`,
+        zugangsLink({ id: lead.id } as M.KundeRecord, basis),
+        "(Der Link ist 14 Tage gültig und funktioniert einmal; danach melden Sie sich einfach mit Ihrer E-Mail-Adresse an.)",
+        "",
+        "Möchten Sie das nicht, genügt eine kurze Antwort.",
+        "",
+        ...anfrageBezug(lead),
+        "",
+        GRUSS,
+      ].join("\n"),
+      tipp: "Der Anbieter hat die Vereinbarung schon über eine andere Fläche bestätigt — er erstreckt sie mit einem Klick auf diese (nie automatisch).",
+      wirkung: "Vermerkt die Mail in der Kundenakte (legt sie bei Bedarf an).",
+      gesendetAm: gesendet,
+      faellig: !gesendet,
+    });
+    return liste;
+  }
+
+  // Einladung / Erinnerung
   const link = kunde ? einladungsLink(kunde, basis) : null;
   const k = M.aktuelleKonditionen(einstellungen);
-  const provision = suchender ? M.konditionenText(rr.art, k) : "";
   const bis = kunde?.einladung ? T.datumDe(kunde.einladung.bis) : "";
   // Ein abgelaufener Link darf nicht mehr verschickt werden (der Server lehnt ihn ebenfalls ab).
   const abgelaufen = Boolean(kunde?.einladung && Date.parse(kunde.einladung.bis) < Date.now());
   const linkAbgelaufen = abgelaufen
     ? `Der Einladungslink ist am ${bis} abgelaufen — erst in der Anfrage „Neuen Link erstellen“ oder im Assistenten des Vorgangs „Erinnerung senden“ (erstellt den neuen Link automatisch).`
     : undefined;
+  const vorschlaege = opts.vorschlaege ?? [];
+  const wert = !suchender ? (rr.art === "pacht" ? pachtFuerLead(lead) : wertFuerLead(lead)) : null;
   const einladungText = suchender
     ? [
         anrede(nm),
         "",
         `vielen Dank für Ihr Interesse an ${rr.art === "kauf" ? "Flächen zum Kauf" : "Pachtflächen"} über Lippe Forst. Damit wir Ihnen passende Flächen vorstellen und — mit Zustimmung beider Seiten — den Kontakt zum Eigentümer herstellen dürfen, schließen wir mit Ihnen online einen kurzen Nachweisvertrag.`,
         "",
+        ...(vorschlaege.length
+          ? [
+              vorschlaege.length === 1 ? "Eine passende Fläche haben wir schon für Sie vorgemerkt:" : "Passende Flächen haben wir schon für Sie vorgemerkt:",
+              ...vorschlaege.map((v) => `– ${v}`),
+              "Namen, Flurstück und genaue Lage nennen wir nach Ihrem Nachweisvertrag und der Zustimmung beider Seiten.",
+              "",
+            ]
+          : []),
         "Das Wichtigste vorab:",
-        `– Sie zahlen nur im Erfolgsfall: ${provision}. Kommt kein Vertrag zustande, entstehen keine Kosten.`,
+        `– Provision nur im Erfolgsfall: ${provisionMitBeispiel(rr.art, k)}. Fällig 14 Tage nach Rechnung; kommt kein Vertrag zustande, zahlen Sie nichts. Für Flächen, die dem Geschäftsführer von Lippe Forst bzw. seiner Familie gehören, fällt keine Provision an.`,
         "– Flächen stellen wir Ihnen zuerst anonym vor. Kontaktdaten geben wir nur frei, wenn Sie und der Eigentümer zustimmen.",
-        "– Sie können jederzeit kündigen. Als Verbraucher haben Sie außerdem ein 14-tägiges Widerrufsrecht.",
+        "– Sie können jederzeit kündigen. Als Verbraucher haben Sie außerdem ein 14-tägiges Widerrufsrecht; ohne ausdrücklichen Beginnwunsch geben wir Kontakte erst nach Ablauf der Widerrufsfrist frei.",
         "",
         `Ihr persönlicher Link${bis ? ` (gültig bis ${bis})` : ""}:`,
         link ?? "[Link erscheint nach „Einladung erstellen“]",
         "",
-        "Dort ergänzen Sie Ihre Anschrift, lesen den vollständigen Vertrag und unterschreiben mit Ihrem Namen. Den Vertrag erhalten Sie anschließend als PDF per E-Mail.",
+        "Dort ergänzen Sie Ihre Anschrift, lesen den vollständigen Nachweisvertrag und unterschreiben mit Ihrem Namen. Den Vertrag erhalten Sie anschließend als PDF per E-Mail.",
         "",
         "Bei Fragen antworten Sie einfach auf diese E-Mail.",
         "",
@@ -185,20 +306,23 @@ export function entwuerfeKunde(opts: {
     : [
         anrede(nm),
         "",
-        `vielen Dank, dass Sie Ihre Fläche über Lippe Forst ${rr.art === "kauf" ? "verkaufen" : "verpachten"} möchten. Damit wir sie passenden Interessenten vorstellen dürfen, brauchen wir Ihr Einverständnis in Form einer kurzen, kostenlosen Vereinbarung.`,
+        `vielen Dank für Ihre Anfrage ${rr.art === "kauf" ? "zum Verkauf" : "zur Verpachtung"} Ihrer Fläche.`,
         "",
-        "Das Wichtigste vorab:",
+        ...(wert ? [`Unsere erste Einschätzung: ${wert.satz}`, ""] : []),
+        wegeSatz(rr.art),
+        "",
+        `Für die Vermittlung brauchen wir Ihr Einverständnis in Form einer kurzen, kostenlosen Vereinbarung:`,
         "– Sie zahlen nichts — keine Provision, keine Gebühren.",
         "– Ihre Kontaktdaten und die genaue Lage der Fläche geben wir erst weiter, wenn Sie dem konkreten Interessenten zugestimmt haben.",
-        "– Sie können jederzeit aussteigen.",
+        "– Sie können jederzeit aussteigen. Kommt innerhalb von 24 Monaten nach einer Freigabe ein Vertrag mit einem von uns nachgewiesenen Interessenten zustande, teilen Sie uns das bitte kurz mit — auch nach einem Ausstieg; Kosten entstehen Ihnen dadurch nicht.",
         "",
         `Ihr persönlicher Link${bis ? ` (gültig bis ${bis})` : ""}:`,
         link ?? "[Link erscheint nach „Einladung erstellen“]",
         "",
-        "Dort ergänzen Sie Anschrift und Flurstücke, lesen die Vereinbarung und bestätigen sie mit Ihrem Namen. Sie erhalten sie anschließend als PDF per E-Mail.",
+        "Dort ergänzen Sie Anschrift und Flurstücke (gern auch Ihre Preis- bzw. Pachtvorstellung, ab wann die Fläche frei ist und die Ackerzahl), lesen die Vereinbarung und bestätigen sie kostenlos mit Ihrem Namen. Sie erhalten sie anschließend als PDF per E-Mail.",
         "",
         // Die Flächenbörse gibt es für Verkauf und Verpachtung — der Satz gilt für jeden Anbieter.
-        "Auf Wunsch zeigen wir Ihre Fläche außerdem anonym in der Flächenbörse auf lippeforst.de — dafür genügt ein Häkchen bei den Angaben im Kundenbereich.",
+        "Auf Wunsch zeigen wir Ihre Fläche außerdem anonym in der Flächenbörse auf lippeforst.de — nur mit Flächentyp, gerundeter Größe und Gemeinde, nie mit Namen oder Flurstück. Dafür genügt ein Häkchen bei den Angaben im Kundenbereich.",
         "",
         "Bei Fragen antworten Sie einfach auf diese E-Mail.",
         "",
@@ -214,7 +338,7 @@ export function entwuerfeKunde(opts: {
     kundeId: lead.id,
     titel: suchender ? "Einladung: Nachweisvertrag online abschließen" : "Einladung: Vereinbarung für Anbieter (kostenlos)",
     an,
-    betreff: suchender ? "Ihr persönlicher Zugang bei Lippe Forst — Vertrag online abschließen" : "Ihre Fläche bei Lippe Forst — kurze Vereinbarung online (kostenlos)",
+    betreff: suchender ? "Ihr persönlicher Zugang bei Lippe Forst — Nachweisvertrag online abschließen" : "Ihre Fläche bei Lippe Forst — erste Einschätzung und kostenlose Vereinbarung",
     text: einladungText.join("\n"),
     tipp: "Schickt den persönlichen Einladungslink zum Kundenbereich (Angaben, Vertrag lesen, online unterschreiben).",
     wirkung: "Vermerkt „Einladung gesendet“ in der Kundenakte.",
@@ -238,7 +362,7 @@ export function entwuerfeKunde(opts: {
       text: [
         anrede(nm),
         "",
-        `vor einigen Tagen haben wir Ihnen Ihren persönlichen Zugang geschickt. ${suchender ? "Sobald der Vertrag unterschrieben ist, können wir Ihnen passende Flächen vorstellen." : "Sobald die Vereinbarung bestätigt ist, können wir Ihre Fläche Interessenten vorstellen — für Sie kostenlos."}`,
+        `vor einigen Tagen haben wir Ihnen Ihren persönlichen Zugang geschickt. ${suchender ? "Sobald der Nachweisvertrag unterschrieben ist, können wir Ihnen passende Flächen vorstellen." : "Sobald die Vereinbarung bestätigt ist, können wir Ihre Fläche Interessenten vorstellen — für Sie kostenlos."}`,
         "",
         `Ihr Link (gültig bis ${bis}):`,
         link,

@@ -6,7 +6,7 @@ import { kundenUebersicht, type KundenVorgang } from "@/lib/portal/sicht";
 import { requireKunde } from "@/lib/portal/sitzung";
 import { datumDe, datumZeitDe, suchprofilText, angebotText, tagDe } from "@/lib/portal/texte";
 import { gutscheinBedingungen } from "@/lib/portal/vorgang";
-import { beginnwunschAktion } from "./actions";
+import { beginnwunschAktion, flaecheErgaenzenAktion } from "./actions";
 import DankeDialog from "./DankeDialog";
 
 export const metadata: Metadata = { title: "Übersicht" };
@@ -69,6 +69,11 @@ export default async function KundePage(props: PageProps<"/kunde">) {
           k.rolle === "anbieter" &&
           !k.vertrag &&
           sitzung.kunden.filter((x) => x.rolle === "anbieter" && x.art === k.art && !x.vertrag && !x.gesperrt && gleichePerson(k.name ?? k.stammdaten?.name, x.name ?? x.stammdaten?.name)).length > 1;
+        // Weitere Fläche eines Anbieters, der schon eine gültige Vereinbarung hat: ausdrücklich hinzufügen (nie automatisch).
+        const vereinbarung =
+          k.rolle === "anbieter" && !k.vertrag && !k.gesperrt
+            ? sitzung.kunden.find((x) => x.id !== k.id && x.rolle === "anbieter" && x.art === k.art && x.vertrag && !x.widerruf && !x.kuendigung && gleichePerson(k.name ?? k.stammdaten?.name, x.name ?? x.stammdaten?.name))
+            : undefined;
         const einmalHinweis = mehrereFlaechen ? (
           <p className="lfk-klein" style={{ marginTop: "0.6rem" }}>
             Sie haben mehrere Flächen bei uns: Angaben und Bestätigung sind nur einmal nötig — die Vereinbarung gilt dann für alle Ihre Flächen.
@@ -91,7 +96,21 @@ export default async function KundePage(props: PageProps<"/kunde">) {
               ))}
             </ol>
 
-            {!k.stammdaten && (
+            {vereinbarung && (
+              <div className="lfk-hinweis" style={{ marginBottom: "0.8rem" }}>
+                <p style={{ marginBottom: "0.6rem" }}>
+                  Für Ihre Fläche aus Vorgang {vereinbarung.id} haben Sie die kostenlose Vereinbarung schon bestätigt. Soll sie auch für diese Fläche gelten? Dann genügt ein Klick — eine neue Unterschrift ist nicht nötig.
+                </p>
+                <form action={flaecheErgaenzenAktion}>
+                  <input type="hidden" name="quelle" value={vereinbarung.id} />
+                  <input type="hidden" name="ziel" value={k.id} />
+                  <button type="submit" className="btn-primary lfk-knopf-klein" title="Erstreckt Ihre bestehende Vereinbarung auf diese Fläche — kostenlos, jederzeit kündbar">
+                    Zu meiner Vereinbarung hinzufügen
+                  </button>
+                </form>
+              </div>
+            )}
+            {!k.stammdaten && !vereinbarung && (
               <div className="lfk-knopfreihe">
                 <Link href={`/kunde/angaben?k=${k.id}`} className="btn-primary" title="Name, Anschrift und — bei Anbietern — die Flurstücke ergänzen">
                   Angaben ergänzen
@@ -99,7 +118,7 @@ export default async function KundePage(props: PageProps<"/kunde">) {
               </div>
             )}
             {!k.stammdaten && einmalHinweis}
-            {k.stammdaten && !k.vertrag && stufe !== "gesperrt" && (
+            {k.stammdaten && !k.vertrag && stufe !== "gesperrt" && !vereinbarung && (
               <div className="lfk-knopfreihe">
                 <Link href={`/kunde/vertrag?k=${k.id}`} className="btn-primary" title="Den vollständigen Vertrag lesen und online unterschreiben">
                   {k.rolle === "anbieter" ? "Vereinbarung lesen und bestätigen" : "Vertrag lesen und unterschreiben"}

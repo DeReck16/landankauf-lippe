@@ -21,6 +21,7 @@ import { einwilligungBestaetigen } from "@/lib/portal/boerse-mails";
 import { postfachUebernehmen, postfachZurKenntnis } from "@/lib/portal/postfach";
 import { rueckmeldungSpeichern } from "@/lib/portal/rueckmeldung";
 import { RUECKMELDUNG_NAME, istRueckmeldungArt } from "@/lib/portal/rueckmeldung-typen";
+import { ANKAUF_ERGEBNIS_NAME, ankaufErgebnis, preisLesen, wegSetzen } from "@/lib/portal/weg";
 
 // ---------------------------------------------------------------------------
 // Anmeldung per Link
@@ -179,6 +180,46 @@ export async function anfrageSpeichern(formData: FormData): Promise<void> {
     if (lead) await orteErgaenzen(email, [leadView(lead, zustand.anfragen[id]).ortText], 15_000);
   }
   revalidatePath("/admin", "layout");
+}
+
+/**
+ * Weiche je Angebot (Dennis 27.09.2026): „Selbst kaufen“ (Direktankauf der TR Vertriebs GmbH, ohne
+ * Makler und Provision) oder „Vermitteln“ (für Eigentümer kostenlos) — und das Ergebnis des Ankaufs.
+ * Es geht keine Mail raus; die passende Mail steht danach unter „E-Mail-Entwürfe“.
+ */
+export async function wegFormular(formData: FormData): Promise<void> {
+  const { email } = await requireAdmin();
+  const id = text(formData, "id", 40);
+  if (!/^LL-[A-Z0-9]+$/.test(id)) throw new Error("Ungültige Anfrage-ID");
+  const zurueck = `/admin/anfrage/${id}`;
+  const was = text(formData, "was", 20);
+  let m: string;
+  let ok = true;
+  if (was === "ankauf" || was === "vermittlung" || was === "offen") {
+    const preisRoh = text(formData, "preis", 30);
+    const preis = preisRoh ? preisLesen(preisRoh) : undefined;
+    if (preisRoh && preis === null) {
+      ok = false;
+      m = "Der Kaufpreis ist nicht lesbar — bitte nur eine Zahl eintragen, z. B. 25000.";
+    } else {
+      const geaendert = await wegSetzen(id, was === "offen" ? null : was, email, was === "ankauf" ? { preis } : {});
+      m = !geaendert
+        ? "Nichts geändert."
+        : was === "ankauf"
+          ? "Weg „Selbst kaufen“ gespeichert — die Mail zum Direktankauf steht unter „E-Mail-Entwürfe“. Börse und Matching sind für diese Fläche aus."
+          : was === "vermittlung"
+            ? "Weg „Vermitteln“ gespeichert — nächster Schritt: Einladung zur kostenlosen Vereinbarung (E-Mail-Entwürfe)."
+            : "Weg wieder offen.";
+    }
+  } else if (was === "gekauft" || was === "abgelehnt") {
+    ok = await ankaufErgebnis(id, was, email, text(formData, "notiz", 300));
+    m = ok ? `Ergebnis gespeichert: ${ANKAUF_ERGEBNIS_NAME[was]} — die Anfrage steht auf „Erledigt“.` : "Nicht gespeichert — für diese Anfrage ist „Selbst kaufen“ nicht gewählt.";
+  } else {
+    ok = false;
+    m = "Unbekannte Auswahl.";
+  }
+  revalidatePath("/admin", "layout");
+  redirect(`${zurueck}?m=${encodeURIComponent(m)}&mt=${ok ? "ok" : "fehler"}#weg`);
 }
 
 /**

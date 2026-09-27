@@ -7,6 +7,7 @@ import * as M from "./model";
 import { NACHFASS_PAUSE_TAGE } from "./nachfassen";
 import { SPERRE_UNTERSCHRIFT, beideUnterschrieben } from "./schritte";
 import { einladungGesperrt } from "./anbieter-gruppe";
+import { ankaufAngebotVermerken } from "./weg";
 import { aendereKunde, aendereVorgang, alleKunden, istKundeId, istPaarKey, ladeKunde, ladeVorgang } from "./speicher";
 import * as T from "./texte";
 import * as V from "./vorgang";
@@ -22,6 +23,9 @@ import * as V from "./vorgang";
 
 /** Zwecke, die auch ohne Kundenakte gesendet werden dürfen (Anfrage ist weder Angebot noch Gesuch). */
 const OHNE_KUNDENAKTE: readonly string[] = ["nachfassen", "antwort"];
+
+/** Zwecke mit persönlichem Link — Empfänger ist fest die hinterlegte Adresse. */
+export const MIT_PERSOENLICHEM_LINK: readonly string[] = ["einladung", "erinnerung", "hinweis", "freigabe", "pachtvertrag", "kaufabsicht", "nachfassen", "antwort", "ergaenzen", "ankauf"];
 
 export type VersandAuftrag = {
   zweck: string;
@@ -67,6 +71,12 @@ export async function verwaltungsMailSenden(von: string, auftrag: VersandAuftrag
   const geladen = await A.ladeLead(id);
   if (!geladen) return nein("Anfrage nicht gefunden.");
   let kunde = await ladeKunde(id);
+  // Mails mit persönlichem Link (Einladung, Zugang, Antwort-Link) nur an die Adresse aus Akte bzw. Anfrage:
+  // Ein Tippfehler im Empfänger würde sonst einem Fremden den Kundenbereich öffnen.
+  const sollAdresse = (kunde?.email || T.wert(geladen.lead.email)).toLowerCase();
+  if (MIT_PERSOENLICHEM_LINK.includes(zweck) && an !== sollAdresse) {
+    return nein(`Diese E-Mail enthält einen persönlichen Link und geht nur an die hinterlegte Adresse (${sollAdresse || "keine"}). Andere Adresse? Erst in der Anfrage bzw. Kundenakte korrigieren lassen.`);
+  }
   // Ohne Kundenakte nur, wo keine angelegt werden kann (reine Auskunft) und der Zweck das erlaubt.
   const ohneAkte = !kunde && !T.rolleVonLead(geladen.lead) && !key && OHNE_KUNDENAKTE.includes(zweck);
   if (!kunde && !ohneAkte) {
@@ -100,6 +110,13 @@ export async function verwaltungsMailSenden(von: string, auftrag: VersandAuftrag
     const rr = T.rolleVonLead(geladen.lead);
     const sperre = rr ? einladungGesperrt({ id, rolle: rr.rolle, art: rr.art, email: an, name: T.wert(geladen.lead.name) }, kunde, await alleKunden()) : null;
     if (sperre) return nein(sperre);
+  }
+  // Weiche „Selbst kaufen / Vermitteln“: Die Ankauf-Mail nur beim Direktankauf, keine Vermittlungs-Einladung dabei.
+  if (zweck === "ankauf" && (rolle !== "anbieter" || geladen.lead.meta.weg !== "ankauf")) {
+    return nein("Die Mail zum Direktankauf gibt es nur, wenn in der Anfrage „Selbst kaufen“ gewählt ist.");
+  }
+  if ((zweck === "einladung" || zweck === "erinnerung" || zweck === "ergaenzen") && rolle === "anbieter" && geladen.lead.meta.weg === "ankauf") {
+    return nein("Für diese Fläche ist „Selbst kaufen“ gewählt — keine Vermittlungs-Vereinbarung. Erst in der Anfrage auf „Vermitteln“ umstellen.");
   }
   // Einladung und Erinnerung nie mit einem abgelaufenen Link verschicken.
   if ((zweck === "einladung" || zweck === "erinnerung") && kunde?.einladung && Date.parse(kunde.einladung.bis) < Date.now()) {
@@ -137,6 +154,7 @@ export async function verwaltungsMailSenden(von: string, auftrag: VersandAuftrag
     if (res.ok && zweck === "hinweis") await V.hinweisVermerken(key, art, rolle, von);
     if (res.ok && zweck === "bewertung") await V.bewertungVermerken(key, art, rolle, von);
   }
+  if (res.ok && zweck === "ankauf") await ankaufAngebotVermerken(id, von);
   // Eine neue Anfrage gilt nach der ersten Antwort als beantwortet; eine Nachfass-Mail vermerkt
   // ihr Datum und setzt „Beantwortet“ (auch aus „In Arbeit“). Ohne Kundenakte steht die Mail
   // selbst im Verlauf der Anfrage — auch, wenn sie nicht rausging.

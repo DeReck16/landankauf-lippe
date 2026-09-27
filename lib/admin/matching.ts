@@ -116,7 +116,8 @@ function bewerten(angebot: LeadView, gesuch: LeadView, orte: Zustand["orte"]): O
 
 export function findeKandidaten(leads: LeadView[], zustand: Zustand): { kandidaten: Kandidat[]; ohneOrt: LeadView[] } {
   const aktiv = leads.filter((l) => !INAKTIV.has(l.status));
-  const angebote = aktiv.filter((l) => l.rolle === "angebot");
+  // Direktankauf (Weiche „Selbst kaufen“): Die TR Vertriebs GmbH kauft selbst — die Fläche wird nicht vermittelt.
+  const angebote = aktiv.filter((l) => l.rolle === "angebot" && l.meta.weg !== "ankauf");
   const gesuche = aktiv.filter((l) => l.rolle === "gesuch");
   const kandidaten = new Map<string, Kandidat>();
   // Vergeben: Für dieses Angebot ist in einem Vorgang schon ein Vertrag geschlossen —
@@ -162,6 +163,9 @@ export function findeKandidaten(leads: LeadView[], zustand: Zustand): { kandidat
   }
 
   for (const k of kandidaten.values()) {
+    if (k.angebot.meta.weg === "ankauf" && k.meta?.status !== "abschluss" && k.meta?.status !== "verworfen") {
+      k.hinweise = ["Für diese Fläche ist „Selbst kaufen“ (Direktankauf) gewählt — sie wird nicht vermittelt. Paar beenden oder in der Anfrage auf „Vermitteln“ umstellen.", ...k.hinweise];
+    }
     if (vergeben.has(k.angebot.id) && k.meta?.status !== "abschluss" && k.meta?.status !== "verworfen") {
       k.hinweise = ["Diese Fläche ist bereits vergeben — in einem anderen Vorgang wurde ein Vertrag geschlossen. Paar beenden oder Angebot prüfen.", ...k.hinweise];
     }

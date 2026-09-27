@@ -3,6 +3,9 @@
 import { startTransition, useActionState, useRef, useState } from "react";
 import { mailSendenAktion, type MailState } from "../portal-actions";
 
+/** Zwecke mit persönlichem Link — Empfänger fest (gleiche Liste wie lib/portal/versand.ts). */
+const FESTER_EMPFAENGER = ["einladung", "erinnerung", "hinweis", "freigabe", "pachtvertrag", "kaufabsicht", "nachfassen", "antwort", "ergaenzen", "ankauf"];
+
 export type EntwurfDaten = {
   id: string;
   zweck: string;
@@ -89,7 +92,20 @@ export default function MailEntwurf({ e, offen }: { e: EntwurfDaten; offen?: boo
         {gesperrt && <p className="lfa-hinweis" style={{ margin: 0 }}>{e.gesperrt}</p>}
         <label>
           <span className="field-label">An</span>
-          <input ref={an} name="an" type="email" defaultValue={e.an} required className="field-input" title="Empfänger — aus der Anfrage vorbelegt. Nur eine Adresse. Eine Kopie geht automatisch (Bcc) an die Verwaltung." />
+          <input
+            ref={an}
+            name="an"
+            type="email"
+            defaultValue={e.an}
+            required
+            readOnly={FESTER_EMPFAENGER.includes(e.zweck)}
+            className="field-input"
+            title={
+              FESTER_EMPFAENGER.includes(e.zweck)
+                ? "Fester Empfänger: Diese E-Mail enthält einen persönlichen Link und geht nur an die hinterlegte Adresse. Eine Kopie geht automatisch (Bcc) an die Verwaltung."
+                : "Empfänger — aus der Anfrage vorbelegt. Nur eine Adresse. Eine Kopie geht automatisch (Bcc) an die Verwaltung."
+            }
+          />
         </label>
         <label>
           <span className="field-label">Betreff</span>

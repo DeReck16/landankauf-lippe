@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import type { LeadView } from "@/lib/admin/model";
 import { VORLAGEN, istFreigegeben, kundenVorlage } from "@/lib/vertraege/vorlagen";
 import { einladungsLink } from "./ablauf";
-import { einladungGesperrt } from "./anbieter-gruppe";
+import { einladungGesperrt, vereinbarungFuer } from "./anbieter-gruppe";
 import type { AnfrageAktion, AnfrageMail, AnfrageVorschlag } from "./anfrage-typen";
 import { entwuerfeKunde } from "./entwuerfe";
 import * as M from "./model";
@@ -131,33 +131,85 @@ export function anfrageVorschlag(l: LeadView, k: M.KundeRecord | null, u: Anfrag
 
   const angebot = rr.rolle === "anbieter";
   const art: AnfrageVorschlag["art"] = angebot ? "angebot" : "gesuch";
-  const vertragName = angebot ? "die kostenlose Vereinbarung für Anbieter" : "den Nachweisvertrag (Suchauftrag)";
+  const vertragName = angebot ? "die kostenlose Vereinbarung für Anbieter" : "den Nachweisvertrag";
   if (k?.vertrag) {
     const stand = k.widerruf ? `hat den Vertrag am ${T.datumDe(k.widerruf.am)} widerrufen` : k.kuendigung ? `hat den Vertrag am ${T.datumDe(k.kuendigung.am)} gekündigt` : `hat ${vertragName} schon am ${T.datumDe(k.vertrag.signatur.am)} unterschrieben`;
     return beantwortet(`${M.ROLLE_NAME[rr.rolle]} ${stand} — keine Einladung mehr nötig, nur noch als beantwortet markieren`, art);
   }
   const was = angebot ? (rr.art === "kauf" ? "Verkaufsangebot" : "Pachtangebot") : rr.art === "kauf" ? "Kaufgesuch" : "Pachtgesuch";
-  // Gleicher Anbieter mit weiteren Flächen: keine zweite Einladung (läuft schon bzw. Vereinbarung liegt vor).
-  if (angebot && u.kunden) {
-    const sperre = einladungGesperrt({ id: l.id, rolle: rr.rolle, art: rr.art, email: an, name: T.wert(l.name) }, k, u.kunden.values(), jetzt.getTime());
-    if (sperre) return beantwortet(`${was}: ${sperre}`, art);
-  }
   // Ohne E-Mail-Adresse ist keine Online-Einladung möglich (die Anfrage selbst ist unveränderlich) — also anrufen.
   if (!emailOk) {
     return beantwortet(`${was} ohne gültige E-Mail-Adresse — anrufen, dann als beantwortet markieren (eine Online-Einladung braucht eine E-Mail-Adresse)`, art);
   }
 
+  // Weiche „Selbst kaufen / Vermitteln“ (Dennis 27.09.2026): Direktankauf durch die TR Vertriebs GmbH.
+  const ankaufAktion = (): AnfrageAktion => {
+    const e = entwuerfeKunde({ lead: { ...l, meta: { ...l.meta, weg: "ankauf" } }, kunde: k, einstellungen: u.einstellungen, basis: u.basis }).find((x) => x.zweck === "ankauf");
+    const roh: Omit<AnfrageAktion, "signatur"> = {
+      id: "ankauf",
+      knopf: "Selbst kaufen",
+      tipp: "Direktankauf durch die TR Vertriebs GmbH — ohne Makler, ohne Provision. Sendet das Kaufangebot (mit Preis, falls eingetragen) bzw. die nächsten Schritte; die Fläche kommt nicht in Börse und Matching (vorher wird nachgefragt).",
+      frage: `Fläche von ${name} selbst kaufen (Direktankauf) und Mail senden?`,
+      passiert: [
+        "Weg „Selbst kaufen“ wird vermerkt: keine Vermittlung, keine Flächenbörse, kein Matching für diese Anfrage.",
+        `Mail an ${name}: Direktankauf ohne Makler und ohne Provision — mit Kaufpreis-Angebot, falls unten eingetragen, sonst mit der Bitte um die Flurstücksangaben.`,
+        "Der Status wird „Beantwortet“; das Ergebnis (gekauft, abgelehnt, doch vermitteln) erfassen Sie später in der Anfrage.",
+      ],
+      mails: e ? [{ wer: `Anbieter (${name})`, an: e.an, betreff: e.betreff, text: e.text, zuletzt: e.gesendetAm }] : [],
+      felder: [{ name: "preis", label: "Kaufpreis-Angebot in € (optional)", tipp: "Leer lassen, wenn Sie erst prüfen wollen — dann bittet die Mail um die Flurstücksangaben", platzhalter: "z. B. 25000" }],
+    };
+    return { ...roh, signatur: signatur({ ...basis, a: roh.id, w: l.meta.weg ?? "", z: e?.gesendetAm ?? "" }) };
+  };
+  if (angebot && l.meta.weg === "ankauf") {
+    return {
+      art,
+      warum: `${was}: Weg „Selbst kaufen“ gewählt — Kaufangebot bzw. nächste Schritte per Mail`,
+      aktion: ankaufAktion(),
+      antworten: null,
+    };
+  }
+
+  // Gleicher Anbieter mit weiteren Flächen: Vereinbarung liegt über eine andere Fläche vor → nur bestätigen lassen.
+  if (angebot && u.kunden) {
+    const ueber = vereinbarungFuer(l, k, u.kunden.values());
+    if (ueber) {
+      const e = entwuerfeKunde({ lead: l, kunde: k, einstellungen: u.einstellungen, basis: u.basis, kunden: u.kunden.values() }).find((x) => x.zweck === "ergaenzen");
+      const roh: Omit<AnfrageAktion, "signatur"> = {
+        id: "ergaenzen",
+        knopf: "Fläche bestätigen lassen",
+        tipp: "Der Anbieter hat die Vereinbarung schon über eine andere Fläche bestätigt — die Mail bittet ihn, sie mit einem Klick auf diese Fläche zu erstrecken (nie automatisch). Vorher wird nachgefragt.",
+        frage: `${name} bitten, diese Fläche zur Vereinbarung hinzuzufügen?`,
+        passiert: [
+          `Mail an ${name} mit persönlichem Zugangslink: diese Fläche mit einem Klick zur bestehenden Vereinbarung (Anfrage ${ueber.id}) hinzufügen.`,
+          "Der Status wird „Beantwortet“ — die Anfrage verschwindet aus dieser Liste.",
+        ],
+        mails: e ? [{ wer: `Anbieter (${name})`, an: e.an, betreff: e.betreff, text: e.text, zuletzt: e.gesendetAm }] : [],
+      };
+      return {
+        art,
+        warum: `${was}: Vereinbarung liegt schon über Anfrage ${ueber.id} vor — Fläche bestätigen lassen`,
+        aktion: { ...roh, signatur: signatur({ ...basis, a: roh.id, q: ueber.id, z: e?.gesendetAm ?? "" }) },
+        antworten: null,
+      };
+    }
+    const sperre = einladungGesperrt({ id: l.id, rolle: rr.rolle, art: rr.art, email: an, name: T.wert(l.name) }, k, u.kunden.values(), jetzt.getTime());
+    if (sperre) return beantwortet(`${was}: ${sperre}`, art);
+  }
+
   const warum = angebot
-    ? `${was} ohne ${rr.art === "kauf" ? "passenden Käufer" : "passenden Pächter"} — einladen, damit wir die Fläche anbieten dürfen`
+    ? l.meta.weg === "vermittlung"
+      ? `${was}: Weg „Vermitteln“ gewählt — einladen, damit wir die Fläche anbieten dürfen`
+      : `${was} — Weg wählen: selbst kaufen (ohne Makler, ohne Provision) oder vermitteln (für den Eigentümer kostenlos)`
     : `${was} ohne passende Fläche — einladen, damit wir Flächen vorstellen dürfen`;
-  const knopf = angebot ? "Einladen — Vereinbarung & Flächenbörse" : "Einladen — Suchauftrag";
+  const knopf = angebot ? "Vermitteln — einladen" : "Einladen — Nachweisvertrag";
   const tipp = angebot
-    ? "Erstellt bei Bedarf den persönlichen Einladungslink und sendet die Einladung zur kostenlosen Vereinbarung — mit dem Hinweis, dass die Fläche auf Wunsch anonym in die Flächenbörse kann (vorher wird nachgefragt)"
+    ? "Weg „Vermitteln“: erstellt bei Bedarf den persönlichen Einladungslink und sendet die Einladung zur kostenlosen Vereinbarung — mit erster Einschätzung, beiden Wegen und dem Hinweis auf die anonyme Flächenbörse (vorher wird nachgefragt)"
     : "Erstellt bei Bedarf den persönlichen Einladungslink und sendet die Einladung zum Nachweisvertrag, damit wir passende Flächen vorstellen dürfen (vorher wird nachgefragt)";
+  const alternativ = angebot && !l.meta.weg ? ankaufAktion() : undefined;
 
   const gesperrt = (grund: string, link?: AnfrageAktion["link"]): AnfrageVorschlag => {
     const roh: Omit<AnfrageAktion, "signatur"> = { id: "einladen", knopf, tipp, frage: "", passiert: [], mails: [], gesperrt: grund, link };
-    return { art, warum, aktion: { ...roh, signatur: signatur({ ...basis, a: roh.id, g: grund }) }, antworten: null };
+    return { art, warum, aktion: { ...roh, signatur: signatur({ ...basis, a: roh.id, g: grund }) }, alternativ, antworten: null };
   };
   if (k?.gesperrt) return gesperrt(`Der Zugang zum Kundenbereich ist seit ${T.datumDe(k.gesperrt.am)} gesperrt — erst in der Anfrage entsperren.`);
   const vorlage = kundenVorlage(rr.rolle, rr.art);
@@ -174,9 +226,10 @@ export function anfrageVorschlag(l: LeadView, k: M.KundeRecord | null, u: Anfrag
     neuerLink
       ? `Persönlichen Einladungslink für ${name} erstellen (30 Tage gültig)${!k ? " und die Kundenakte anlegen" : abgelaufen ? ` — der bisherige ist am ${T.datumDe(k?.einladung?.bis)} abgelaufen` : ""}.`
       : `Den bestehenden Einladungslink verwenden (gültig bis ${T.datumDe(k?.einladung?.bis)}).`,
+    ...(angebot && !l.meta.weg ? ["Weg „Vermitteln“ wird vermerkt (statt „Selbst kaufen“)."] : []),
     angebot
-      ? `Einladungs-Mail an ${name} senden: persönlicher Link in den Kundenbereich — Anschrift und Flurstücke angeben, die kostenlose Vereinbarung lesen und online bestätigen. Die Mail erwähnt auch: Auf Wunsch zeigen wir die Fläche anonym in der Flächenbörse — dafür genügt ein Häkchen bei den Angaben.`
-      : `Einladungs-Mail an ${name} senden: persönlicher Link in den Kundenbereich — Angaben machen, den Nachweisvertrag lesen und online unterschreiben. Erst dann dürfen wir passende Flächen vorstellen; eine Provision fällt nur im Erfolgsfall an.`,
+      ? `Einladungs-Mail an ${name} senden: erste Einschätzung (Wert bzw. Pacht), beide Wege (selbst kaufen oder vermitteln), persönlicher Link in den Kundenbereich — Anschrift und Flurstücke angeben, die kostenlose Vereinbarung lesen und bestätigen. Die Mail erwähnt auch die anonyme Flächenbörse (Häkchen bei den Angaben).`
+      : `Einladungs-Mail an ${name} senden: persönlicher Link in den Kundenbereich — Angaben machen, den Nachweisvertrag lesen und online unterschreiben. Erst dann dürfen wir passende Flächen vorstellen; eine Provision fällt nur im Erfolgsfall an (mit Rechenbeispiel).`,
     "Der Status wird „Beantwortet“ — die Anfrage verschwindet aus dieser Liste.",
     "Öffnet der Kunde den Link bzw. unterschreibt er, bekommt die Verwaltung eine Meldung per E-Mail.",
   ];
@@ -191,7 +244,8 @@ export function anfrageVorschlag(l: LeadView, k: M.KundeRecord | null, u: Anfrag
   return {
     art,
     warum,
-    aktion: { ...roh, signatur: signatur({ ...basis, a: roh.id, n: neuerLink, e: k?.einladung?.erstelltAm ?? "", z: mail.zuletzt ?? "", b: mail.betreff }) },
+    aktion: { ...roh, signatur: signatur({ ...basis, a: roh.id, n: neuerLink, e: k?.einladung?.erstelltAm ?? "", z: mail.zuletzt ?? "", b: mail.betreff, w: l.meta.weg ?? "" }) },
+    alternativ,
     antworten: null,
   };
 }

@@ -9,14 +9,15 @@ import { ROLLE_LABEL, ROLLE_TIPP, artLabel, datumZeit } from "@/lib/admin/format
 import { ladeNeu, ladePortal } from "@/lib/admin/neu";
 import { FLAECHENTYPEN } from "@/lib/lead-options";
 import { einladungsLink } from "@/lib/portal/ablauf";
-import { entwuerfeKunde } from "@/lib/portal/entwuerfe";
+import { entwuerfeKunde, vorgemerkteFlaechen } from "@/lib/portal/entwuerfe";
 import { mailKey } from "@/lib/portal/postfach";
 import * as M from "@/lib/portal/model";
 import { basisUrl } from "@/lib/portal/sitzung";
 import { anschrift, datumDe, flaecheZeile, rolleVonLead } from "@/lib/portal/texte";
 import { VORLAGEN, istFreigegeben, kundenVorlage } from "@/lib/vertraege/vorlagen";
 import { BERATUNG_THEMEN, RUECKMELDUNG_NAME, antwortGruppe, antwortOptionen, istBeratungThema, istRueckmeldungArt, themaVorschlag } from "@/lib/portal/rueckmeldung-typen";
-import { anfrageSpeichern, ortNeuSuchen, postfachFormular, rueckmeldungErfassen } from "../../../actions";
+import { anfrageSpeichern, ortNeuSuchen, postfachFormular, rueckmeldungErfassen, wegFormular } from "../../../actions";
+import { ANKAUF_ERGEBNIS_NAME, WEG_NAME, WEG_TIPP } from "@/lib/portal/weg";
 import {
   bestaetigungSendenAktion,
   bewertungsWiderspruchAktion,
@@ -67,7 +68,7 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
   const vorlage = rr ? kundenVorlage(rr.rolle, rr.art) : null;
   const vorlageFrei = vorlage ? istFreigegeben(portal.einstellungen, vorlage) : false;
   const link = kunde ? einladungsLink(kunde, basis) : null;
-  const entwuerfe = entwuerfeKunde({ lead: l, kunde, einstellungen: portal.einstellungen, basis });
+  const entwuerfe = entwuerfeKunde({ lead: l, kunde, einstellungen: portal.einstellungen, basis, kunden: portal.kunden.values(), vorschlaege: vorgemerkteFlaechen(l.id, zustand, leads) });
   const rm = l.meta.rueckmeldung;
   // Vorbelegung per Link (z. B. von Claude aus einer E-Mail-Antwort vorbereitet): ?rm=<Antwort>&rmNotiz=…&rmThema=… —
   // gespeichert wird trotzdem erst per Knopf.
@@ -475,6 +476,80 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
         </div>
 
         <div>
+          {l.rolle === "angebot" && (
+            <section className="lfa-panel" id="weg">
+              <h2 className="lfa-h2" title="Weiche je Angebot: Die TR Vertriebs GmbH kauft selbst (ohne Makler, ohne Provision) oder Lippe Forst vermittelt (für den Eigentümer kostenlos). Der Weg steuert den nächsten Schritt und die Mail-Texte.">
+                Weg: selbst kaufen oder vermitteln
+              </h2>
+              <div className="lfa-weg">
+                <p className="lfa-klein" style={{ margin: 0 }}>
+                  {l.meta.weg ? (
+                    <>
+                      Gewählt: <strong title={WEG_TIPP[l.meta.weg]}>{WEG_NAME[l.meta.weg]}</strong>
+                      {l.meta.weg === "ankauf" && l.meta.ankauf?.preis ? ` · Kaufpreis-Angebot ${M.euro(l.meta.ankauf.preis)}` : ""}
+                      {l.meta.weg === "ankauf" && l.meta.ankauf?.angebotAm ? ` · Mail gesendet am ${datumZeit(l.meta.ankauf.angebotAm)}` : ""}
+                    </>
+                  ) : (
+                    "Noch offen — die Einladung zur Vereinbarung wählt „Vermitteln“ automatisch."
+                  )}
+                </p>
+                {l.meta.ankauf?.ergebnis && l.meta.ankauf.ergebnis.wie !== "zurueck" && (
+                  <p className="lfa-hinweis lfa-hinweis-ok" style={{ margin: 0 }}>
+                    Ergebnis: {ANKAUF_ERGEBNIS_NAME[l.meta.ankauf.ergebnis.wie]} ({datumZeit(l.meta.ankauf.ergebnis.am)}, {l.meta.ankauf.ergebnis.von})
+                    {l.meta.ankauf.ergebnis.notiz ? ` — ${l.meta.ankauf.ergebnis.notiz}` : ""}
+                  </p>
+                )}
+                {kunde?.vertrag && l.meta.weg !== "ankauf" ? (
+                  <p className="lfa-klein" style={{ margin: 0 }}>
+                    Die Vereinbarung für Anbieter ist unterschrieben — die Fläche wird vermittelt. Soll die TR Vertriebs GmbH sie selbst kaufen, erst den Vorgang klären (Eigengeschäft offenlegen).
+                  </p>
+                ) : (
+                  <form action={wegFormular} className="lfa-weg-wahl">
+                    <input type="hidden" name="id" value={l.id} />
+                    {l.meta.weg !== "ankauf" && (
+                      <input
+                        name="preis"
+                        className="field-input"
+                        style={{ maxWidth: "12rem" }}
+                        inputMode="decimal"
+                        placeholder="Kaufpreis-Angebot in € (optional)"
+                        defaultValue={l.meta.ankauf?.preis ? String(l.meta.ankauf.preis) : ""}
+                        title="Optional: Ihr Kaufpreis-Angebot — es steht dann in der Mail zum Direktankauf. Leer lassen, wenn Sie erst prüfen wollen."
+                      />
+                    )}
+                    {l.meta.weg !== "ankauf" && (
+                      <button type="submit" name="was" value="ankauf" className="lfa-knopf" title={`${WEG_TIPP.ankauf} Es geht noch keine Mail raus — die steht danach unter „E-Mail-Entwürfe“.`}>
+                        Selbst kaufen
+                      </button>
+                    )}
+                    {l.meta.weg !== "vermittlung" && (
+                      <button type="submit" name="was" value="vermittlung" className="lfa-knopf lfa-knopf-hell" title={`${WEG_TIPP.vermittlung} Es geht noch keine Mail raus.`}>
+                        Vermitteln
+                      </button>
+                    )}
+                    {l.meta.weg && (
+                      <button type="submit" name="was" value="offen" className="lfa-link-knopf" title="Weg wieder offen lassen — im Dashboard erscheinen dann wieder beide Knöpfe. Es geht keine Mail raus.">
+                        Weg zurücksetzen
+                      </button>
+                    )}
+                  </form>
+                )}
+                {l.meta.weg === "ankauf" && !(l.meta.ankauf?.ergebnis && l.meta.ankauf.ergebnis.wie !== "zurueck") && (
+                  <form action={wegFormular} className="lfa-weg-wahl">
+                    <input type="hidden" name="id" value={l.id} />
+                    <input name="notiz" className="field-input" style={{ maxWidth: "18rem" }} placeholder="Notiz (optional), z. B. Notartermin" title="Kurze Notiz zum Ergebnis — nur intern" />
+                    <button type="submit" name="was" value="gekauft" className="lfa-knopf" title="Kaufvertrag ist beurkundet — die Anfrage wird „Erledigt“. Es geht keine Mail raus.">
+                      Gekauft
+                    </button>
+                    <button type="submit" name="was" value="abgelehnt" className="lfa-knopf lfa-knopf-hell" title="Der Eigentümer möchte nicht an uns verkaufen — die Anfrage wird „Erledigt“. Soll stattdessen vermittelt werden, „Vermitteln“ wählen. Es geht keine Mail raus.">
+                      Abgelehnt
+                    </button>
+                  </form>
+                )}
+              </div>
+            </section>
+          )}
+
           <section className="lfa-panel">
             <h2 className="lfa-h2">Bearbeitung</h2>
             <form action={anfrageSpeichern} className="lfa-formraster">

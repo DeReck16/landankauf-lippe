@@ -8,11 +8,12 @@ import * as V from "@/lib/portal/vorgang";
 import * as M from "@/lib/portal/model";
 import { erklaerungenKaufabsicht, erklaerungenKundenvertrag, erklaerungenPachtvertrag, type ErklaerungDef } from "@/lib/portal/erklaerungen";
 import { anfrageHerkunft, basisUrl, beendeKundenSitzung, ladeKundenSitzung, requireKundeId, starteKundenSitzung } from "@/lib/portal/sitzung";
-import { drosseln, kurzwert, readZustand } from "@/lib/admin/store";
+import { drosseln, kurzwert, listLeads, readZustand } from "@/lib/admin/store";
 import { aendereKunde, alleKunden, istKundeId, ladeEinstellungen, ladeKunde } from "@/lib/portal/speicher";
 import { kennung, pruefeErklaerung, vorgangsKennung } from "@/lib/portal/token";
 import { vorgangZuKennung } from "@/lib/portal/sicht";
-import { anbieterAbgleichJetzt } from "@/lib/portal/anbieter-gruppe";
+import { anbieterAbgleichJetzt, vereinbarungErgaenzen, weitereFlaechenOhneVereinbarung } from "@/lib/portal/anbieter-gruppe";
+import { leadView } from "@/lib/admin/model";
 
 // Server Actions des Kundenbereichs. Jede Action prüft die Sitzung selbst und
 // arbeitet nur mit Datensätzen, die zur angemeldeten E-Mail-Adresse gehören.
@@ -172,15 +173,44 @@ export async function kundenvertragAktion(_prev: UnterschriftState, fd: FormData
     herkunft: { ...herkunft, sitzung: kennung(`${sitzung.email}:${sitzung.seit}`) },
   });
   if (!r.ok) return { status: "fehler", text: r.fehler };
-  // Anbieter mit mehreren Flächen: eine Unterschrift gilt für alle seine Anfragen (lib/portal/anbieter-gruppe.ts).
-  const uebertragen = kunde.rolle === "anbieter" ? (await anbieterAbgleichJetzt("kunde", kunde.email)).filter((x) => x.vertrag?.uebernommenVon === kunde.id) : [];
+  // Anbieter mit mehreren Flächen: Die Vereinbarung gilt für die weiteren Flächen, die er bei der
+  // Unterschrift ausdrücklich angehakt hat (nie automatisch, lib/portal/anbieter-gruppe.ts).
+  let uebertragen = 0;
+  if (kunde.rolle === "anbieter") {
+    const gewaehlt = new Set(fd.getAll("weitere").map(String).filter((x) => istKundeId(x)));
+    if (gewaehlt.size) {
+      const frisch = await ladeKunde(kunde.id);
+      const [roh, { zustand }, alle] = await Promise.all([listLeads(), readZustand(), alleKunden()]);
+      const kandidaten = weitereFlaechenOhneVereinbarung(frisch ?? kunde, roh.map((l) => leadView(l, zustand.anfragen[l.id])), alle);
+      for (const l of kandidaten.filter((x) => gewaehlt.has(x.id))) {
+        if (frisch && (await vereinbarungErgaenzen(frisch, l, { wie: "unterschrift", ...herkunft, sitzung: kennung(`${sitzung.email}:${sitzung.seit}`) }))) uebertragen++;
+      }
+    }
+    await anbieterAbgleichJetzt("kunde", kunde.email);
+  }
   revalidatePath("/kunde", "layout");
   revalidatePath("/admin", "layout");
   redirect(
     `/kunde?m=${encodeURIComponent(
-      `Vielen Dank — Ihr Vertrag ist unterschrieben. Die Bestätigung mit dem PDF ist per E-Mail unterwegs.${uebertragen.length ? ` Die Vereinbarung gilt für alle Ihre Flächen bei Lippe Forst (${uebertragen.length + 1}).` : ""}`,
+      `Vielen Dank — Ihr Vertrag ist unterschrieben. Die Bestätigung mit dem PDF ist per E-Mail unterwegs.${uebertragen ? ` Die Vereinbarung gilt außerdem für ${uebertragen === 1 ? "eine weitere Ihrer Flächen" : `${uebertragen} weitere Ihrer Flächen`}.` : ""}`,
     )}`,
   );
+}
+
+/** Weitere Fläche desselben Anbieters ausdrücklich zur bestehenden Vereinbarung hinzufügen (Kundenbereich). */
+export async function flaecheErgaenzenAktion(fd: FormData): Promise<void> {
+  const quelleId = feld(fd, "quelle", 40);
+  const zielId = feld(fd, "ziel", 40);
+  const { sitzung, kunde: quelle } = await requireKundeId(quelleId);
+  if (!quelle.vertrag || quelle.widerruf || quelle.kuendigung || quelle.rolle !== "anbieter") nachricht("/kunde", "Dafür braucht es eine gültige Vereinbarung.", true);
+  const [roh, { zustand }, alle] = await Promise.all([listLeads(), readZustand(), alleKunden()]);
+  const l = weitereFlaechenOhneVereinbarung(quelle, roh.map((x) => leadView(x, zustand.anfragen[x.id])), alle).find((x) => x.id === zielId);
+  if (!l) nachricht("/kunde", "Diese Fläche lässt sich nicht hinzufügen.", true);
+  const herkunft = await anfrageHerkunft();
+  const k = await vereinbarungErgaenzen(quelle, l, { wie: "kundenbereich", ...herkunft, sitzung: kennung(`${sitzung.email}:${sitzung.seit}`) });
+  revalidatePath("/kunde", "layout");
+  revalidatePath("/admin", "layout");
+  nachricht("/kunde", k ? "Danke — Ihre Vereinbarung gilt jetzt auch für diese Fläche." : "Das hat nicht geklappt — bitte melden Sie sich kurz per E-Mail.", !k);
 }
 
 export async function beginnwunschAktion(fd: FormData): Promise<void> {
