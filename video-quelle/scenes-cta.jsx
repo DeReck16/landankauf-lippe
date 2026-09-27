@@ -82,7 +82,7 @@ function SceneNatureInner() {
           maxWidth: 700,
           lineHeight: 1.5,
         }}>
-          Käufer, die Ihre Fläche dauerhaft renaturieren oder nachhaltig bewirtschaften — geprüft, dokumentiert, ESG-konform.
+          Die TR Vertriebs GmbH kauft selbst — oder wir vermitteln Käufer und Pächter aus der Region. Für Sie auf beiden Wegen ohne Provision.
         </div>
       </div>
     </div>
@@ -167,8 +167,8 @@ function SceneAdvisoryInner() {
           opacity: titleOp,
           transform: `translateY(${titleY}px)`,
         }}>
-          Sie sprechen mit einem
-          <span style={{ fontStyle: 'italic', color: '#c4a866' }}> Förster</span> —
+          Sie sprechen mit
+          <span style={{ fontStyle: 'italic', color: '#c4a866' }}> Menschen aus Lippe</span> —
           nicht mit einem Algorithmus.
         </div>
 
@@ -355,7 +355,7 @@ function SceneCTAInner() {
         color: 'rgba(235, 228, 212, 0.45)',
         textTransform: 'uppercase',
       }}>
-        lippe-forst.de  ·  Antwort innerhalb von 48 Stunden
+        lippeforst.de  ·  Antwort meist innerhalb eines Werktags
       </div>
     </div>
   );

@@ -36,10 +36,10 @@ function SceneHiddenValueInner() {
 
   // Animated counter old vs new
   const oldT = clamp((localTime - 2.2) / 1.4, 0, 1);
-  const oldVal = Math.round(8500 * Easing.easeOutCubic(oldT));
+  const oldVal = Math.round(21600 * Easing.easeOutCubic(oldT));
 
   const newT = clamp((localTime - 3.0) / 1.6, 0, 1);
-  const newVal = Math.round(24800 * Easing.easeOutCubic(newT));
+  const newVal = Math.round(41600 * Easing.easeOutCubic(newT));
 
   const arrowOpacity = animate({ from: 0, to: 1, start: 3.4, end: 3.9 })(localTime);
 
@@ -136,7 +136,7 @@ function SceneHiddenValueInner() {
           textTransform: 'uppercase',
           opacity: animate({ from: 0, to: 1, start: 4.0, end: 4.6 })(localTime),
         }}>
-          ~ Beispiel: 1 ha Grünland, Kreis Lippe ~
+          ~ Beispiel: 1 ha Grünland, Kreismittel 2025 + Ökopunkte, vorsichtig gerechnet ~
         </div>
       </div>
 
@@ -334,16 +334,14 @@ function SceneFairMarketInner() {
   const titleOpacity = animate({ from: 0, to: 1, start: 0.4, end: 1.2 })(localTime);
   const titleY = animate({ from: 18, to: 0, start: 0.4, end: 1.3, ease: Easing.easeOutCubic })(localTime);
 
-  // Animated bar chart - 4 bars
-  const bars = [
-    { label: 'Direktverkauf', val: 0.42, color: 'rgba(235, 228, 212, 0.25)', delay: 1.2 },
-    { label: 'Lokaler Makler', val: 0.58, color: 'rgba(235, 228, 212, 0.4)', delay: 1.45 },
-    { label: 'Pachtmodell', val: 0.71, color: 'rgba(235, 228, 212, 0.55)', delay: 1.7 },
-    { label: 'Lippe Forst', val: 0.96, color: '#c4a866', delay: 1.95, highlight: true },
+  // Zwei Wege statt eines Balkenvergleichs (keine unbelegten Prozentzahlen).
+  const wege = [
+    { tag: 'A', titel: 'Wir kaufen selbst', text: 'Die TR Vertriebs GmbH kauft Ihre Fläche — ohne Makler, ohne Provision.', delay: 1.2 },
+    { tag: 'B', titel: 'Wir vermitteln', text: 'Passende Käufer oder Pächter aus der Region — für Sie als Eigentümer kostenlos.', delay: 1.6 },
   ];
 
-  const captionOp = animate({ from: 0, to: 1, start: 3.6, end: 4.2 })(localTime);
-  const captionY = animate({ from: 14, to: 0, start: 3.6, end: 4.3, ease: Easing.easeOutCubic })(localTime);
+  const captionOp = animate({ from: 0, to: 1, start: 3.2, end: 3.8 })(localTime);
+  const captionY = animate({ from: 14, to: 0, start: 3.2, end: 3.9, ease: Easing.easeOutCubic })(localTime);
 
   const exit = animate({ from: 1, to: 0, start: 5.0, end: 5.5, ease: Easing.easeInCubic })(localTime);
 
@@ -364,7 +362,7 @@ function SceneFairMarketInner() {
         marginBottom: 24,
         opacity: ebOpacity,
       }}>
-        05 · Fairer Marktpreis
+        05 · Zwei Wege
       </div>
 
       <div style={{
@@ -379,76 +377,52 @@ function SceneFairMarketInner() {
         transform: `translateY(${titleY}px)`,
         maxWidth: 1100,
       }}>
-        Mehrere Bieter. <span style={{ fontStyle: 'italic', color: '#c4a866' }}>Ein fairer Preis.</span>
+        Selbst kaufen oder vermitteln. <span style={{ fontStyle: 'italic', color: '#c4a866' }}>Sie entscheiden.</span>
       </div>
 
-      {/* Bar chart */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'flex-end',
-          gap: 60,
-          height: 360,
-          paddingLeft: 8,
-        }}>
-          {bars.map((b, i) => {
-            const grow = animate({ from: 0, to: b.val, start: b.delay, end: b.delay + 0.9, ease: Easing.easeOutCubic })(localTime);
-            const labelOp = animate({ from: 0, to: 1, start: b.delay + 0.4, end: b.delay + 1.0 })(localTime);
-            return (
-              <div key={i} style={{
-                flex: 1,
-                display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
-                height: '100%',
-                position: 'relative',
+      <div style={{ display: 'flex', gap: 48, flex: 1, alignItems: 'flex-start' }}>
+        {wege.map((w) => {
+          const op = animate({ from: 0, to: 1, start: w.delay, end: w.delay + 0.7 })(localTime);
+          const y = animate({ from: 20, to: 0, start: w.delay, end: w.delay + 0.8, ease: Easing.easeOutCubic })(localTime);
+          return (
+            <div key={w.tag} style={{
+              flex: 1,
+              opacity: op,
+              transform: `translateY(${y}px)`,
+              border: '1px solid rgba(196, 168, 102, 0.45)',
+              borderRadius: 18,
+              padding: '36px 40px',
+              background: 'rgba(235, 228, 212, 0.04)',
+            }}>
+              <div style={{
+                fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+                fontSize: 13,
+                letterSpacing: '0.24em',
+                color: '#c4a866',
+                marginBottom: 14,
               }}>
-                {/* Callout lives at the column level so it can overflow above the chart */}
-                {b.highlight && (
-                  <div style={{
-                    position: 'absolute',
-                    bottom: `calc(${grow * 100}% + 38px)`,
-                    right: 0,
-                    fontFamily: '"Cormorant Garamond", serif',
-                    fontSize: 30,
-                    fontStyle: 'italic',
-                    color: '#c4a866',
-                    opacity: labelOp,
-                    whiteSpace: 'nowrap',
-                    pointerEvents: 'none',
-                  }}>
-                    + 38 %
-                  </div>
-                )}
-                <div style={{
-                  flex: 1,
-                  width: '100%',
-                  display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-                }}>
-                  <div style={{
-                    width: '100%',
-                    height: `${grow * 100}%`,
-                    background: b.color,
-                    position: 'relative',
-                  }}>
-                  </div>
-                </div>
-                <div style={{
-                  marginTop: 14,
-                  paddingTop: 14,
-                  borderTop: '1px solid rgba(196, 168, 102, 0.2)',
-                  width: '100%',
-                  fontFamily: 'JetBrains Mono, ui-monospace, monospace',
-                  fontSize: 12,
-                  letterSpacing: '0.16em',
-                  textTransform: 'uppercase',
-                  color: b.highlight ? '#c4a866' : 'rgba(235, 228, 212, 0.55)',
-                  opacity: labelOp,
-                }}>
-                  {b.label}
-                </div>
+                WEG {w.tag}
               </div>
-            );
-          })}
-        </div>
+              <div style={{
+                fontFamily: '"Cormorant Garamond", serif',
+                fontSize: 44,
+                color: '#ebe4d4',
+                lineHeight: 1.1,
+                marginBottom: 14,
+              }}>
+                {w.titel}
+              </div>
+              <div style={{
+                fontFamily: 'Inter, system-ui, sans-serif',
+                fontSize: 19,
+                color: 'rgba(235, 228, 212, 0.72)',
+                lineHeight: 1.5,
+              }}>
+                {w.text}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       <div style={{
@@ -458,10 +432,10 @@ function SceneFairMarketInner() {
         color: 'rgba(235, 228, 212, 0.6)',
         opacity: captionOp,
         transform: `translateY(${captionY}px)`,
-        maxWidth: 720,
+        maxWidth: 820,
         lineHeight: 1.5,
       }}>
-        Ihre Fläche wird qualifizierten Käufern und Kompensations&shy;trägern angeboten — der höchste Preis gewinnt.
+        Anonym in der Flächenbörse nur mit Ihrer Zustimmung — Kontaktdaten erst, wenn beide Seiten zugestimmt haben.
       </div>
     </div>
   );

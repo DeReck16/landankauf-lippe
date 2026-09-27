@@ -136,7 +136,7 @@ function SceneProblemInner() {
 
   // Counter
   const counterT = clamp((localTime - 2.6) / 1.4, 0, 1);
-  const counterVal = Math.round(42 * Easing.easeOutCubic(counterT));
+  const counterVal = Math.round(24 * Easing.easeOutCubic(counterT));
 
   // Exit
   const exit = animate({ from: 1, to: 0, start: 5.0, end: 5.5, ease: Easing.easeInCubic })(localTime);
@@ -230,7 +230,7 @@ function SceneProblemInner() {
             lineHeight: 1,
             fontVariantNumeric: 'tabular-nums',
           }}>
-            {counterVal}<span style={{ fontSize: 56 }}>%</span>
+            +{counterVal}<span style={{ fontSize: 56 }}>%</span>
           </div>
           <div style={{
             fontFamily: 'Inter, system-ui, sans-serif',
@@ -239,7 +239,7 @@ function SceneProblemInner() {
             lineHeight: 1.45,
             maxWidth: 360,
           }}>
-            der privaten Wald- und Wiesenflächen<br/>in Deutschland werden nicht aktiv bewirtschaftet.
+            mehr Verkäufe land- und forstwirtschaftlicher<br/>Flächen im Kreis Lippe 2025 (Grundstücksmarktbericht).
           </div>
         </div>
       </div>
