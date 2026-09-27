@@ -1,6 +1,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { after } from "next/server";
+import { automatikNachAnfrage } from "@/lib/portal/automatik";
 import { rueckmeldungSpeichern } from "@/lib/portal/rueckmeldung";
 import { istRueckmeldungArt } from "@/lib/portal/rueckmeldung-typen";
 import { basisUrl } from "@/lib/portal/sitzung";
@@ -27,5 +29,7 @@ export async function antwortAktion(fd: FormData): Promise<void> {
     { quelle: "link", von: "kunde", basis: await basisUrl() },
   );
   if (!r.ok) redirect(`${zurueck}&fehler=${r.code}`);
+  // Automatik (nur wenn eingeschaltet): Die Antwort kann die Anfrage neu einordnen (z. B. „verpachten“) — Matching/Einladung.
+  if (art !== "kein-interesse" && art !== "beratung") after(() => automatikNachAnfrage(token.k));
   redirect(`${zurueck}&ok=1`);
 }

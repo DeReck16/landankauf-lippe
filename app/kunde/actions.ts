@@ -2,6 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
+import { automatikNachKunde, automatikNachPaar } from "@/lib/portal/automatik";
 import * as A from "@/lib/portal/ablauf";
 import { boerseEinwilligungKunde } from "@/lib/boerse";
 import * as V from "@/lib/portal/vorgang";
@@ -132,12 +134,21 @@ export async function angabenAktion(fd: FormData): Promise<void> {
       if (f.gemarkung || f.flurstueck || f.groesseHa != null) flaechen.push(f);
     }
   }
-  await A.angabenSpeichern(id, s, flaechen);
-  // Flächenbörse: Einwilligung per Häkchen (nur Verkäufer; veröffentlicht wird erst per Klick in der Verwaltung).
+  // Freiwillige Angaben zur Fläche (Dennis 27.09.2026): Preis-/Pachtvorstellung, frei ab, Ackerzahl, Zuwegung —
+  // fließen als Vorschlag in die Flächenbörse (veröffentlicht wird erst nach Prüfung durch die Verwaltung).
+  const flaechenAngaben =
+    kunde.rolle === "anbieter"
+      ? { preis: feld(fd, "a_preis", 80), frei: feld(fd, "a_frei", 80), ackerzahl: feld(fd, "a_ackerzahl", 40), zuwegung: feld(fd, "a_zuwegung", 80) }
+      : undefined;
+  await A.angabenSpeichern(id, s, flaechen, flaechenAngaben);
+  // Flächenbörse: Einwilligung per Häkchen (nur Anbieter; veröffentlicht wird erst per Klick in der Verwaltung).
   if (kunde.rolle === "anbieter" && feld(fd, "boerse_feld", 2) === "1") {
     const summeHa = flaechen?.reduce((sum, f) => sum + (f.groesseHa ?? 0), 0) || null;
-    await boerseEinwilligungKunde(id, feld(fd, "boerse", 2) === "1", summeHa);
+    const a = flaechenAngaben;
+    const details = a ? { preis: a.preis, frei: a.frei, ackerzahl: a.ackerzahl && /\d/.test(a.ackerzahl) && !/ackerzahl/i.test(a.ackerzahl) ? `Ackerzahl ca. ${a.ackerzahl}` : a.ackerzahl, zuwegung: a.zuwegung } : undefined;
+    await boerseEinwilligungKunde(id, feld(fd, "boerse", 2) === "1", summeHa, details);
   }
+  if (kunde.rolle === "anbieter") after(() => automatikNachKunde(id, "angaben"));
   revalidatePath("/kunde", "layout");
   if (!kunde.vertrag) redirect(`/kunde/vertrag?k=${id}`);
   nachricht("/kunde", "Ihre Angaben sind gespeichert.");
@@ -188,6 +199,8 @@ export async function kundenvertragAktion(_prev: UnterschriftState, fd: FormData
     }
     await anbieterAbgleichJetzt("kunde", kunde.email);
   }
+  // Automatik (nur wenn eingeschaltet): Börse, Matching, Einladungen im Vorgang, anonyme Hinweise.
+  after(() => automatikNachKunde(kunde.id, "unterschrift"));
   revalidatePath("/kunde", "layout");
   revalidatePath("/admin", "layout");
   redirect(
@@ -219,6 +232,8 @@ export async function beginnwunschAktion(fd: FormData): Promise<void> {
   if (fd.get("bestaetigt") !== "1") nachricht("/kunde", "Bitte bestätigen Sie den Hinweis zum Widerrufsrecht.", true);
   if (!M.widerrufMoeglich(kunde) || kunde.vertrag?.beginnwunschAm) nachricht("/kunde", "Nicht erforderlich.");
   await A.beginnwunschErklaeren(id);
+  // Automatik R5: Mit dem Beginnwunsch kann eine wartende Freigabe jetzt möglich sein.
+  after(() => automatikNachKunde(id, "zustimmung"));
   revalidatePath("/kunde", "layout");
   nachricht("/kunde", "Danke — wir dürfen jetzt schon vor Ablauf der Widerrufsfrist Kontakte freigeben.");
 }
@@ -333,6 +348,8 @@ export async function zustimmenAktion(fd: FormData): Promise<void> {
       true,
     );
   }
+  // Automatik R5 (nur wenn eingeschaltet): Freigabe, sobald beide zugestimmt haben und die Prüfung grün ist.
+  after(() => automatikNachPaar(key));
   revalidatePath("/kunde", "layout");
   nachricht(pfad, "Danke — Ihre Zustimmung ist vermerkt. Sobald beide Seiten zugestimmt und unterschrieben haben, geben wir die Kontaktdaten frei.");
 }

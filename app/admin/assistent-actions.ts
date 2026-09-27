@@ -9,8 +9,9 @@ import { listLeads, readZustand } from "@/lib/admin/store";
 import * as A from "@/lib/portal/ablauf";
 import { anbieterAbgleichFuer } from "@/lib/portal/anbieter-gruppe";
 import { anfrageVorschlag } from "@/lib/portal/anfrage-vorschlag";
+import { anfrageEinladen, linkErstellen, mailsSenden, type AusfuehrZeile } from "@/lib/portal/ausfuehren";
 import { preisLesen, wegSetzen } from "@/lib/portal/weg";
-import { ASSISTENT_AKTIONEN, alleAktionen, assistentEntwurf, assistentPlan, type AssistentAktionId, type AssistentMail, type AssistentUmgebung } from "@/lib/portal/assistent";
+import { ASSISTENT_AKTIONEN, alleAktionen, assistentPlan, type AssistentAktionId, type AssistentUmgebung } from "@/lib/portal/assistent";
 import { entwuerfeKunde } from "@/lib/portal/entwuerfe";
 import * as M from "@/lib/portal/model";
 import * as N from "@/lib/portal/nacharbeit";
@@ -23,7 +24,6 @@ import { alleKunden, alleVorgaenge, istKundeId, istPaarKey, ladeEinstellungen, l
 import { datumDe, rolleVonLead, tagDe, wert } from "@/lib/portal/texte";
 import { verwaltungsMailSenden } from "@/lib/portal/versand";
 import * as V from "@/lib/portal/vorgang";
-import { VORLAGEN, istFreigegeben, kundenVorlage } from "@/lib/vertraege/vorlagen";
 import { anfrageSpeichern, paarAktion } from "./actions";
 
 // Klick-Assistent (app/admin/(intern)/Assistent.tsx, Dashboard): führt genau die
@@ -33,7 +33,7 @@ import { anfrageSpeichern, paarAktion } from "./actions";
 // über verwaltungsMailSenden (Sperren, Versand, Volltext im Verlauf). Das Ergebnis
 // geht an die Karte zurück (kein Redirect, keine Meldung in der Adresse).
 
-export type AssistentZeile = { art: "ok" | "fehler" | "info"; text: string };
+export type AssistentZeile = AusfuehrZeile;
 /** `weg`: Die Karte verschwindet aus dem Dashboard (Paar verworfen) — die Rückmeldung erscheint dann oben. */
 export type AssistentState = { status: "ok" | "teil" | "fehler"; titel: string; zeilen: AssistentZeile[]; am: string; weg?: boolean };
 
@@ -80,52 +80,6 @@ function ergebnis(knopf: string, zeilen: AssistentZeile[]): AssistentState {
   };
 }
 
-/** Mails nach dem aktuellen Stand erzeugen (echte Links) und einzeln senden — je Mail eine Zeile ✓/✗. */
-async function mailsSenden(von: string, key: string, u: AssistentUmgebung, geplant: AssistentMail[], zeilen: AssistentZeile[]): Promise<void> {
-  if (geplant.length === 0) return;
-  const ctx = await V.ladeVorgangKontext(key);
-  if (!ctx) {
-    zeilen.push({ art: "fehler", text: "Vorgang nicht gefunden — keine E-Mail gesendet." });
-    return;
-  }
-  for (const m of geplant) {
-    const e = assistentEntwurf(ctx, u, m.zweck, m.rolle);
-    if (!e || e.gesperrt) {
-      zeilen.push({ art: "fehler", text: `E-Mail an ${m.wer}: nicht gesendet — ${e?.gesperrt ?? "nicht mehr vorgesehen"}` });
-      continue;
-    }
-    const r = await verwaltungsMailSenden(von, { zweck: e.zweck, kundeId: e.kundeId, key, rolle: m.rolle, an: e.an, betreff: e.betreff, text: e.text });
-    zeilen.push(r.ok ? { art: "ok", text: `E-Mail an ${m.wer} (${e.an}): „${e.betreff}“` } : { art: "fehler", text: `E-Mail an ${m.wer} (${e.an}) nicht gesendet: ${r.text}` });
-  }
-}
-
-/** Neuen persönlichen Einladungslink erstellen — mit denselben Prüfungen wie „Einladung erstellen“. */
-async function linkErstellen(von: string, m: AssistentMail, u: AssistentUmgebung, zeilen: AssistentZeile[]): Promise<boolean> {
-  const geladen = await A.ladeLead(m.kundeId);
-  if (!geladen) {
-    zeilen.push({ art: "fehler", text: `${m.wer}: Anfrage nicht gefunden.` });
-    return false;
-  }
-  const rr = rolleVonLead(geladen.lead);
-  if (!rr) {
-    zeilen.push({ art: "fehler", text: `${m.wer}: Die Anfrage ist nicht als Angebot oder Gesuch mit Kauf/Pacht eingeordnet.` });
-    return false;
-  }
-  const vorlage = kundenVorlage(rr.rolle, rr.art);
-  if (!istFreigegeben(u.einstellungen, vorlage)) {
-    zeilen.push({ art: "fehler", text: `Die Vorlage „${VORLAGEN[vorlage].titel}“ ist noch nicht freigegeben (Verwaltung → Vorlagen) — kein Link für ${m.werAkk}.` });
-    return false;
-  }
-  try {
-    await A.einladungErstellen(geladen.lead, von);
-  } catch (err) {
-    unstable_rethrow(err);
-    zeilen.push({ art: "fehler", text: `${m.wer}: ${err instanceof Error ? err.message : "Einladung nicht möglich."}` });
-    return false;
-  }
-  zeilen.push({ art: "ok", text: `Persönlicher Einladungslink für ${m.werAkk} erstellt (30 Tage gültig)` });
-  return true;
-}
 
 /** Den automatisch verschickten Treue-Gutschein offen ausweisen (Beurkundung, externer Abschluss). */
 async function gutscheinZeile(key: string, seit: string, zeilen: AssistentZeile[]): Promise<void> {
@@ -553,30 +507,7 @@ export async function anfrageVorschlagAktion(fd: FormData): Promise<AssistentSta
         }
       }
     } else {
-      const rr = rolleVonLead(lead);
-      const m = a.mails[0];
-      if (!rr || !m) throw new Error("Für diese Anfrage ist keine Einladung möglich.");
-      let kunde = await ladeKunde(id);
-      if (!kunde?.einladung || Date.parse(kunde.einladung.bis) < Date.now()) {
-        // Vorlage ist freigegeben (sonst wäre der Vorschlag gesperrt) — Link und ggf. Kundenakte anlegen.
-        await A.einladungErstellen(lead, email);
-        zeilen.push({ art: "ok", text: `Persönlicher Einladungslink für ${name} erstellt (30 Tage gültig)` });
-        kunde = await ladeKunde(id);
-      }
-      const e = entwuerfeKunde({ lead, kunde, einstellungen: u.einstellungen, basis: u.basis, kunden: u.kunden.values() }).find((x) => x.zweck === "einladung");
-      if (!e || e.gesperrt) {
-        zeilen.push({ art: "fehler", text: `E-Mail an ${m.wer}: nicht gesendet — ${e?.gesperrt ?? "keine Einladung möglich"}` });
-      } else {
-        const r = await verwaltungsMailSenden(email, { zweck: "einladung", kundeId: id, rolle: rr.rolle, an: e.an, betreff: e.betreff, text: e.text });
-        zeilen.push(r.ok ? { art: "ok", text: `E-Mail an ${m.wer} (${e.an}): „${e.betreff}“` } : { art: "fehler", text: `E-Mail an ${m.wer} (${e.an}) nicht gesendet: ${r.text}` });
-        if (r.ok) {
-          if (rr.rolle === "anbieter" && !lead.meta.weg) {
-            await wegSetzen(id, "vermittlung", email);
-            zeilen.push({ art: "ok", text: "Weg „Vermitteln“ vermerkt" });
-          }
-          zeilen.push({ art: "ok", text: "Status → „Beantwortet“ — die Anfrage steht nicht mehr unter „Neue Anfragen“" });
-        }
-      }
+      await anfrageEinladen(lead, email, u, zeilen);
     }
   } catch (err) {
     unstable_rethrow(err);

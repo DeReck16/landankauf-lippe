@@ -2,8 +2,8 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "crons": [
     {
-      "path": "/api/cron/bewertungen",
-      "schedule": "0 8 * * *"
+      "path": "/api/cron/taeglich",
+      "schedule": "30 5 * * *"
     }
   ],
   "regions": [

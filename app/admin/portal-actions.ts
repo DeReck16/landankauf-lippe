@@ -9,6 +9,8 @@ import * as A from "@/lib/portal/ablauf";
 import * as V from "@/lib/portal/vorgang";
 import * as M from "@/lib/portal/model";
 import { pachtAnzeigeVermerken } from "@/lib/portal/nacharbeit";
+import { automatikTaeglich } from "@/lib/portal/automatik";
+import { REGELN, STANDARD_AUTOMATIK, automatikVon, type AutomatikEinstellungen } from "@/lib/portal/automatik-regeln";
 import { verwaltungsMailSenden } from "@/lib/portal/versand";
 import { aendereEinstellungen, aendereKunde, istKundeId, istPaarKey, ladeEinstellungen, markiereGesehen } from "@/lib/portal/speicher";
 
@@ -502,6 +504,53 @@ export async function bewertungEinstellungAktion(fd: FormData): Promise<void> {
   });
   await mutateZustand(email, () => ({ was: "Einstellungen zur Bewertungsbitte geändert", ref: "einstellungen" }));
   zurueck(fd, "Einstellungen zur Bewertungsbitte gespeichert.", "ok", "bewertung");
+}
+
+/**
+ * Automatik-Einstellungen (lib/portal/automatik-regeln.ts): Regeln einzeln, Not-Aus, Probelauf,
+ * Tageslimit, Zusammenfassung, Schwelle — und die rechtlichen Voraussetzungen für R4/R5, die nur
+ * Dennis bestätigen kann (§ 34c-Erlaubnis, anwaltlich geprüfte Vorlagen).
+ */
+export async function automatikEinstellungAktion(fd: FormData): Promise<void> {
+  const { email } = await requireAdmin();
+  const an = (n: string) => feld(fd, n, 2) === "1";
+  const limit = zahl(feld(fd, "tageslimit", 4));
+  const schwelle = zahl(feld(fd, "schwelle", 4));
+  let vorher: AutomatikEinstellungen | null = null;
+  let nachher: AutomatikEinstellungen | null = null;
+  await aendereEinstellungen((e) => {
+    vorher = automatikVon(e.automatik);
+    const neu: AutomatikEinstellungen = {
+      notAus: an("notAus"),
+      probelauf: an("probelauf"),
+      regeln: Object.fromEntries(REGELN.map((r) => [r.id, an(`regel_${r.id}`)])) as AutomatikEinstellungen["regeln"],
+      tageslimit: limit != null ? Math.min(200, Math.max(1, Math.round(limit))) : STANDARD_AUTOMATIK.tageslimit,
+      zusammenfassung: an("zusammenfassung"),
+      schwelle: schwelle != null ? Math.min(100, Math.max(50, Math.round(schwelle))) : STANDARD_AUTOMATIK.schwelle,
+      recht34c: an("recht34c"),
+      vorlagenGeprueft: an("vorlagenGeprueft"),
+      geaendert: { am: new Date().toISOString(), von: email },
+    };
+    e.automatik = neu;
+    nachher = neu;
+  });
+  const v = vorher as AutomatikEinstellungen | null;
+  const n = nachher as AutomatikEinstellungen | null;
+  const teile: string[] = [];
+  if (n) {
+    const regeln = REGELN.filter((r) => n.regeln[r.id]).map((r) => r.id.toUpperCase());
+    teile.push(`Regeln an: ${regeln.length ? regeln.join(", ") : "keine"}`, n.notAus ? "Not-Aus AN" : n.probelauf ? "Probelauf" : "scharf", `Tageslimit ${n.tageslimit}`);
+    if (v && (v.recht34c !== n.recht34c || v.vorlagenGeprueft !== n.vorlagenGeprueft)) teile.push(`§ 34c ${n.recht34c ? "bestätigt" : "nicht bestätigt"}, Vorlagen ${n.vorlagenGeprueft ? "anwaltlich geprüft" : "nicht bestätigt"}`);
+  }
+  await mutateZustand(email, () => ({ was: `Automatik-Einstellungen geändert: ${teile.join(" · ")}`, ref: "einstellungen" }));
+  zurueck(fd, "Automatik-Einstellungen gespeichert.", "ok", "automatik");
+}
+
+/** Automatik jetzt einmal laufen lassen (wie der tägliche Lauf, ohne Zusammenfassung). */
+export async function automatikJetztAktion(fd: FormData): Promise<void> {
+  await requireAdmin();
+  const r = await automatikTaeglich({ zusammenfassung: false });
+  zurueck(fd, r.eintraege ? `Automatik gelaufen — ${r.eintraege} Einträge im Protokoll (Dashboard „Automatisch erledigt“).` : "Automatik gelaufen — nichts zu tun (oder alle Regeln aus).", "ok", "automatik");
 }
 
 export async function gutscheinEinstellungAktion(fd: FormData): Promise<void> {

@@ -189,6 +189,47 @@ export async function boerseOfflineNehmen(ids: string[], grund: string, von: str
 }
 
 /**
+ * Veröffentlichen ohne Klick (Automatik R1): nur mit Einwilligung, ohne Lücken, nicht vergeben/gekündigt
+ * und nie für Angebote, die schon einmal offline genommen wurden (`offline` gesetzt) — die bleiben
+ * offline, bis die Verwaltung sie selbst veröffentlicht.
+ */
+export async function boerseVeroeffentlichen(id: string, von: string): Promise<{ ok: boolean; grund?: string; code?: string }> {
+  const [leads, kundenListe, vorgaenge] = await Promise.all([listLeads(), alleKunden(), alleVorgaenge()]);
+  const lead = leads.find((x) => x.id === id);
+  if (!lead) return { ok: false, grund: "Anfrage nicht gefunden" };
+  const gesperrt = sperrGrund(id, new Map(kundenListe.map((k) => [k.id, k])), vorgaenge);
+  if (gesperrt) return { ok: false, grund: gesperrt };
+  const jetzt = new Date().toISOString();
+  let ok = false;
+  let grund = "";
+  let code = "";
+  await mutateZustand(von, (z) => {
+    ok = false;
+    const meta = z.anfragen[id];
+    const b = meta?.boerse;
+    if (!meta || !b?.einwilligung) {
+      grund = "keine Einwilligung";
+      return;
+    }
+    if (b.online || b.offline) {
+      grund = b.online ? "schon online" : `von Hand offline genommen (${b.offline?.grund ?? "—"})`;
+      return;
+    }
+    const luecken = boerseLuecken(b, leadView(lead, meta));
+    if (luecken.length) {
+      grund = luecken.join(" · ");
+      return;
+    }
+    z.anfragen[id] = { ...meta, boerse: { ...b, online: true, seit: b.seit ?? jetzt, geaendert: { am: jetzt, von } } };
+    ok = true;
+    code = b.code;
+    return { was: `In der Flächenbörse veröffentlicht (${b.code}) — automatisch nach Einwilligung (R1)`, ref: id };
+  });
+  if (ok) await boerseNeuSchreiben().catch((err) => console.error("[boerse] Neu schreiben fehlgeschlagen", err));
+  return ok ? { ok, code } : { ok, grund };
+}
+
+/**
  * Angebot zu einer Börsen-Kennung (für das Verknüpfen eines Interessenten). Mit `nurOnline`
  * nur Angebote, die gerade veröffentlicht sind — vergebene oder zurückgezogene nicht.
  */

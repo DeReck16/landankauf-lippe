@@ -1,6 +1,8 @@
 "use server";
 
 import { headers } from "next/headers";
+import { after } from "next/server";
+import { automatikNachAnfrage } from "@/lib/portal/automatik";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { site } from "@/lib/site";
@@ -218,6 +220,8 @@ export async function wegFormular(formData: FormData): Promise<void> {
       m = "Der Kaufpreis ist nicht lesbar — bitte nur eine Zahl eintragen, z. B. 25000.";
     } else {
       const geaendert = await wegSetzen(id, was === "offen" ? null : was, email, was === "ankauf" ? { preis } : {});
+      // Automatik R3 (nur wenn eingeschaltet): Pacht-Angebot mit Weg „Vermitteln“ einladen.
+      if (geaendert && was === "vermittlung") after(() => automatikNachAnfrage(id));
       m = !geaendert
         ? "Nichts geändert."
         : was === "ankauf"

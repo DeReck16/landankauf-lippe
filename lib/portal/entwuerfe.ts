@@ -31,9 +31,10 @@ export type MailZweck =
   | "antwort"
   | "ergaenzen"
   | "ankauf"
+  | "boerse"
   | "frei";
 
-export const MAIL_ZWECKE: MailZweck[] = ["rueckfrage", "einladung", "erinnerung", "hinweis", "freigabe", "pachtvertrag", "kaufabsicht", "anzeige", "bewertung", "nachfassen", "antwort", "ergaenzen", "ankauf", "frei"];
+export const MAIL_ZWECKE: MailZweck[] = ["rueckfrage", "einladung", "erinnerung", "hinweis", "freigabe", "pachtvertrag", "kaufabsicht", "anzeige", "bewertung", "nachfassen", "antwort", "ergaenzen", "ankauf", "boerse", "frei"];
 
 export type Entwurf = {
   id: string;

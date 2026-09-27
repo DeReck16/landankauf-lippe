@@ -25,7 +25,7 @@ import * as V from "./vorgang";
 const OHNE_KUNDENAKTE: readonly string[] = ["nachfassen", "antwort"];
 
 /** Zwecke mit persönlichem Link — Empfänger ist fest die hinterlegte Adresse. */
-export const MIT_PERSOENLICHEM_LINK: readonly string[] = ["einladung", "erinnerung", "hinweis", "freigabe", "pachtvertrag", "kaufabsicht", "nachfassen", "antwort", "ergaenzen", "ankauf"];
+export const MIT_PERSOENLICHEM_LINK: readonly string[] = ["einladung", "erinnerung", "hinweis", "freigabe", "pachtvertrag", "kaufabsicht", "nachfassen", "antwort", "ergaenzen", "ankauf", "boerse"];
 
 export type VersandAuftrag = {
   zweck: string;

@@ -29,7 +29,7 @@ export default async function VertragPage(props: PageProps<"/kunde/vertrag">) {
   const anbieter = kunde.rolle === "anbieter";
   const verbraucher = kunde.stammdaten.eigenschaft === "verbraucher";
   const frei = istFreigegeben(e, entwurf.vorlageId);
-  const erklaerungen = erklaerungenKundenvertrag(kunde.rolle, verbraucher, entwurf.provisionKurz);
+  const erklaerungen = erklaerungenKundenvertrag(kunde.rolle, verbraucher, entwurf.provisionKurz, verbraucher ? datumDe(M.freigabeFruehestens(new Date().toISOString())) : undefined);
   const k = entwurf.konditionen;
   const andere: M.Art = kunde.art === "pacht" ? "kauf" : "pacht";
   // Wartezeit für Verbraucher: Widerrufsfrist (14 Tage ab heute) + 4 Tage Puffer, ohne ausdrücklichen Beginnwunsch.

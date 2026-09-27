@@ -18,7 +18,11 @@ export const BEWERTUNG_EINWILLIGUNG: ErklaerungDef = {
   tipp: "Freiwillig — ohne Haken schicken wir Ihnen keine Bitte um eine Bewertung per E-Mail. Auf Ihren Vertrag hat das keinen Einfluss.",
 };
 
-export function erklaerungenKundenvertrag(rolle: Rolle, verbraucher: boolean, provision: string): ErklaerungDef[] {
+/**
+ * `freiAb`: frühester Tag einer Freigabe ohne Beginnwunsch (nur für den Hinweis am Haken — der
+ * Wortlaut der Erklärung selbst bleibt unverändert, er steht im Unterschriftsprotokoll).
+ */
+export function erklaerungenKundenvertrag(rolle: Rolle, verbraucher: boolean, provision: string, freiAb?: string): ErklaerungDef[] {
   if (rolle === "anbieter") {
     return [
       {
@@ -52,7 +56,7 @@ export function erklaerungenKundenvertrag(rolle: Rolle, verbraucher: boolean, pr
     {
       id: "vertrag",
       pflicht: true,
-      text: `Ich habe den Nachweis- und Vermittlungsvertrag vollständig gelesen und bin mit ihm einverstanden. Mir ist bekannt, dass ich nur im Erfolgsfall eine Provision schulde: ${provision}.`,
+      text: `Ich habe den Nachweisvertrag vollständig gelesen und bin mit ihm einverstanden. Mir ist bekannt, dass ich nur im Erfolgsfall eine Provision schulde: ${provision}.`,
       tipp: "Pflicht: Bestätigt, dass Sie den Vertrag oben gelesen haben und die Provisionsregel kennen.",
     },
     {
@@ -80,7 +84,7 @@ export function erklaerungenKundenvertrag(rolle: Rolle, verbraucher: boolean, pr
         id: "beginnwunsch",
         pflicht: false,
         text: "Freiwillig: Ich verlange ausdrücklich, dass Lippe Forst schon vor Ablauf der Widerrufsfrist mit der Leistung beginnt, mir also passende Flächen vorstellt und Kontakte freigibt. Mir ist bekannt, dass ich bei einem Widerruf einen angemessenen Betrag für die bis dahin erbrachten Leistungen zahlen muss und dass mein Widerrufsrecht erlischt, sobald Lippe Forst die Leistung vollständig erbracht hat.",
-        tipp: "Freiwillig: Ohne Haken gibt Lippe Forst Kontakte erst nach Ablauf der 14-tägigen Widerrufsfrist frei. Sie können den Wunsch auch später im Kundenbereich erklären.",
+        tipp: `Freiwillig: Ohne Haken gibt Lippe Forst Kontakte erst nach Ablauf der 14-tägigen Widerrufsfrist und vier Tagen Puffer frei${freiAb ? ` — bei Unterschrift heute ab dem ${freiAb}` : ""}. Sie können den Wunsch auch später im Kundenbereich erklären.`,
       },
     );
   }

@@ -10,6 +10,7 @@
 // Diese Datei ist frei von Server-Abhängigkeiten, damit Typen und Ableitungen
 // überall nutzbar sind.
 
+import type { AutomatikEinstellungen } from "./automatik-regeln";
 export type Rolle = "anbieter" | "suchender";
 export type Art = "pacht" | "kauf";
 export type Eigenschaft = "verbraucher" | "unternehmer";
@@ -172,6 +173,8 @@ export type KundeRecord = {
   gesperrt?: { am: string; von: string };
   stammdaten?: Stammdaten;
   flaechen?: Flaeche[];
+  /** Freiwillige Angaben des Anbieters zur Fläche (Preis-/Pachtvorstellung, frei ab, Ackerzahl, Zuwegung). */
+  flaechenAngaben?: { preis?: string; frei?: string; ackerzahl?: string; zuwegung?: string };
   vertrag?: KundenVertrag;
   widerruf?: Erklaerung;
   kuendigung?: Erklaerung;
@@ -463,6 +466,8 @@ export type Einstellungen = {
   konditionenVerlauf: { version: number; konditionen: Konditionen; am: string; von: string }[];
   bewertung: BewertungsEinstellung;
   gutschein: GutscheinEinstellung;
+  /** Automatik (lib/portal/automatik.ts) — fehlt = alles aus (siehe automatikVon). */
+  automatik?: Partial<AutomatikEinstellungen>;
 };
 
 export const STANDARD_BEWERTUNG: BewertungsEinstellung = { url: "", nachTagen: 3, autoVersand: false };
@@ -635,6 +640,11 @@ export function widerrufsfristEnde(vertragsschluss: string): string {
 
 /** Sicherheitspuffer nach Fristende für Widerrufe per Post (rechtzeitige Absendung genügt). */
 export const WIDERRUF_PUFFER_TAGE = 4;
+
+/** Frühester Tag einer Freigabe ohne Beginnwunsch: Ende der Widerrufsfrist plus Puffer (ISO-Zeitpunkt). */
+export function freigabeFruehestens(vertragsschluss: string): string {
+  return new Date(new Date(widerrufsfristEnde(vertragsschluss)).getTime() + WIDERRUF_PUFFER_TAGE * 86_400_000).toISOString();
+}
 
 /** Darf eine Bitte um eine Bewertung per E-Mail gehen? Nur mit Einwilligung (§ 7 Abs. 2 Nr. 2 UWG) und ohne Widerspruch. */
 export function bewertungsmailErlaubt(k: KundeRecord | null | undefined): boolean {

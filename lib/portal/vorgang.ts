@@ -159,6 +159,20 @@ async function paarAendern(von: string, key: string, aendern: (m: MatchMeta) => 
 // Anonyme Hinweise, Zustimmung, Freigabe
 
 /** Anonymer Hinweis an eine Seite wurde gesendet; sind beide raus, gilt das Paar als „angefragt“. */
+/** Paar vormerken (wie der Knopf „Vormerken“; Automatik R2) — nur aus dem Vorschlag heraus. */
+export async function paarVormerken(key: string, von: string, grund: string): Promise<boolean> {
+  let ok = false;
+  await mutateZustand(von, (z) => {
+    ok = false;
+    const alt = z.paare[key];
+    if (alt && alt.status !== "vorschlag") return;
+    z.paare[key] = { ...(alt ?? { status: "vorschlag" }), status: "vorgemerkt", geaendert: { am: jetzt(), von } };
+    ok = true;
+    return { was: `Paar vorgemerkt — ${grund}`, ref: key };
+  });
+  return ok;
+}
+
 export async function hinweisVermerken(key: string, art: M.Art, rolle: M.Rolle, von: string): Promise<void> {
   const v = await aendereVorgang(key, art, (x) => {
     x.hinweise = { ...(x.hinweise ?? {}), [rolle]: jetzt() };

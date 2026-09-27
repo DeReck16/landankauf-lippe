@@ -4,8 +4,11 @@ import { requireAdmin } from "@/lib/admin/session";
 import { datumZeit } from "@/lib/admin/format";
 import { ladePortal } from "@/lib/admin/neu";
 import * as M from "@/lib/portal/model";
+import { REGELN, automatikVon, regelWirksam } from "@/lib/portal/automatik-regeln";
 import { VORLAGEN, VORLAGEN_REIHENFOLGE, aktuelleFreigabe, vorlageHash } from "@/lib/vertraege/vorlagen";
 import {
+  automatikEinstellungAktion,
+  automatikJetztAktion,
   bewertungEinstellungAktion,
   gutscheinEinstellungAktion,
   konditionenAktion,
@@ -31,6 +34,7 @@ export default async function VorlagenPage(props: PageProps<"/admin/vorlagen">) 
   const zurueck = "/admin/vorlagen";
   const envUrl = process.env.GOOGLE_REVIEW_URL || "";
   const bewertungsUrl = M.bewertungsUrl(e, envUrl);
+  const auto = automatikVon(e.automatik);
 
   return (
     <>
@@ -203,6 +207,82 @@ export default async function VorlagenPage(props: PageProps<"/admin/vorlagen">) 
             <input name="betrag" defaultValue={zahl(e.gutschein?.betrag ?? 100)} inputMode="decimal" className="field-input" title="Wert des Gutscheins (Standard 100 €)" />
           </label>
           <button type="submit" className="lfa-knopf lfa-knopf-klein" title="Einstellung zum Treue-Gutschein speichern">Speichern</button>
+        </form>
+      </section>
+
+      <section className="lfa-panel" id="automatik">
+        <h2 className="lfa-h2">Automatik</h2>
+        <p className="lfa-klein" style={{ marginBottom: "0.6rem" }}>
+          Die Automatik erledigt Schritte, die sonst auf Ihren Klick warten — mit denselben Prüfungen wie die Knöpfe; sie überspringt keinen der sieben Schritte. Sie läuft nach Kundenhandlungen (Angaben, Unterschrift, Zustimmung) und einmal täglich am Morgen. Jede Regel ist einzeln schaltbar; Standard ist alles aus. Im Probelauf wird nur protokolliert, was passieren würde (Dashboard „Automatisch erledigt“). Kauf-Vorgänge sind ausgenommen (R3–R7 nur Pacht).
+        </p>
+        <form action={automatikEinstellungAktion} className="lfa-form" style={{ display: "grid", gap: "0.6rem" }}>
+          <input type="hidden" name="zurueck" value={zurueck} />
+          <div className="lfa-knopfreihe">
+            <label className="lfa-check" title="Not-Aus: Es läuft gar nichts, auch kein Probelauf — unabhängig von den einzelnen Regeln">
+              <input type="checkbox" name="notAus" value="1" defaultChecked={auto.notAus} />
+              <span>
+                <strong>Not-Aus</strong>
+              </span>
+            </label>
+            <label className="lfa-check" title="Probelauf: nichts senden und nichts ändern, nur protokollieren, was passieren würde (empfohlen für die ersten 1–2 Wochen)">
+              <input type="checkbox" name="probelauf" value="1" defaultChecked={auto.probelauf} />
+              <span>Probelauf (nur protokollieren)</span>
+            </label>
+            <label className="lfa-check" title="Täglich eine Zusammenfassung des Vortags an die Verwaltungsadressen">
+              <input type="checkbox" name="zusammenfassung" value="1" defaultChecked={auto.zusammenfassung} />
+              <span>Tägliche Zusammenfassung</span>
+            </label>
+          </div>
+          <div className="lfa-knopfreihe">
+            <label title="Höchstens so viele automatische Kunden-Mails je Tag (alle Regeln zusammen); der Rest folgt am nächsten Tag">
+              Tageslimit Mails
+              <input name="tageslimit" defaultValue={auto.tageslimit} inputMode="numeric" className="field-input" style={{ maxWidth: "6rem" }} />
+            </label>
+            <label title="R2: Paare ab dieser Übereinstimmung (50–100 %) vormerken">
+              Schwelle R2 (%)
+              <input name="schwelle" defaultValue={auto.schwelle} inputMode="numeric" className="field-input" style={{ maxWidth: "6rem" }} />
+            </label>
+          </div>
+          <fieldset className="lfa-feldgruppe" style={{ display: "grid", gap: "0.45rem" }}>
+            <legend className="field-label">Regeln</legend>
+            {REGELN.map((r) => {
+              const w = regelWirksam(auto, r.id);
+              return (
+                <label key={r.id} className="lfa-check" title={r.beschreibung}>
+                  <input type="checkbox" name={`regel_${r.id}`} value="1" defaultChecked={auto.regeln[r.id]} />
+                  <span>
+                    <strong>{r.titel}</strong>
+                    <span className="lfa-klein" style={{ display: "block" }}>
+                      {r.beschreibung} {auto.regeln[r.id] && !w.an ? `— derzeit ${w.grund}.` : ""}
+                    </span>
+                  </span>
+                </label>
+              );
+            })}
+          </fieldset>
+          <fieldset className="lfa-feldgruppe" style={{ display: "grid", gap: "0.45rem" }}>
+            <legend className="field-label">Rechtliche Voraussetzungen für R4 und R5 (nur von Dennis zu bestätigen)</legend>
+            <label className="lfa-check" title="Die Erlaubnis nach § 34c GewO für die Vermittlung von Grundstücksverträgen liegt vor">
+              <input type="checkbox" name="recht34c" value="1" defaultChecked={auto.recht34c} />
+              <span>§ 34c-Erlaubnis liegt vor</span>
+            </label>
+            <label className="lfa-check" title="Alle Vertragsvorlagen in der aktuellen Fassung sind anwaltlich geprüft">
+              <input type="checkbox" name="vorlagenGeprueft" value="1" defaultChecked={auto.vorlagenGeprueft} />
+              <span>Vorlagen anwaltlich geprüft</span>
+            </label>
+          </fieldset>
+          <div className="lfa-knopfreihe">
+            <button type="submit" className="lfa-knopf lfa-knopf-klein" title="Automatik-Einstellungen speichern — die Änderung steht im Verlauf">
+              Speichern
+            </button>
+            {auto.geaendert && <span className="lfa-klein">Zuletzt geändert {datumZeit(auto.geaendert.am)} von {auto.geaendert.von}</span>}
+          </div>
+        </form>
+        <form action={automatikJetztAktion} style={{ marginTop: "0.6rem" }}>
+          <input type="hidden" name="zurueck" value={zurueck} />
+          <BestaetigenKnopf className="lfa-knopf lfa-knopf-hell lfa-knopf-klein" frage="Automatik jetzt einmal laufen lassen (wie der tägliche Lauf)?" tipp="Führt die eingeschalteten Regeln jetzt aus — im Probelauf wird nur protokolliert. Ergebnis im Dashboard unter „Automatisch erledigt“.">
+            Jetzt einmal laufen lassen
+          </BestaetigenKnopf>
         </form>
       </section>
 

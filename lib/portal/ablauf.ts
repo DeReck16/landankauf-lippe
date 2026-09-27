@@ -225,12 +225,21 @@ export async function loginEinloesen(token: string): Promise<string | null> {
 // ---------------------------------------------------------------------------
 // Angaben und Unterschrift
 
-export async function angabenSpeichern(kundeId: string, s: Omit<M.Stammdaten, "geaendertAm">, flaechen: M.Flaeche[] | null): Promise<M.KundeRecord> {
+export async function angabenSpeichern(
+  kundeId: string,
+  s: Omit<M.Stammdaten, "geaendertAm">,
+  flaechen: M.Flaeche[] | null,
+  flaechenAngaben?: M.KundeRecord["flaechenAngaben"],
+): Promise<M.KundeRecord> {
   return aendereKunde(kundeId, (k) => {
     const erstmals = !k.stammdaten;
     const eigenschaftFest = k.vertrag?.eigenschaft;
     k.stammdaten = { ...s, eigenschaft: eigenschaftFest ?? s.eigenschaft, geaendertAm: new Date().toISOString() };
     if (flaechen && k.rolle === "anbieter") k.flaechen = flaechen;
+    if (flaechenAngaben && k.rolle === "anbieter") {
+      if (Object.values(flaechenAngaben).some(Boolean)) k.flaechenAngaben = flaechenAngaben;
+      else delete k.flaechenAngaben;
+    }
     M.ereignis(k, "kunde", "angaben", erstmals ? "Angaben (Stammdaten) erfasst" : "Angaben geändert");
   });
 }
@@ -352,6 +361,10 @@ export async function vertragsbestaetigungSenden(kundeId: string, von: string, p
   if (widerruf) {
     zeilen.push(
       `Sie können den Vertrag bis zum ${T.datumDe(v.widerrufsfristEnde)} ohne Angabe von Gründen widerrufen — im Kundenbereich über „Vertrag widerrufen“ oder formlos per E-Mail an ${FIRMA.email} bzw. per Post an ${FIRMA_ANSCHRIFT}.`,
+      "",
+      v.beginnwunschAm
+        ? "Sie haben ausdrücklich gewünscht, dass wir schon vor Ablauf der Widerrufsfrist beginnen — Kontakte können wir also freigeben, sobald Sie und ein Eigentümer zustimmen."
+        : `Weil Sie keinen früheren Beginn gewünscht haben, geben wir Kontakte frühestens ab dem ${T.datumDe(M.freigabeFruehestens(v.signatur.am))} frei (Ende der Widerrufsfrist plus vier Tage für per Post abgesandte Widerrufe). Passende Flächen stellen wir Ihnen vorher schon anonym vor. Möchten Sie früher starten, können Sie das im Kundenbereich jederzeit erklären.`,
       "",
     );
   }

@@ -31,6 +31,29 @@ export function einwilligungsBestaetigung(l: LeadView, b: BoerseMeta, basis: str
   };
 }
 
+/** Mitteilung „Ihre Fläche ist jetzt online“ (Automatik R1) — mit Ein-Klick-Widerruf. */
+export function boerseOnlineText(l: LeadView, b: BoerseMeta, basis: string): { betreff: string; text: string } {
+  const name = T.wert(l.name);
+  const link = `${basis}/kunde/boerse?t=${encodeURIComponent(boerseToken(l.id))}`;
+  const groesse = b.groesseHa ? `ca. ${String(b.groesseHa).replace(".", ",")} ha` : "";
+  const eckdaten = [b.typ, groesse, b.lage].filter(Boolean).join(", ");
+  return {
+    betreff: `Ihre Fläche steht jetzt anonym in der Flächenbörse (${b.code})`,
+    text: [
+      name ? `Guten Tag ${name},` : "Guten Tag,",
+      "",
+      `wie von Ihnen gewünscht steht Ihre Fläche jetzt anonym in der Flächenbörse auf lippeforst.de (Kennung ${b.code}${eckdaten ? `: ${eckdaten}` : ""}). Ihren Namen, das Flurstück und die genaue Lage nennen wir dort nicht; Kontaktdaten geben wir erst weiter, wenn Sie dem konkreten Interessenten zugestimmt haben.`,
+      "",
+      "Möchten Sie das nicht mehr, entfernen Sie das Häkchen bei Ihren Angaben im Kundenbereich oder nutzen Sie diesen Link — dann nehmen wir die Fläche sofort offline:",
+      link,
+      "",
+      ...anfrageBezug(l),
+      "",
+      GRUSS,
+    ].join("\n"),
+  };
+}
+
 /** Bestätigung senden (Klick der Verwaltung beim Erfassen) und im Verlauf vermerken. */
 export async function einwilligungBestaetigen(leadId: string, von: string, basis: string): Promise<{ ok: boolean; text: string }> {
   const [leads, { zustand }] = await Promise.all([listLeads(), readZustand()]);
