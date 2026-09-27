@@ -11,6 +11,7 @@ export const metadata: Metadata = { title: "Vertrag widerrufen" };
 
 const FEHLER: Record<string, string> = {
   name: "Bitte geben Sie Ihren Namen an.",
+  zuviel: "Zu viele Versuche in kurzer Zeit. Bitte versuchen Sie es später erneut — oder schreiben Sie uns formlos eine E-Mail an info@tr-immobilien.com.",
   zuordnung: "Wir konnten den Vertrag nicht zuordnen. Bitte prüfen Sie die Vorgangsnummer (steht in der Bestätigungs-E-Mail und im PDF, z. B. „LL-…“) und die E-Mail-Adresse — oder widerrufen Sie formlos per E-Mail.",
   "kein-widerrufsrecht": "Für diesen Vertrag besteht kein gesetzliches Widerrufsrecht (z. B. als Unternehmer oder bei der kostenlosen Anbieter-Vereinbarung). Sie können ihn aber jederzeit kündigen.",
 };

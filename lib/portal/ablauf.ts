@@ -1,5 +1,6 @@
 import "server-only";
 import { einmalMarker, listLeads, mailDrosseln, readZustand } from "@/lib/admin/store";
+import { boerseOfflineNehmen } from "@/lib/boerse";
 import { leadView, type LeadView, type Zustand } from "@/lib/admin/model";
 import { dokumentHash } from "@/lib/vertraege/hash";
 import type { Dokument } from "@/lib/vertraege/dokument";
@@ -12,7 +13,7 @@ import { adminInfo, kundenMail, type Anhang } from "./mail";
 import * as M from "./model";
 import { aendereKunde, alleKunden, ladeKunde } from "./speicher";
 import * as T from "./texte";
-import { einladungBis, einladungToken, loginToken, neueNonce, pruefeEinladung, pruefeLogin, pruefeZugang, zugangToken } from "./token";
+import { einladungBis, einladungToken, erklaerungToken, loginToken, neueNonce, pruefeEinladung, pruefeLogin, pruefeZugang, vorgangsKennung, zugangToken } from "./token";
 
 // Abläufe rund um den einzelnen Kunden: Einladung, Anmeldung, Angaben,
 // Online-Unterschrift, Vertragsbestätigung, Widerruf, Kündigung, Sperre.
@@ -139,7 +140,8 @@ export function einladungsLink(k: M.KundeRecord, basis: string): string | null {
 /** Zugangslink für Mails der Verwaltung (Freigabe, Pachtvertrag): 14 Tage, einmal einlösbar. */
 /** Direktzugang zum Kundenbereich; mit Vorgangs-Schlüssel landet der Kunde gleich im Vorgang. */
 export function zugangsLink(k: M.KundeRecord, basis: string, vorgangKey?: string): string {
-  const ziel = vorgangKey && /^LL-[A-Z0-9]+~LL-[A-Z0-9]+$/.test(vorgangKey) ? `&v=${encodeURIComponent(vorgangKey)}` : "";
+  // Undurchsichtige Kennung statt Paar-Schlüssel — der Link verrät nicht die Vorgangsnummer der Gegenseite.
+  const ziel = vorgangKey && /^LL-[A-Z0-9]+~LL-[A-Z0-9]+$/.test(vorgangKey) ? `&v=${vorgangsKennung(vorgangKey)}` : "";
   return `${basis}/kunde/anmelden/bestaetigen?z=${encodeURIComponent(zugangToken(k.id).token)}${ziel}`;
 }
 
@@ -404,11 +406,36 @@ const EINGANG_TEXT: Record<M.Eingang, string> = {
   sonstig: "auf sonstigem Weg",
 };
 
-export async function widerrufErfassen(kundeId: string, eingang: M.Eingang, von: string, notiz: string): Promise<M.KundeRecord> {
+export type ErklaerungOpt = {
+  /** Ohne Anmeldung abgegeben (nur Vertragsnummer + E-Mail): gilt, wird aber als „ungeprüft“ markiert. */
+  ohneAnmeldung?: boolean;
+  /** Basis-URL für den Link „Das war nicht ich“ in der Bestätigung. */
+  basis?: string;
+};
+
+/** Absatz für die Bestätigung einer ohne Anmeldung abgegebenen Erklärung: „Das war nicht ich“. */
+function nichtIchAbsatz(k: M.KundeRecord, art: "widerruf" | "kuendigung", am: string, basis?: string): string[] {
+  if (!basis) return [];
+  const link = `${basis}/kunde/erklaerung?t=${encodeURIComponent(erklaerungToken(k.id, art, am))}`;
+  return [
+    `Diese Erklärung wurde ohne Anmeldung im Kundenbereich abgegeben. Stammt sie nicht von Ihnen, weisen Sie sie bitte über diesen Link zurück — dann gilt Ihr Vertrag unverändert weiter:`,
+    link,
+    "",
+  ];
+}
+
+/** Die Anfragen, die dieselbe Vereinbarung teilen (Anbieter mit mehreren Flächen), einschließlich der eigenen. */
+async function gleicheVereinbarungIds(k: M.KundeRecord): Promise<string[]> {
+  const dok = k.vertrag?.dokumentId;
+  if (!dok) return [k.id];
+  return [k.id, ...(await alleKunden()).filter((x) => x.id !== k.id && x.vertrag?.dokumentId === dok).map((x) => x.id)];
+}
+
+export async function widerrufErfassen(kundeId: string, eingang: M.Eingang, von: string, notiz: string, opt: ErklaerungOpt = {}): Promise<M.KundeRecord> {
   const k = await aendereKunde(kundeId, (x) => {
     if (!x.vertrag || x.widerruf) return false;
-    x.widerruf = { am: new Date().toISOString(), eingang, erfasstVon: von, ...(notiz ? { notiz } : {}) };
-    M.ereignis(x, von, "widerruf", `Widerruf ${EINGANG_TEXT[eingang]} eingegangen${notiz ? `: ${notiz}` : ""}`);
+    x.widerruf = { am: new Date().toISOString(), eingang, erfasstVon: von, ...(notiz ? { notiz } : {}), ...(opt.ohneAnmeldung ? { ungeprueft: true } : {}) };
+    M.ereignis(x, von, "widerruf", `Widerruf ${EINGANG_TEXT[eingang]}${opt.ohneAnmeldung ? " (ohne Anmeldung — ungeprüft)" : ""} eingegangen${notiz ? `: ${notiz}` : ""}`);
   });
   await aufGleicheVereinbarung(k, "widerruf", von);
   if (eingang === "online" && k.widerruf) {
@@ -424,6 +451,7 @@ export async function widerrufErfassen(kundeId: string, eingang: M.Eingang, von:
       "",
       "Wir geben ab sofort keine Kontaktdaten mehr weiter und stellen Ihnen keine Flächen mehr vor. Zahlungen haben Sie an uns nicht geleistet; es ist nichts zu erstatten.",
       "",
+      ...(opt.ohneAnmeldung ? nichtIchAbsatz(k, "widerruf", k.widerruf.am, opt.basis) : []),
       GRUSS,
     ].join("\n");
     const mailId = M.kurzId("M");
@@ -433,8 +461,15 @@ export async function widerrufErfassen(kundeId: string, eingang: M.Eingang, von:
       if (x.widerruf && r.ok) x.widerruf.bestaetigtAm = new Date().toISOString();
     });
   }
-  await adminInfo(`WIDERRUF: ${k.stammdaten?.name || k.email} (${k.id})`, [
+  // Anbieter steigt aus: seine Angebote verschwinden aus der Flächenbörse.
+  if (k.rolle === "anbieter" && k.widerruf) {
+    await boerseOfflineNehmen(await gleicheVereinbarungIds(k), "Eigentümer hat seine Vereinbarung widerrufen", von).catch((err) => console.error("[ablauf] Börse", err));
+  }
+  await adminInfo(`WIDERRUF${opt.ohneAnmeldung ? " (ohne Anmeldung — bitte prüfen)" : ""}: ${k.stammdaten?.name || k.email} (${k.id})`, [
     `${M.ROLLE_NAME[k.rolle]} ${k.id} hat den Vertrag widerrufen (${EINGANG_TEXT[eingang]}).`,
+    ...(opt.ohneAnmeldung
+      ? ["Abgegeben ohne Anmeldung (nur Vertragsnummer und E-Mail-Adresse). Der Kunde hat eine Bestätigung mit dem Link „Das war nicht ich“ bekommen. Stammt die Erklärung nicht vom Kunden, in der Anfrage „Erklärung verwerfen“."]
+      : []),
     "Keine Freigaben mehr für diesen Kunden. Bereits freigegebene Kontakte bitte prüfen.",
     ...(notiz ? [`Notiz: ${notiz}`] : []),
   ], verwaltungsLink(`/admin/anfrage/${k.id}`));
@@ -459,11 +494,11 @@ async function aufGleicheVereinbarung(k: M.KundeRecord, art: "widerruf" | "kuend
   }
 }
 
-export async function kuendigungErfassen(kundeId: string, eingang: M.Eingang, von: string, notiz: string): Promise<M.KundeRecord> {
+export async function kuendigungErfassen(kundeId: string, eingang: M.Eingang, von: string, notiz: string, opt: ErklaerungOpt = {}): Promise<M.KundeRecord> {
   const k = await aendereKunde(kundeId, (x) => {
     if (!x.vertrag || x.kuendigung || x.widerruf) return false;
-    x.kuendigung = { am: new Date().toISOString(), eingang, erfasstVon: von, ...(notiz ? { notiz } : {}) };
-    M.ereignis(x, von, "kuendigung", `Kündigung ${EINGANG_TEXT[eingang]} eingegangen${notiz ? `: ${notiz}` : ""}`);
+    x.kuendigung = { am: new Date().toISOString(), eingang, erfasstVon: von, ...(notiz ? { notiz } : {}), ...(opt.ohneAnmeldung ? { ungeprueft: true } : {}) };
+    M.ereignis(x, von, "kuendigung", `Kündigung ${EINGANG_TEXT[eingang]}${opt.ohneAnmeldung ? " (ohne Anmeldung — ungeprüft)" : ""} eingegangen${notiz ? `: ${notiz}` : ""}`);
   });
   await aufGleicheVereinbarung(k, "kuendigung", von);
   if (eingang === "online" && k.kuendigung) {
@@ -480,11 +515,12 @@ export async function kuendigungErfassen(kundeId: string, eingang: M.Eingang, vo
       "",
       "Wir stellen Ihnen ab sofort keine neuen Flächen bzw. Interessenten mehr vor.",
       k.rolle === "suchender"
-        ? "Für Flächen, die wir Ihnen vor der Kündigung nachgewiesen haben, gelten die Regeln des Vertrags weiter (Provision nur, wenn Sie darüber einen Vertrag schließen)."
-        : "Ihre Einwilligung in die Weitergabe Ihrer Daten endet mit der Kündigung; bereits erfolgte Weitergaben bleiben davon unberührt.",
+        ? "Für Flächen, die wir Ihnen vor der Kündigung nachgewiesen haben, gelten die Regeln des Vertrags weiter (Provision nur, wenn Sie darüber einen Vertrag schließen; Mitteilung eines solchen Vertrags binnen 24 Monaten nach dem Nachweis)."
+        : "Ihre Einwilligung in die Weitergabe Ihrer Daten endet mit der Kündigung; bereits erfolgte Weitergaben bleiben davon unberührt. Schließen Sie innerhalb von 24 Monaten nach einer Freigabe mit einem von uns nachgewiesenen Interessenten einen Vertrag, teilen Sie uns das bitte weiterhin kurz mit — für Sie entstehen dadurch keine Kosten.",
       "",
       "Ihre Unterlagen bleiben im Kundenbereich abrufbar.",
       "",
+      ...(opt.ohneAnmeldung ? nichtIchAbsatz(k, "kuendigung", k.kuendigung.am, opt.basis) : []),
       GRUSS,
     ].join("\n");
     const mailId = M.kurzId("M");
@@ -494,15 +530,78 @@ export async function kuendigungErfassen(kundeId: string, eingang: M.Eingang, vo
       if (x.kuendigung && r.ok) x.kuendigung.bestaetigtAm = new Date().toISOString();
     });
   }
-  await adminInfo(`Kündigung: ${k.stammdaten?.name || k.email} (${k.id})`, [
+  if (k.rolle === "anbieter" && k.kuendigung) {
+    await boerseOfflineNehmen(await gleicheVereinbarungIds(k), "Eigentümer hat seine Vereinbarung gekündigt", von).catch((err) => console.error("[ablauf] Börse", err));
+  }
+  await adminInfo(`Kündigung${opt.ohneAnmeldung ? " (ohne Anmeldung — bitte prüfen)" : ""}: ${k.stammdaten?.name || k.email} (${k.id})`, [
     `${M.ROLLE_NAME[k.rolle]} ${k.id} hat gekündigt (${EINGANG_TEXT[eingang]}).`,
+    ...(opt.ohneAnmeldung
+      ? ["Abgegeben ohne Anmeldung (nur Vertragsnummer und E-Mail-Adresse). Der Kunde hat eine Bestätigung mit dem Link „Das war nicht ich“ bekommen. Stammt die Erklärung nicht vom Kunden, in der Anfrage „Erklärung verwerfen“."]
+      : []),
     ...(notiz ? [`Notiz: ${notiz}`] : []),
   ], verwaltungsLink(`/admin/anfrage/${k.id}`));
   return k;
 }
 
+/**
+ * Eine Widerrufs- oder Kündigungserklärung verwerfen, die nicht vom Kunden stammt (ohne Anmeldung
+ * abgegeben): vom Kunden selbst über „Das war nicht ich“ oder von der Verwaltung nach Rücksprache.
+ * `am` muss zur Erklärung passen (sonst ist es eine neuere, echte). Gilt auch für alle Anfragen mit
+ * derselben Vereinbarung. Die Erklärung bleibt als verworfen im Verlauf der Akte.
+ */
+export async function erklaerungVerwerfen(kundeId: string, art: "widerruf" | "kuendigung", am: string | null, von: string, grund: string): Promise<{ ok: boolean; fehler?: string }> {
+  const k0 = await ladeKunde(kundeId);
+  const erkl = k0?.[art];
+  if (!k0 || !erkl) return { ok: false, fehler: "Keine solche Erklärung vorhanden." };
+  if (am && erkl.am !== am) return { ok: false, fehler: "Die Erklärung wurde inzwischen geändert — bitte in der Verwaltung prüfen." };
+  const ids = k0.vertrag?.dokumentId ? await gleicheVereinbarungIds(k0) : [kundeId];
+  for (const id of ids) {
+    await aendereKunde(id, (x) => {
+      const e = x[art];
+      if (!e || e.am !== erkl.am) return false;
+      x.verworfeneErklaerungen = [...(x.verworfeneErklaerungen ?? []), { ...e, art, verworfen: { am: new Date().toISOString(), von, grund } }];
+      delete x[art];
+      M.ereignis(x, von, `${art}-verworfen`, `${art === "widerruf" ? "Widerruf" : "Kündigung"} vom ${T.datumZeitDe(e.am)} verworfen — ${grund}. Der Vertrag gilt unverändert weiter.`);
+    }).catch((err) => console.error("[ablauf] Erklärung nicht verworfen", id, err));
+  }
+  await adminInfo(`${art === "widerruf" ? "Widerruf" : "Kündigung"} verworfen: ${k0.stammdaten?.name || k0.email} (${kundeId})`, [
+    `${grund}.`,
+    "Der Vertrag gilt unverändert weiter. Angebote, die deswegen aus der Flächenbörse genommen wurden, bitte in der Anfrage prüfen und bei Bedarf neu veröffentlichen.",
+  ], verwaltungsLink(`/admin/anfrage/${kundeId}`));
+  return { ok: true };
+}
+
+/**
+ * Nach einer Kündigung bzw. einem Widerruf eine neue Vereinbarung ermöglichen (Wiederaufnahme):
+ * Der bisherige Vertrag samt Erklärung wandert unverändert in `fruehereVertraege`, die Dokumente
+ * bleiben in der Akte. Danach kann der Kunde neu eingeladen werden und neu unterschreiben.
+ */
+export async function neueVereinbarungErmoeglichen(kundeId: string, von: string): Promise<{ ok: boolean; fehler?: string }> {
+  let fehler = "";
+  await aendereKunde(kundeId, (x) => {
+    if (!x.vertrag) {
+      fehler = "Es gibt keinen Vertrag, der ersetzt werden könnte.";
+      return false;
+    }
+    if (!x.kuendigung && !x.widerruf) {
+      fehler = "Der Vertrag ist weder gekündigt noch widerrufen — er gilt noch.";
+      return false;
+    }
+    x.fruehereVertraege = [
+      { vertrag: x.vertrag, ...(x.kuendigung ? { kuendigung: x.kuendigung } : {}), ...(x.widerruf ? { widerruf: x.widerruf } : {}), abgelegtAm: new Date().toISOString(), von },
+      ...(x.fruehereVertraege ?? []),
+    ];
+    delete x.vertrag;
+    delete x.kuendigung;
+    delete x.widerruf;
+    delete x.einladung;
+    M.ereignis(x, von, "wiederaufnahme", "Neue Vereinbarung ermöglicht — der bisherige (gekündigte bzw. widerrufene) Vertrag ist mit allen Dokumenten abgelegt; jetzt neu einladen");
+  });
+  return fehler ? { ok: false, fehler } : { ok: true };
+}
+
 export async function zugangSperren(kundeId: string, von: string, sperren: boolean): Promise<void> {
-  await aendereKunde(kundeId, (k) => {
+  const k = await aendereKunde(kundeId, (k) => {
     if (sperren) {
       if (k.gesperrt) return false;
       const jetzt = new Date().toISOString();
@@ -515,4 +614,8 @@ export async function zugangSperren(kundeId: string, von: string, sperren: boole
       M.ereignis(k, von, "entsperrt", "Zugang zum Kundenbereich wieder freigegeben");
     }
   });
+  // Gesperrter Anbieter: seine Angebote verschwinden aus der Flächenbörse (neu veröffentlichen nur von Hand).
+  if (sperren && k.rolle === "anbieter") {
+    await boerseOfflineNehmen([kundeId], "Zugang des Eigentümers gesperrt", von).catch((err) => console.error("[ablauf] Börse", err));
+  }
 }

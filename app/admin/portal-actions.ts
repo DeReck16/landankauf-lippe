@@ -115,6 +115,23 @@ export async function kuendigungErfassenAktion(fd: FormData): Promise<void> {
   zurueck(fd, "Kündigung erfasst.", "ok", "kundenbereich");
 }
 
+/** Widerruf bzw. Kündigung verwerfen, die nicht vom Kunden stammt (z. B. ohne Anmeldung von Dritten abgegeben). */
+export async function erklaerungVerwerfenAktion(fd: FormData): Promise<void> {
+  const { email } = await requireAdmin();
+  const art = feld(fd, "art", 20) === "widerruf" ? "widerruf" : "kuendigung";
+  const grund = feld(fd, "grund", 300);
+  if (!grund) zurueck(fd, "Bitte kurz den Grund angeben (z. B. „Rücksprache mit dem Kunden per E-Mail: nicht von ihm“).", "fehler", "kundenbereich");
+  const r = await A.erklaerungVerwerfen(kundeId(fd), art, feld(fd, "am", 40) || null, email, `von der Verwaltung verworfen: ${grund}`);
+  zurueck(fd, r.ok ? `${art === "widerruf" ? "Widerruf" : "Kündigung"} verworfen — der Vertrag gilt weiter. Börsen-Angebote bei Bedarf neu veröffentlichen.` : (r.fehler ?? "Nicht möglich."), r.ok ? "ok" : "fehler", "kundenbereich");
+}
+
+/** Nach Kündigung bzw. Widerruf: neue Vereinbarung ermöglichen (bisheriger Vertrag bleibt abgelegt). */
+export async function neueVereinbarungAktion(fd: FormData): Promise<void> {
+  const { email } = await requireAdmin();
+  const r = await A.neueVereinbarungErmoeglichen(kundeId(fd), email);
+  zurueck(fd, r.ok ? "Neue Vereinbarung möglich — jetzt neu einladen (Einladung erstellen)." : (r.fehler ?? "Nicht möglich."), r.ok ? "ok" : "fehler", "kundenbereich");
+}
+
 /** Widerspruch gegen Bewertungs-E-Mails erfassen (z. B. Antwort „bitte keine Mails“). */
 export async function bewertungsWiderspruchAktion(fd: FormData): Promise<void> {
   const { email } = await requireAdmin();

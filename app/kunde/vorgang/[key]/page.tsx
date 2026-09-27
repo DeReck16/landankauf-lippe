@@ -4,7 +4,8 @@ import { redirect } from "next/navigation";
 import VertragsText from "@/components/vertrag/VertragsText";
 import { erklaerungenKaufabsicht, erklaerungenPachtvertrag } from "@/lib/portal/erklaerungen";
 import * as M from "@/lib/portal/model";
-import { kundenUebersicht } from "@/lib/portal/sicht";
+import { readZustand } from "@/lib/admin/store";
+import { kundenUebersicht, vorgangZuKennung } from "@/lib/portal/sicht";
 import { requireKundeId } from "@/lib/portal/sitzung";
 import { datumDe, datumZeitDe, tagDe } from "@/lib/portal/texte";
 import { gutscheinBedingungen, kaufDokument, ladeVorgangKontext, pachtDokument } from "@/lib/portal/vorgang";
@@ -21,9 +22,11 @@ function groesse(b: number): string {
 export default async function KundeVorgangPage(props: PageProps<"/kunde/vorgang/[key]">) {
   const sp = await props.searchParams;
   const { key: roh } = await props.params;
-  const key = decodeURIComponent(roh);
   const id = typeof sp.k === "string" ? sp.k : "";
   const { kunde } = await requireKundeId(id);
+  // Im Link steht eine undurchsichtige Kennung (V…); ältere Links mit dem Paar-Schlüssel gehen weiter.
+  const key = vorgangZuKennung(kunde, decodeURIComponent(roh), (await readZustand()).zustand.paare);
+  if (!key) redirect("/kunde");
   const { liste, bewertungsUrl } = await kundenUebersicht([kunde], key);
   const v = liste[0]?.vorgaenge[0];
   if (!v) redirect("/kunde");
@@ -51,7 +54,7 @@ export default async function KundeVorgangPage(props: PageProps<"/kunde/vorgang/
 
   return (
     <>
-      {v.danke && bewertungsUrl && <DankeDialog kundeId={kunde.id} vorgang={key} url={bewertungsUrl} art={v.art} />}
+      {v.danke && bewertungsUrl && <DankeDialog kundeId={kunde.id} vorgang={v.kennung} url={bewertungsUrl} art={v.art} />}
       <p style={{ marginBottom: "0.75rem" }}>
         <Link href="/kunde" className="lfk-klein" title="Zurück zur Übersicht">← Übersicht</Link>
       </p>
@@ -101,7 +104,7 @@ export default async function KundeVorgangPage(props: PageProps<"/kunde/vorgang/
               <div className="lfk-knopfreihe" style={{ marginTop: "0.6rem" }}>
                 <form action={zustimmenAktion}>
                   <input type="hidden" name="k" value={kunde.id} />
-                  <input type="hidden" name="key" value={key} />
+                  <input type="hidden" name="key" value={v.kennung} />
                   <button type="submit" className="btn-primary" title={`Sie stimmen zu, dass Lippe Forst Ihre Kontaktdaten an diesen ${gegen.akk} weitergibt, sobald auch er zugestimmt hat`}>
                     Ja, Kontakt herstellen
                   </button>
@@ -113,7 +116,7 @@ export default async function KundeVorgangPage(props: PageProps<"/kunde/vorgang/
                     </summary>
                     <form action={ablehnenAktion} className="lfk-form" style={{ marginTop: "0.6rem" }}>
                       <input type="hidden" name="k" value={kunde.id} />
-                      <input type="hidden" name="key" value={key} />
+                      <input type="hidden" name="key" value={v.kennung} />
                       <label>
                         <span className="field-label">Grund (freiwillig)</span>
                         <input name="grund" className="field-input" title="Hilft uns, bessere Vorschläge zu machen" />
@@ -183,7 +186,7 @@ export default async function KundeVorgangPage(props: PageProps<"/kunde/vorgang/
             <div style={{ marginTop: "1rem" }}>
               <UnterschriftFormular
                 aktion={pachtUnterschreibenAktion}
-                hidden={{ k: kunde.id, key, hash: pv.textHash }}
+                hidden={{ k: kunde.id, key: v.kennung, hash: pv.textHash }}
                 erklaerungen={erklaerungenPachtvertrag(kunde.rolle)}
                 nameErwartet={kunde.stammdaten.name}
                 knopf={anbieter ? "Pachtvertrag verbindlich abschließen" : "Pachtvertrag zahlungspflichtig abschließen"}
@@ -227,7 +230,7 @@ export default async function KundeVorgangPage(props: PageProps<"/kunde/vorgang/
             <div style={{ marginTop: "1rem" }}>
               <UnterschriftFormular
                 aktion={kaufBestaetigenAktion}
-                hidden={{ k: kunde.id, key, hash: kauf.textHash }}
+                hidden={{ k: kunde.id, key: v.kennung, hash: kauf.textHash }}
                 erklaerungen={erklaerungenKaufabsicht()}
                 nameErwartet={kunde.stammdaten.name}
                 knopf="Eckdaten bestätigen (unverbindlich)"
@@ -248,7 +251,7 @@ export default async function KundeVorgangPage(props: PageProps<"/kunde/vorgang/
                   <strong>{d.titel}</strong>
                   <div className="lfk-klein">{datumZeitDe(d.erstelltAm)} · {groesse(d.groesse)}</div>
                 </div>
-                <a href={`/kunde/dokument/${d.id}?k=${kunde.id}&v=${encodeURIComponent(key)}`} target="_blank" rel="noopener" className="btn-secondary lfk-knopf-klein" title="Dokument öffnen (PDF bzw. Bild)">
+                <a href={`/kunde/dokument/${d.id}?k=${kunde.id}&v=${v.kennung}`} target="_blank" rel="noopener" className="btn-secondary lfk-knopf-klein" title="Dokument öffnen (PDF bzw. Bild)">
                   Öffnen
                 </a>
               </li>
@@ -277,7 +280,7 @@ export default async function KundeVorgangPage(props: PageProps<"/kunde/vorgang/
               </summary>
               <form action={meldungAktion} className="lfk-form" style={{ marginTop: "0.6rem" }}>
                 <input type="hidden" name="k" value={kunde.id} />
-                <input type="hidden" name="key" value={key} />
+                <input type="hidden" name="key" value={v.kennung} />
                 <input type="hidden" name="typ" value="abschluss" />
                 <div className="lfk-raster">
                   <label>
@@ -316,7 +319,7 @@ export default async function KundeVorgangPage(props: PageProps<"/kunde/vorgang/
           )}
           <form action={meldungAktion} className="lfk-form">
             <input type="hidden" name="k" value={kunde.id} />
-            <input type="hidden" name="key" value={key} />
+            <input type="hidden" name="key" value={v.kennung} />
             <input type="hidden" name="typ" value="rueckfrage" />
             <label>
               <span className="field-label">Rückfrage oder Änderungswunsch</span>

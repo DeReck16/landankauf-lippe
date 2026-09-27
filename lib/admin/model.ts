@@ -57,7 +57,28 @@ export type LeadMeta = {
   postfach?: PostfachMail[];
   /** Amtliche Daten zum angegebenen Flurstück (ALKIS NRW) und Bodenrichtwert (BORIS NRW) — einmal abgefragt (lib/portal/kataster.ts). */
   kataster?: KatasterDaten;
+  /**
+   * Weiche je Angebot (Dennis 27.09.2026): „ankauf“ = die TR Vertriebs GmbH kauft selbst (ohne Makler,
+   * ohne Provision), „vermittlung“ = Lippe Forst vermittelt (für Eigentümer kostenlos). Fehlt = noch offen.
+   */
+  weg?: "ankauf" | "vermittlung";
+  /** Stand des Direktankaufs (nur bei weg „ankauf“). */
+  ankauf?: { gewaehltAm: string; von: string; angebotAm?: string; preis?: number | null; ergebnis?: { am: string; von: string; wie: "gekauft" | "abgelehnt" | "zurueck"; notiz?: string } };
+  /**
+   * Eigene Fläche des Geschäftsführers bzw. seiner Familie (Dennis 27.09.2026): in Börse und Vorgang
+   * offengelegt, ohne Provision (Eigengeschäft, kein Maklerlohn). Fehlt = aus der Quelle abgeleitet
+   * (von der Verwaltung eingestellte Flächen gelten als eigene).
+   */
+  eigeneFlaeche?: boolean;
+  /** Löschwunsch nach Art. 17 DSGVO — vermerkt, Anfrage archiviert; gelöscht wird von Hand. */
+  loeschwunsch?: { am: string; von: string; frist: string; erledigtAm?: string };
 };
+
+/** Gehört das Angebot dem Geschäftsführer bzw. seiner Familie (eigene Fläche, ohne Provision)? */
+export function istEigeneFlaeche(lead: Pick<LeadRecord, "source" | "message">, meta: LeadMeta | undefined): boolean {
+  if (meta?.eigeneFlaeche !== undefined) return meta.eigeneFlaeche;
+  return lead.source === "verwaltung" && /eigene Fläche/i.test(lead.message);
+}
 
 /** Ergebnis der Kataster-Abfrage für eine Anfrage mit Flurstück. */
 export type KatasterDaten = {
@@ -132,10 +153,16 @@ export type BoerseMeta = {
   groesseHa: number | null;
   lage: string;
   text: string;
+  /** Feste Zusatzangaben (Pachtstatus/frei ab, Ackerzahl, Zuwegung, Preis-/Pachtvorstellung). */
+  details?: { frei?: string; ackerzahl?: string; zuwegung?: string; preis?: string };
   /** Einwilligung des Eigentümers in die anonyme Veröffentlichung (Pflicht vor „online“). */
-  einwilligung?: { am: string; quelle: string; von: string } | null;
+  einwilligung?: { am: string; quelle: string; von: string; bestaetigtAm?: string } | null;
   online: boolean;
   seit?: string;
+  /** Automatisch offline genommen (vergeben, Widerruf, Kündigung, Sperre) — mit Grund für die Verwaltung. */
+  offline?: { am: string; grund: string };
+  /** Nicht mit anderen Flächen desselben Eigentümers zu einem Paket bündeln. */
+  einzeln?: boolean;
   geaendert?: { am: string; von: string };
 };
 

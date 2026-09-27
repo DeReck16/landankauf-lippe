@@ -7,9 +7,11 @@ import { boerseEinwilligungKunde } from "@/lib/boerse";
 import * as V from "@/lib/portal/vorgang";
 import * as M from "@/lib/portal/model";
 import { erklaerungenKaufabsicht, erklaerungenKundenvertrag, erklaerungenPachtvertrag, type ErklaerungDef } from "@/lib/portal/erklaerungen";
-import { anfrageHerkunft, basisUrl, beendeKundenSitzung, requireKundeId, starteKundenSitzung } from "@/lib/portal/sitzung";
-import { aendereKunde, alleKunden, istKundeId, istPaarKey, ladeEinstellungen, ladeKunde } from "@/lib/portal/speicher";
-import { kennung } from "@/lib/portal/token";
+import { anfrageHerkunft, basisUrl, beendeKundenSitzung, ladeKundenSitzung, requireKundeId, starteKundenSitzung } from "@/lib/portal/sitzung";
+import { drosseln, kurzwert, readZustand } from "@/lib/admin/store";
+import { aendereKunde, alleKunden, istKundeId, ladeEinstellungen, ladeKunde } from "@/lib/portal/speicher";
+import { kennung, pruefeErklaerung, vorgangsKennung } from "@/lib/portal/token";
+import { vorgangZuKennung } from "@/lib/portal/sicht";
 import { anbieterAbgleichJetzt } from "@/lib/portal/anbieter-gruppe";
 
 // Server Actions des Kundenbereichs. Jede Action prüft die Sitzung selbst und
@@ -85,8 +87,8 @@ export async function anmeldungBestaetigenAktion(fd: FormData): Promise<void> {
     if (!k) redirect("/kunde/anmelden?grund=benutzt");
     await starteKundenSitzung(k.email);
     // Direkt in den Vorgang, wenn der Link dafür gedacht war (nur eigene Vorgänge, feste Form — keine offene Weiterleitung).
-    const v = feld(fd, "v", 80);
-    if (/^LL-[A-Z0-9]+~LL-[A-Z0-9]+$/.test(v) && v.split("~").includes(k.id)) redirect(`/kunde/vorgang/${v}?k=${k.id}`);
+    const key = vorgangZuKennung(k, feld(fd, "v", 80), (await readZustand()).zustand.paare);
+    if (key) redirect(`/kunde/vorgang/${vorgangsKennung(key)}?k=${k.id}`);
     redirect("/kunde");
   }
   redirect("/kunde/anmelden");
@@ -193,6 +195,12 @@ export async function beginnwunschAktion(fd: FormData): Promise<void> {
 
 // ---------------------------------------------------------------------------
 // Widerruf (§ 356a BGB) und Kündigung — auch ohne Anmeldung möglich
+//
+// Ohne Anmeldung genügen Vertragsnummer und E-Mail-Adresse (gesetzlich gewollt: der
+// Widerrufs- bzw. Kündigungsknopf darf keine Anmeldung verlangen). Damit niemand
+// fremde Verträge beendet: Die Erklärung gilt, wird aber als „ungeprüft“ markiert,
+// die Bestätigung an die hinterlegte Adresse enthält „Das war nicht ich“, und die
+// Verwaltung kann sie verwerfen. Versuche sind je Absender und je Vertrag gedrosselt.
 
 async function kundeFuerErklaerung(fd: FormData): Promise<M.KundeRecord | null> {
   const id = feld(fd, "vertrag", 40).toUpperCase();
@@ -202,15 +210,36 @@ async function kundeFuerErklaerung(fd: FormData): Promise<M.KundeRecord | null> 
   return k && k.email === email ? k : null;
 }
 
+/** Ist der Absender für diesen Kunden angemeldet? Dann gilt die Erklärung als geprüft. */
+async function angemeldetFuer(kundeId: string): Promise<boolean> {
+  const s = await ladeKundenSitzung();
+  return Boolean(s?.kunden.some((k) => k.id === kundeId));
+}
+
+/** Drosselung für Erklärungen ohne Anmeldung: je Absender und je Vertragsnummer. */
+async function erklaerungDrosseln(fd: FormData, art: "widerruf" | "kuendigung"): Promise<boolean> {
+  const { ip } = await anfrageHerkunft();
+  const proIp = await drosseln(`erklaerung-${art}`, kurzwert(ip, "erklaerung"), [
+    { sekunden: 3600, max: 5 },
+    { sekunden: 86_400, max: 20 },
+  ]);
+  if (!proIp) return false;
+  const vertrag = feld(fd, "vertrag", 40).toUpperCase();
+  return drosseln(`erklaerung-${art}-vertrag`, kurzwert(vertrag, "erklaerung-vertrag"), [{ sekunden: 86_400, max: 5 }]);
+}
+
 export async function widerrufAktion(fd: FormData): Promise<void> {
   const name = feld(fd, "name", 120);
   if (!name) redirect(`/kunde/widerruf?fehler=name`);
+  const vertrag = feld(fd, "vertrag", 40).toUpperCase();
+  const angemeldet = istKundeId(vertrag) && (await angemeldetFuer(vertrag));
+  if (!angemeldet && !(await erklaerungDrosseln(fd, "widerruf"))) redirect(`/kunde/widerruf?fehler=zuviel`);
   const k = await kundeFuerErklaerung(fd);
   if (!k || !k.vertrag) redirect(`/kunde/widerruf?fehler=zuordnung`);
   if (!M.hatWiderrufsrecht(k)) redirect(`/kunde/widerruf?fehler=kein-widerrufsrecht`);
   if (k.widerruf) redirect(`/kunde/widerruf?ok=${k.id}`);
   const notiz = [`Name laut Erklärung: ${name}`, feld(fd, "nachricht", 1000)].filter(Boolean).join(" · ");
-  await A.widerrufErfassen(k.id, "online", "kunde", notiz);
+  await A.widerrufErfassen(k.id, "online", "kunde", notiz, { ohneAnmeldung: !angemeldet, basis: await basisUrl() });
   revalidatePath("/kunde", "layout");
   redirect(`/kunde/widerruf?ok=${k.id}`);
 }
@@ -218,35 +247,51 @@ export async function widerrufAktion(fd: FormData): Promise<void> {
 export async function kuendigungAktion(fd: FormData): Promise<void> {
   const name = feld(fd, "name", 120);
   if (!name) redirect(`/kunde/kuendigung?fehler=name`);
+  const vertrag = feld(fd, "vertrag", 40).toUpperCase();
+  const angemeldet = istKundeId(vertrag) && (await angemeldetFuer(vertrag));
+  if (!angemeldet && !(await erklaerungDrosseln(fd, "kuendigung"))) redirect(`/kunde/kuendigung?fehler=zuviel`);
   const k = await kundeFuerErklaerung(fd);
   if (!k || !k.vertrag) redirect(`/kunde/kuendigung?fehler=zuordnung`);
   if (k.widerruf) redirect(`/kunde/kuendigung?fehler=widerrufen`);
   if (!k.kuendigung) {
     const notiz = [`Name laut Erklärung: ${name}`, `Art: ${feld(fd, "art", 40) || "ordentlich, sofort"}`, feld(fd, "nachricht", 1000)].filter(Boolean).join(" · ");
-    await A.kuendigungErfassen(k.id, "online", "kunde", notiz);
+    await A.kuendigungErfassen(k.id, "online", "kunde", notiz, { ohneAnmeldung: !angemeldet, basis: await basisUrl() });
   }
   revalidatePath("/kunde", "layout");
   redirect(`/kunde/kuendigung?ok=${k.id}`);
 }
 
+/** „Das war nicht ich“: eine ohne Anmeldung abgegebene Erklärung zurückweisen (Link aus der Bestätigung). */
+export async function erklaerungZurueckweisenAktion(fd: FormData): Promise<void> {
+  const t = feld(fd, "t", 1500);
+  const token = pruefeErklaerung(t);
+  if (!token) redirect("/kunde/erklaerung?fehler=link");
+  const k = await ladeKunde(token.k);
+  const e = k?.[token.a];
+  if (!k || !e || e.am !== token.am || !e.ungeprueft) redirect(`/kunde/erklaerung?t=${encodeURIComponent(t)}&fehler=stand`);
+  const r = await A.erklaerungVerwerfen(k.id, token.a, token.am, "kunde", "vom Kunden über den Link „Das war nicht ich“ zurückgewiesen");
+  revalidatePath("/kunde", "layout");
+  revalidatePath("/admin", "layout");
+  redirect(`/kunde/erklaerung?t=${encodeURIComponent(t)}&${r.ok ? "ok=1" : "fehler=stand"}`);
+}
+
 // ---------------------------------------------------------------------------
 // Vorgänge: Zustimmung, Meldungen, Pachtvertrag, Kaufabsicht, Danke-Dialog
 
-async function vorgangFuerKunde(fd: FormData): Promise<{ kunde: M.KundeRecord; key: string; ctx: V.VorgangKontext; sitzungKennung: string }> {
+async function vorgangFuerKunde(fd: FormData): Promise<{ kunde: M.KundeRecord; key: string; kennung: string; ctx: V.VorgangKontext; sitzungKennung: string }> {
   const id = feld(fd, "k", 40);
-  const key = feld(fd, "key", 80);
   const { sitzung, kunde } = await requireKundeId(id);
-  if (!istPaarKey(key)) redirect("/kunde");
-  const [a, g] = key.split("~");
-  if ((kunde.rolle === "anbieter" && a !== kunde.id) || (kunde.rolle === "suchender" && g !== kunde.id)) redirect("/kunde");
+  // Formulare tragen die undurchsichtige Kennung (V…) — nur eigene Vorgänge lassen sich auflösen.
+  const key = vorgangZuKennung(kunde, feld(fd, "key", 80), (await readZustand()).zustand.paare);
+  if (!key) redirect("/kunde");
   const ctx = await V.ladeVorgangKontext(key);
   if (!ctx || !ctx.meta || !V.SICHTBAR.includes(ctx.meta.status)) redirect("/kunde");
-  return { kunde, key, ctx, sitzungKennung: kennung(`${sitzung.email}:${sitzung.seit}`) };
+  return { kunde, key, kennung: vorgangsKennung(key), ctx, sitzungKennung: kennung(`${sitzung.email}:${sitzung.seit}`) };
 }
 
 export async function zustimmenAktion(fd: FormData): Promise<void> {
-  const { kunde, key, ctx } = await vorgangFuerKunde(fd);
-  const pfad = `/kunde/vorgang/${key}?k=${kunde.id}`;
+  const { kunde, key, kennung: vk, ctx } = await vorgangFuerKunde(fd);
+  const pfad = `/kunde/vorgang/${vk}?k=${kunde.id}`;
   if (kunde.widerruf || kunde.kuendigung) nachricht(pfad, "Ihr Vertrag ist beendet — eine Zustimmung ist nicht mehr möglich.", true);
   const erg = await V.zustimmungSetzen(key, ctx.art, kunde.rolle, "kunde", true);
   if (!erg.ok) {
@@ -263,16 +308,16 @@ export async function zustimmenAktion(fd: FormData): Promise<void> {
 }
 
 export async function ablehnenAktion(fd: FormData): Promise<void> {
-  const { kunde, key, ctx } = await vorgangFuerKunde(fd);
-  if (M.aktiveFreigabe(ctx.vorgang)) nachricht(`/kunde/vorgang/${key}?k=${kunde.id}`, "Der Kontakt ist bereits freigegeben.", true);
+  const { kunde, key, kennung: vk, ctx } = await vorgangFuerKunde(fd);
+  if (M.aktiveFreigabe(ctx.vorgang)) nachricht(`/kunde/vorgang/${vk}?k=${kunde.id}`, "Der Kontakt ist bereits freigegeben.", true);
   await V.ablehnen(key, ctx.art, kunde.rolle, feld(fd, "grund", 500));
   revalidatePath("/kunde", "layout");
   nachricht("/kunde", "Danke für Ihre Rückmeldung — wir stellen Ihnen diesen Vorschlag nicht weiter vor.");
 }
 
 export async function meldungAktion(fd: FormData): Promise<void> {
-  const { kunde, key, ctx } = await vorgangFuerKunde(fd);
-  const pfad = `/kunde/vorgang/${key}?k=${kunde.id}`;
+  const { kunde, key, kennung: vk, ctx } = await vorgangFuerKunde(fd);
+  const pfad = `/kunde/vorgang/${vk}?k=${kunde.id}`;
   const typ = feld(fd, "typ", 20) === "abschluss" ? "abschluss" : "rueckfrage";
   let text = feld(fd, "text", 3000);
   if (typ === "abschluss") {
@@ -292,7 +337,7 @@ export async function meldungAktion(fd: FormData): Promise<void> {
 }
 
 export async function pachtUnterschreibenAktion(_prev: UnterschriftState, fd: FormData): Promise<UnterschriftState> {
-  const { kunde, key, sitzungKennung } = await vorgangFuerKunde(fd);
+  const { kunde, key, kennung: vk, sitzungKennung } = await vorgangFuerKunde(fd);
   const defs = erklaerungenPachtvertrag(kunde.rolle);
   const erkl = erklaerungenAus(fd, defs);
   if (!erkl.ok) return { status: "fehler", text: "Bitte bestätigen Sie beide Erklärungen.", fehlt: erkl.fehlt };
@@ -305,12 +350,12 @@ export async function pachtUnterschreibenAktion(_prev: UnterschriftState, fd: Fo
   if (!r.ok) return { status: "fehler", text: r.fehler };
   revalidatePath("/kunde", "layout");
   redirect(
-    `/kunde/vorgang/${key}?k=${kunde.id}&m=${encodeURIComponent(r.abgeschlossen ? "Der Pachtvertrag ist geschlossen — beide Seiten haben unterschrieben. Ihr Exemplar ist per E-Mail unterwegs." : "Danke — Ihre Unterschrift ist gespeichert. Sobald die andere Seite unterschreibt, ist der Vertrag geschlossen.")}`,
+    `/kunde/vorgang/${vk}?k=${kunde.id}&m=${encodeURIComponent(r.abgeschlossen ? "Der Pachtvertrag ist geschlossen — beide Seiten haben unterschrieben. Ihr Exemplar ist per E-Mail unterwegs." : "Danke — Ihre Unterschrift ist gespeichert. Sobald die andere Seite unterschreibt, ist der Vertrag geschlossen.")}`,
   );
 }
 
 export async function kaufBestaetigenAktion(_prev: UnterschriftState, fd: FormData): Promise<UnterschriftState> {
-  const { kunde, key, sitzungKennung } = await vorgangFuerKunde(fd);
+  const { kunde, key, kennung: vk, sitzungKennung } = await vorgangFuerKunde(fd);
   const erkl = erklaerungenAus(fd, erklaerungenKaufabsicht());
   if (!erkl.ok) return { status: "fehler", text: "Bitte bestätigen Sie beide Erklärungen.", fehlt: erkl.fehlt };
   const name = feld(fd, "name", 120);
@@ -321,14 +366,14 @@ export async function kaufBestaetigenAktion(_prev: UnterschriftState, fd: FormDa
   const r = await V.kaufBestaetigen({ key, rolle: kunde.rolle, kunde, name, textHash: feld(fd, "hash", 80), erklaerungen: erkl.liste, herkunft: { ...herkunft, sitzung: sitzungKennung } });
   if (!r.ok) return { status: "fehler", text: r.fehler };
   revalidatePath("/kunde", "layout");
-  redirect(`/kunde/vorgang/${key}?k=${kunde.id}&m=${encodeURIComponent("Danke — Ihre Bestätigung ist gespeichert.")}`);
+  redirect(`/kunde/vorgang/${vk}?k=${kunde.id}&m=${encodeURIComponent("Danke — Ihre Bestätigung ist gespeichert.")}`);
 }
 
 export async function dankeGesehenAktion(fd: FormData): Promise<void> {
   const id = feld(fd, "k", 40);
-  const key = feld(fd, "key", 80);
-  await requireKundeId(id);
-  if (!istPaarKey(key)) return;
+  const { kunde } = await requireKundeId(id);
+  const key = vorgangZuKennung(kunde, feld(fd, "key", 80), (await readZustand()).zustand.paare);
+  if (!key) return;
   await aendereKunde(id, (k) => {
     if (k.dankeGesehen?.[key]) return false;
     k.dankeGesehen = { ...(k.dankeGesehen ?? {}), [key]: new Date().toISOString() };

@@ -133,7 +133,15 @@ export type KundenVertrag = {
   uebernommenVon?: string;
 };
 
-export type Erklaerung = { am: string; eingang: Eingang; erfasstVon: string; notiz?: string; bestaetigtAm?: string };
+export type Erklaerung = {
+  am: string;
+  eingang: Eingang;
+  erfasstVon: string;
+  notiz?: string;
+  bestaetigtAm?: string;
+  /** Ohne Anmeldung abgegeben (nur Vertragsnummer + E-Mail) — gilt, lässt sich aber als „nicht vom Kunden“ verwerfen. */
+  ungeprueft?: boolean;
+};
 
 export type KundeRecord = {
   v: 1;
@@ -169,6 +177,10 @@ export type KundeRecord = {
   dankeGesehen?: Record<string, string>;
   /** Widerspruch gegen Bewertungs-E-Mails (per Antwort o. Ä., von der Verwaltung erfasst). */
   bewertungsWiderspruch?: { am: string; von: string };
+  /** Verworfene Widerrufs-/Kündigungserklärungen (stammten nicht vom Kunden). */
+  verworfeneErklaerungen?: (Erklaerung & { art: "widerruf" | "kuendigung"; verworfen: { am: string; von: string; grund: string } })[];
+  /** Frühere, gekündigte bzw. widerrufene Verträge (vor einer neuen Vereinbarung). */
+  fruehereVertraege?: { vertrag: KundenVertrag; kuendigung?: Erklaerung; widerruf?: Erklaerung; abgelegtAm: string; von: string }[];
   dokumente: DokumentMeta[];
   ereignisse: Ereignis[];
   mails: GesendeteMail[];

@@ -10,6 +10,7 @@ export const metadata: Metadata = { title: "Verträge hier kündigen" };
 
 const FEHLER: Record<string, string> = {
   name: "Bitte geben Sie Ihren Namen an.",
+  zuviel: "Zu viele Versuche in kurzer Zeit. Bitte versuchen Sie es später erneut — oder schreiben Sie uns formlos eine E-Mail an info@tr-immobilien.com.",
   zuordnung: "Wir konnten den Vertrag nicht zuordnen. Bitte prüfen Sie die Vorgangsnummer (steht in der Bestätigungs-E-Mail und im PDF, z. B. „LL-…“) und die E-Mail-Adresse — oder kündigen Sie formlos per E-Mail.",
   widerrufen: "Dieser Vertrag ist bereits widerrufen.",
 };

@@ -6,6 +6,7 @@ import type { Dokument } from "@/lib/vertraege/dokument";
 import { site } from "@/lib/site";
 import { VORLAGEN, istFreigegeben } from "@/lib/vertraege/vorlagen";
 import type { KaufabsichtDaten, PachtvertragDaten } from "@/lib/vertraege/vorlagen/typen";
+import { boerseOfflineNehmen } from "@/lib/boerse";
 import { GRUSS, verwaltungsLink } from "./ablauf";
 import { pdfAblegen, protokollDokument } from "./dokumente";
 import { adminInfo, kundenMail, type Anhang } from "./mail";
@@ -505,6 +506,8 @@ export async function pachtAbschliessen(key: string, dokumentId: string): Promis
     m.status = "abschluss";
     return "Pachtvertrag geschlossen — Provision erfasst";
   });
+  // Vergeben: das Angebot verschwindet aus der Flächenbörse.
+  await boerseOfflineNehmen([ctx.angebot.id], "vergeben (Pachtvertrag geschlossen)", "system").catch((err) => console.error("[vorgang] Börse", err));
   await abschlussMails(ctx, "pachtvertrag", { dateiname: meta.dateiname, inhalt: bytes }, gutschein);
   await adminInfo(`Provision fällig: Pachtvertrag ${kundenName(ctx.anbieter, ctx.angebot)} ↔ ${kundenName(ctx.suchender, ctx.gesuch)}`, [
     `Der Pachtvertrag im Vorgang ${key} ist von beiden Seiten unterschrieben.`,
@@ -730,6 +733,7 @@ export async function kaufBeurkundet(
     m.status = "abschluss";
     return "Kaufvertrag beurkundet — Provision erfasst";
   });
+  await boerseOfflineNehmen([ctx.angebot.id], "vergeben (Kaufvertrag beurkundet)", von).catch((err) => console.error("[vorgang] Börse", err));
   await abschlussMails(ctx, "kaufvertrag", null, gutschein);
   await adminInfo(`${wirksam ? "Provision fällig" : "Provision entstanden (aufschiebend)"}: Kauf ${paarTitel(ctx, key)}`, [
     `Kaufvertrag beurkundet am ${T.tagDe(daten.datum)}, Kaufpreis ${M.euro(daten.kaufpreis)}.`,
@@ -860,6 +864,8 @@ export async function externErfassen(
       return "Außerhalb geschlossener Vertrag erfasst — Provision erfasst";
     });
   }
+  // Auch nach einem Widerruf ist die Fläche vergeben — sie verschwindet aus der Börse.
+  await boerseOfflineNehmen([ctx.angebot.id], `vergeben (${art === "kauf" ? "Kaufvertrag" : "Pachtvertrag"} außerhalb geschlossen)`, von).catch((err) => console.error("[vorgang] Börse", err));
   if (ctx && !widerrufen) await abschlussMails(ctx, "extern", null, gutschein);
   await adminInfo(`${widerrufen ? "Externer Abschluss nach Widerruf — Provision prüfen" : "Provision fällig (externer Abschluss)"}: ${paarTitel(ctx, key)}`, [
     `Erfasst durch ${von}: ${art === "kauf" ? "Kaufvertrag" : "Pachtvertrag"} vom ${T.tagDe(daten.datum)}${daten.flaecheHa ? `, ${T.haText(daten.flaecheHa)}` : ""}.`,

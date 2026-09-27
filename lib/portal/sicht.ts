@@ -3,8 +3,9 @@ import { listLeads, readZustand } from "@/lib/admin/store";
 import { leadView, type LeadView, type MatchStatus, type Zustand } from "@/lib/admin/model";
 import { grobeLage } from "@/lib/admin/matching";
 import * as M from "./model";
-import { ladeEinstellungen, ladeKunde, ladeVorgang } from "./speicher";
+import { istPaarKey, ladeEinstellungen, ladeKunde, ladeVorgang } from "./speicher";
 import * as T from "./texte";
+import { istVorgangsKennung, vorgangsKennung } from "./token";
 import { SICHTBAR } from "./vorgang";
 
 // Was ein Kunde im Kundenbereich sehen darf — als schmale Datenobjekte.
@@ -15,6 +16,8 @@ export type Kontakt = { name: string; betrieb: string; anschrift: string; telefo
 
 export type KundenVorgang = {
   key: string;
+  /** Undurchsichtige Kennung für Links und Formulare im Kundenbereich (verrät nicht die Vorgangsnummer der Gegenseite). */
+  kennung: string;
   art: M.Art;
   status: MatchStatus;
   rolle: M.Rolle;
@@ -44,6 +47,17 @@ export type KundenUebersicht = { kunde: M.KundeRecord; lead: LeadView | null; vo
 function istPartei(key: string, k: M.KundeRecord): boolean {
   const [a, g] = key.split("~");
   return k.rolle === "anbieter" ? a === k.id : g === k.id;
+}
+
+/**
+ * Vorgang eines Kunden aus der Kennung im Link (V…) bzw. — für ältere Links — aus dem
+ * Paar-Schlüssel. Nur Vorgänge, in denen der Kunde selbst Partei ist; sonst null.
+ */
+export function vorgangZuKennung(k: M.KundeRecord, wert: string, paare: Record<string, unknown>): string | null {
+  if (istPaarKey(wert)) return istPartei(wert, k) && wert in paare ? wert : null;
+  if (!istVorgangsKennung(wert)) return null;
+  for (const key of Object.keys(paare)) if (istPartei(key, k) && vorgangsKennung(key) === wert) return key;
+  return null;
 }
 
 export async function kundenUebersicht(kunden: M.KundeRecord[], nurKey?: string): Promise<{ liste: KundenUebersicht[]; bewertungsUrl: string | null }> {
@@ -122,6 +136,7 @@ async function kundenVorgang(
   const anderesFeldKauf = rolle === "anbieter" ? "kaeufer" : "verkaeufer";
   return {
     key,
+    kennung: vorgangsKennung(key),
     art: v?.art ?? (andere.art === "kauf" ? "kauf" : "pacht"),
     status: meta.status,
     rolle,

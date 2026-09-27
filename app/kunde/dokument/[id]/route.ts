@@ -1,8 +1,10 @@
 import type { NextRequest } from "next/server";
 import * as M from "@/lib/portal/model";
 import { dokumentAntwort, dokumentBytes, findeDokument } from "@/lib/portal/dokumente";
+import { readZustand } from "@/lib/admin/store";
+import { vorgangZuKennung } from "@/lib/portal/sicht";
 import { ladeKundenSitzung } from "@/lib/portal/sitzung";
-import { istPaarKey, ladeVorgang } from "@/lib/portal/speicher";
+import { ladeVorgang } from "@/lib/portal/speicher";
 
 // Download im Kundenbereich: nur mit gültiger Kunden-Sitzung, nur eigene
 // Dokumente bzw. Dokumente eines freigegebenen Vorgangs, in dem der Kunde
@@ -18,13 +20,13 @@ export async function GET(request: NextRequest, ctx: RouteContext<"/kunde/dokume
   const kunde = sitzung.kunden.find((k) => k.id === request.nextUrl.searchParams.get("k"));
   if (!kunde) return new Response("Nicht gefunden", { status: 404 });
 
-  const key = request.nextUrl.searchParams.get("v") ?? "";
+  const vWert = request.nextUrl.searchParams.get("v") ?? "";
   let meta: M.DokumentMeta | null = null;
-  if (key) {
-    if (!istPaarKey(key)) return new Response("Ungültig", { status: 400 });
-    const [a, g] = key.split("~");
-    const partei = kunde.rolle === "anbieter" ? a === kunde.id : g === kunde.id;
-    const v = partei ? await ladeVorgang(key) : null;
+  if (vWert) {
+    // Kennung (V…) bzw. älterer Paar-Schlüssel — nur Vorgänge, in denen der Kunde Partei ist.
+    const key = vorgangZuKennung(kunde, vWert, (await readZustand()).zustand.paare);
+    if (!key) return new Response("Nicht gefunden", { status: 404 });
+    const v = await ladeVorgang(key);
     if (!v || !M.aktiveFreigabe(v)) return new Response("Nicht gefunden", { status: 404 });
     // Nach einem Widerruf ohne geschlossenen Vertrag keine Vorgangsdokumente mehr (wie in der Übersicht).
     if (kunde.widerruf && !v.abschluss) return new Response("Nicht gefunden", { status: 404 });

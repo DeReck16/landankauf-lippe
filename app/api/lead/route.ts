@@ -3,7 +3,7 @@ import { site } from "@/lib/site";
 import { antwortAdresse, dataPrefix, hasBlobToken, kundenAbsender } from "@/lib/admin/config";
 import { orteErgaenzen } from "@/lib/admin/daten";
 import { dateiAnlegen, drosseln, kurzwert, mutateZustand, readZustand } from "@/lib/admin/store";
-import { angebotZuCode } from "@/lib/boerse";
+import { angebotZuCode, ladeBoerse } from "@/lib/boerse";
 import { isGesuchIntent } from "@/lib/lead-options";
 import { leadView } from "@/lib/admin/model";
 import { katasterNachholen } from "@/lib/portal/kataster";
@@ -133,7 +133,7 @@ export async function POST(req: NextRequest) {
   const text = [
     `Neue Anfrage über ${site.url}`,
     "",
-    ...(input.boerse !== "—" ? [`Flächenbörse:  Interesse an Angebot ${input.boerse}`, ""] : []),
+    ...(input.boerse !== "—" ? [`Flächenbörse:  Interesse an Angebot ${input.boerse}${body.paket === "1" ? " (ganzes Paket)" : ""}`, ""] : []),
     `Anliegen:      ${input.intent}`,
     `Flächentyp:    ${input.flaechentyp}`,
     `Größe:         ${input.groesse}`,
@@ -174,16 +174,23 @@ export async function POST(req: NextRequest) {
   // Interesse aus der Flächenbörse: gleich mit dem Angebot verknüpfen (Paar „vorgemerkt“) —
   // nur für Angebote, die gerade online stehen (keine vergebenen oder zurückgezogenen).
   // Weiter geht es danach im normalen Ablauf: Einladung → Nachweisvertrag → Zustimmung → Freigabe.
+  // Interesse am ganzen Paket (mehrere Flächen desselben Eigentümers): mit jeder Fläche des Pakets verknüpfen.
   if (blobOk && input.boerse !== "—" && isGesuchIntent(input.intent)) {
     try {
       const { zustand } = await readZustand();
-      const angebotId = angebotZuCode(zustand.anfragen, input.boerse, { nurOnline: true });
-      if (angebotId) {
+      let codes = [input.boerse];
+      if (body.paket === "1" || body.paket === true) {
+        const d = await ladeBoerse();
+        const paket = d.angebote.find((a) => a.code === input.boerse)?.paket;
+        if (paket) codes = d.angebote.filter((a) => a.paket === paket).map((a) => a.code);
+      }
+      const angebote = codes.map((c) => angebotZuCode(zustand.anfragen, c, { nurOnline: true })).filter((x): x is string => Boolean(x));
+      for (const angebotId of angebote) {
         const key = `${angebotId}~${id}`;
         await mutateZustand("Flächenbörse", (z) => {
           if (z.paare[key]) return;
           z.paare[key] = { status: "vorgemerkt", geaendert: { am: new Date().toISOString(), von: "Flächenbörse" } };
-          return { was: `Interesse über die Flächenbörse (${input.boerse}) — Paar vorgemerkt`, ref: key };
+          return { was: `Interesse über die Flächenbörse (${codes.length > 1 ? `Paket ${codes.join(", ")}` : input.boerse}) — Paar vorgemerkt`, ref: key };
         });
       }
     } catch (err) {

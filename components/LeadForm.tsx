@@ -82,8 +82,8 @@ type Props = {
   variant?: "embedded" | "card";
   title?: string;
   subtitle?: string;
-  /** Anfrage zu einem Angebot der Flächenbörse (Kennung + Kurzbeschreibung). */
-  boerse?: { code: string; titel: string };
+  /** Anfrage zu einem Angebot der Flächenbörse (Kennung + Kurzbeschreibung, bei Paketen alle Kennungen). */
+  boerse?: { code: string; titel: string; paket?: string[] };
 };
 
 export default function LeadForm({
@@ -161,9 +161,17 @@ export default function LeadForm({
         </div>
       )}
       {boerse && (
-        <p className="mb-4 text-sm rounded-md px-3 py-2 bg-[color:var(--color-brand-soft)] text-[color:var(--color-brand-dark)]">
-          Ihre Anfrage bezieht sich auf Angebot <strong>{boerse.code}</strong>: {boerse.titel}.
-        </p>
+        <div className="mb-4 text-sm rounded-md px-3 py-2 bg-[color:var(--color-brand-soft)] text-[color:var(--color-brand-dark)]">
+          <p>
+            Ihre Anfrage bezieht sich auf {boerse.paket?.length ? "das Paket" : "Angebot"} <strong>{boerse.paket?.length ? boerse.paket.join(", ") : boerse.code}</strong>: {boerse.titel}.
+          </p>
+          {boerse.paket && boerse.paket.length > 1 && (
+            <label className="checkbox-row mt-2" title="Mit Häkchen gilt Ihr Interesse für alle Flächen des Pakets, sonst nur für die angezeigte Fläche">
+              <input type="checkbox" name="paket" value="1" defaultChecked />
+              <span>Interesse am ganzen Paket ({boerse.paket.length} Flächen) — ohne Häkchen nur an {boerse.code}</span>
+            </label>
+          )}
+        </div>
       )}
       <div className="grid sm:grid-cols-2 gap-4">
         <div>

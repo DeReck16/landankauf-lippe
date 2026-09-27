@@ -22,7 +22,9 @@ import {
   bewertungsWiderspruchAktion,
   einladungErstellenAktion,
   einladungZurueckziehenAktion,
+  erklaerungVerwerfenAktion,
   kuendigungErfassenAktion,
+  neueVereinbarungAktion,
   widerrufErfassenAktion,
   zugangSperrenAktion,
 } from "../../../portal-actions";
@@ -317,6 +319,48 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
                         </BestaetigenKnopf>
                       </form>
                     </div>
+                    {(["widerruf", "kuendigung"] as const).map((art) => {
+                      const e = kunde[art];
+                      if (!e?.ungeprueft) return null;
+                      return (
+                        <div key={art} className="lfa-hinweis lfa-hinweis-fehler" style={{ marginTop: "0.6rem" }}>
+                          <p style={{ margin: "0 0 0.4rem" }}>
+                            {art === "widerruf" ? "Widerruf" : "Kündigung"} am {datumZeit(e.am)} <strong>ohne Anmeldung</strong> abgegeben (nur Vertragsnummer und E-Mail). Der Kunde hat eine Bestätigung mit „Das war nicht ich“ bekommen. Stammt die Erklärung nachweislich nicht vom Kunden, hier verwerfen.
+                          </p>
+                          <form action={erklaerungVerwerfenAktion} className="lfa-inline">
+                            <input type="hidden" name="kunde" value={kunde.id} />
+                            <input type="hidden" name="art" value={art} />
+                            <input type="hidden" name="am" value={e.am} />
+                            <input type="hidden" name="zurueck" value={zurueck} />
+                            <label>
+                              Grund
+                              <input name="grund" required className="field-input" placeholder="z. B. Rücksprache per E-Mail: nicht vom Kunden" title="Wird im Verlauf der Akte gespeichert" />
+                            </label>
+                            <BestaetigenKnopf className="lfa-knopf lfa-knopf-klein" frage={`${art === "widerruf" ? "Widerruf" : "Kündigung"} verwerfen? Der Vertrag gilt dann unverändert weiter.`} tipp="Nur, wenn die Erklärung nachweislich nicht vom Kunden stammt — sie bleibt als verworfen im Verlauf">
+                              Erklärung verwerfen
+                            </BestaetigenKnopf>
+                          </form>
+                        </div>
+                      );
+                    })}
+                    {(kunde.kuendigung || kunde.widerruf) && (
+                      <form action={neueVereinbarungAktion} style={{ marginTop: "0.6rem" }}>
+                        <input type="hidden" name="kunde" value={kunde.id} />
+                        <input type="hidden" name="zurueck" value={zurueck} />
+                        <BestaetigenKnopf
+                          className="lfa-knopf lfa-knopf-leise lfa-knopf-klein"
+                          frage="Neue Vereinbarung ermöglichen? Der bisherige Vertrag samt Kündigung bzw. Widerruf wird abgelegt (bleibt mit allen Dokumenten erhalten); danach kann der Kunde neu eingeladen werden und neu unterschreiben."
+                          tipp="Wiederaufnahme: Der Kunde möchte nach seiner Kündigung bzw. seinem Widerruf wieder mitmachen"
+                        >
+                          Neue Vereinbarung ermöglichen
+                        </BestaetigenKnopf>
+                      </form>
+                    )}
+                    {kunde.verworfeneErklaerungen?.length ? (
+                      <p className="lfa-klein" style={{ marginTop: "0.5rem" }}>
+                        Verworfen: {kunde.verworfeneErklaerungen.map((v) => `${v.art === "widerruf" ? "Widerruf" : "Kündigung"} vom ${datumZeit(v.am)} (${v.verworfen.grund})`).join(" · ")}
+                      </p>
+                    ) : null}
                     {!kunde.widerruf && (
                       <details className="lfa-details" style={{ marginTop: "0.6rem" }}>
                         <summary title="Einen per E-Mail, Post oder Telefon eingegangenen Widerruf bzw. eine Kündigung erfassen">Widerruf oder Kündigung erfassen</summary>

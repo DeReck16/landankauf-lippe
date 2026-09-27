@@ -11,7 +11,7 @@ export default async function KundeBestaetigenPage(props: PageProps<"/kunde/anme
   const sp = await props.searchParams;
   const t = typeof sp.t === "string" ? sp.t : "";
   const z = typeof sp.z === "string" ? sp.z : "";
-  const v = typeof sp.v === "string" && /^LL-[A-Z0-9]+~LL-[A-Z0-9]+$/.test(sp.v) ? sp.v : "";
+  const v = typeof sp.v === "string" && (/^LL-[A-Z0-9]+~LL-[A-Z0-9]+$/.test(sp.v) || /^V[0-9a-f]{16}$/.test(sp.v)) ? sp.v : "";
   const gueltig = t ? pruefeLogin(t) : z ? pruefeZugang(z) : null;
   return (
     <div className="lfk-seite" style={{ maxWidth: "30rem" }}>

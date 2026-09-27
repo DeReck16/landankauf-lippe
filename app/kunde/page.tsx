@@ -41,7 +41,7 @@ function VorgangZeile({ v, kundeId }: { v: KundenVorgang; kundeId: string }) {
         </div>
       </div>
       <span className={`lfk-badge ${stand.klasse}`}>{stand.text}</span>
-      <Link href={`/kunde/vorgang/${v.key}?k=${kundeId}`} className="btn-secondary lfk-knopf-klein" title="Details öffnen: Eckdaten, Zustimmung, Kontaktdaten nach Freigabe, Vertrag und Dokumente">
+      <Link href={`/kunde/vorgang/${v.kennung}?k=${kundeId}`} className="btn-secondary lfk-knopf-klein" title="Details öffnen: Eckdaten, Zustimmung, Kontaktdaten nach Freigabe, Vertrag und Dokumente">
         Öffnen
       </Link>
     </li>
@@ -57,7 +57,7 @@ export default async function KundePage(props: PageProps<"/kunde">) {
 
   return (
     <>
-      {danke && bewertungsUrl && <DankeDialog kundeId={danke.k} vorgang={danke.v.key} url={bewertungsUrl} art={danke.v.art} />}
+      {danke && bewertungsUrl && <DankeDialog kundeId={danke.k} vorgang={danke.v.kennung} url={bewertungsUrl} art={danke.v.art} />}
       <h1 className="lfk-h1">Ihr Kundenbereich</h1>
       <p className="lfk-unterzeile">Angemeldet als {sitzung.email}. Hier sehen Sie Ihren Vertrag mit Lippe Forst, passende Vorschläge und — nach der Freigabe — die Kontaktdaten Ihres Gegenübers.</p>
       <Hinweis sp={sp} />
