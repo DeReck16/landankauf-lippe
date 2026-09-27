@@ -530,9 +530,9 @@ export const ARTICLES: Article[] = [
   {
     slug: "bodenmarkt-lippe-nrw-2025-kaufwerte-gefallen",
     title:
-      "Bodenmarkt Lippe & NRW 2025: Warum die Kaufwerte fielen (−6 %) — und Lipper Waldverkäufe sich verdoppelten",
+      "Bodenmarkt NRW 2024 und Lippe 2025: Kaufwerte in NRW −6 % — und Lipper Waldverkäufe fast verdoppelt",
     description:
-      "Erstmals seit Jahren sind die amtlichen Kaufwerte für landwirtschaftliche Flächen in NRW gefallen — auf rund 81.953 €/ha (−6 %), bei so wenigen Verkäufen wie seit 50 Jahren nicht. Im Kreis Lippe lief der Markt 2025 dagegen gegen den Trend, und die Waldverkäufe haben sich fast verdoppelt. Die Zahlen und was sie für Eigentümer bedeuten.",
+      "Die amtlichen Kaufwerte für landwirtschaftliche Flächen in NRW sind 2024 gefallen — auf rund 81.953 €/ha (−6 %), bei so wenigen Verkäufen wie seit 50 Jahren nicht. Im Kreis Lippe lief der Markt 2025 dagegen gegen den Trend, und die Waldverkäufe haben sich fast verdoppelt. Die Zahlen und was sie für Eigentümer bedeuten.",
     category: "Markt",
     publishedAt: "2026-08-02",
     readingMinutes: 8,
@@ -560,7 +560,7 @@ export const ARTICLES: Article[] = [
       },
     ],
     content: `
-<p class="lead">Der Bodenmarkt sendet 2025/26 ein ungewohntes Signal: Zum ersten Mal seit Jahren sind die amtlichen Kaufwerte für landwirtschaftliche Flächen in Nordrhein-Westfalen gefallen — und das bei so wenigen Verkäufen wie seit einem halben Jahrhundert nicht. Im Kreis Lippe lief der Markt 2025 allerdings gegen diesen Landestrend, und die Waldverkäufe haben sich nahezu verdoppelt. Wir ordnen die frischen Zahlen aus den amtlichen Quellen ein — und erklären, was sie für Eigentümer in Lippe konkret bedeuten.</p>
+<p class="lead">Die amtliche Statistik für 2024 sendet ein ungewohntes Signal: Die Kaufwerte für landwirtschaftliche Flächen in Nordrhein-Westfalen sind gefallen — und das bei so wenigen Verkäufen wie seit einem halben Jahrhundert nicht. Im Kreis Lippe lief der Markt 2025 allerdings gegen diesen Landestrend, und die Waldverkäufe haben sich nahezu verdoppelt. Wir ordnen die frischen Zahlen aus den amtlichen Quellen ein — und erklären, was sie für Eigentümer in Lippe konkret bedeuten.</p>
 
 <figure>
 <img src="/blog-bodenmarkt-2025.jpg" alt="Luftbild einer Kulturlandschaft in Ostwestfalen-Lippe mit Acker-, Grünland- und Waldparzellen — Bodenmarkt 2025" width="1600" height="900" style="width:100%;height:auto;border-radius:14px" loading="lazy" />
@@ -804,7 +804,7 @@ export const ARTICLES: Article[] = [
 <p><strong>3. Erst prüfen, dann entscheiden.</strong> Der häufigste und meist klügste Weg: Bevor Sie einen der Verträge unterschreiben, die Projektierer derzeit aktiv in die Höfe tragen, lassen Sie unabhängig prüfen, was Ihre Fläche im aktuellen Markt wert ist und welche Konditionen realistisch sind. Andere Wege der Flächen-Monetarisierung — etwa <a href="/blog/oekopunkte-oekokonto-lippe">Ökopunkte und Ökokonto</a> — gehören in dieselbe Abwägung.</p>
 
 <h2>Was wir konkret tun</h2>
-<p>Wir kennen die Flächen, die Netzsituation und die Gemeinden im Kreis Lippe — und wir sitzen nicht auf der Seite des Projektierers, sondern auf Ihrer. Wir prüfen kostenlos, ob Ihre Fläche für Agri-PV taugt, ordnen die Ihnen vorgelegten Pachtangebote ein und vermitteln bei Bedarf seriöse Partner — oder kaufen die Fläche, wenn Sie lieber verkaufen. Den Anfang macht eine unverbindliche Einschätzung: <a href="/flaeche-verpachten">Fläche verpachten</a>, <a href="/flaeche-bewerten">Fläche bewerten</a> oder direkt über das <a href="/kontakt">Kontaktformular</a>.</p>
+<p>Wir kennen die Flächen, die Netzsituation und die Gemeinden im Kreis Lippe. Wir prüfen kostenlos, ob Ihre Fläche für Agri-PV in Frage kommt, ordnen die Ihnen vorgelegten Pachtangebote wirtschaftlich ein und nennen bei Bedarf Projektierer — oder die TR Vertriebs GmbH kauft die Fläche selbst, wenn Sie lieber verkaufen. Eine Rechtsberatung zu den Verträgen leisten wir nicht; dafür ist Ihr Anwalt da. Den Anfang macht eine unverbindliche Einschätzung: <a href="/flaeche-verpachten">Fläche verpachten</a>, <a href="/flaeche-bewerten">Fläche bewerten</a> oder direkt über das <a href="/kontakt">Kontaktformular</a>.</p>
 `,
   },
   {
@@ -932,7 +932,7 @@ export const ARTICLES: Article[] = [
       },
       {
         q: "Gilt das Grundstücksverkehrsgesetz auch für Bauerwartungsland?",
-        a: "Für landwirtschaftliche Flächen ab 1 ha ist der Verkauf in NRW genehmigungspflichtig, und das siedlungsrechtliche Vorkaufsrecht kann zugunsten eines Landwirts ausgeübt werden. Genehmigungsfrei sind erst Flächen im Geltungsbereich eines Bebauungsplans (§ 4 Nr. 4 GrdstVG) — Bauerwartungsland ohne Bebauungsplan bleibt in der Regel genehmigungspflichtig.",
+        a: "Für land- oder forstwirtschaftliche Flächen von mehr als 1 ha ist der Verkauf in NRW genehmigungspflichtig; ab 2 ha kann zusätzlich das siedlungsrechtliche Vorkaufsrecht zugunsten eines Landwirts ausgeübt werden. Genehmigungsfrei sind erst Flächen im Geltungsbereich eines Bebauungsplans (§ 4 Nr. 4 GrdstVG) — Bauerwartungsland ohne Bebauungsplan bleibt in der Regel genehmigungspflichtig.",
       },
     ],
     content: `
@@ -1030,7 +1030,7 @@ export const ARTICLES: Article[] = [
 <p>Worauf 2026 zu achten ist:</p>
 <ul>
 <li><strong>Schwarzwildschäden</strong> in Mais und Kartoffeln haben sich im Kreis Lippe in den letzten drei Jahren etwa verdoppelt. Wer Pacht abwälzt, ohne den Pächter mit Saukoffer, Bewegungsjagd-Möglichkeit und realistischem Abschuss­plan auszustatten, riskiert nach drei Jahren einen frustrierten Pächter und Vertragsauflösung.</li>
-<li><strong>Selbstbeteiligung Landwirt</strong>: § 32 BJagdG sieht eine Selbstbeteiligung von 1/4, mindestens aber dem Wert eines Doppelzentners Roggen vor. In NRW liegt das aktuell bei rund 21 €/Schadensfall. Manche Verträge schließen das vertraglich aus — was die Pacht drückt, aber für die Landwirte vor Ort fair ist.</li>
+<li><strong>Schutzvorrichtungen</strong>: Macht der Geschädigte die Abwehrmaßnahmen des Jagdausübungsberechtigten unwirksam, entfällt der Ersatzanspruch; bei Sonderkulturen wie Gärten oder Obstgärten wird ohne übliche Schutzvorrichtungen kein Wildschaden ersetzt (§ 32 BJagdG). Wer welchen Anteil am Wildschaden trägt, regelt im Übrigen oft der Jagdpachtvertrag — das sollte man vor der Verpachtung prüfen.</li>
 <li><strong>Schadensanzeige­frist</strong>: 7 Tage ab Kenntnis (§ 34 BJagdG). Wer die Frist verpasst, hat keinen Anspruch. Diese Frist wird im Kreis Lippe regelmäßig missachtet — gerade kleinere Eigentümer wissen das nicht.</li>
 </ul>
 
@@ -1211,7 +1211,7 @@ export const ARTICLES: Article[] = [
 <li><strong>Private Bauträger</strong> — Bauunternehmer und Investoren, die Wohngebiete entwickeln.</li>
 <li><strong>Spezialisierte Vermarkter</strong> wie die NRW.URBAN, kommunale Flächenagenturen oder private Ökopunkte-Händler aus dem OWL-Raum.</li>
 </ul>
-<p>Die UNB Kreis Lippe führt eine Liste anerkannter Ökokonto-Maßnahmen und vermittelt bei Bedarf zwischen Anbietern und Nachfragern. Die Höhe schwankt — wer geduldig ist und nicht beim ersten Angebot zuschlägt, holt 20–30 % mehr raus.</p>
+<p>Das Ökokonto führt die Untere Naturschutzbehörde des Kreises; dort erfahren Sie, welche Maßnahmen anerkannt werden. Die Preise schwanken — es lohnt sich, mehrere Angebote einzuholen, bevor Sie Punkte verkaufen.</p>
 
 <h2>Der Ablauf in fünf Schritten</h2>
 <ol>
@@ -1260,17 +1260,17 @@ export const ARTICLES: Article[] = [
 <h2>Worum es geht — kurz</h2>
 <p>Das Grundstücksverkehrsgesetz (GrdstVG, 1961) hatte einmal den Zweck, die Zerstückelung von Höfen zu verhindern und die Agrarstruktur zu stützen. Heute regelt es vor allem zwei Dinge:</p>
 <ul>
-<li><strong>Genehmigungspflicht</strong> für Verkäufe landwirtschaftlicher Flächen ab einer bestimmten Schwelle (in NRW: 1 Hektar)</li>
-<li><strong>Siedlungsrechtliches Vorkaufsrecht</strong> der Landgesellschaft NRW (NRW.URBAN), wenn der Käufer kein Landwirt ist und ein örtlicher Landwirt Bedarf anmeldet</li>
+<li><strong>Genehmigungspflicht</strong> für Verkäufe land- und forstwirtschaftlicher Flächen über einer bestimmten Schwelle (in NRW: mehr als 1 Hektar)</li>
+<li><strong>Siedlungsrechtliches Vorkaufsrecht</strong> ab 2 Hektar: Ausgeübt wird es in NRW vom gemeinnützigen Siedlungsunternehmen NRW.URBAN (eine eigene Landgesellschaft hat NRW nicht), wenn der Käufer kein Landwirt ist und ein örtlicher Landwirt die Fläche dringend braucht</li>
 </ul>
 <p>Die Genehmigungsbehörde in NRW ist die Landwirtschaftskammer, in der Praxis für Lippe die <strong>Kreisstellen Höxter, Lippe, Paderborn</strong> der Landwirtschaftskammer (Bohlenweg 3, 33034 Brakel).</p>
 
 <h2>Wie der Ablauf in der Praxis aussieht</h2>
 <ol>
 <li><strong>Notarvertrag wird geschlossen</strong> — Verkäufer und Käufer einigen sich, der Notar setzt den Kaufvertrag auf. Die Eigentumsumschreibung im Grundbuch erfolgt erst später, wenn die Genehmigung vorliegt.</li>
-<li><strong>Notar reicht den Vertrag ein</strong> — innerhalb von zwei Wochen nach Beurkundung muss der Notar den Vertrag der Genehmigungsbehörde vorlegen. Diese Frist ist gesetzlich, der Notar achtet darauf.</li>
+<li><strong>Notar beantragt die Genehmigung</strong> — in der Regel gleich nach der Beurkundung reicht der Notar den Vertrag bei der Genehmigungsbehörde ein. Ab Eingang laufen die Fristen der Behörde.</li>
 <li><strong>Behörde prüft</strong> — die Landwirtschaftskammer hat zunächst <em>einen Monat</em> Zeit, kann auf <em>zwei Monate</em> verlängern und in Ausnahmefällen auf <em>drei Monate</em>. Geprüft wird, ob die Veräußerung zu einer „ungesunden Bodenverteilung" führen würde.</li>
-<li><strong>Vorkaufsrecht-Prüfung</strong> — parallel wird die Landgesellschaft (NRW.URBAN) gefragt, ob sie ihr siedlungsrechtliches Vorkaufsrecht ausüben will. Das macht sie nur, wenn ein konkreter Landwirt vor Ort die Fläche zu identischen Konditionen kaufen würde.</li>
+<li><strong>Vorkaufsrecht-Prüfung</strong> — bei Flächen ab 2 ha legt die Behörde den Vertrag der Siedlungsbehörde vor; das Siedlungsunternehmen NRW.URBAN prüft, ob es das siedlungsrechtliche Vorkaufsrecht ausübt. Das macht sie nur, wenn ein konkreter Landwirt vor Ort die Fläche zu identischen Konditionen kaufen würde.</li>
 <li><strong>Genehmigung oder Versagung</strong> — bei Genehmigung läuft die Eigentumsumschreibung weiter wie geplant. Bei Versagung ist der Vertrag nichtig.</li>
 </ol>
 
@@ -1285,7 +1285,7 @@ export const ARTICLES: Article[] = [
 
 <h2>Das siedlungsrechtliche Vorkaufsrecht im Detail</h2>
 <p>Wenn die NRW.URBAN ihr Vorkaufsrecht ausübt, „schlüpft" sie in den Vertrag — sie wird zum Käufer, zu denselben Konditionen, die Sie und der ursprüngliche Käufer vereinbart haben. Sie übernimmt die Fläche dann, um sie an einen ortsansässigen Landwirt weiterzugeben.</p>
-<p>Für den Verkäufer ändert sich nichts: Der Kaufpreis bleibt gleich, das Geld kommt — nur eben von einer anderen Stelle. Für den ursprünglichen Käufer ist es ärgerlich; für regional aktive Direktankäufer wie uns ist das Risiko gut zu managen.</p>
+<p>Für den Verkäufer ändert sich nichts: Der Kaufpreis bleibt gleich, das Geld kommt — nur eben von einer anderen Stelle. Für den ursprünglichen Käufer ist es ärgerlich; wer wie wir regional kauft oder Käufer vermittelt, plant das Risiko von Anfang an ein.</p>
 
 <h2>Häufige Stolpersteine — und wie man sie umgeht</h2>
 <ul>
@@ -1317,10 +1317,10 @@ export const ARTICLES: Article[] = [
       "Pachtwert Hangwiese",
     ],
     content: `
-<p class="lead">Pachtpreise im Kreis Lippe sind 2025 erneut leicht gestiegen — vor allem bei guten Ackerlagen mit Bonitäten über 60 Punkten. Wer einen alten Pachtvertrag von 2018 oder 2019 noch laufen hat, lässt oft 20–35 % Pacht auf der Strecke. Eine Übersicht.</p>
+<p class="lead">Pachtpreise im Kreis Lippe sind 2025 erneut leicht gestiegen — vor allem bei guten Ackerlagen mit Bonitäten über 60 Punkten. Wer einen alten Pachtvertrag von 2018 oder 2019 noch laufen hat, liegt oft spürbar unter dem heutigen Niveau. Eine Übersicht.</p>
 
 <h2>Aktuelle Bandbreiten 2026</h2>
-<p>Die folgenden Werte basieren auf realen Pachtabschlüssen 2024/2025 im Kreis Lippe und in den angrenzenden Kreisen Höxter, Paderborn und Gütersloh, mit denen wir aktiv arbeiten:</p>
+<p>Die folgenden Werte sind Orientierungsspannen für den Kreis Lippe und die angrenzenden Kreise Höxter, Paderborn und Gütersloh — aus Marktbeobachtung und veröffentlichten Pachtpreisen, kein Gutachten:</p>
 <ul>
 <li><strong>Ackerland, gute Lage (Bonität 55+, hofnah, gut erschlossen)</strong>: 550–750 €/ha/Jahr</li>
 <li><strong>Ackerland, mittlere Lage</strong>: 380–550 €/ha/Jahr</li>
@@ -1331,7 +1331,7 @@ export const ARTICLES: Article[] = [
 <li><strong>Streuobstwiesen</strong>: meist Pflegevereinbarung, kein klassischer Pachtzins</li>
 <li><strong>Photovoltaik-Pacht (Freiflächen)</strong>: 2.500–5.000 €/ha/Jahr — sehr lange Laufzeiten (25–30 Jahre)</li>
 </ul>
-<p>Die Spannen sind real und keine Modellrechnung. Lokale Bonitätsunterschiede zwischen Bad Salzuflen, Detmold-Werretal, Lemgo und den höheren Lagen rund um Schieder-Schwalenberg machen schnell 100–200 €/ha aus.</p>
+<p>Die Spannen sind Orientierungswerte; der Einzelfall kann darüber oder darunter liegen. Lokale Bonitätsunterschiede zwischen Bad Salzuflen, Detmold-Werretal, Lemgo und den höheren Lagen rund um Schieder-Schwalenberg machen schnell 100–200 €/ha aus.</p>
 
 <h2>Warum die Pacht 2024 und 2025 erneut gestiegen ist</h2>
 <p>Drei Gründe:</p>
@@ -1342,7 +1342,7 @@ export const ARTICLES: Article[] = [
 </ul>
 
 <h2>Wann sich eine Pachterneuerung lohnt</h2>
-<p>Die typische Lipper Pachtperiode liegt bei 5–12 Jahren. Wer einen Vertrag aus 2018 oder 2019 noch laufen hat, ist meistens 20–35 % unter Marktniveau. Eine sauber strukturierte Pachterneuerung kann den Jahresertrag spürbar erhöhen — ohne Verkaufsdruck.</p>
+<p>Die typische Lipper Pachtperiode liegt bei 5–12 Jahren. Wer einen Vertrag aus 2018 oder 2019 noch laufen hat, liegt oft spürbar unter dem heutigen Marktniveau. Eine sauber strukturierte Pachterneuerung kann den Jahresertrag spürbar erhöhen — ohne Verkaufsdruck.</p>
 <p>Konkrete Frage, die wir mit Eigentümern durchgehen:</p>
 <ul>
 <li>Wann läuft der aktuelle Pachtvertrag aus?</li>
@@ -1365,7 +1365,7 @@ export const ARTICLES: Article[] = [
 <p>Im Kreis Lippe sind besonders Lagen rund um Schlangen, Augustdorf und Teile des Kalletals interessant. Wir vermitteln solche Anfragen an seriöse Investoren — und prüfen vorab, ob die Fläche geeignet und das Angebot fair ist.</p>
 
 <h2>Was wir konkret tun</h2>
-<p>Wir bewerten Ihren bestehenden Pachtvertrag kostenlos: Ist der Pachtzins marktgerecht? Gibt es Spielraum nach oben? Lohnt eine Verbindung mit VNS oder Ökopunkten? Bei Pachterneuerung verhandeln wir mit dem Pächter (auf Wunsch auch ohne dass er Ihren Namen erfährt) — oder wir vermitteln einen neuen, verlässlichen Lipper Betrieb.</p>
+<p>Wir ordnen Ihren bestehenden Pachtzins kostenlos wirtschaftlich ein: Ist er marktgerecht? Gibt es Spielraum nach oben? Lohnt eine Verbindung mit VNS oder Ökopunkten? Bei einer Pachterneuerung nennen wir Ihnen marktgerechte Konditionen — oder wir vermitteln einen neuen Lipper Betrieb, für Sie als Eigentümer kostenlos. Eine rechtliche Prüfung Ihres Vertrags leisten wir nicht; dafür ist ein Anwalt da.</p>
 `,
   },
   {
@@ -1558,12 +1558,11 @@ export const ARTICLES: Article[] = [
 <p>Übersicht der typischen Kosten für eine 4-ha-Erbengemeinschaft mit drei Erben:</p>
 <ul>
 <li>Erbenermittlung Notar: 200–400 €</li>
-<li>Grundbuchbereinigung (Berichtigung): 0,5–1 % des Verkehrswertes (Wertgebühr)</li>
-<li>Notarvertrag: ca. 1 % des Kaufpreises</li>
-<li>Grunderwerbsteuer (zahlt Käufer): 6,5 % in NRW</li>
-<li>Genehmigung Landwirtschaftskammer: ca. 100–300 € (zahlt meist Käufer)</li>
+<li>Grundbuchberichtigung auf die Erben: gebührenfrei, wenn der Antrag binnen zwei Jahren nach dem Erbfall beim Grundbuchamt eingeht — danach eine Wertgebühr</li>
+<li>Notarvertrag: ca. 1 % des Kaufpreises (zahlt nach der gesetzlichen Regel der Käufer)</li>
+<li>Genehmigung nach dem Grundstückverkehrsgesetz: überschaubare Verwaltungsgebühr (zahlt meist der Käufer)</li>
 </ul>
-<p>Wir tragen alle diese Kosten als Käufer — Sie als Verkäufer haben außer den notariellen Anteilen für Verkäufer-spezifische Posten nichts zu zahlen.</p>
+<p>Die Kosten des Kaufvertrags trägt nach der gesetzlichen Regel der Käufer — beim Direktankauf also die TR Vertriebs GmbH, bei einer Vermittlung der vermittelte Käufer. Die Erben tragen nur, was allein sie betrifft, etwa den Erbnachweis oder die Löschung eigener Grundschulden.</p>
 
 <h2>Was wir konkret tun</h2>
 <p>Erbengemeinschaft ist unser Schwerpunkt. Wir koordinieren mit allen Miteigentümern, dem Notar Ihrer Wahl, dem Grundbuchamt und der Landwirtschaftskammer. Auf Wunsch übernehmen wir die Kommunikation mit „schwierigen" Miteigentümern. In den meisten Fällen schaffen wir den Verkauf in 4–8 Wochen vom Erstgespräch bis Notar — auch wenn jemand im Ausland lebt.</p>
@@ -1599,12 +1598,13 @@ export const ARTICLES: Article[] = [
 <p>Wenn Ihre Fläche andere Eigenschaften hat — höhere Bonität, besserer Zuschnitt, Hofnähe — kann der Verkehrswert deutlich abweichen.</p>
 
 <h2>Der Marktpreis: was tatsächlich gezahlt wird</h2>
-<p>Der Marktpreis ergibt sich aus Angebot und Nachfrage. Im Kreis Lippe haben sich 2024 reale Kaufpreise eingestellt, die bei Ackerland im Durchschnitt deutlich über dem Bodenrichtwert lagen:</p>
+<p>Der Marktpreis ergibt sich aus Angebot und Nachfrage. Die Grundstücksmarktberichte des Gutachterausschusses zeigen für Ackerland im Kreis Lippe:</p>
 <ul>
 <li><strong>Ackerland Mittelwert 2024 in Lippe</strong>: 5,26 €/m² (etwa 52.600 €/ha)</li>
-<li><strong>Bodenrichtwerte Ackerland Lippe</strong> (Stichtag 01.01.2025, je nach Zone): rund 2,40–5,90 €/m²</li>
+<li><strong>Ackerland Mittelwert 2025 in Lippe</strong>: rund 3,80 €/m² (Preisniveau laut Gutachterausschuss konstant)</li>
+<li><strong>Bodenrichtwerte Ackerland Lippe</strong> (je nach Zone): rund 2,40–5,90 €/m²</li>
 </ul>
-<p>Der Markt zahlt also rund <strong>20–30 % über dem Bodenrichtwert</strong>. Diese Differenz ist nicht ungewöhnlich — sie spiegelt die starke Nachfrage durch Vollerwerbsbetriebe, Investoren und Stiftungen wider, die in den vergangenen Jahren um Lipper Flächen konkurrieren.</p>
+<p>Eine feste Regel wie „Markt = Richtwert plus x Prozent“ gibt es nicht: Der Mittelwert eines Jahres hängt stark davon ab, welche Flächen gerade verkauft werden. Entscheidend ist, wo Ihre Fläche innerhalb ihrer Richtwertzone liegt — Bonität, Zuschnitt, Lage und Pachtstatus.</p>
 
 <h2>Was den Marktpreis nach oben oder unten zieht</h2>
 <p>Faktoren, die einen konkreten Verkaufspreis vom Bodenrichtwert abweichen lassen:</p>
@@ -1957,9 +1957,6 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
 <h3>Weg 4: Tausch- und Konsolidierungs-Strategie</h3>
 <p>Manchmal liegt die optimale Lösung im Tausch: schwer bewirtschaftbare Splitterflächen werden in Tauschverträge eingebracht, der Eigentümer bekommt zusammenhängende Top-Flächen, die er dann verpachtet oder gestaffelt verkauft. Solche Tauschketten lassen sich koordinieren, wenn 4–6 Betriebe in einer Gemarkung mitziehen.</p>
 
-<h2>Steuerberatung früh einbinden</h2>
-<p>Eine Hofaufgabe hat steuerliche Folgen, die sich nur mit Ihrer Steuerberatung sauber planen lassen — am besten ein bis zwei Jahre vor der geplanten Auflösung.</p>
-
 <h2>Wohnhaus und Wirtschaftsgebäude</h2>
 <p>Der Hof als Gebäude-Komplex hat eine andere Logik als die Flächen:</p>
 <ul>
@@ -1971,14 +1968,14 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
 <h2>Realistischer Zeitplan</h2>
 <p>Eine geplante Hofauflösung dauert typisch 12–18 Monate:</p>
 <ul>
-<li>Monat 1–3: Bestandsaufnahme, Steuerberater, Bewertung Flächen/Gebäude</li>
+<li>Monat 1–3: Bestandsaufnahme, Bewertung Flächen/Gebäude</li>
 <li>Monat 4–6: Konzept entwickeln (welche Flächen werden verkauft, welche verpachtet, was passiert mit dem Hof)</li>
 <li>Monat 7–12: Verkaufsverhandlungen, Pachtverträge, Notar</li>
 <li>Monat 13–18: Umsetzung, Übergabe</li>
 </ul>
 
 <h2>Was wir tun</h2>
-<p>Wir koordinieren Lipper Hofauflösungen ganzheitlich. Wir bewerten die Flächen, sondieren regionale Käufer, koordinieren mit Steuerberater und Notar Ihrer Wahl und kaufen die Pakete, die niemand anders will (Restflächen, Wirtschaftsgebäude mit Abrissbedarf). Das Ergebnis: ein klarer Plan, kein Bürokratie-Hick-Hack, maximaler Erlös für die Familie.</p>
+<p>Wir begleiten Lipper Hofauflösungen: Wir bewerten die Flächen, vermitteln regionale Käufer und Pächter, stimmen uns mit dem Notar Ihrer Wahl ab — und die TR Vertriebs GmbH kauft auch selbst, gerade Pakete, für die sich sonst schwer ein Käufer findet (Restflächen, Wirtschaftsgebäude mit Abrissbedarf). Das Ziel: ein klarer Plan und ein guter Erlös für die Familie.</p>
 `,
   },
   {
@@ -2062,7 +2059,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
 <p>Wald als reine Geldanlage zu betrachten verfehlt meist den Punkt: Wer vor allem Rendite sucht, wird im Wald nicht glücklich. Wer eine generationenübergreifende Vermögensbasis aufbauen will, mit Inflationsschutz und einem emotionalen Wert, der nicht in Excel-Tabellen passt — der findet im Lipper Privatwald eine sehr gute Option. Die Rendite ist bescheiden, aber die Substanz hält.</p>
 
 <h2>Was wir tun</h2>
-<p>Wir kaufen Lipper Privatwald regelmäßig — auch zur Vermögensanlage. Wenn Sie verkaufen wollen oder einen Wald-Pool für Investoren suchen, sprechen Sie uns an. Wir haben auch Erfahrung mit der Co-Investment-Struktur für Familien, die Wald als gemeinsame Anlage halten wollen.</p>
+<p>Die TR Vertriebs GmbH kauft Lipper Privatwald auch selbst — oder wir vermitteln Ihnen einen Käufer, für Sie als Eigentümer kostenlos. Wenn Sie verkaufen wollen, sprechen Sie uns an.</p>
 `,
   },
   {
@@ -2211,7 +2208,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
 <p>Ohne klare Klausel kann ein Pächter VNS-Förderung über 5 Jahre einkassieren, ohne dass der Eigentümer etwas davon hat — das ist unbefriedigend und vermeidbar.</p>
 
 <h2>Bonus: Pachtvorauszahlung als Liquiditäts-Tool</h2>
-<p>Manche Verpächter bieten Pachtvorauszahlungen über mehrere Jahre an, im Gegenzug gegen reduzierten Jahres-Pachtzins. Das kann für ältere Verpächter mit Liquiditätsbedarf interessant sein — sollte aber steuerlich vorher mit dem Steuerberater geklärt werden.</p>
+<p>Manche Verpächter bieten Pachtvorauszahlungen über mehrere Jahre an, im Gegenzug gegen reduzierten Jahres-Pachtzins. Das kann für ältere Verpächter mit Liquiditätsbedarf interessant sein — sollte aber vorher gut durchgerechnet und sauber im Pachtvertrag geregelt werden.</p>
 
 <h2>Häufige Fehler in alten Verträgen</h2>
 <ul>
@@ -2226,7 +2223,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
 <p>Wenn Sie einen Pachtvertrag aus 2018 oder früher haben, prüfen Sie spätestens bei der nächsten Verlängerung kritisch: Markt-Pacht erreicht? Klauseln aktuell? Förderungs-Optionen abgedeckt? Wenn nicht: Neuverhandlung. Viele Pächter ziehen mit, weil sie die Fläche behalten wollen.</p>
 
 <h2>Was wir tun</h2>
-<p>Wir prüfen Ihren bestehenden Pachtvertrag kostenlos. Bei Pachterneuerung verhandeln wir mit dem Pächter (auf Wunsch ohne dass er Ihren Namen erfährt) und stellen einen marktgerechten, modern formulierten Vertrag auf. Bei Bedarf koordinieren wir den Notar — wobei Landpachtverträge in Deutschland im Gegensatz zu Kaufverträgen nicht notariell beurkundet werden müssen.</p>
+<p>Wir ordnen Ihren bestehenden Pachtzins kostenlos wirtschaftlich ein. Vermitteln wir einen neuen Pächter, können Sie den Landpachtvertrag auf Wunsch online über unsere Vorlage schließen — in Textform (§ 585a BGB), eine notarielle Beurkundung braucht ein Landpachtvertrag anders als ein Kaufvertrag nicht. Eine rechtliche Prüfung im Einzelfall leisten wir nicht.</p>
 `,
   },
   {
@@ -2652,6 +2649,8 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
       "FFH Gebiet Egge Vertragsnaturschutz",
     ],
     content: `
+<p><strong>Hinweis (Stand Ende September 2026):</strong> Die Antragsfrist 2026 ist abgelaufen. Der Ablauf unten gilt sinngemäß für die nächste Antragsrunde — den genauen Stichtag 2027 erfahren Sie bei der Unteren Naturschutzbehörde bzw. der Biologischen Station.</p>
+
 <p class="lead">In knapp acht Wochen läuft die zentrale Antragsfrist 2026 für den Vertragsnaturschutz NRW (VNS) ab. Wer bis zum <strong>30. Juni 2026</strong> seinen Grundantrag nicht bei der UNB Kreis Lippe einreicht, verliert ein ganzes Förderjahr — und damit oft vier- bis fünfstellige Beträge pro Hektar über die Verpflichtungslaufzeit. Hier der praktische Leitfaden für Eigentümer im Kreis Lippe.</p>
 
 <h2>Worum es beim Vertragsnaturschutz NRW eigentlich geht</h2>
@@ -2689,7 +2688,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
 <li><strong>Erstgespräch mit der Biologischen Station Lippe e. V.</strong> — Domäne 2, 32816 Schieder-Schwalenberg, Telefon 05282 462. Mitbringen: Liegenschaftsauszug, Grundbuchauszug, ggf. Pachtvertrag. Die Bio-Station prüft, ob die Fläche in einer förderfähigen Kulisse liegt und schlägt geeignete Pakete vor.</li>
 <li><strong>Bestandserfassung vor Ort</strong> — die Bio-Station kommt zu einem festen Termin auf die Fläche, dokumentiert Kennarten und Strukturen. Daraus entsteht der Maßnahmenplan.</li>
 <li><strong>Antragstellung über ELAN</strong> — der Bewirtschafter (oft der Pächter, nicht der Eigentümer) reicht den Antrag elektronisch über die Landwirtschaftskammer NRW ein. Wenn keine eigene Betriebsnummer (BNR-ZD) vorliegt, wird sie vorher über die LWK-Kreisstellen Höxter, Lippe, Paderborn (Bohlenweg 3, Brakel) beantragt.</li>
-<li><strong>Bewilligung durch UNB Kreis Lippe</strong> — Tobias Kleingödinghaus (Telefon 05231 62 6390) prüft den Antrag, schließt den 5-Jahres-Vertrag und meldet zur Auszahlung an die LWK.</li>
+<li><strong>Bewilligung durch die Untere Naturschutzbehörde (UNB) des Kreises Lippe</strong> — sie prüft den Antrag, schließt den 5-Jahres-Vertrag und meldet zur Auszahlung an die LWK.</li>
 <li><strong>Jährliche Auszahlung über ELAN</strong> — die Bewirtschaftung wird stichprobenartig kontrolliert.</li>
 </ol>
 <p>Realistischer Zeitbedarf vom Erstgespräch bis Antragseingang: 4 bis 8 Wochen. Wer also die Frist 30.06.2026 sicher halten will, sollte spätestens <strong>Mitte Mai 2026</strong> das Erstgespräch geführt haben.</p>
