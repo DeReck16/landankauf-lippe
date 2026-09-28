@@ -20,6 +20,93 @@ export type Article = {
 
 export const ARTICLES: Article[] = [
   {
+    slug: "klimaangepasstes-waldmanagement-foerderung-2026-erstantraege",
+    title:
+      "Waldprämie startet neu: Ab 1. Oktober wieder Erstanträge fürs klimaangepasste Waldmanagement — was Waldbesitzer in Lippe jetzt vorbereiten sollten",
+    description:
+      "Vom Antragstopp im Juli zur Wiedereröffnung: Ab dem 1. Oktober 2026 nimmt die FNR wieder Erstanträge fürs klimaangepasste Waldmanagement an, der Fördertopf wächst von 150 auf 200 Millionen Euro jährlich. Was Waldbesitzer im Kreis Lippe zu Beträgen, Fristen, Auflagen und der 10-Jahres-Bindung jetzt wissen müssen.",
+    category: "Förderung",
+    publishedAt: "2026-09-28",
+    readingMinutes: 7,
+    keywords: [
+      "Klimaangepasstes Waldmanagement Förderung 2026",
+      "KWM Erstantrag Oktober 2026",
+      "Waldprämie 200 Millionen Euro",
+      "Förderung Waldbesitzer NRW 2026",
+      "100 Euro pro Hektar Wald Förderung",
+      "FNR Erstantrag klimaangepasstes Waldmanagement",
+    ],
+    heroImage: "/blog-kwm-foerderung-2026.jpg",
+    faq: [
+      {
+        q: "Kann ich das Klimaangepasste Waldmanagement jetzt wieder beantragen?",
+        a: "Ja. Seit Sommer 2026 war das Programm für Erstantragsteller geschlossen — ab dem 1. Oktober 2026 nimmt die Fachagentur Nachwachsende Rohstoffe (FNR) online über klimaanpassung-wald.de wieder neue Anträge an. Die Förderung selbst beginnt zum 1. Januar 2027, dazwischen liegt die Prüfung der Unterlagen durch die FNR.",
+      },
+      {
+        q: "Wie hoch ist die Förderung und wie lange läuft die Bindung?",
+        a: "Betriebe unter 100 Hektar erhalten 85 €/ha und Jahr, oder 100 €/ha, wenn sie zusätzlich 5 % ihrer Fläche stilllegen. Bei Betrieben über 100 Hektar sind die 100 €/ha und die 5-Prozent-Stilllegung Pflicht. Die Laufzeit beträgt in beiden Fällen 10 Jahre.",
+      },
+      {
+        q: "Welche Auflagen muss ich für die Förderung erfüllen?",
+        a: "Insgesamt gelten 11 Bewirtschaftungskriterien, unter anderem die Kennzeichnung und der dauerhafte Erhalt von mindestens 5 Habitatbäumen je Hektar, gezielte Totholzanreicherung, Vorausverjüngung vor der Holznutzung, ein Rückegassenabstand von 30 bis 40 Metern und der Rückbau vorhandener Entwässerungsgräben innerhalb von 5 Jahren.",
+      },
+      {
+        q: "Kann ich die Förderung nur für einen Teil meines Waldes beantragen?",
+        a: "Nein. Die Förderung lässt sich nicht für Teilflächen beantragen, sondern nur für die gesamte von Ihnen in Deutschland bewirtschaftete Waldfläche — der Flächennachweis läuft über den SVLFG-Bescheid. Wer nur eine einzelne Kalamitätsfläche wiederbewalden möchte, ist mit der NRW-Wiederbewaldungsprämie oft besser bedient.",
+      },
+    ],
+    content: `
+<p class="lead">Monatelang war für Neueinsteiger Schluss: Das Bundesprogramm Klimaangepasstes Waldmanagement (KWM) nahm keine Erstanträge mehr an — wir haben das im Juli in <a href="/blog/waldfoerderung-nrw-2026-antragstopp-wiederbewaldungspraemie">Waldförderung 2026 in der Krise</a> eingeordnet. Ab dem <strong>1. Oktober 2026</strong> öffnet sich das Programm wieder — mit einem von 150 auf <strong>200 Millionen Euro</strong> jährlich aufgestockten Fördertopf. Was das für Waldbesitzer im Kreis Lippe bedeutet, wie der Antrag ab Oktober läuft und welche Bewirtschaftungsauflagen Sie vorher kennen sollten.</p>
+
+<figure>
+<img src="/blog-kwm-foerderung-2026.jpg" alt="Strukturreicher Mischwald mit stehendem Totholz-Habitatbaum im Lipper Bergland" width="1376" height="768" style="width:100%;height:auto;border-radius:14px" loading="lazy" />
+<figcaption>Habitatbäume, Totholz, Strukturvielfalt: genau das honoriert das Klimaangepasste Waldmanagement über zehn Jahre Laufzeit.</figcaption>
+</figure>
+
+<h2>Der Fördertopf wächst auf 200 Millionen Euro</h2>
+<p>Bundesumweltminister Carsten Schneider hat die Mittel für das KWM um 50 auf <strong>200 Millionen Euro pro Jahr</strong> aufgestockt — gültig ab dem Förderjahr 2027. Aktuell stehen bereits rund <strong>1,7 Millionen Hektar</strong> privater und kommunaler Wald unter Vertrag, gut ein Fünftel der entsprechenden Waldfläche in Deutschland. Ziel von Bundesumwelt- und Bundeslandwirtschaftsministerium ist es, das auf <strong>mindestens 2 Millionen Hektar</strong> zu steigern.</p>
+<p>Minister Schneider begründet den Sinn des Programms so: Klimastabile Wälder wirkten „als natürliche Wasser- und Kohlenstoffspeicher" und seien „in heißen Sommern" eine „natürliche Klimaanlage". Für den Kreis Lippe mit seinen von Käferbefall und Trockenheit gezeichneten Nadelholzbeständen ist das mehr als eine Umweltmetapher — es ist die Förderlogik, mit der der Bund jetzt wieder Geld für den Waldumbau bereitstellt.</p>
+
+<h2>So läuft der Antrag ab dem 1. Oktober</h2>
+<p>Erstanträge nimmt die <strong>Fachagentur Nachwachsende Rohstoffe (FNR)</strong> ab dem <strong>1. Oktober 2026</strong> online über <a href="https://www.klimaanpassung-wald.de" target="_blank" rel="noopener">klimaanpassung-wald.de</a> entgegen. Die Förderung selbst beginnt erst zum <strong>1. Januar 2027</strong> — zwischen Antrag und Förderstart liegen also gut drei Monate, in denen die FNR die Unterlagen prüft.</p>
+<p>Antragsberechtigt sind private und kommunale Waldbesitzer. Wichtig für die Antragstellung: Die Förderung lässt sich <strong>nicht für Teilflächen</strong> beantragen, sondern nur für die <strong>gesamte in Deutschland bewirtschaftete Waldfläche</strong> des Antragstellers, nachgewiesen über den SVLFG-Bescheid. Wer nur einen Teil seines Betriebs fördern lassen und den Rest unverändert bewirtschaften möchte, für den ist das KWM nicht das passende Instrument — die Bindung gilt für den ganzen Betrieb.</p>
+
+<h2>Wie viel Geld es gibt — und wie lange Sie sich binden</h2>
+<p>Die Förderhöhe ist nach Betriebsgröße gestaffelt:</p>
+<ul>
+<li><strong>Betriebe unter 100 Hektar:</strong> 85 €/ha und Jahr, oder 100 €/ha, wenn zusätzlich 5 % der Fläche aus der Nutzung genommen werden.</li>
+<li><strong>Betriebe über 100 Hektar:</strong> 100 €/ha und Jahr — hier ist die 5-Prozent-Stilllegung Pflicht, nicht optional.</li>
+</ul>
+<p>Die Laufzeit beträgt <strong>10 Jahre</strong>. Für einen Lipper Betrieb mit beispielsweise 20 Hektar bewirtschaftetem Wald bedeutet das bei 85 €/ha rund 1.700 € pro Jahr beziehungsweise 17.000 € über die gesamte Laufzeit — bei entsprechender Bindung an die Förderkriterien.</p>
+
+<h2>Die elf Kriterien: worauf Sie sich einlassen</h2>
+<p>Das KWM ist kein Zuschuss ohne Gegenleistung. Wer unterschreibt, verpflichtet sich für die Laufzeit auf ein Bündel von Bewirtschaftungskriterien. Die wichtigsten für die Praxis:</p>
+<ul>
+<li><strong>Habitatbäume:</strong> Kennzeichnung und dauerhafter Erhalt von mindestens 5 Habitatbäumen je Hektar — Alt- und Totholzbäume mit Höhlen, Spalten oder Pilzbefall bleiben stehen, auch wenn sie forstlich nutzbar wären.</li>
+<li><strong>Totholzanreicherung:</strong> liegendes und stehendes Totholz wird gezielt vermehrt statt vollständig entnommen.</li>
+<li><strong>Vorausverjüngung:</strong> Verjüngung soll bereits vor der Holznutzung im Bestand vorhanden sein.</li>
+<li><strong>Schonende Rückegassen:</strong> Mindestabstand von 30 bis 40 Metern zwischen den Rückegassen, um den Boden zu schonen.</li>
+<li><strong>Entwässerung zurückbauen:</strong> vorhandene Entwässerungsgräben sind innerhalb von 5 Jahren zurückzubauen, damit der Wald mehr Wasser hält.</li>
+</ul>
+<p>Für viele Lipper Mischbestände mit ohnehin lockerer Bewirtschaftung ist das keine radikale Umstellung. Wer dagegen auf reinen Ertrag optimiert oder Nasslagen gezielt entwässert, sollte die Kriterien vor der Antragstellung genau mit der eigenen Bewirtschaftung abgleichen — die 10-jährige Bindung lässt sich nicht kurzfristig rückgängig machen.</p>
+
+<h2>Was aus unserem Juli-Beitrag jetzt überholt ist</h2>
+<p>Unser Beitrag <a href="/blog/waldfoerderung-nrw-2026-antragstopp-wiederbewaldungspraemie">Waldförderung 2026 in der Krise</a> riet mangels Alternative zur NRW-Wiederbewaldungsprämie (800 € je Hektar für die Pflanzung von 400 Bäumen), weil das KWM für Neuanträge geschlossen war. Diese Empfehlung gilt für akute Wiederbewaldungspflichten nach Kalamität weiterhin — die Wiederbewaldungsprämie ist schneller bewilligt und nicht an eine 10-Jahres-Bindung für den ganzen Betrieb geknüpft. Das KWM ist dagegen die richtige Wahl, wenn Sie Ihren gesamten Wald langfristig klimaresilient und mit staatlicher Förderung umbauen wollen, nicht nur eine einzelne Kahlfläche wiederbewalden. Beide Förderwege schließen sich nicht gegenseitig aus, betreffen aber unterschiedliche Flächen und Zeithorizonte — eine mögliche Kombination klären Sie am besten im Einzelfall direkt mit der antragstellenden Stelle.</p>
+
+<h2>Was Waldbesitzer im Kreis Lippe jetzt tun sollten</h2>
+<ul>
+<li><strong>SVLFG-Nachweis bereithalten.</strong> Ohne aktuellen Bescheid über die bewirtschaftete Fläche kommt der Online-Antrag nicht durch die Prüfung.</li>
+<li><strong>Bewirtschaftung ehrlich abgleichen.</strong> Prüfen Sie vor dem 1. Oktober, ob Habitatbäume, Totholzanteil und Rückegassenabstand auf Ihrer Fläche bereits den Kriterien entsprechen oder ob Sie dafür Ihre Bewirtschaftung anpassen müssten.</li>
+<li><strong>Antrag früh stellen.</strong> Stark nachgefragte Förderprogramme wie das KWM sind erfahrungsgemäß irgendwann wieder ausgeschöpft — genau deshalb war das Programm zuletzt monatelang geschlossen. Wer den gesamten Betrieb umstellen will, sollte nicht bis zum Jahresende warten.</li>
+<li><strong>Beratung holen, wenn unklar.</strong> Ob die 10-Jahres-Bindung zu Ihren forstlichen und persönlichen Plänen passt, klärt sich am besten im Gespräch mit einer forstlichen Beratung, bevor Sie unterschreiben.</li>
+</ul>
+
+<p>Wenn Sie noch unsicher sind, ob sich eine langfristige Bindung an ein Förderprogramm für Ihre Fläche überhaupt lohnt — oder ob ein Verkauf die praktikablere Lösung ist —, nutzen Sie unsere <a href="/blog/fluechen-quick-check-wertindikation">kostenlose Wertindikation</a> oder sprechen Sie uns direkt zum <a href="/wald-verkaufen">Verkauf einer Waldfläche</a> an.</p>
+
+<p class="text-sm text-stone-500"><em>Stand: 28. September 2026. Quellen: Bundesministerium für Umwelt, Klimaschutz, Naturschutz und nukleare Sicherheit (Pressemitteilung „200 Millionen Euro für den klimaangepassten Waldumbau"), Fachagentur Nachwachsende Rohstoffe (klimaanpassung-wald.de), topagrar.com. Dieser Beitrag ersetzt keine individuelle Förderberatung.</em></p>
+`,
+  },
+  {
     slug: "landeswaldgesetz-nrw-2026-wiederbewaldung-vier-jahre",
     title:
       "Vier Jahre statt zwei: Was die Forstgesetz-Novelle für Waldbesitzer in Lippe ändert — und warum Naturverjüngung der eigentliche Gewinner ist",
@@ -591,6 +678,7 @@ export const ARTICLES: Article[] = [
       "Das Bundesprogramm Klimaangepasstes Waldmanagement nimmt keine Erstanträge mehr an, die überarbeitete Richtlinie kommt frühestens Ende 2026. Was Waldbesitzer im Kreis Lippe stattdessen nutzen können — allen voran die NRW-Wiederbewaldungsprämie mit 800 € pro Hektar für 400 klimastabile Bäume.",
     category: "Förderung",
     publishedAt: "2026-07-18",
+    updatedAt: "2026-09-28",
     readingMinutes: 8,
     keywords: [
       "Waldförderung NRW 2026",
@@ -604,7 +692,7 @@ export const ARTICLES: Article[] = [
     faq: [
       {
         q: "Kann ich das Klimaangepasste Waldmanagement noch beantragen?",
-        a: "Für Erstantragsteller ist das Bundesprogramm Klimaangepasstes Waldmanagement (KWM) aktuell geschlossen — es werden keine neuen Anträge mehr angenommen. Wer bereits im Programm ist, bleibt an die Bindefristen der Richtlinie gebunden. Eine überarbeitete Nachfolge-Richtlinie ist angekündigt, wird nach dem derzeitigen Stand aber frühestens Ende 2026 bzw. Anfang 2027 veröffentlicht. Verlassen sollten Sie sich für 2026 also nicht darauf.",
+        a: "Update vom 28. September 2026: Ja, wieder. Ab dem 1. Oktober 2026 nimmt die FNR erneut Erstanträge an, und der Fördertopf wurde auf 200 Millionen Euro jährlich aufgestockt. Details zu Beträgen, Fristen und Auflagen finden Sie in unserem aktuellen Beitrag Waldprämie startet neu. Der folgende Absatz beschreibt den Stand von Juli 2026 und dient nur noch der Einordnung, warum die Wiederbewaldungsprämie damals die einzige offene Option war: Für Erstantragsteller war das Bundesprogramm Klimaangepasstes Waldmanagement (KWM) geschlossen — es wurden keine neuen Anträge mehr angenommen. Wer bereits im Programm war, blieb an die Bindefristen der Richtlinie gebunden.",
       },
       {
         q: "Wie viel bringt die NRW-Wiederbewaldungsprämie?",
