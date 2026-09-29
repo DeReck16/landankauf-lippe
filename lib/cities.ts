@@ -166,7 +166,7 @@ export const CITIES: City[] = [
       "Senneflächen mit hohem ökologischem Wert (FFH, NSG)",
       "Wenig klassisches Ackerland, dafür viel Grünland und Forst",
       "Truppenübungsplatz Senne als Nachbarschaft mit speziellen Auflagen",
-      "Ökopunkte-Potenzial überdurchschnittlich",
+      "Ökopunkte und Vertragsnaturschutz im Einzelfall prüfenswert",
     ],
     baulandMittlereLage: 245,
   },
@@ -298,7 +298,7 @@ export const FLAECHENTYPEN: {
     slug: "wiese",
     label: "Wiese / Grünland",
     pluralGenitiv: "Wiesen",
-    description: "Grünland, extensive Mähwiesen, Streuobstwiesen, Hangflächen, Talauen — gerade schwer bewirtschaftbare Flächen erzielen über VNS oder Ökopunkte oft mehr als die klassische Pacht.",
+    description: "Grünland, extensive Mähwiesen, Streuobstwiesen, Hangflächen, Talauen — bei schwer bewirtschaftbaren Flächen lohnt oft ein Blick auf Vertragsnaturschutz oder — im Einzelfall — Ökopunkte.",
   },
   {
     slug: "wald",

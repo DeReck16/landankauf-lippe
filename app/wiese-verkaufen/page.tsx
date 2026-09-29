@@ -73,7 +73,7 @@ export default function Page() {
 
             <h2>Sonderfall Streuobstwiese</h2>
             <p>
-              Streuobstwiesen sind ökologisch unschätzbar wertvoll — und werden in NRW über VNS-Pakete und Ökopunkte gut gefördert. Wenn Sie eine alte, verwilderte Streuobstwiese geerbt haben und nicht wissen wohin damit: Wir kaufen, übernehmen die Pflege und beantragen die passende Förderung. Sie haben keinen Aufwand, die Wiese bleibt erhalten.
+              Streuobstwiesen sind ökologisch unschätzbar wertvoll — und können in NRW über VNS-Pakete gefördert werden; bei einer Neuanlage kommt im Einzelfall auch ein Ökokonto in Betracht. Wenn Sie eine alte, verwilderte Streuobstwiese geerbt haben und nicht wissen wohin damit: Wir kaufen, übernehmen die Pflege und beantragen die passende Förderung. Sie haben keinen Aufwand, die Wiese bleibt erhalten.
             </p>
 
             <h2>Wiesen mit Pachtvertrag</h2>

@@ -40,7 +40,7 @@ const faq: { q: string; a: string; aJsx?: ReactNode }[] = [
   },
   {
     q: "Lohnt sich Vertragsnaturschutz oder Ökopunkte für meine Fläche?",
-    a: "Häufig ja — gerade extensive Wiesen, schwer bewirtschaftbare Flächen oder Hangflächen erzielen mit VNS oder Ökopunkten oft deutlich höhere Erträge als die klassische Verpachtung. Wir prüfen das kostenlos für Ihre konkrete Fläche.",
+    a: "Das kann sich lohnen — vor allem bei extensiven Wiesen, schwer bewirtschaftbaren Flächen und Hangflächen. Vertragsnaturschutz zahlt jährlich; Ökopunkte bringen eine einmalige Vergütung, wenn eine Aufwertung anerkannt wird und ein Käufer die Punkte abnimmt. Beides hängt vom Einzelfall ab. Wir prüfen kostenlos, ob Ihre Fläche in Frage kommt — ein eigenes Ökokonto betreiben wir nicht.",
   },
   {
     q: "Können Sie auch jemanden vermitteln, der die Fläche pflegt?",
@@ -214,7 +214,7 @@ export default function Home() {
               Wir kommen selbst aus dem Kreis Lippe — aus Leopoldstal, Horn-Bad Meinberg. Wir kennen die Flurstücke entlang der Egge, die alten Eichen am Püngelsberg, die Wiesen am Triftenberge.
             </p>
             <p className="mt-4 text-[color:var(--color-ink-soft)] leading-relaxed">
-              Flächen, die wir selbst kaufen, werden nicht zerstückelt, nicht spekulativ weitergereicht und nicht versiegelt: Wir verpachten sie an regionale Landwirte oder bringen sie in Vertragsnaturschutz und Ökopunkte ein. Was wir kaufen, bleibt im Lipper Land. Und wo wir vermitteln, stellen wir Ihnen Käufer und Pächter vor — die Entscheidung bleibt bei Ihnen.
+              Flächen, die wir selbst kaufen, werden nicht zerstückelt, nicht spekulativ weitergereicht und nicht versiegelt: Wir verpachten sie an regionale Landwirte oder bringen sie in den Vertragsnaturschutz ein. Was wir kaufen, bleibt im Lipper Land. Und wo wir vermitteln, stellen wir Ihnen Käufer und Pächter vor — die Entscheidung bleibt bei Ihnen.
             </p>
             <ul className="mt-6 space-y-2 prose-lippe">
               <li><strong>Zwei Wege</strong>: Direktankauf ohne Makler und Provision — oder Vermittlung, für Sie als Eigentümer kostenlos.</li>

@@ -1,6 +1,7 @@
 import "server-only";
 import { formatGroesse, istEigeneFlaeche, parseGroesse, type LeadView, type Zustand } from "@/lib/admin/model";
 import { grobeLage } from "@/lib/admin/matching";
+import { isOekopunkteNachfrage } from "@/lib/lead-options";
 import { hinweisAnAnbieter, hinweisAnSuchenden } from "@/lib/admin/texte";
 import { GRUSS, einladungsLink, zugangsLink } from "./ablauf";
 import { vereinbarungFuer } from "./anbieter-gruppe";
@@ -91,6 +92,17 @@ export function anfrageBezug(lead: LeadView, einleitung = "Ihre Anfrage"): strin
   const flaeche = [typ && typ !== "Sonstiges" ? typ : "", groesse].filter(Boolean).join(", ");
   const lage = [T.wert(lead.ort), T.wert(lead.flurstueck)].filter(Boolean).join(", ");
   const nachricht = T.wert(lead.message);
+  // Ökopunkte-Nachfrage: gleiche Formularfelder, andere Bedeutung (Maßnahme, Umfang, Suchraum — keine Fläche des Absenders).
+  if (isOekopunkteNachfrage(T.wert(lead.intent))) {
+    return [
+      `${einleitung} vom ${T.datumDe(lead.receivedAt)}:`,
+      `– Anliegen: ${T.wert(lead.intent)}`,
+      ...(typ && typ !== "Sonstiges" ? [`– Gesuchte Maßnahme: ${typ}`] : []),
+      ...(groesse ? [`– Umfang: ${groesse}`] : []),
+      ...(T.wert(lead.ort) ? [`– Suchraum: ${T.wert(lead.ort)}`] : []),
+      ...(nachricht ? [`– Ihre Nachricht: „${kuerzen(nachricht, 400)}“`] : []),
+    ];
+  }
   return [
     `${einleitung} vom ${T.datumDe(lead.receivedAt)}:`,
     `– Anliegen: ${T.wert(lead.intent) || "—"}`,
@@ -670,6 +682,7 @@ const FLAECHENTYP_KURZ: Record<string, string> = { Ackerland: "Ackerland", "Wies
 const BERATUNG_GRUND: Record<string, string> = {
   "Energiepacht (Solar/Wind)": "wegen einer Energiepacht (Solar/Wind)",
   "VNS / Ökopunkte": "wegen Vertragsnaturschutz bzw. Ökopunkten",
+  "Ökopunkte gesucht": "wegen Ihrer Suche nach Ökopunkten bzw. Kompensationsflächen",
   Lohnunternehmer: "wegen der Vermittlung eines Lohnunternehmers",
   "Bauland-Beratung": "wegen einer Bauland-Beratung",
 };
@@ -729,7 +742,7 @@ export function nachfassEntwurf(lead: LeadView, kunde: M.KundeRecord | null, bas
     beratung: intent === "Bewertung" ? "Haben Sie noch Interesse an einer Bewertung?" : "Haben Sie noch Interesse an einer Beratung?",
   };
   // Allgemeine Fragen ohne Bezug zu einer Fläche (kein Flächentyp, kein Ort) nicht mit „Ihre Fläche“ anschreiben.
-  const ohneFlaeche = typ === "beratung" && !FLAECHENTYP_KURZ[T.wert(lead.flaechentyp)] && !ort && !["Bewertung", "Energiepacht (Solar/Wind)", "VNS / Ökopunkte", "Bauland-Beratung"].includes(intent);
+  const ohneFlaeche = typ === "beratung" && !FLAECHENTYP_KURZ[T.wert(lead.flaechentyp)] && !ort && !["Bewertung", "Energiepacht (Solar/Wind)", "VNS / Ökopunkte", "Ökopunkte gesucht", "Bauland-Beratung"].includes(intent);
   return {
     typ,
     an: (kunde?.email || T.wert(lead.email)).toLowerCase(),

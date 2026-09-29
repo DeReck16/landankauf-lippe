@@ -26,6 +26,7 @@ const THEMA_NAME: Record<AntwortThema, string> = {
   vergleich: "Verkauf oder Verpachtung",
   energie: "Energiepacht (Solar/Wind)",
   vns: "VNS / Ökopunkte",
+  oekopunkte: "Ökopunkte-Nachfrage",
   bauland: "Bauland",
   wald: "Wald und Forst",
   lohnunternehmer: "Lohnunternehmer",
@@ -36,6 +37,7 @@ const NACH_ANLIEGEN: Record<string, AntwortThema> = {
   Bewertung: "bewertung",
   "Energiepacht (Solar/Wind)": "energie",
   "VNS / Ökopunkte": "vns",
+  "Ökopunkte gesucht": "oekopunkte",
   "Bauland-Beratung": "bauland",
   Lohnunternehmer: "lohnunternehmer",
   Verkaufen: "verkauf",
@@ -58,6 +60,8 @@ const STICHWORTE: [RegExp, AntwortThema][] = [
   [/\bwert\b|bewert|was .{0,30}(bringt|wert)/i, "bewertung"],
   [/\bverpachten\b|zu verpachten|zur pacht (geben|anbieten)/i, "verpachtung"],
   [/solar|photovoltaik|\bpv\b|windkraft|windrad|windenergie/i, "energie"],
+  // Wer Ökopunkte sucht (Projektentwickler, Planer), ist kein Eigentümer — eigene Antwort ohne Verkaufs-/Verpachtungslink.
+  [/ökopunkte? (kaufen|gesucht|suchen?)|(suche|suchen|sucht|gesucht)\b.{0,60}(ökopunkt|kompensationsfl)|(ökopunkt|kompensation).{0,40}erstaufforst/i, "oekopunkte"],
   [/ökopunkt|oekopunkt|vertragsnaturschutz|\bvns\b|ausgleichsfläche|ökokonto/i, "vns"],
   [/bauland|bebau|baugrund|bauplatz/i, "bauland"],
   [/lohnunternehm|\bmähen\b|\bmahd\b|heckenpflege/i, "lohnunternehmer"],
@@ -100,6 +104,7 @@ const EINLEITUNG: Record<AntwortThema, string> = {
   vergleich: "vielen Dank für Ihre Anfrage – Sie überlegen, ob ein Verkauf oder eine Verpachtung besser passt.",
   energie: "vielen Dank für Ihr Interesse an einer Energiepacht (Solar oder Wind).",
   vns: "vielen Dank für Ihre Anfrage zu Vertragsnaturschutz und Ökopunkten.",
+  oekopunkte: "vielen Dank für Ihre Anfrage nach Ökopunkten bzw. Kompensationsflächen.",
   bauland: "vielen Dank für Ihre Anfrage zur Bauland-Beratung.",
   wald: "vielen Dank für Ihre Anfrage zu Ihrem Wald.",
   lohnunternehmer: "vielen Dank für Ihre Anfrage – Sie suchen einen Lohnunternehmer.",
@@ -113,6 +118,7 @@ const BETREFF: Record<AntwortThema, string> = {
   vergleich: "Verkauf oder Verpachtung – Ihre Anfrage bei Lippe Forst",
   energie: "Ihre Anfrage zur Energiepacht (Solar/Wind)",
   vns: "Ihre Anfrage zu Vertragsnaturschutz und Ökopunkten",
+  oekopunkte: "Ihre Anfrage nach Ökopunkten bei Lippe Forst",
   bauland: "Ihre Anfrage zur Bauland-Beratung",
   wald: "Ihre Anfrage zu Ihrem Wald",
   lohnunternehmer: "Ihre Anfrage nach einem Lohnunternehmer",
@@ -150,7 +156,7 @@ export function antwortEntwurf(opts: { lead: LeadView; kunde: M.KundeRecord | nu
   const g = l.groesseWert;
   const ha = g.minHa != null && g.maxHa != null ? (g.minHa + g.maxHa) / 2 : (g.minHa ?? g.maxHa);
   const groesseRoh = T.wert(l.groesse);
-  if (groesseRoh && g.unsicher && ha != null) hinweise.push(`Größe unsicher gelesen: „${groesseRoh}“ → ${formatGroesse(g)} — bitte prüfen.`);
+  if (groesseRoh && g.unsicher && ha != null && thema !== "oekopunkte") hinweise.push(`Größe unsicher gelesen: „${groesseRoh}“ → ${formatGroesse(g)} — bitte prüfen.`);
   const ortText = l.ortText || T.wert(l.ort);
   const city = gemeindeAus(ortText);
   const k = l.meta.kataster ?? null;
@@ -262,9 +268,28 @@ export function antwortEntwurf(opts: { lead: LeadView; kunde: M.KundeRecord | nu
     case "vns": {
       const fehlt = [...(hatFlurstueck ? [] : ["die Lage (Gemarkung, Flur, Flurstück)"]), ...(ha != null ? [] : ["die Größe"]), "die heutige Nutzung der Fläche"];
       koerper.push(
-        "Vertragsnaturschutz NRW, Ökokonto und Ausgleichsflächen: Wir beraten Sie bei Antrag, Bewertung und Vermarktung – gerade extensive oder schwer bewirtschaftbare Flächen lassen sich so oft besser nutzen.",
+        "Vertragsnaturschutz NRW, Ökokonto und Ausgleichsflächen: Wir prüfen, ob Ihre Fläche in Frage kommt, stimmen uns mit der Unteren Naturschutzbehörde und der Biologischen Station ab und nennen Lohnunternehmen für die Umsetzung. Ein eigenes Ökokonto betreiben wir nicht; ob und zu welchem Preis sich Ökopunkte verwerten lassen, hängt vom Einzelfall ab.",
         "",
         `Für eine erste Einschätzung bräuchten wir noch ${aufzaehlen(fehlt)}.`,
+      );
+      break;
+    }
+    case "oekopunkte": {
+      // Nachfrage: Formularfelder heißen Maßnahme (Flächentyp), Umfang (Größe) und Suchraum (Ort) — keine Fläche des Absenders.
+      const fehlt = [
+        ...(ortText ? [] : ["den Suchraum (Kreise, Gemeinden oder Naturraum)"]),
+        ...(groesseRoh ? [] : ["den gesuchten Umfang (Ökopunkte oder Hektar)"]),
+        "Ihre Preisvorstellung je Ökopunkt und die gewünschte Form (bereits anerkannte Punkte aus einem Ökokonto oder Punkte aus einer noch anzulegenden Maßnahme, etwa mit Vorfinanzierung, Flächenkauf oder Pacht)",
+        "Zeitrahmen und die gewünschte Anerkennung durch die zuständige Behörde",
+      ];
+      koerper.push(
+        "Zur Einordnung vorab: Wir betreiben kein eigenes Ökokonto und haben keine bereits anerkannten Ökopunkte zum Verkauf. Lippe Forst kauft und vermittelt Flächen im Kreis Lippe und berät Eigentümer zu Vertragsnaturschutz und Aufwertungsmaßnahmen. Ob sich daraus Flächen für Ihr Vorhaben ergeben – etwa für eine Erstaufforstung –, prüfen wir gern; das sind aktuell keine Zusagen, sondern Gespräche mit Eigentümern aus unserem Netzwerk.",
+        "",
+        "Zum Naturraum: Der Kreis Lippe liegt überwiegend im Weserbergland (Naturraum D36, in NRW der Kompensationsraum K03). Für Vorhaben in anderen Naturräumen – etwa in der Westfälischen Bucht (D34) – sind Flächen aus dem Kreis Lippe in der Regel nicht verwendbar; Gemeinden am westlichen Rand des Kreises können abweichen.",
+        "",
+        `Damit wir gezielt suchen können, bräuchten wir noch: ${aufzaehlen(fehlt)}.`,
+        "",
+        "Kontaktdaten von Eigentümern geben wir nur weiter, wenn beide Seiten zugestimmt haben.",
       );
       break;
     }
@@ -301,7 +326,7 @@ export function antwortEntwurf(opts: { lead: LeadView; kunde: M.KundeRecord | nu
     "",
     ...koerper,
     "",
-    ...(r
+    ...(r || thema === "oekopunkte"
       ? ["Eine kurze Antwort auf diese E-Mail genügt."]
       : [`Am schnellsten antworten Sie über Ihren persönlichen Link – dort wählen Sie ${auswahl}:`, antwortLink(l.id, basis), "Oder antworten Sie einfach auf diese E-Mail."]),
     "",
@@ -310,7 +335,9 @@ export function antwortEntwurf(opts: { lead: LeadView; kunde: M.KundeRecord | nu
     GRUSS,
   ].join("\n");
 
-  const erkannt = [
+  const erkannt = thema === "oekopunkte"
+    ? [THEMA_NAME[thema], l.typ && l.typ !== "Sonstiges" ? `Maßnahme: ${l.typ}` : "", groesseRoh ? `Umfang: ${groesseRoh}` : "", ortText ? `Suchraum: ${ortText}` : ""].filter(Boolean)
+    : [
     THEMA_NAME[thema],
     typ ? TYP_NAME[typ] : l.typ && l.typ !== "Sonstiges" ? l.typ : "",
     fs ? `amtlich ${qm(fs.flaecheM2 / 10_000)} m² (${fs.nutzung})` : ha != null ? formatGroesse(g) : "",

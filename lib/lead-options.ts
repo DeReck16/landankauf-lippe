@@ -9,6 +9,7 @@ export const INTENTS = [
   "Energiepacht (Solar/Wind)",
   "Bewertung",
   "VNS / Ökopunkte",
+  "Ökopunkte gesucht",
   "Lohnunternehmer",
   "Bauland-Beratung",
   "Allgemein",
@@ -29,4 +30,13 @@ export type Flaechentyp = (typeof FLAECHENTYPEN)[number];
 /** Gesuche: jemand sucht Fläche (Pächter, Käufer) — Gegenstück zu Verkaufen/Verpachten. */
 export function isGesuchIntent(intent: string): boolean {
   return intent.startsWith("Fläche gesucht");
+}
+
+/**
+ * Nachfrage nach Ökopunkten bzw. Kompensationsflächen (Projektentwickler, Planer, Kommunen) — Gegenstück zu
+ * „VNS / Ökopunkte“ (Eigentümer fragen nach Förderung). Kein Flächen-Gesuch im Sinne von Pacht/Kauf: kein
+ * Matching, keine Börse, kein Nachweisvertrag; die Anfrage wird persönlich beantwortet (lib/portal/antwort.ts).
+ */
+export function isOekopunkteNachfrage(intent: string): boolean {
+  return intent === "Ökopunkte gesucht";
 }

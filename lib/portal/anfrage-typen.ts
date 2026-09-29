@@ -82,7 +82,7 @@ export type NachfassKandidat = {
 };
 
 /** Worum eine Anfrage bzw. ein Beratungswunsch geht — bestimmt den Antwortentwurf (lib/portal/antwort.ts). */
-export type AntwortThema = "bewertung" | "verkauf" | "verpachtung" | "vergleich" | "energie" | "vns" | "bauland" | "wald" | "lohnunternehmer" | "allgemein";
+export type AntwortThema = "bewertung" | "verkauf" | "verpachtung" | "vergleich" | "energie" | "vns" | "oekopunkte" | "bauland" | "wald" | "lohnunternehmer" | "allgemein";
 
 /** Fertiges Antwortschreiben zur Freigabe — mit der automatischen Einordnung, die dazu geführt hat. */
 export type AntwortEntwurf = {

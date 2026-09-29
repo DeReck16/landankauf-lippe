@@ -1254,75 +1254,82 @@ export const ARTICLES: Article[] = [
     title:
       "Ökopunkte und Ökokonto im Kreis Lippe: Wenn die Fläche aufgewertet werden darf",
     description:
-      "Wie das Ökokonto NRW funktioniert, welche Lipper Flächen sich eignen — und warum Ökopunkte für Eigentümer mit schwer bewirtschaftbaren Hangflächen oft mehr Geld bringen als ein klassischer Verkauf.",
+      "Wie das Ökokonto in NRW funktioniert, wie Ökopunkte bewertet werden, was Erstaufforstung dabei bedeutet — und worauf Lipper Eigentümer achten sollten, bevor sie eine Fläche aufwerten.",
     category: "Förderung",
     publishedAt: "2026-04-15",
-    updatedAt: "2026-09-24",
+    updatedAt: "2026-09-29",
     readingMinutes: 8,
     keywords: [
       "Ökopunkte Kreis Lippe",
       "Ökokonto NRW",
+      "Ökopunkte Preis",
+      "Ökopunkte Erstaufforstung",
       "Ausgleichsflächen Lippe",
-      "Wertaufwertung landwirtschaftliche Fläche",
       "Naturschutz Bauträger Kompensation",
     ],
     content: `
-<p class="lead">Ökopunkte sind eines der missverständlichsten Förderinstrumente im Kreis Lippe. Wer sie versteht, kann aus einer scheinbar wertlosen Hangwiese eine vier- bis fünfstellige Einmalzahlung machen — bei vollem Eigentum. Hier der Praxis-Leitfaden für Lipper Flächen.</p>
+<p class="lead">Ökopunkte sind eines der missverständlichsten Instrumente des Naturschutzrechts. Wer sie versteht, kann eine Fläche, die aufgewertet werden darf, gezielt nutzen — wer die Regeln nicht kennt, plant mit Zahlen, die es so nicht gibt. Hier der Überblick für Lipper Flächen, nach den Grundlagen des Landes NRW (Stand September 2026).</p>
 
 <h2>Was Ökopunkte sind und woher sie kommen</h2>
-<p>Wenn ein Bauträger in Lippe ein neues Wohngebiet plant, muss er den Eingriff in die Natur ausgleichen. Das schreibt das Bundesnaturschutzgesetz (§§ 13–17) vor. Die Frage ist nur: wo und wie? Genau hier kommt das <strong>Ökokonto</strong> ins Spiel: ein Eigentümer wertet seine Fläche freiwillig ökologisch auf — pflanzt eine Hecke, wandelt Acker in extensives Grünland, legt einen Tümpel an — und die Aufwertung wird in <strong>Ökopunkten</strong> bemessen. Diese Punkte werden später an Bauträger verkauft, die ihre Ausgleichspflicht damit erfüllen.</p>
-<p>Eigentum bleibt vollständig erhalten. Es entsteht eine Grunddienstbarkeit, die im Grundbuch eingetragen wird und die Aufwertung dauerhaft sichert. Die Pflege übernimmt entweder der Eigentümer selbst (oft via Lohnunternehmer) oder ein beauftragter Pflegebetrieb.</p>
+<p>Wer im Kreis Lippe ein Baugebiet, eine Straße, ein Windrad oder einen Solarpark baut, muss den Eingriff in Natur und Landschaft ausgleichen (§§ 13–17 Bundesnaturschutzgesetz). Der Ausgleich kann im Voraus erfolgen: Über das <strong>Ökokonto</strong> wird eine freiwillige Aufwertung anerkannt und in <strong>Ökopunkten</strong> gutgeschrieben — etwa Acker zu artenreichem Grünland, eine neue Streuobstwiese oder eine Erstaufforstung. Der Eingriffsverursacher kauft die Punkte später und erfüllt damit seine Pflicht. In NRW regeln das die §§ 31 und 32 Landesnaturschutzgesetz und die Ökokonto-Verordnung; das Ökokonto führt die Untere Naturschutzbehörde des Kreises oder ein von ihr zugelassener Dritter.</p>
+<p>Das Eigentum bleibt beim Eigentümer. Die Aufwertung wird aber dinglich gesichert — üblicherweise durch eine beschränkte persönliche Dienstbarkeit im Grundbuch —, und zwar so lange, wie die Behörde es festlegt. Das ist eine echte Bindung, die den Wert der Fläche berühren kann.</p>
 
-<h2>Welche Lipper Flächen sich besonders eignen</h2>
+<h2>Welche Lipper Flächen in Frage kommen</h2>
 <ul>
-<li><strong>Acker an Hanglagen oder mit niedriger Bonität</strong> — Acker zu extensivem Grünland umzuwandeln gibt überdurchschnittlich viele Ökopunkte.</li>
-<li><strong>Verbuschende Brachen oder ungenutzte Wiesen</strong> — Aufwertung mit Mahdregime, Hecken, Saumstrukturen.</li>
-<li><strong>Talauen entlang Werre, Bega und Emmer</strong> — Renaturierung mit Bachstrukturen ist sehr punkteträchtig.</li>
-<li><strong>Flächen mit Streuobst-Potenzial</strong> — Neuanpflanzung von Hochstamm-Streuobst zählt extrem hoch.</li>
-<li><strong>Kleinere Restflächen, die niemand pachten will</strong> — gerade die schwer bewirtschaftbaren Flächen, die im Verkauf nur den Bodenrichtwert bringen würden, sind im Ökokonto oft Goldgruben.</li>
+<li><strong>Acker, der zu extensivem oder artenreichem Grünland aufgewertet wird</strong> — die klassische Maßnahme, mit gut berechenbaren Punkten.</li>
+<li><strong>Verbuschende Brachen und ungenutzte Flächen</strong> — Aufwertung mit Mahdregime, Hecken und Saumstrukturen.</li>
+<li><strong>Flächen in Bach- und Aueposition</strong> — Renaturierungen entlang von Werre, Bega und Emmer, wenn Wasserwirtschaft und Naturschutz zustimmen.</li>
+<li><strong>Neuanlage von Streuobstwiesen und Hecken</strong> auf ehemaligem Acker.</li>
+<li><strong>Erstaufforstung</strong> — möglich, aber nur mit Genehmigung der Forstbehörde und mit Einschränkungen (siehe unten).</li>
+</ul>
+<p>Nicht in Frage kommen Bauland, Flächen mit einer ohnehin bestehenden Verpflichtung und Flächen, für deren Aufwertung es schon öffentliche Förderung gibt — also auch Flächen im Vertragsnaturschutz. Und wo die Fläche schon artenreiches Grünland ist, bringt eine Umwandlung kaum oder keine Punkte.</p>
+
+<h2>Wie die Punkte berechnet werden</h2>
+<p>NRW bewertet nach dem <a href="https://www.lanuk.nrw.de/fileadmin/lanuvpubl/4_arbeitsblaetter/Arbeitsblatt_61.pdf" target="_blank" rel="noopener">Arbeitsblatt 61 des Landesamts für Natur, Umwelt und Klima</a> (Stand März 2026). Jeder Biotoptyp hat 0 bis 10 Wertpunkte je Quadratmeter; maßgeblich ist der Wert, den die Fläche nach 30 Jahren voraussichtlich erreicht. Die Punkte ergeben sich aus (Zielwert − heutiger Wert) × Fläche. Zur Orientierung: intensiver Acker 2, mäßig extensiver Acker 4, artenarme Fettwiese 3, mäßig artenreiche Fettwiese 4, artenreiches Grünland 5 bis 7, Streuobstwiese mit Hochstämmen 5 bis 7 (je nach Alter der Bäume), junger Wald 3 bis 6.</p>
+<p>Beispielrechnung für einen Hektar intensiven Acker, der zu artenreichem Grünland mit dem Prognosewert 6 wird:</p>
+<ul>
+<li>Vorher: 2 Punkte je m²</li>
+<li>Nachher (Prognosewert nach 30 Jahren): 6 Punkte je m²</li>
+<li>Differenz: 4 Punkte je m² × 10.000 m² = <strong>40.000 Ökopunkte je Hektar</strong> — je nach Zielbiotop zwischen 30.000 und 50.000</li>
 </ul>
 
-<h2>Wie die Wertkalkulation funktioniert</h2>
-<p>Das Land NRW arbeitet mit dem <strong>Biotopwertverfahren</strong>: jeder Biotoptyp hat einen Wert in „Werteinheiten pro Quadratmeter" (WE/m²). Acker liegt typisch bei 4 WE/m², extensives Grünland bei 8–10 WE/m², artenreiches Mesotrophes Grünland bei 12–14 WE/m². Die Differenz vor / nach Aufwertung × Fläche = generierte Ökopunkte.</p>
-<p>Beispielrechnung für einen Hektar Acker, der zu artenreichem Grünland aufgewertet wird:</p>
-<ul>
-<li>Vorher: 1 ha × (10.000 m² × 4 WE/m²) = 40.000 Werteinheiten</li>
-<li>Nachher: 1 ha × (10.000 m² × 12 WE/m²) = 120.000 Werteinheiten</li>
-<li>Generiert: <strong>80.000 Werteinheiten</strong></li>
-</ul>
-<p>Die Vermarktungspreise schwanken regional. Im Kreis Lippe und im OWL-Raum liegen sie aktuell zwischen <strong>0,50 € und 1,20 € pro Werteinheit</strong>. Aus dem Beispiel werden also <strong>40.000 € bis 96.000 € einmalige Einnahme pro Hektar</strong> — bei vollem Eigentum.</p>
+<h2>Was ein Ökopunkt kostet — und was vom Erlös abgeht</h2>
+<p>Es gibt keinen amtlichen Preis. Ökopunkte werden frei zwischen Eigentümer und Käufer verhandelt, je nach Maßnahme, Naturraum und Nachfrage. Öffentliche Orderbücher zeigen sehr weite Spannen: Beim Marktplatz Ökopunktemarkt lagen am 25.08.2026 die Angebote für NRW zwischen 1,00 und 50,00 €, die Gesuche zwischen 0,10 und 6,50 € je Punkt — Wunschpreise, keine Abschlüsse. Belastbar wird ein Preis erst mit einem konkreten Käufer.</p>
+<p>Zur Rechenillustration: 40.000 Punkte je Hektar sind bei 0,50 € je Punkt 20.000 €, bei 1,00 € je Punkt 40.000 € — <strong>vor Kosten</strong>. Davon gehen ab: Herstellung und Pflege der Maßnahme, das Entgelt der Unteren Naturschutzbehörde, die Grundbucheintragung und gegebenenfalls eine Vermittlungsprovision. Das Entgelt der Unteren Naturschutzbehörde ist von Kreis zu Kreis verschieden; für den Kreis Lippe haben wir keinen veröffentlichten Satz gefunden.</p>
 
-<h2>Wer kauft die Punkte?</h2>
-<p>Im Kreis Lippe sind drei Käufergruppen aktiv:</p>
+<h2>Wer die Punkte kauft — und woher der Naturraum kommt</h2>
+<p>Käufer sind vor allem Kommunen für Bebauungspläne, Projektentwickler und Bauträger, Betreiber von Wind- und Solaranlagen sowie Träger von Straßen- und Leitungsvorhaben. Vermarktet wird über Stiftungen und Flächenagenturen, Poolbetreiber, Online-Marktplätze oder direkt zwischen Kontoinhaber und Verursacher.</p>
+<p>Wichtig für Eigentümer: Kompensation muss in der Regel im betroffenen Naturraum erfolgen. Der Kreis Lippe liegt überwiegend im Weserbergland (Naturraum D36, NRW-Kompensationsraum K03) — Punkte von hier helfen einem Vorhaben in der Westfälischen Bucht (D34) in der Regel nicht. Wer Käufer sucht, findet sie also vor allem für Vorhaben im Weserbergland.</p>
+
+<h2>Erstaufforstung: möglich, aber kein Selbstläufer</h2>
 <ul>
-<li><strong>Kommunen</strong> — wenn sie für eigene Bauprojekte (Gewerbegebiete, Straßenbau, Wohnsiedlungen) Ausgleichsflächen brauchen.</li>
-<li><strong>Private Bauträger</strong> — Bauunternehmer und Investoren, die Wohngebiete entwickeln.</li>
-<li><strong>Spezialisierte Vermarkter</strong> wie die NRW.URBAN, kommunale Flächenagenturen oder private Ökopunkte-Händler aus dem OWL-Raum.</li>
+<li><strong>Genehmigung:</strong> Die Neuanlage von Wald ist nur mit Genehmigung der Forstbehörde zulässig (§ 41 Landesforstgesetz NRW); zuständig ist das Regionalforstamt Ostwestfalen-Lippe.</li>
+<li><strong>Punktzahl:</strong> Junger Wald wird mit 3 bis 6 Punkten je Quadratmeter bewertet; von intensivem Acker aus sind das grob 30.000 bis 40.000 Punkte je Hektar.</li>
+<li><strong>Einschränkungen:</strong> Wertvolles Offenland wie artenreiche Wiesentäler gilt nicht als geeignet, und in Gebieten mit mehr als 40 % Waldanteil hat der Waldumbau Vorrang. In Horn-Bad Meinberg machen Wald- und Gehölzflächen rund 38 % aus.</li>
+<li><strong>Dauerhaft:</strong> Was einmal Wald ist, bleibt rechtlich Wald.</li>
 </ul>
-<p>Das Ökokonto führt die Untere Naturschutzbehörde des Kreises; dort erfahren Sie, welche Maßnahmen anerkannt werden. Die Preise schwanken — es lohnt sich, mehrere Angebote einzuholen, bevor Sie Punkte verkaufen.</p>
 
 <h2>Der Ablauf in fünf Schritten</h2>
 <ol>
-<li><strong>Eignungsprüfung</strong> — wir prüfen anhand Lage, Bodenpunkten und Schutzgebietskulisse grob, ob die Fläche überhaupt Ökokonto-fähig ist. Bauland-Flächen scheiden aus.</li>
-<li><strong>Maßnahmenkonzept</strong> — gemeinsam mit der UNB Kreis Lippe und ggf. der Bio-Station Lippe wird festgelegt, welche Aufwertung sinnvoll ist und wie viele Punkte sie generiert.</li>
-<li><strong>Eintragung</strong> — die UNB Kreis Lippe trägt die Maßnahme im Ökokonto-Register ein, im Grundbuch wird die Grunddienstbarkeit gesichert.</li>
-<li><strong>Umsetzung</strong> — die Aufwertung wird ausgeführt (Pflanzung, Mahdregime, Renaturierung). Vermittlung an Lohnunternehmer aus der Region möglich.</li>
-<li><strong>Vermarktung</strong> — sobald die Punkte „reif" sind (in der Regel nach erfolgreicher Aufwertung), werden sie verkauft. Auszahlung an den Eigentümer.</li>
+<li><strong>Eignung prüfen</strong> — Lage, Schutzgebietskulisse, heutige Nutzung, Pachtverhältnis, Leitungs- und Wegerechte. Bauland scheidet aus.</li>
+<li><strong>Maßnahme planen und beantragen</strong> — gemeinsam mit der Unteren Naturschutzbehörde des Kreises Lippe, gegebenenfalls mit der Biologischen Station Lippe und bei Aufforstung der Forstbehörde. Der Antrag muss <strong>vor Beginn</strong> gestellt werden; nachträglich wird nichts anerkannt.</li>
+<li><strong>Dinglich sichern</strong> — der Eigentümer bewilligt die Dienstbarkeit im Grundbuch.</li>
+<li><strong>Umsetzen und abnehmen lassen</strong> — Pflanzung, Mahdregime oder Umbau; danach nimmt die Behörde die Maßnahme ab.</li>
+<li><strong>Punkte einbuchen und verkaufen</strong> — erst nach der Abnahme; Geld fließt, wenn ein Käufer die Punkte abnimmt.</li>
 </ol>
-<p>Realistischer Zeitrahmen: 12 bis 24 Monate von Erstgespräch bis Auszahlung. Wer schneller Liquidität braucht, sollte zum Direktverkauf tendieren — Ökokonto ist eine mittel- bis langfristige Optimierung.</p>
+<p>Rechnen Sie mit einem langen Vorlauf und mit Kosten, bevor der erste Euro zurückfließt. Wer schnell Liquidität braucht, ist mit Verkauf oder Verpachtung besser bedient.</p>
 
-<h2>Wann sich Ökokonto besonders lohnt</h2>
-<p>Das Ökokonto ist meist lukrativer als der Direktverkauf, wenn:</p>
+<h2>Wann sich ein Ökokonto lohnen kann</h2>
 <ul>
-<li>Die Fläche schwer zu verpachten ist (Hang, FFH-Lage, kleinteilig)</li>
-<li>Die Bonität niedrig und der Bodenrichtwert unterdurchschnittlich ist</li>
-<li>Der Eigentümer keinen Liquiditätsdruck hat und 1–2 Jahre Zeit mitbringt</li>
-<li>Eine kombinierte Strategie mit VNS oder klassischer Verpachtung möglich ist</li>
+<li>Die Fläche ist schwer zu verpachten (Hang, Schutzgebietsrand, kleinteilig) und darf aufgewertet werden</li>
+<li>Es gibt einen realistischen Käufer im richtigen Naturraum</li>
+<li>Der Eigentümer kann die Bindung im Grundbuch und den langen Vorlauf tragen</li>
+<li>Für dieselbe Fläche ist keine öffentliche Förderung für dieselbe Aufwertung vorgesehen (Vertragsnaturschutz und Ökokonto schließen sich aus)</li>
 </ul>
-<p>Umgekehrt: wenn die Fläche hochwertig ist, hofnah, gut erschlossen, mit hoher Ackerzahl — dann bringt ein klassischer Verkauf mehr.</p>
+<p>Umgekehrt: Bei hochwertigem, hofnahem, gut erschlossenem Ackerland bringt ein klassischer Verkauf oder die Verpachtung meist mehr Sicherheit.</p>
 
-<h2>Was wir konkret tun</h2>
-<p>Wir prüfen kostenlos, ob Ihre Fläche für Ökopunkte geeignet ist. Bei Eignung koordinieren wir mit der UNB Kreis Lippe das Maßnahmenkonzept, organisieren über regionale Lohnunternehmer die Umsetzung und vermitteln die Punkte an konkrete Bauträger oder Kommunen — ohne Provision für Sie. Sie bekommen den vollen Erlös.</p>
+<h2>Was wir konkret tun — und was nicht</h2>
+<p>Wir prüfen kostenlos grob, ob Ihre Fläche in Frage kommt, stimmen uns mit der Unteren Naturschutzbehörde, der Biologischen Station und bei Aufforstung mit der Forstbehörde ab, nennen regionale Lohnunternehmen und bringen Eigentümer mit Interessenten zusammen — Kontaktdaten nur, wenn beide Seiten zugestimmt haben. <strong>Lippe Forst betreibt kein eigenes Ökokonto und verkauft keine eigenen Ökopunkte</strong>, garantiert weder Preise noch Abnehmer und leistet keine Rechts- oder Steuerberatung. Mehr dazu: <a href="/services/vns-oekopunkte">Ökopunkte, Ökokonto und Vertragsnaturschutz</a>. Sie suchen Ökopunkte oder Kompensationsflächen? Dann geht es hier weiter: <a href="/oekopunkte-kaufen">Ökopunkte kaufen</a>.</p>
 `,
   },
   {
@@ -1566,16 +1573,16 @@ export const ARTICLES: Article[] = [
 <h2>Weg 1: Vertragsnaturschutz NRW</h2>
 <p>Genau für diese Flächen wurde der Vertragsnaturschutz erfunden. Der Eigentümer (oder ein neuer Pächter) verpflichtet sich für 3–5 Jahre zu extensiver Bewirtschaftung — späte Mahd, kein Dünger, keine Pflanzenschutzmittel — und bekommt dafür einen festen Förderbetrag pro Hektar.</p>
 <ul>
-<li>Extensives Grünland: bis 950 €/ha/Jahr</li>
-<li>Mahd-Kennarten-Wiesen (artenreiche Mähwiesen): bis 2.040 €/ha/Jahr</li>
+<li>Extensive Wiesennutzung: je nach Paket etwa 380–685 €/ha/Jahr (Stand 2025)</li>
+<li>Sonderpakete und Kombinationen: höher, Höchstbetrag 2.280 €/ha/Jahr</li>
 <li>Streuobstpflege: 25 €/Baum/Jahr, max. 1.900 €/ha</li>
 </ul>
-<p>Bei einer 1,2-Hektar-Hangwiese im Umfeld der Egge können das 2.500–4.000 €/Jahr werden — deutlich mehr als der ursprüngliche Pachtzins. Plus: Eigentum bleibt unangetastet, die Bewirtschaftung läuft über einen Lohnunternehmer, kein eigener Aufwand. Im Detail haben wir den Antragsweg im <a href="/blog/vertragsnaturschutz-nrw-frist-juni-2026">VNS-Artikel</a> beschrieben.</p>
+<p>Bei einer 1,2-Hektar-Hangwiese sind das je nach Paket grob 500 bis 2.500 € im Jahr — meist mehr als der ursprüngliche Pachtzins. Plus: Eigentum bleibt unangetastet, die Bewirtschaftung läuft über einen Lohnunternehmer, kein eigener Aufwand. Im Detail haben wir den Antragsweg im <a href="/blog/vertragsnaturschutz-nrw-frist-juni-2026">VNS-Artikel</a> beschrieben.</p>
 
 <h2>Weg 2: Ökopunkte / Ökokonto</h2>
-<p>Wenn die Fläche aktiv aufgewertet werden kann — z. B. Acker zu Wiese, Hecke pflanzen, Tümpel anlegen — generiert das Ökopunkte. Diese werden an Bauträger oder Kommunen verkauft, die ihre Eingriffsausgleichspflicht erfüllen müssen.</p>
-<p>Für eine 1,2-Hektar-Fläche, die von Acker zu artenreichem Grünland aufgewertet wird, sind realistische Einmalerlöse von 25.000–50.000 € möglich. Das Eigentum bleibt erhalten, eine Grunddienstbarkeit wird im Grundbuch eingetragen.</p>
-<p>Lohnt sich besonders bei mittlerer Bonität, FFH-Lage und Eigentümerinnen oder Eigentümern, die längerfristig planen können (12–24 Monate von Erstgespräch bis Auszahlung).</p>
+<p>Wenn die Fläche aktiv aufgewertet werden darf — z. B. Acker zu artenreichem Grünland, Hecke pflanzen, Streuobstwiese anlegen — kann das Ökopunkte ergeben. Diese verkauft der Eigentümer an Kommunen, Projektentwickler oder Bauträger, die ihre Ausgleichspflicht erfüllen müssen.</p>
+<p>Zur Größenordnung: Acker (2 Punkte je m²) zu artenreichem Grünland (Prognosewert 6) sind 40.000 Punkte je Hektar. Was ein Punkt am Ende bringt, wird frei verhandelt und lässt sich vorab nicht seriös beziffern. Das Eigentum bleibt erhalten, eine Dienstbarkeit wird im Grundbuch eingetragen. Für dieselbe Aufwertung gilt entweder Ökokonto oder Vertragsnaturschutz — nicht beides.</p>
+<p>Lohnt sich vor allem bei Flächen, die aufgewertet werden dürfen und für die es einen Käufer im passenden Naturraum gibt, und bei Eigentümern, die einen langen Vorlauf und eine Bindung im Grundbuch tragen können. Die Einzelheiten stehen im Artikel <a href="/blog/oekopunkte-oekokonto-lippe">Ökopunkte und Ökokonto im Kreis Lippe</a>.</p>
 
 <h2>Weg 3: Verkauf an spezialisierte Käufer</h2>
 <p>Es gibt Käufer, die genau solche Flächen suchen — Naturschutzorganisationen, Stiftungen, ökologisch orientierte Investoren, Direktankäufer wie wir. Der Marktpreis ist niedriger als bei klassischem Acker (oft nur 5.000–12.000 €/ha statt 50.000), aber die Fläche wird los, ohne dass der Eigentümer noch Aufwand hat.</p>
@@ -1585,7 +1592,7 @@ export const ARTICLES: Article[] = [
 <p>In unserer Beratungspraxis spielen wir die drei Wege meist in dieser Reihenfolge durch:</p>
 <ol>
 <li><strong>VNS prüfen</strong> — wenn Fläche in Schutzgebietskulisse: oft die ertragreichste Lösung mit minimalem Eigenaufwand. Pflegeentgelt nach unten korrigiert, Förderung deckt es überreich.</li>
-<li><strong>Ökopunkte prüfen</strong> — wenn Aufwertungspotenzial besteht und Eigentümer 1–2 Jahre Geduld hat.</li>
+<li><strong>Ökopunkte prüfen</strong> — wenn Aufwertungspotenzial besteht, ein Käufer im passenden Naturraum denkbar ist und der Eigentümer einen langen Vorlauf tragen kann.</li>
 <li><strong>Verkauf erwägen</strong> — wenn die ersten beiden nicht passen oder Eigentümer kurzfristig liquide werden möchte.</li>
 </ol>
 
@@ -1703,7 +1710,7 @@ export const ARTICLES: Article[] = [
 <li><strong>Erschließung</strong>: ohne befestigten Wirtschaftsweg sinkt der Wert deutlich</li>
 <li><strong>Pachtstatus</strong>: laufender langer Pachtvertrag kann je nach Konditionen Bonus oder Malus sein</li>
 <li><strong>Lasten im Grundbuch</strong>: Wegerechte, Leitungsrechte, Vorkaufsrechte schmälern den Preis</li>
-<li><strong>Schutzgebietskulisse</strong>: FFH-, NSG-, Wasserschutz-Gebiete schränken die Bewirtschaftung ein und drücken den Preis bei klassischer Pacht — können aber durch VNS / Ökopunkte überkompensiert werden</li>
+<li><strong>Schutzgebietskulisse</strong>: FFH-, NSG-, Wasserschutz-Gebiete schränken die Bewirtschaftung ein und drücken den Preis bei klassischer Pacht — können aber über Vertragsnaturschutz ausgeglichen werden, im Einzelfall auch über Ökopunkte</li>
 </ul>
 
 <h2>Beispielrechnung: 3 ha am Werretal-Hang</h2>
@@ -1725,7 +1732,7 @@ export const ARTICLES: Article[] = [
 <li>Käfer-/Sturmwurfflächen mit Aufforstungspflicht — Investitionsbedarf beim Käufer</li>
 <li>Flächen mit eingetragenen Lasten (Rückbauverpflichtung, Bodenkontamination)</li>
 </ul>
-<p>In solchen Fällen ist die Lösung oft nicht „Verkauf zum niedrigen Preis", sondern Werthebung über VNS, Ökopunkte oder Aufforstungs-Förderung.</p>
+<p>In solchen Fällen ist die Lösung oft nicht „Verkauf zum niedrigen Preis", sondern Werthebung über Vertragsnaturschutz oder — im Einzelfall — Ökopunkte oder eine Aufforstung.</p>
 
 <h2>Was wir konkret tun</h2>
 <p>Eine seriöse Wertindikation kombiniert immer drei Quellen: Bodenrichtwert (BORIS), reale Vergleichsverkäufe der letzten 12–24 Monate (haben wir aus eigener Praxis und durch den Grundstücksmarktbericht des Kreises) und die spezifischen Eigenschaften Ihrer Fläche. Wir machen das kostenlos für Sie — mit nachvollziehbarer Begründung jeder Zahl, nicht mit Pi-mal-Daumen-Schätzungen.</p>
@@ -1736,7 +1743,7 @@ export const ARTICLES: Article[] = [
     title:
       "Ausgleichsflächen für Kommunen: Wie Lipper Eigentümer mit dem Kreis kooperieren können",
     description:
-      "Jede Lipper Gemeinde braucht regelmäßig Ausgleichsflächen für Bebauungspläne. Wer als privater Eigentümer Flächen anbietet, kann oft bessere Preise erzielen als am freien Markt — wenn man weiß, wie der Hase läuft.",
+      "Jede Lipper Gemeinde braucht regelmäßig Ausgleichsflächen für Bebauungspläne. Wer als privater Eigentümer geeignete Flächen hat, kann für die Gemeinde ein Ansprechpartner sein — was dabei realistisch ist und was nicht.",
     category: "Förderung",
     publishedAt: "2025-08-25",
     updatedAt: "2026-09-24",
@@ -1749,7 +1756,7 @@ export const ARTICLES: Article[] = [
       "Flächenagentur OWL",
     ],
     content: `
-<p class="lead">Jede Lipper Gemeinde, die einen neuen Bebauungsplan aufstellt, muss den Eingriff in Natur und Landschaft ausgleichen. Manchmal hat die Kommune eigene Flächen — meistens nicht. Genau hier liegt eine Verdienstmöglichkeit für private Flächeneigentümer, die unterschätzt wird.</p>
+<p class="lead">Jede Lipper Gemeinde, die einen neuen Bebauungsplan aufstellt, muss den Eingriff in Natur und Landschaft ausgleichen. Manchmal hat die Kommune eigene Flächen — meistens nicht. Genau hier können private Flächeneigentümer eine Rolle spielen, wenn ihre Fläche sich eignet.</p>
 
 <h2>Worum es im Kern geht</h2>
 <p>Wer Bebauung plant — Wohngebiet, Gewerbegebiet, Straße, Industrieanlage — versiegelt Boden. Das Bundesnaturschutzgesetz (§§ 13–17 BNatSchG) verlangt, dass dieser Eingriff durch eine Aufwertung an anderer Stelle ausgeglichen wird. Die Kommune hat zwei Wege:</p>
@@ -1769,36 +1776,36 @@ export const ARTICLES: Article[] = [
 </ul>
 
 <h2>Welche Flächen für den Ausgleich passen</h2>
-<p>Nicht jede Fläche eignet sich. Im Kreis Lippe haben wir gute Erfolge mit:</p>
+<p>Nicht jede Fläche eignet sich. In Betracht kommen häufig:</p>
 <ul>
 <li>Acker mit niedriger Bonität, der zu artenreichem Grünland aufgewertet wird</li>
 <li>Flächen in Bach- oder Aueposition, die renaturiert werden können (Werre, Bega, Emmer)</li>
 <li>Hangflächen mit Streuobst-Potenzial</li>
 <li>Restflächen am Waldrand, die zu Feuchtbiotopen entwickelt werden können</li>
 </ul>
-<p>Die Größenuntergrenze liegt bei etwa 0,5 ha; nach oben gibt es kaum Grenzen — wir kennen Kompensationsdeals über 8–15 ha am Stück.</p>
+<p>Kleine Flächen rechnen sich wegen der festen Kosten für Antrag, Grundbucheintragung und Pflege oft nicht; zusammenhängende Flächen sind für die Planung einfacher.</p>
 
-<h2>Wie ein realistischer Deal aussieht</h2>
-<p>Beispielrechnung für eine 2-ha-Ackerfläche, die zu artenreichem Grünland aufgewertet wird:</p>
+<h2>Was eine Aufwertung rechnerisch bringt</h2>
+<p>Beispielrechnung für eine 2-ha-Ackerfläche, die zu artenreichem Grünland aufgewertet wird (Bewertung nach dem <a href="https://www.lanuk.nrw.de/fileadmin/lanuvpubl/4_arbeitsblaetter/Arbeitsblatt_61.pdf" target="_blank" rel="noopener">Arbeitsblatt 61 des Landes NRW</a>, Stand März 2026):</p>
 <ul>
-<li>Reiner Bodenpreis: 2 ha × 2,80 €/m² (Bodenrichtwert mittlere Lage) = 56.000 €</li>
-<li>Aufwertungsmehrwert (Acker → artenreiches Grünland, +8 Werteinheiten/m²): 160.000 Werteinheiten × 0,75 €/WE = 120.000 €</li>
-<li><strong>Gesamterlös bei Verkauf inkl. Aufwertungspotenzial</strong>: ca. 175.000 €</li>
+<li>Intensiver Acker: 2 Wertpunkte je m²; artenreiches Grünland (Prognosewert nach 30 Jahren): 6 Wertpunkte je m²</li>
+<li>Differenz: 4 Punkte je m² × 20.000 m² = <strong>80.000 Ökopunkte</strong> (je Hektar 40.000)</li>
+<li>Was daraus wird, hängt vom frei verhandelten Preis ab: bei 0,50 € je Punkt 40.000 €, bei 1,00 € je Punkt 80.000 € — <strong>vor Kosten</strong> für Herstellung, Pflege, Behördenentgelt und Grundbuch</li>
 </ul>
-<p>Das ist deutlich mehr als der reine Verkauf an einen Landwirt (56.000 €) oder den Direktankauf am freien Markt (ca. 105.000 € beim Kreismittel 2024 von 5,26 €/m²).</p>
+<p>Das ist eine Rechenillustration, kein Preisversprechen: Öffentliche Orderbücher zeigen sehr weite Spannen, und ob eine Gemeinde oder ein Bauträger Punkte abnimmt, ist offen. Der Bodenwert der Fläche kommt nicht obendrauf — bei einem Verkauf zahlt der Käufer für Boden und Aufwertungspotenzial zusammen, was er für angemessen hält.</p>
 
 <h2>Drei Wege, mit der Kommune zu kooperieren</h2>
 <ol>
-<li><strong>Direktverkauf an die Gemeinde</strong> — Sie geben die Fläche, die Gemeinde übernimmt Aufwertung und Verwaltung. Schnell, einfach, etwas niedriger im Preis als die Ökokonto-Variante.</li>
-<li><strong>Eigene Aufwertung über Ökokonto</strong> — Sie behalten die Fläche, werten selbst auf, verkaufen die Ökopunkte an die Gemeinde. Maximaler Erlös, aber 1–2 Jahre Vorlauf.</li>
+<li><strong>Direktverkauf an die Gemeinde</strong> — Sie geben die Fläche, die Gemeinde übernimmt Aufwertung und Verwaltung. Verhältnismäßig schnell und einfach; der Preis richtet sich nach dem Bodenwert und dem, was die Gemeinde zu zahlen bereit ist.</li>
+<li><strong>Eigene Aufwertung über Ökokonto</strong> — Sie behalten die Fläche, werten selbst auf und verkaufen die Punkte. Dazu gehören ein Antrag vor Beginn, die Bindung im Grundbuch und ein langer Vorlauf; ob und zu welchem Preis ein Käufer die Punkte abnimmt, ist offen.</li>
 <li><strong>Vertragspartnerschaft</strong> — die Gemeinde pachtet langfristig und übernimmt Pflege, Sie bleiben Eigentümer. Selten, aber bei besonderen Lagen sinnvoll.</li>
 </ol>
 
 <h2>Wer die richtigen Ansprechpartner sind</h2>
-<p>Wenn Sie eine Fläche haben, die Sie für Ausgleich anbieten möchten, ist der erste Anlaufpunkt das <strong>Planungsamt der jeweiligen Gemeinde</strong>. Wer die Flächenagentur NRW oder regionale Vermarkter einbinden will, sollte vorher das Konzept entwickeln — sonst geht der Mehrwert in Vermittlungsprovisionen verloren.</p>
+<p>Wenn Sie eine Fläche haben, die Sie für Ausgleich anbieten möchten, ist der erste Anlaufpunkt das <strong>Planungsamt der jeweiligen Gemeinde</strong>. Wer Flächenagenturen oder regionale Vermarkter einbinden will, sollte vorher Konditionen und Provision klären — sie mindern den Erlös.</p>
 
 <h2>Was wir tun</h2>
-<p>Wir prüfen Ihre Fläche kostenlos auf Ausgleichs-Eignung, entwickeln gemeinsam mit der UNB Kreis Lippe ein Aufwertungskonzept und stellen den Kontakt zu konkreten Bedarfsträgern her — Kommune oder Bauträger. Vermittlungsprovisionen bleiben bei uns; Sie bekommen den vollen Verkaufserlös.</p>
+<p>Wir prüfen Ihre Fläche kostenlos grob auf Ausgleichs-Eignung, stimmen uns mit der Unteren Naturschutzbehörde Kreis Lippe ab und stellen — wenn Sie einverstanden sind — den Kontakt zu Kommunen oder Bauträgern her, die Flächen suchen. Ein eigenes Ökokonto betreiben wir nicht, und Preise oder Abnahme können wir nicht zusagen. Wer Ökopunkte oder Ausgleichsflächen sucht, findet <a href="/oekopunkte-kaufen">hier</a>, was wir dafür tun können.</p>
 `,
   },
   {
@@ -1984,24 +1991,24 @@ export const ARTICLES: Article[] = [
 <p>Wer also eine bestehende Streuobstwiese hat, in der über die Jahre 20 Bäume eingegangen sind, kann mit 1.600 € Förderung neu pflanzen und gleichzeitig die VNS-Förderbasis wieder anheben.</p>
 
 <h2>Weg 3: Ökopunkte aus Neuanlage</h2>
-<p>Die Neuanlage einer Streuobstwiese auf einer ehemaligen Ackerfläche zählt im Biotopwertverfahren NRW als hoch aufwertend. Aus 1 ha Acker (40.000 WE) wird eine Streuobstwiese mit etwa 110.000–130.000 Werteinheiten — das sind 70.000–90.000 generierte Ökopunkte.</p>
-<p>Bei Vermarktung à 0,75 €/WE ergibt das einen einmaligen Erlös von 52.500–67.500 € pro Hektar. Plus jährliche VNS-Förderung. Plus später Obst-Ertrag. Die Investition in 60 neue Hochstämme amortisiert sich aus der Ökopunkten-Vermarktung mehrfach.</p>
+<p>Die Neuanlage einer Streuobstwiese auf einer ehemaligen Ackerfläche kann als Ökokonto-Maßnahme anerkannt werden. Nach dem <a href="https://www.lanuk.nrw.de/fileadmin/lanuvpubl/4_arbeitsblaetter/Arbeitsblatt_61.pdf" target="_blank" rel="noopener">Arbeitsblatt 61 des Landes NRW</a> (Stand März 2026) hat eine Streuobstwiese mit Hochstämmen 5 Wertpunkte je m² (Bäume unter 10 Jahre), 6 (10 bis 30 Jahre) und 7 (über 30 Jahre); intensiver Acker liegt bei 2. Rechnerisch sind das etwa 30.000 bis 50.000 Ökopunkte je Hektar.</p>
+<p>Was ein Punkt bringt, wird frei verhandelt und lässt sich vorab nicht seriös beziffern — bei 0,50 bis 1,00 € je Punkt wären es 15.000 bis 50.000 € je Hektar, <strong>vor Kosten</strong> für Pflanzung, Pflege, Behördenentgelt und Grundbuch. Die Maßnahme muss vor Beginn beantragt werden, und für dieselbe Aufwertung gilt entweder Ökokonto oder Vertragsnaturschutz. Dazu kommt später der Obstertrag.</p>
 
 <h2>Kombination ist Schlüssel</h2>
-<p>Wer alle drei Wege koordiniert, holt das Maximum raus:</p>
+<p>Die drei Wege lassen sich auf verschiedenen Flächen kombinieren — für dieselbe Aufwertung derselben Fläche gilt aber entweder Vertragsnaturschutz oder Ökokonto:</p>
 <ol>
 <li>Bestand prüfen — wie viele lebende Hochstämme stehen aktuell?</li>
 <li>Investitionsförderung für Nachpflanzung beantragen (etwa 30 fehlende Bäume nachpflanzen)</li>
 <li>VNS-Antrag für 5 Jahre stellen (mit erhöhter Baumzahl höheres Förderniveau)</li>
-<li>Bei Neuanlage zusätzlicher Streuobstfläche: Ökopunkte-Konzept entwickeln</li>
+<li>Bei Neuanlage zusätzlicher Streuobstfläche auf anderer Fläche: Ökokonto-Antrag vor Beginn prüfen</li>
 </ol>
-<p>Eine 1,5-ha-Streuobstwiese, professionell gepflegt mit Nachpflanzung und 5-Jahres-VNS, generiert über die Laufzeit 9.000–15.000 €. Plus eventuell 80.000–100.000 € Ökopunkte-Erlös bei Neuanlage. Plus regelmäßiger Obstertrag.</p>
+<p>Eine 1,5-ha-Streuobstwiese, professionell gepflegt mit Nachpflanzung und 5-Jahres-VNS, generiert über die Laufzeit 9.000–15.000 €. Eine Neuanlage auf anderer Fläche kann zusätzlich Ökopunkte ergeben — deren Erlös lässt sich vorab nicht seriös beziffern. Dazu kommt der Obstertrag.</p>
 
 <h2>Wer pflegt tatsächlich?</h2>
 <p>Die Förderung allein hilft nicht, wenn niemand die Wiese pflegt. Im Kreis Lippe arbeiten wir mit spezialisierten Lohnunternehmern aus dem Heimat- und Streuobst-Bereich zusammen, die Baumschnitt, Mahd und Ernte übernehmen. Die Kosten dafür liegen typisch bei 800–1.200 €/ha/Jahr — deutlich unter der VNS-Förderung. Netto bleibt Geld übrig.</p>
 
 <h2>Was wir tun</h2>
-<p>Wir prüfen Ihre Streuobstwiese kostenlos auf alle drei Förderwege, koordinieren mit der Bio-Station Lippe und den LWK-Kreisstellen Höxter, Lippe, Paderborn den Antragsweg und vermitteln auf Wunsch den Lohnunternehmer für die Pflege. Bei größerer Neuanlage (über 2 ha) prüfen wir das Ökopunkten-Konzept zusammen mit der UNB Kreis Lippe.</p>
+<p>Wir prüfen Ihre Streuobstwiese kostenlos auf alle drei Förderwege, koordinieren mit der Bio-Station Lippe und den LWK-Kreisstellen Höxter, Lippe, Paderborn den Antragsweg und vermitteln auf Wunsch den Lohnunternehmer für die Pflege. Bei größerer Neuanlage (über 2 ha) klären wir mit der Unteren Naturschutzbehörde Kreis Lippe, ob ein Ökokonto-Antrag in Frage kommt.</p>
 `,
   },
   {
@@ -2797,7 +2804,7 @@ Nachteile: Eigentum bringt weiter Pflichten (Grundsteuer, Verkehrssicherung), be
 <h2>Wenn die VNS-Frist nicht passt: Alternativen</h2>
 <p>Nicht jede Fläche und jeder Eigentümer passt zum VNS-Verfahren. Die Alternativen, die wir mit unseren Kunden gerade durchspielen:</p>
 <ul>
-<li><strong>Ökopunkte / Ökokonto</strong> — einmalige Aufwertungserlöse, kein langer Vertrag, Eigentum bleibt voll erhalten. Sinnvoll bei Acker-zu-Wiese-Umwandlung, Heckenpflanzung oder Tümpelanlage.</li>
+<li><strong>Ökopunkte / Ökokonto</strong> — möglicher Einmalerlös aus einer anerkannten Aufwertung, dafür Antrag vor Beginn, Bindung im Grundbuch und langer Vorlauf; das Eigentum bleibt erhalten. Sinnvoll bei Acker-zu-Wiese-Umwandlung, Heckenpflanzung oder Streuobst-Neuanlage — für dieselbe Aufwertung entweder Ökokonto oder VNS.</li>
 <li><strong>Privatwald-Förderprogramme NRW</strong> — Biotopbaum-Förderung als Einmalzahlung pro Baum (bis 1.400 € pro Eiche bei 80 cm BHD), kombinierbar mit klassischer Pacht der angrenzenden Flächen.</li>
 <li><strong>Direktverkauf an einen Käufer mit Naturschutz-Affinität</strong> — wir haben spezialisierte Investoren im Netzwerk, die Flächen mit ökologischem Aufwertungspotenzial gezielt suchen.</li>
 </ul>

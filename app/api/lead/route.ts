@@ -4,7 +4,7 @@ import { antwortAdresse, dataPrefix, hasBlobToken, kundenAbsender } from "@/lib/
 import { orteErgaenzen } from "@/lib/admin/daten";
 import { dateiAnlegen, drosseln, kurzwert, mutateZustand, readZustand } from "@/lib/admin/store";
 import { angebotZuCode, ladeBoerse } from "@/lib/boerse";
-import { isGesuchIntent } from "@/lib/lead-options";
+import { isGesuchIntent, isOekopunkteNachfrage } from "@/lib/lead-options";
 import { leadView } from "@/lib/admin/model";
 import { katasterNachholen } from "@/lib/portal/kataster";
 import { eingangPruefen, eingangsbestaetigung, type Eingabe } from "@/lib/portal/eingang";
@@ -130,15 +130,17 @@ export async function POST(req: NextRequest) {
 
   const id = `LL-${Date.now().toString(36).toUpperCase()}`;
   const receivedAt = new Date().toISOString();
+  // Ökopunkte-Nachfrage: dieselben Formularfelder, aber andere Bedeutung — so steht es auch in der Meldung.
+  const nachfrage = isOekopunkteNachfrage(input.intent);
   const text = [
     `Neue Anfrage über ${site.url}`,
     "",
     ...(input.boerse !== "—" ? [`Flächenbörse:  Interesse an Angebot ${input.boerse}${body.paket === "1" ? " (ganzes Paket)" : ""}`, ""] : []),
     `Anliegen:      ${input.intent}`,
-    `Flächentyp:    ${input.flaechentyp}`,
-    `Größe:         ${input.groesse}`,
-    `Ort/Gemarkung: ${input.ort}`,
-    `Flurstück:     ${input.flurstueck}`,
+    nachfrage ? `Maßnahme:      ${input.flaechentyp}` : `Flächentyp:    ${input.flaechentyp}`,
+    nachfrage ? `Umfang:        ${input.groesse}` : `Größe:         ${input.groesse}`,
+    nachfrage ? `Suchraum:      ${input.ort}` : `Ort/Gemarkung: ${input.ort}`,
+    ...(nachfrage ? [] : [`Flurstück:     ${input.flurstueck}`]),
     "",
     `Name:    ${input.name}`,
     `E-Mail:  ${input.email}`,

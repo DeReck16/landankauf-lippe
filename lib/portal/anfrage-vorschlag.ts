@@ -39,6 +39,7 @@ const AUSKUNFT_WARUM: Record<string, string> = {
   Bewertung: "Bewertungsanfrage",
   "Energiepacht (Solar/Wind)": "Frage zur Energiepacht (Solar/Wind)",
   "VNS / Ökopunkte": "Frage zu VNS / Ökopunkten",
+  "Ökopunkte gesucht": "Nachfrage nach Ökopunkten bzw. Kompensationsflächen (kein Eigentümer)",
   Lohnunternehmer: "Sucht einen Lohnunternehmer",
   "Bauland-Beratung": "Wunsch nach Bauland-Beratung",
   Allgemein: "Allgemeine Frage",

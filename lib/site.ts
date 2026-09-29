@@ -100,7 +100,7 @@ export const services = [
     title: "VNS & Ökopunkte",
     short: "Förderung statt Stilllegung",
     description:
-      "Vertragsnaturschutz NRW, Ökokonto und Ausgleichsflächen: Wir beraten Sie bei Antrag, Bewertung und Vermarktung — und holen das Maximum aus extensiven oder schwer bewirtschaftbaren Flächen heraus.",
+      "Vertragsnaturschutz NRW, Ökokonto und Ausgleichsflächen: Wir prüfen, ob Ihre Fläche in Frage kommt, stimmen uns mit den Behörden ab und bringen Eigentümer und Interessenten zusammen — ein eigenes Ökokonto betreiben wir nicht.",
   },
   {
     slug: "services/lohnunternehmer",

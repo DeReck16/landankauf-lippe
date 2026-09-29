@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { submitLead } from "@/lib/lead";
-import { FLAECHENTYPEN, INTENTS, isGesuchIntent, type Flaechentyp, type Intent } from "@/lib/lead-options";
+import { FLAECHENTYPEN, INTENTS, isGesuchIntent, isOekopunkteNachfrage, type Flaechentyp, type Intent } from "@/lib/lead-options";
 
 // Google-Ads-Conversion "LIPPEFORST Form Lead" (Label ist öffentlich/safe)
 const FORM_CONVERSION = "AW-18000118202/kDUqCKC7u7ocELqDkIdD";
@@ -39,7 +39,14 @@ function buildUserData(fd: FormData): Record<string, unknown> | undefined {
   return Object.keys(data).length ? data : undefined;
 }
 
-function fireFormConversion(userData: Record<string, unknown> | undefined, gesuch: boolean) {
+type LeadArt = "angebot" | "gesuch" | "nachfrage";
+
+/** „gesuch“ = jemand sucht Fläche, „nachfrage“ = jemand sucht Ökopunkte/Kompensationsflächen, sonst Eigentümer („angebot“). */
+function leadArt(intent: string): LeadArt {
+  return isOekopunkteNachfrage(intent) ? "nachfrage" : isGesuchIntent(intent) ? "gesuch" : "angebot";
+}
+
+function fireFormConversion(userData: Record<string, unknown> | undefined, art: LeadArt) {
   try {
     const w = window as unknown as {
       dataLayer?: unknown[];
@@ -51,10 +58,11 @@ function fireFormConversion(userData: Record<string, unknown> | undefined, gesuc
         w.dataLayer!.push(args);
       };
     }
-    // Gesuche (Pächter/Käufer suchen Fläche) zählen NICHT als Ads-Conversion:
-    // Die Kampagnen sollen Flächen-Anbieter bringen, und Smart Bidding würde
-    // sonst auf Käufer-Traffic hin optimieren, den die Negatives bewusst aussperren.
-    if (!gesuch) {
+    // Gesuche (Pächter/Käufer suchen Fläche) und Ökopunkte-Nachfragen (Projektentwickler
+    // suchen Punkte) zählen NICHT als Ads-Conversion: Die Kampagnen sollen Flächen-Anbieter
+    // bringen, und Smart Bidding würde sonst auf Käufer-Traffic hin optimieren, den die
+    // Negatives bewusst aussperren.
+    if (art === "angebot") {
       w.gtag("event", "conversion", {
         send_to: FORM_CONVERSION,
         transport_type: "beacon",
@@ -67,7 +75,7 @@ function fireFormConversion(userData: Record<string, unknown> | undefined, gesuc
     // visible as a GA4 key event, not just Ads-attributed ones.
     w.gtag("event", "generate_lead", {
       transport_type: "beacon",
-      lead_type: gesuch ? "gesuch" : "angebot",
+      lead_type: art,
       ...(userData ? { user_data: userData } : {}),
     });
   } catch {
@@ -100,6 +108,7 @@ export default function LeadForm({
   const [error, setError] = useState<string | null>(null);
   const [intent, setIntent] = useState<string>(defaultIntent);
   const gesuch = isGesuchIntent(intent);
+  const nachfrage = isOekopunkteNachfrage(intent);
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -107,7 +116,7 @@ export default function LeadForm({
     const fd = new FormData(e.currentTarget);
     const userData = buildUserData(fd);
     const formEl = e.currentTarget;
-    const submittedGesuch = isGesuchIntent(String(fd.get("intent") || ""));
+    const submittedArt = leadArt(String(fd.get("intent") || ""));
     startTransition(async () => {
       const res = await submitLead(fd);
       if (res.ok) {
@@ -116,7 +125,7 @@ export default function LeadForm({
         // dürfen aber weder die Ads-Conversion noch das GA4-generate_lead
         // auslösen. Sonst zählt jeder Spam-Bot als Lead (Befund 01.08.2026:
         // 79 GA4-Events in 30 Tagen bei 2 echten Leads im Blob-Backup).
-        if (!DROPPED_IDS.has(res.id)) fireFormConversion(userData, submittedGesuch);
+        if (!DROPPED_IDS.has(res.id)) fireFormConversion(userData, submittedArt);
         setSuccess({ id: res.id, bestaetigung: Boolean(res.bestaetigung) });
         formEl.reset();
       } else {
@@ -188,7 +197,7 @@ export default function LeadForm({
         </div>
         <div>
           <label className="field-label" htmlFor="flaechentyp">
-            {gesuch ? "Gesuchter Flächentyp" : "Flächentyp"}
+            {nachfrage ? "Gesuchte Maßnahme (Flächentyp)" : gesuch ? "Gesuchter Flächentyp" : "Flächentyp"}
           </label>
           <select id="flaechentyp" name="flaechentyp" defaultValue={defaultFlaechentyp} className="field-select">
             {FLAECHENTYPEN.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -199,24 +208,24 @@ export default function LeadForm({
           <>
             <div>
               <label className="field-label" htmlFor="groesse">
-                {gesuch ? "Gewünschte Größe" : "Größe (in Hektar oder m²)"}
+                {nachfrage ? "Gesuchter Umfang (Ökopunkte oder Hektar)" : gesuch ? "Gewünschte Größe" : "Größe (in Hektar oder m²)"}
               </label>
-              <input id="groesse" name="groesse" placeholder={gesuch ? "z. B. 5–10 ha" : "z. B. 1,5 ha"} className="field-input" />
+              <input id="groesse" name="groesse" placeholder={nachfrage ? "z. B. 250.000 Punkte oder 5 ha" : gesuch ? "z. B. 5–10 ha" : "z. B. 1,5 ha"} className="field-input" />
             </div>
             <div>
               <label className="field-label" htmlFor="ort">
-                {gesuch ? "Wo suchen Sie?" : "Gemeinde / Gemarkung"}
+                {nachfrage ? "Suchraum (Kreis, Gemeinde oder Naturraum)" : gesuch ? "Wo suchen Sie?" : "Gemeinde / Gemarkung"}
               </label>
               <input
                 id="ort"
                 name="ort"
-                placeholder={gesuch ? "z. B. Lemgo, Kalletal, Lage" : "z. B. Detmold, Leopoldstal"}
+                placeholder={nachfrage ? "z. B. Kreis Lippe, Ostwestfalen-Lippe" : gesuch ? "z. B. Lemgo, Kalletal, Lage" : "z. B. Detmold, Leopoldstal"}
                 className="field-input"
               />
             </div>
           </>
         )}
-        {!gesuch && (
+        {!gesuch && !nachfrage && (
           <div className="sm:col-span-2">
             <label className="field-label" htmlFor="flurstueck">Flur / Flurstück (optional)</label>
             <input id="flurstueck" name="flurstueck" placeholder="z. B. Flur 9, Flst. 113" className="field-input" />
@@ -229,9 +238,11 @@ export default function LeadForm({
             name="message"
             className="field-textarea"
             placeholder={
-              gesuch
-                ? "Was bewirtschaften Sie, ab wann und wie lange möchten Sie pachten oder kaufen? …"
-                : "Was sollten wir noch wissen? Pacht- oder Bewirtschaftungsstatus, Zeitvorstellung, …"
+              nachfrage
+                ? "Welche Maßnahme suchen Sie (z. B. Erstaufforstung), bis wann, zu welchem Preis je Ökopunkt und mit welcher Anerkennung? …"
+                : gesuch
+                  ? "Was bewirtschaften Sie, ab wann und wie lange möchten Sie pachten oder kaufen? …"
+                  : "Was sollten wir noch wissen? Pacht- oder Bewirtschaftungsstatus, Zeitvorstellung, …"
             }
           />
         </div>
@@ -240,8 +251,13 @@ export default function LeadForm({
             Wir melden uns, sobald uns eine passende Fläche angeboten wird. Kontaktdaten geben wir nur weiter, wenn beide Seiten zugestimmt haben. Für Suchende fällt nur bei Erfolg eine Provision an — die Konditionen erhalten Sie vorab schriftlich, bevor wir Ihnen eine Fläche nachweisen.
           </p>
         )}
+        {nachfrage && (
+          <p className="sm:col-span-2 text-sm text-[color:var(--color-ink-soft)] bg-[color:var(--color-brand-soft)] rounded-md px-3 py-2">
+            Wir betreiben kein eigenes Ökokonto und haben keine fertigen Ökopunkte. Wir prüfen, ob unter den Eigentümern in unserem Netzwerk passende Flächen sind, und melden uns bei Ihnen. Kontaktdaten geben wir nur weiter, wenn beide Seiten zugestimmt haben.
+          </p>
+        )}
         <div>
-          <label className="field-label" htmlFor="name">Ihr Name *</label>
+          <label className="field-label" htmlFor="name">{nachfrage ? "Ihr Name und Unternehmen *" : "Ihr Name *"}</label>
           <input id="name" name="name" required className="field-input" />
         </div>
         <div>
@@ -269,7 +285,7 @@ export default function LeadForm({
         <ul className="text-xs text-[color:var(--color-muted)] leading-relaxed space-y-0.5">
           <li>✓ Antwort in der Regel innerhalb eines Werktags per E-Mail</li>
           {/* Suchende zahlen im Erfolgsfall eine Provision — „Keine Provision“ gilt nur für Eigentümer. */}
-          <li>{gesuch ? "✓ Provision nur bei Erfolg" : "✓ Keine Provision für Eigentümer"}</li>
+          {!nachfrage && <li>{gesuch ? "✓ Provision nur bei Erfolg" : "✓ Keine Provision für Eigentümer"}</li>}
           <li>✓ Völlige Diskretion</li>
         </ul>
       </div>

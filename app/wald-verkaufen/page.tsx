@@ -77,7 +77,7 @@ export default function Page() {
               Sie haben einen Fichtenbestand, der dem Borkenkäfer zum Opfer gefallen ist? Eine Sturmwurffläche, die seit Jahren brachliegt? Eine Wiederaufforstungspflicht, die Sie nicht stemmen können? Genau diese Flächen sind für uns interessant — wir kaufen, lassen aufforsten oder konvertieren in Mischwald, mit Förderung und Lohnunternehmer-Vermittlung.
             </p>
 
-            <h2>Förderpotenzial: Biotopbaum, Ökopunkte, Klimaschutz</h2>
+            <h2>Förderpotenzial: Biotopbaum und Klimaschutz</h2>
             <p>
               Bevor Sie einen alten Eichen- oder Buchenbestand verkaufen, prüfen wir, ob Sie ihn nicht behalten und über die <Link href="/services/vns-oekopunkte">FöRL Privat- und Körperschaftswald NRW</Link> als Biotopbaum-Bestand sichern wollen. Eine Eiche mit 60 cm Brusthöhendurchmesser bringt einmalig <strong>bis zu 690 €</strong>, eine 80-cm-Eiche bis zu 1.400 € — bei Eigentumserhalt.
             </p>
