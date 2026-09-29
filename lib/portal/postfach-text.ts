@@ -18,6 +18,7 @@ const ZITAT_ANFANG: RegExp[] = [
   /-{2,}\s*(Original-Nachricht|Ursprüngliche Nachricht|Originalnachricht|Original Message|Weitergeleitete Nachricht|Forwarded message)\s*-{2,}/i,
   /^[ \t>]*(Von|From):[^\n]*\n(?:[^\n]*\n){0,2}?[ \t>]*(Gesendet|Sent|Datum|Date):/im,
   /^[ \t>]*(Von|From):[^\n]*(Gesendet|Sent):/im,
+  /^[ \t>]*(Gesendet|Sent|Datum|Date):[^\n]*\n(?:[^\n]*\n){0,3}?[ \t>]*(Von|From|An|To|Betreff|Subject):/im,
   /^_{8,}\s*$/m,
 ];
 
@@ -143,7 +144,11 @@ const LOESCHWUNSCH = [
 ];
 
 const KEIN_INTERESSE = [
-  /\bkein(e|en)? (weiteres |grosses )?(interesse|bedarf)\b/,
+  // „Interresse“/„Intresse“: Tippfehler sind häufig, gerade bei kurzen Absagen vom Handy.
+  /\bkein(e|en)? (weiteres |grosses )?(interr?ess?e|intress?e|bedarf)\b/,
+  // „… da die Flächen verkauft sind“, „ist inzwischen verpachtet“ — auch ohne „bereits/schon“.
+  /\b(verkauft|verpachtet|vergeben)\s+(sind|ist|worden|wurden|wurde)\b/,
+  /\b(sind|ist|wurde|wurden)\s+(bereits |schon |inzwischen |mittlerweile |leider |alle )*(verkauft|verpachtet|vergeben)\b/,
   /\bnicht (mehr )?(interessiert|aktuell|relevant|noetig)\b/,
   /\b(hat|haette|haben) sich (bereits |schon |inzwischen )?(erledigt|zerschlagen)\b/,
   /\b(bereits|schon|inzwischen|mittlerweile) (anderweitig )?(verkauft|verpachtet|vergeben|gefunden|verkauft worden|verpachtet worden)\b/,
@@ -155,6 +160,12 @@ const KEIN_INTERESSE = [
   /\b(abmelden|austragen)\b/,
   /^(nein|nein danke|danke,? nein|danke,? aber nein)\b/,
   /\b(bitte|danke),? (aber )?nein\b/,
+];
+
+// Pausiert: „Ich melde mich eigenständig, wenn das Thema wieder aktuell ist“ — kein Nachfassen nötig, aber auch kein „verkaufen“/„Beratung“.
+const SPAETER = [
+  /\bmelde(n)? (mich|uns) (\w+ )?(eigenstaendig|selbst|selber|von selbst|wieder|spaeter|bei bedarf|sobald)\b/,
+  /\bwenn (das|dieses) thema (wieder )?(aktuell|relevant)\b/,
 ];
 
 // „pachten“ ohne „ver“ davor (\b trennt „verpachten“), dazu an-/zu-/hinzupachten und Pachtgesuche —
@@ -267,6 +278,16 @@ export function postfachVorschlag(textRoh: string, ziel: { gruppe: Antwortgruppe
   if (ziel.gruppe === "suchender") {
     const weiter = sucheBejaht(n, WEITER_SUCHEN) ?? (JA_KURZ.test(n) ? { idx: 0, laenge: Math.min(n.length, 20) } : null);
     if (weiter) return { art: "suche", grund: `${zeig(weiter)} — sucht weiter`, ...(kein ? { hinweis: `Enthält auch ${zeig(kein)} — bitte prüfen` } : {}) };
+  }
+
+  // Pausiert („melde mich selbst, wenn es wieder aktuell ist“): als erledigt ablegen — ohne Absage im Wortlaut.
+  const spaeter = kein ? null : suche(n, SPAETER);
+  if (spaeter) {
+    return {
+      art: "kein-interesse",
+      grund: `${zeig(spaeter)} — pausiert, meldet sich selbst`,
+      hinweis: "Keine Absage: meldet sich selbst, wenn das Thema wieder aktuell ist. Erledigen ist in Ordnung (nicht nachfassen); die Notiz hält das fest.",
+    };
   }
 
   if (kein) return { art: "kein-interesse", grund: `${zeig(kein)} — kein Interesse mehr` };
