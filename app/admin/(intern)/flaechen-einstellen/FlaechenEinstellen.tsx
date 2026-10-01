@@ -193,12 +193,20 @@ export default function FlaechenEinstellen({
                     <span>
                       <strong>{z.zeile.split("|")[0]}</strong>
                       {z.fs ? (
-                        <span className="lfa-klein">
-                          {" "}
-                          — amtlich {z.fs.gemarkung}, Flur {z.fs.flur}, Flurstück {z.fs.nummer} · {z.fs.flaecheM2.toLocaleString("de-DE")} m² · {z.fs.nutzung}
-                          {z.fs.lage ? ` · „${z.fs.lage}“` : ""}
-                          {z.brw ? ` · Bodenrichtwert ${z.brw.wert.toLocaleString("de-DE", { minimumFractionDigits: 2 })} €/m²` : ""}
-                        </span>
+                        <>
+                          <span className="lfa-klein" title="Der Bodenrichtwert gilt je Nutzungsart (Acker, Grünland) — hier steht, welche Zone gewählt wurde">
+                            {" "}
+                            — amtlich {z.fs.gemarkung}, Flur {z.fs.flur}, Flurstück {z.fs.nummer} · {z.fs.flaecheM2.toLocaleString("de-DE")} m² · {z.fs.nutzung}
+                            {z.fs.lage ? ` · „${z.fs.lage}“` : ""}
+                            {z.brwText ? ` · ${z.brwText}` : ""}
+                          </span>
+                          {z.brwWarnung && (
+                            <span className="lfa-klein lfa-dash-warnung" title="Die gewählte Bodenrichtwert-Zone passt nicht sicher zur Fläche — bitte prüfen">
+                              {" "}
+                              — {z.brwWarnung}
+                            </span>
+                          )}
+                        </>
                       ) : (
                         <span className="lfa-klein lfa-dash-warnung"> — {z.fehler}</span>
                       )}

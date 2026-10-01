@@ -4,7 +4,8 @@ import { dateiAnlegen, mutateZustand } from "@/lib/admin/store";
 import { boerseNeuSchreiben, neuerBoerseCode } from "@/lib/boerse";
 import { FLAECHENTYPEN } from "@/lib/lead-options";
 import { anbieterAbgleichJetzt } from "./anbieter-gruppe";
-import { bodenrichtwert, brwArtFuer, flurstueckAusText, flurstueckSuchen, type BrwTreffer, type FlurstueckTreffer } from "./kataster";
+import { bodenrichtwert, brwArtFuer, brwNutzungFuer, flurstueckAusText, flurstueckSuchen, type BrwTreffer, type FlurstueckTreffer } from "./kataster";
+import { brwWarnung, brwZeile } from "./wert";
 
 // Flächen selbst einstellen (Verwaltung → „Flächen einstellen“, Dennis 25.09.2026: eigene
 // Wiesen und Waldstücke einzeln und anonym in die Flächenbörse). Je Zeile ein Flurstück;
@@ -19,6 +20,10 @@ export type FlaechenZeile = {
   text: string;
   fs: FlurstueckTreffer | null;
   brw: BrwTreffer | null;
+  /** Bodenrichtwert mit Nutzungsart in Worten („Bodenrichtwert 2,30 €/m² (Grünland, Stichtag …)“) — leer ohne Wert. Gilt für den Typ bei der Prüfung; beim Einstellen wird er mit dem gewählten Typ neu abgefragt. */
+  brwText: string;
+  /** Warnung der Verwaltung, wenn die Zone nicht sicher zur Fläche passt (siehe brwWarnung). */
+  brwWarnung: string | null;
   /** Vorschlag für den Flächentyp der Börse aus der amtlichen Nutzung. */
   typ: string;
   groesseHa: number | null;
@@ -57,7 +62,7 @@ export async function flaechenPruefen(roh: string, gemeinsamerText: string, stan
   const standard = (FLAECHENTYPEN as readonly string[]).includes(standardTyp) ? standardTyp : "Wiese / Grünland";
   return Promise.all(
     zeilen.map(async (zeile): Promise<FlaechenZeile> => {
-      const leer: FlaechenZeile = { zeile, text: gemeinsamerText, fs: null, brw: null, typ: standard, groesseHa: null, lage: "" };
+      const leer: FlaechenZeile = { zeile, text: gemeinsamerText, fs: null, brw: null, brwText: "", brwWarnung: null, typ: standard, groesseHa: null, lage: "" };
       const z = zerlegen(zeile);
       const angabe = z ? flurstueckAusText(z.flurstueck) : null;
       if (!z || !angabe || !z.ort) return { ...leer, fehler: "Nicht lesbar — Format: „Ort bzw. Gemarkung, Flur 3, Flurstück 416“." };
@@ -65,12 +70,15 @@ export async function flaechenPruefen(roh: string, gemeinsamerText: string, stan
       const { treffer, grund } = await flurstueckSuchen(z.ort, angabe, 14_000);
       if (!treffer) return { ...leer, text, fehler: grund ?? "Nicht gefunden." };
       const typ = typAusNutzung(treffer.nutzung, standard);
-      const brw = await bodenrichtwert(treffer.punkt, brwArtFuer(typ, treffer.nutzung), 5000);
+      const gefunden = await bodenrichtwert(treffer.punkt, brwArtFuer(typ, treffer.nutzung), brwNutzungFuer(typ, treffer.nutzung), 5000);
+      const brw = gefunden && gefunden !== "fehler" ? gefunden : null;
       return {
         zeile,
         text,
         fs: treffer,
-        brw: brw && brw !== "fehler" ? brw : null,
+        brw,
+        brwText: brw ? brwZeile(brw) : "",
+        brwWarnung: brw ? brwWarnung(brw) : null,
         typ,
         groesseHa: Math.round(treffer.flaecheM2 / 100) / 100,
         lage: grobeLage(treffer),

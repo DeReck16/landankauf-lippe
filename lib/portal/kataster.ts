@@ -9,7 +9,9 @@ import * as T from "./texte";
 // Antwortentwürfe (Wertindikation, lib/portal/antwort.ts) und fürs Einstellen eigener
 // Flächen (app/admin/(intern)/flaechen-einstellen). Ergebnisse werden je Anfrage in
 // LeadMeta.kataster gemerkt — abgefragt wird nur einmal (bzw. wenn sich Ort oder
-// Flurstück ändern). Außerhalb NRW gibt es keine Treffer.
+// Flurstück ändern). Außerhalb NRW gibt es keine Treffer. Der Bodenrichtwert gilt je
+// Nutzungsart (Acker „A“ / Grünland „GR“ liegen als getrennte, überlappende Zonen
+// übereinander): brwAusAntwort wählt die Zone zur Flächenart der Anfrage.
 
 const ALKIS = "https://ogc-api.nrw.de/lika/v1/collections/flurstueck/items";
 const BORIS = "https://www.wms.nrw.de/boris/wms_nw_brw";
@@ -141,8 +143,62 @@ function zahl(v: unknown): number | null {
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
+/** Nutzungsart der Bodenrichtwertzone (BORIS-Feld NUTA), auf die es bei landwirtschaftlichen Flächen ankommt: Acker oder Grünland. */
+export type BrwNutzung = "A" | "GR";
+
+/** NUTA „L“: eine Zone für Landwirtschaft ohne Unterscheidung von Acker und Grünland (z. B. Kreis Heinsberg) — gilt für beides. */
+const SAMMELZONE = "L";
+
+/**
+ * Welche Zone der Landwirtschaftsschicht gilt für die Fläche — nach dem Flächentyp der Anfrage, sonst nach einer
+ * ausdrücklich genannten amtlichen Nutzung (ALKIS NRW nennt meist nur „Landwirtschaft“ → null = nicht eindeutig).
+ * Null auch für Wald und Bauland (andere Schichten, siehe brwArtFuer).
+ */
+export function brwNutzungFuer(flaechentyp: string, nutzung: string): BrwNutzung | null {
+  if (brwArtFuer(flaechentyp, nutzung) !== "landwirtschaft") return null;
+  if (/acker/i.test(flaechentyp)) return "A";
+  if (/wiese|gr(ü|ue)nland|weide/i.test(flaechentyp)) return "GR";
+  if (/acker/i.test(nutzung)) return "A";
+  if (/gr(ü|ue)nland|wiese|weide/i.test(nutzung)) return "GR";
+  return null;
+}
+
+/**
+ * Zone aus einer GetFeatureInfo-Antwort wählen. BORIS liefert je Punkt mehrere überlappende Zonen — in der
+ * Landwirtschaftsschicht je eine für Acker („A“) und Grünland („GR“), in jedem Gebiet in anderer Reihenfolge
+ * (Gemarkung Horn: Grünland zuerst, Belle: Acker zuerst). Gewählt wird die Zone mit der gewünschten Nutzungsart,
+ * sonst eine Sammelzone („L“). Gibt es keine passende, gilt die erste (ohne Wunsch bevorzugt Acker, wie der
+ * Antwortentwurf bei unklarer Flächenart) — das Ergebnis hält fest, was gesucht war (`gewuenscht`) und was
+ * gewählt wurde (`nuta`), damit die Verwaltung die Abweichung sieht.
+ */
+export function brwAusAntwort(antwort: unknown, art: BrwArt, gewuenscht: BrwNutzung | null): BrwTreffer | null {
+  const features = (antwort as { features?: unknown } | null)?.features;
+  const zonen = (Array.isArray(features) ? features : [])
+    .map((f) => (f as { properties?: unknown } | null)?.properties)
+    .filter((p): p is Record<string, unknown> => typeof p === "object" && p !== null && zahl((p as Record<string, unknown>).BRW) !== null);
+  if (zonen.length === 0) return null;
+  const nuta = (p: Record<string, unknown>) => String(p.NUTA ?? "").trim().toUpperCase();
+  const p =
+    art === "landwirtschaft"
+      ? ((gewuenscht ? zonen.find((z) => nuta(z) === gewuenscht) : null) ??
+        zonen.find((z) => nuta(z) === SAMMELZONE) ??
+        (gewuenscht ? null : zonen.find((z) => nuta(z) === "A")) ??
+        zonen[0])
+      : zonen[0];
+  return {
+    wert: zahl(p.BRW)!,
+    stichtag: String(p.STAG ?? "").slice(0, 10),
+    art,
+    nuta: nuta(p),
+    ...(art === "landwirtschaft" && gewuenscht ? { gewuenscht } : {}),
+    zone: String(p.BRWZNR ?? "").trim(),
+    gutachterausschuss: String(p.GABE ?? "").trim(),
+    gemarkungen: String(p.GEMA ?? "").trim(),
+  };
+}
+
 /** Bodenrichtwert am Punkt (BORIS NRW, aktueller Stichtag) — „fehler“, wenn der Dienst nicht antwortet. */
-export async function bodenrichtwert(punkt: [number, number], art: BrwArt, ms = 5000): Promise<BrwTreffer | null | "fehler"> {
+export async function bodenrichtwert(punkt: [number, number], art: BrwArt, gewuenscht: BrwNutzung | null, ms = 5000): Promise<BrwTreffer | null | "fehler"> {
   const [lon, lat] = punkt;
   const d = 0.0005;
   const params = new URLSearchParams({
@@ -158,23 +214,13 @@ export async function bodenrichtwert(punkt: [number, number], art: BrwArt, ms = 
     I: "50",
     J: "50",
     INFO_FORMAT: "application/geo+json",
-    FEATURE_COUNT: "3",
+    // Mehr als die zwei üblichen Zonen (Acker, Grünland), damit die gesuchte Nutzungsart nie abgeschnitten wird.
+    FEATURE_COUNT: "10",
   });
   try {
     const res = await fetch(`${BORIS}?${params}`, { signal: AbortSignal.timeout(ms), cache: "no-store" });
     if (!res.ok) return "fehler";
-    const j = (await res.json()) as { features?: { properties?: Record<string, unknown> }[] };
-    const p = j.features?.[0]?.properties;
-    const wert = zahl(p?.BRW);
-    if (!p || !wert) return null;
-    return {
-      wert,
-      stichtag: String(p.STAG ?? "").slice(0, 10),
-      art,
-      zone: String(p.BRWZNR ?? "").trim(),
-      gutachterausschuss: String(p.GABE ?? "").trim(),
-      gemarkungen: String(p.GEMA ?? "").trim(),
-    };
+    return brwAusAntwort(await res.json(), art, gewuenscht);
   } catch (err) {
     console.error("[kataster] BORIS nicht erreichbar", err);
     return "fehler";
@@ -183,6 +229,9 @@ export async function bodenrichtwert(punkt: [number, number], art: BrwArt, ms = 
 
 /** Vorübergehende Störung — solche Ergebnisse werden nicht gemerkt, beim nächsten Mal wird neu gefragt. */
 const STOERUNG = /nicht erreichbar/;
+
+/** Nach einem Jahr wird jeder Eintrag neu abgefragt. */
+const JAHR_MS = 365 * 86_400_000;
 
 /** Welche Bodenrichtwertart passt — nach Flächentyp der Anfrage, sonst nach der amtlichen Nutzung. */
 export function brwArtFuer(flaechentyp: string, nutzung: string): BrwArt {
@@ -196,11 +245,29 @@ export function katasterSchluessel(l: LeadView): string {
   return `${(l.ortText || T.wert(l.ort)).trim()}|${T.wert(l.flurstueck)}`;
 }
 
-/** Braucht die Anfrage (noch) eine Kataster-Abfrage? Nur mit Flurstück, einmal je Angabe, spätestens jährlich neu. */
+/**
+ * Muss der gespeicherte Bodenrichtwert neu abgefragt werden, weil die Zone nicht nach Nutzungsart gewählt wurde?
+ * Gilt für Einträge der Landwirtschaftsschicht ohne `nuta` (Abfrage vor dem 01.10.2026: immer die erste Zone, in
+ * Gemarkung Horn Grünland statt Acker) und wenn für die Anfrage inzwischen eine andere Nutzungsart gilt als beim
+ * Abfragen (Flächentyp geändert). Nach der Neuabfrage steht `nuta` (auch leer) — so entsteht keine Schleife.
+ */
+export function brwNeuAbfragen(l: LeadView): boolean {
+  const k = l.meta.kataster;
+  const b = k?.brw;
+  if (!k || !b || b.art !== "landwirtschaft") return false;
+  if (b.nuta === undefined) return true;
+  return (b.gewuenscht ?? null) !== brwNutzungFuer(l.typ, k.flurstueck?.nutzung ?? "");
+}
+
+/**
+ * Braucht die Anfrage (noch) eine Kataster-Abfrage? Nur mit Flurstück, einmal je Angabe, spätestens jährlich neu —
+ * und neu, wenn der Bodenrichtwert noch ohne Wahl der Nutzungsart gespeichert ist (brwNeuAbfragen). Die Neuabfrage
+ * ändert nur `LeadMeta.kataster`: kein Status, kein Verlauf, keine Mail an Kunden oder Verwaltung.
+ */
 export function katasterFaellig(l: LeadView, jetzt = Date.now()): boolean {
   if (!T.wert(l.flurstueck) || !flurstueckAusText(T.wert(l.flurstueck))) return false;
   const k = l.meta.kataster;
-  return !k || k.schluessel !== katasterSchluessel(l) || jetzt - Date.parse(k.am) > 365 * 86_400_000;
+  return !k || k.schluessel !== katasterSchluessel(l) || jetzt - Date.parse(k.am) > JAHR_MS || brwNeuAbfragen(l);
 }
 
 /** Flurstück + Bodenrichtwert für eine Anfrage abfragen (ohne Speichern). */
@@ -210,11 +277,17 @@ export async function katasterAbfragen(l: LeadView, ms = 16_000): Promise<Katast
   const angabe = flurstueckAusText(T.wert(l.flurstueck));
   if (!angabe) return { am, schluessel, flurstueck: null, brw: null, hinweis: "Flurstücksangabe nicht lesbar." };
   const start = Date.now();
-  const { treffer: fs, grund } = await flurstueckSuchen(l.ortText || T.wert(l.ort), angabe, Math.max(1500, ms - 3000));
+  // Ist nur die Bodenrichtwert-Zone veraltet (brwNeuAbfragen) und das Flurstück schon gespeichert, wird ALKIS nicht
+  // noch einmal gefragt: schneller, und ein Aussetzer des Dienstes (HTTP-Fehler zählt dort als „nicht gefunden“)
+  // kann einen guten Eintrag nicht überschreiben. `am` bleibt dann das Datum der Flurstück-Abfrage.
+  const alt = l.meta.kataster;
+  const behalten = alt?.flurstueck && alt.schluessel === schluessel && Date.now() - Date.parse(alt.am) <= JAHR_MS && brwNeuAbfragen(l) ? alt : null;
+  const { treffer: fs, grund } = behalten?.flurstueck ? { treffer: behalten.flurstueck, grund: undefined } : await flurstueckSuchen(l.ortText || T.wert(l.ort), angabe, Math.max(1500, ms - 3000));
+  const stand = behalten?.am ?? am;
   if (!fs) return { am, schluessel, flurstueck: null, brw: null, hinweis: grund };
-  const brw = await bodenrichtwert(fs.punkt, brwArtFuer(l.typ, fs.nutzung), Math.max(1500, ms - (Date.now() - start)));
-  if (brw === "fehler") return { am, schluessel, flurstueck: fs, brw: null, hinweis: "Bodenrichtwert (BORIS NRW) gerade nicht erreichbar." };
-  return { am, schluessel, flurstueck: fs, brw, ...(brw ? {} : { hinweis: "Kein Bodenrichtwert für diese Lage gefunden." }) };
+  const brw = await bodenrichtwert(fs.punkt, brwArtFuer(l.typ, fs.nutzung), brwNutzungFuer(l.typ, fs.nutzung), Math.max(1500, ms - (Date.now() - start)));
+  if (brw === "fehler") return { am: stand, schluessel, flurstueck: fs, brw: null, hinweis: "Bodenrichtwert (BORIS NRW) gerade nicht erreichbar." };
+  return { am: stand, schluessel, flurstueck: fs, brw, ...(brw ? {} : { hinweis: "Kein Bodenrichtwert für diese Lage gefunden." }) };
 }
 
 /** Ergebnisse im Verwaltungszustand merken (ohne Eintrag im Verlauf). */
@@ -224,6 +297,19 @@ export async function katasterMerken(ergebnisse: Record<string, KatasterDaten>):
   await mutateZustand("Kataster", (z) => {
     for (const id of ids) z.anfragen[id] = { ...(z.anfragen[id] ?? {}), kataster: ergebnisse[id] };
   });
+}
+
+/**
+ * Welche Anfragen der tägliche Lauf (app/api/cron/taeglich) auf Kataster-Daten prüft: zuerst die, für die gerade ein
+ * Antwortentwurf gebraucht wird (neu, ohne Rolle bzw. Beratungswunsch), danach offene Anfragen mit Bodenrichtwert
+ * ohne Nutzungsart (Altbestand, auch Anbieter und laufende Vorgänge — der Wert steht in der Anfrage und in
+ * Einladungsentwürfen). Erledigte und archivierte Anfragen bleiben, wie sie sind. Gefragt wird nur, was
+ * katasterFaellig meldet, höchstens 8 je Lauf (katasterNachholen).
+ */
+export function katasterKandidaten(leads: LeadView[]): LeadView[] {
+  const fuerEntwurf = leads.filter((l) => l.status === "neu" && (l.meta.rueckmeldung?.art === "beratung" || !T.rolleVonLead(l)));
+  const altbestand = leads.filter((l) => l.status !== "erledigt" && l.status !== "archiv" && !fuerEntwurf.includes(l) && brwNeuAbfragen(l));
+  return [...fuerEntwurf, ...altbestand];
 }
 
 /** Für mehrere Anfragen parallel abfragen und merken — mit Zeitbudget (Dashboard, Formular-Eingang). */

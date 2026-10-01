@@ -92,7 +92,23 @@ export type KatasterDaten = {
   /** Womit gesucht wurde (Ort | Flurstück) — ändert sich die Angabe, wird neu gesucht. */
   schluessel: string;
   flurstueck: { gemarkung: string; gemeinde: string; kreis: string; flur: string; nummer: string; flaecheM2: number; nutzung: string; lage: string; punkt: [number, number] } | null;
-  brw: { wert: number; stichtag: string; art: "landwirtschaft" | "forstwirtschaft" | "wohnbau"; zone: string; gutachterausschuss: string; gemarkungen: string } | null;
+  brw: {
+    wert: number;
+    stichtag: string;
+    art: "landwirtschaft" | "forstwirtschaft" | "wohnbau";
+    /**
+     * Nutzungsart der gewählten Zone laut BORIS (Feld NUTA): „A“ Acker, „GR“ Grünland, „L“ Landwirtschaft ohne
+     * Unterscheidung (z. B. Kreis Heinsberg). BORIS liefert je Punkt mehrere überlappende Zonen — bis 01.10.2026
+     * wurde immer die erste genommen (in Gemarkung Horn Grünland statt Acker, ~42 % zu niedrig). Fehlt der Wert,
+     * stammt der Eintrag aus dieser Zeit und wird neu abgefragt (`katasterFaellig`).
+     */
+    nuta?: string;
+    /** Gesucht war Acker („A“) bzw. Grünland („GR“) — fehlt, wenn die Flächenart nicht eindeutig war. Passt `nuta` nicht dazu, gab es keine passende Zone. */
+    gewuenscht?: "A" | "GR";
+    zone: string;
+    gutachterausschuss: string;
+    gemarkungen: string;
+  } | null;
   /** Warum nichts (Eindeutiges) gefunden wurde — nur für die Verwaltung. */
   hinweis?: string;
 };

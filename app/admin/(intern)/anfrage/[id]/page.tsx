@@ -16,6 +16,7 @@ import { mailKey } from "@/lib/portal/postfach";
 import * as M from "@/lib/portal/model";
 import { basisUrl } from "@/lib/portal/sitzung";
 import { anschrift, datumDe, flaecheZeile, rolleVonLead } from "@/lib/portal/texte";
+import { brwWarnung, brwZeile } from "@/lib/portal/wert";
 import { VORLAGEN, istFreigegeben, kundenVorlage } from "@/lib/vertraege/vorlagen";
 import { BERATUNG_THEMEN, RUECKMELDUNG_NAME, antwortGruppe, antwortOptionen, istBeratungThema, istRueckmeldungArt, themaVorschlag } from "@/lib/portal/rueckmeldung-typen";
 import { anfrageSpeichern, loeschwunschFormular, ortNeuSuchen, postfachFormular, rueckmeldungErfassen, wegFormular } from "../../../actions";
@@ -73,6 +74,8 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
   const basis = await basisUrl();
   const abgeleitet = ableitenAusAnliegen(l.intent);
   const geparst = parseGroesse(l.groesse);
+  const brw = l.meta.kataster?.brw ?? null;
+  const brwHinweis = brw ? brwWarnung(brw) : null;
   const orte = punkteFuer(l, zustand.orte);
   const eigeneKandidaten = findeKandidaten(leads, zustand).kandidaten.filter((k) => k.angebot.id === l.id || k.gesuch.id === l.id);
   // Verlauf je Anfrage aus eigener Datei (bleibt vollständig), ergänzt um ältere Einträge aus dem Protokoll.
@@ -192,13 +195,19 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
                         {l.meta.kataster.flurstueck.gemarkung}, Flur {l.meta.kataster.flurstueck.flur}, Flurstück {l.meta.kataster.flurstueck.nummer} ·{" "}
                         {l.meta.kataster.flurstueck.flaecheM2.toLocaleString("de-DE")} m² · {l.meta.kataster.flurstueck.nutzung}
                         {l.meta.kataster.flurstueck.lage ? ` · „${l.meta.kataster.flurstueck.lage}“` : ""} · Kreis {l.meta.kataster.flurstueck.kreis}
-                        {l.meta.kataster.brw && (
-                          <span className="lfa-klein">
-                            {" "}
-                            — Bodenrichtwert {l.meta.kataster.brw.wert.toLocaleString("de-DE", { minimumFractionDigits: 2 })} €/m² (
-                            {l.meta.kataster.brw.art === "forstwirtschaft" ? "Forst, ohne Aufwuchs" : l.meta.kataster.brw.art === "wohnbau" ? "Wohnbau" : "Landwirtschaft"}, Stichtag{" "}
-                            {l.meta.kataster.brw.stichtag.split("-").reverse().join(".")}, Zone {l.meta.kataster.brw.zone})
-                          </span>
+                        {brw && (
+                          <>
+                            <span className="lfa-klein" title="Der Bodenrichtwert gilt je Nutzungsart (Acker, Grünland) — hier steht, welche Zone gewählt wurde">
+                              {" "}
+                              — {brwZeile(brw)}
+                            </span>
+                            {brwHinweis && (
+                              <span className="lfa-klein lfa-dash-warnung" title="Die gewählte Bodenrichtwert-Zone passt nicht sicher zur Fläche — bitte prüfen">
+                                {" "}
+                                — {brwHinweis}
+                              </span>
+                            )}
+                          </>
                         )}
                       </>
                     ) : (

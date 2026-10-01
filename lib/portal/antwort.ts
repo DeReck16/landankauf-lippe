@@ -1,7 +1,7 @@
 import "server-only";
 import { formatGroesse, type LeadView, type Rueckmeldung } from "@/lib/admin/model";
 import type { FlaechenTyp } from "@/lib/valuation";
-import { TYP_NAME, gemeindeAus, genauer, qm, wertAusBrw, wertTyp, wertindikation } from "./wert";
+import { TYP_NAME, brwWarnung, gemeindeAus, genauer, qm, wertAusBrw, wertTyp, wertindikation } from "./wert";
 import { GRUSS } from "./ablauf";
 import type { AntwortEntwurf, AntwortThema } from "./anfrage-typen";
 import { anfrageBezug, antwortLink } from "./entwuerfe";
@@ -186,6 +186,9 @@ export function antwortEntwurf(opts: { lead: LeadView; kunde: M.KundeRecord | nu
   const w = !mitWert ? null : (k ? wertAusBrw(k) : null) ?? (wTyp && inLippe ? wertindikation(wTyp, ha ?? null, city) : null);
   /** Wert aus dem amtlichen Bodenrichtwert (ein Wert statt einer Spanne). */
   const amtlich = Boolean(w?.kurz.startsWith("Bodenrichtwert"));
+  // Acker und Grünland haben je eine eigene Zone — passt die gewählte nicht sicher zur Fläche, sagt der Hinweis es.
+  const brwHinweis = amtlich && k?.brw ? brwWarnung(k.brw) : null;
+  if (brwHinweis) hinweise.push(`Bodenrichtwert: ${brwHinweis}`);
 
   const nf = genauer(wTyp ?? "ackerland", hatFlurstueck);
   const koerper: string[] = [];

@@ -73,17 +73,59 @@ export function wertindikation(typ: FlaechenTyp, ha: number | null, city: City |
 
 const datumTag = (iso: string) => (/^\d{4}-\d{2}-\d{2}/.test(iso) ? `${iso.slice(8, 10)}.${iso.slice(5, 7)}.${iso.slice(0, 4)}` : iso);
 
-/** Wertindikation aus dem amtlichen Bodenrichtwert am Flurstück (BORIS NRW) — genauer als der Kreisdurchschnitt. */
+type Brw = NonNullable<KatasterDaten["brw"]>;
+
+/**
+ * Nutzungsart der Zone in Worten für die Verwaltung („Acker“, „Grünland“, „Landwirtschaft“ bei Sammelzone bzw.
+ * Eintrag ohne Nutzungsart, „Forst, ohne Aufwuchs“, „Wohnbau“) — damit man sieht, welche Zone gilt.
+ */
+export function brwNutzungKurz(b: Brw): string {
+  if (b.art === "forstwirtschaft") return "Forst, ohne Aufwuchs";
+  if (b.art === "wohnbau") return "Wohnbau";
+  return b.nuta === "A" ? "Acker" : b.nuta === "GR" ? "Grünland" : "Landwirtschaft";
+}
+
+/** Bodenrichtwert in einer Zeile für die Verwaltung: „Bodenrichtwert 4,00 €/m² (Acker, Stichtag 01.01.2026, Zone 8301)“. */
+export function brwZeile(b: Brw): string {
+  return `Bodenrichtwert ${euro2(b.wert)} €/m² (${brwNutzungKurz(b)}, Stichtag ${datumTag(b.stichtag)}, Zone ${b.zone})`;
+}
+
+/**
+ * Warnung für die Verwaltung, wenn die Zone nicht sicher zur Fläche passt — sonst null. Drei Fälle: Eintrag noch
+ * ohne Nutzungsart (ältere Abfrage, wird neu abgefragt), Flächenart unklar (Acker oder Grünland?) und keine Zone
+ * der gesuchten Nutzungsart am Flurstück. Eine Sammelzone („L“, Landwirtschaft ohne Unterscheidung) passt immer.
+ */
+export function brwWarnung(b: Brw): string | null {
+  if (b.art !== "landwirtschaft") return null;
+  if (b.nuta === undefined) return "Ältere Abfrage — Acker und Grünland waren nicht unterschieden, der Wert kann zur falschen Nutzungsart gehören. Wird beim nächsten Lauf neu abgefragt.";
+  if (b.nuta === "L") return null;
+  if (!b.gewuenscht) return `Flächenart nicht eindeutig — Zone für ${brwNutzungKurz(b)} genommen. Bitte prüfen, ob Acker oder Grünland gemeint ist.`;
+  if (b.nuta !== b.gewuenscht) return `Keine ${b.gewuenscht === "A" ? "Acker" : "Grünland"}-Zone am Flurstück gefunden — der Wert gilt für ${brwNutzungKurz(b)}.`;
+  return null;
+}
+
+/** Nutzungsart im Text an den Kunden („Ackerland“, „Grünland“; ohne Angabe wie bisher „landwirtschaftliche Flächen“). */
+function brwArtText(b: Brw): string {
+  if (b.art === "forstwirtschaft") return "Waldflächen (Boden ohne Aufwuchs)";
+  if (b.art === "wohnbau") return "Wohnbauland";
+  return b.nuta === "A" ? "Ackerland" : b.nuta === "GR" ? "Grünland" : "landwirtschaftliche Flächen";
+}
+
+/**
+ * Wertindikation aus dem amtlichen Bodenrichtwert am Flurstück (BORIS NRW) — genauer als der Kreisdurchschnitt.
+ * Der Text nennt die Nutzungsart der Zone; fehlte am Flurstück die passende, steht dort die tatsächlich gewählte
+ * (z. B. „für Grünland“ bei einer Ackerfläche) — die Verwaltung wird darauf im Antwortentwurf hingewiesen (brwWarnung).
+ */
 export function wertAusBrw(k: KatasterDaten): Wert | null {
   const f = k.flurstueck;
   const b = k.brw;
   if (!f || !b || !f.flaecheM2) return null;
   const ga = b.gutachterausschuss.replace(/^Der\s+/, "") || "Gutachterausschuss für Grundstückswerte";
-  const artText = b.art === "forstwirtschaft" ? "Waldflächen (Boden ohne Aufwuchs)" : b.art === "wohnbau" ? "Wohnbauland" : "landwirtschaftliche Flächen";
   const gesamt = b.wert * f.flaecheM2;
   return {
-    satz: `Der amtliche Bodenrichtwert für ${artText} in Ihrer Lage liegt bei ${euro2(b.wert)} € je m² (Stichtag ${datumTag(b.stichtag)}, ${ga}). Für Ihr Flurstück ${f.gemarkung}, Flur ${f.flur}, Flurstück ${f.nummer} mit amtlich ${qm(f.flaecheM2 / 10_000)} m² ergibt das rechnerisch rund ${euroRund(gesamt)} €.${b.art === "forstwirtschaft" ? " Der Wert des Holzbestands kommt hinzu." : ""}`,
-    kurz: `Bodenrichtwert ${euro2(b.wert)} €/m² (${datumTag(b.stichtag)}) · amtlich ${qm(f.flaecheM2 / 10_000)} m² · ≈ ${euroRund(gesamt)} €`,
+    satz: `Der amtliche Bodenrichtwert für ${brwArtText(b)} in Ihrer Lage liegt bei ${euro2(b.wert)} € je m² (Stichtag ${datumTag(b.stichtag)}, ${ga}). Für Ihr Flurstück ${f.gemarkung}, Flur ${f.flur}, Flurstück ${f.nummer} mit amtlich ${qm(f.flaecheM2 / 10_000)} m² ergibt das rechnerisch rund ${euroRund(gesamt)} €.${b.art === "forstwirtschaft" ? " Der Wert des Holzbestands kommt hinzu." : ""}`,
+    // Muss mit „Bodenrichtwert“ beginnen — daran erkennt der Antwortentwurf den amtlichen Wert (antwort.ts).
+    kurz: `Bodenrichtwert ${euro2(b.wert)} €/m² (${brwNutzungKurz(b)}, ${datumTag(b.stichtag)}) · amtlich ${qm(f.flaecheM2 / 10_000)} m² · ≈ ${euroRund(gesamt)} €`,
     hint: null,
   };
 }
