@@ -1,10 +1,7 @@
 import Link from "next/link";
 import { DETAIL_FELDER, artText, haText, paketGroesse, type BoerseEintrag } from "@/lib/boerse-regeln";
 
-type Karte = Pick<BoerseEintrag, "code" | "art" | "typ" | "groesseHa" | "lage" | "text"> & Partial<Pick<BoerseEintrag, "details" | "eigen" | "paket">>;
-
-const EIGEN_TEXT =
-  "Eigene Fläche: Sie gehört dem Geschäftsführer von Lippe Forst (TR Vertriebs GmbH) bzw. seiner Familie. Für sie fällt keine Provision an.";
+type Karte = Pick<BoerseEintrag, "code" | "art" | "typ" | "groesseHa" | "lage" | "text"> & Partial<Pick<BoerseEintrag, "details" | "paket">>;
 
 function Details({ a }: { a: Karte }) {
   const felder = DETAIL_FELDER.filter((f) => a.details?.[f.key]);
@@ -37,11 +34,6 @@ export default function BoerseKarte({ a, teile, mitLink = true }: { a: Karte; te
         {a.typ || "Fläche"}, {paket ? `zusammen ${haText(groesse)}` : haText(groesse)}
       </h3>
       <p className="mt-1 text-[color:var(--color-ink-soft)]">{a.lage || "Kreis Lippe"}</p>
-      {a.eigen && (
-        <p className="mt-3 text-sm rounded-md px-3 py-2 bg-[color:var(--color-brand-soft)] text-[color:var(--color-brand-dark)]" title="Offenlegung: Diese Fläche gehört dem Geschäftsführer bzw. seiner Familie — deshalb ohne Provision">
-          {EIGEN_TEXT}
-        </p>
-      )}
       {a.text && <p className="mt-3 text-[color:var(--color-ink-soft)] leading-relaxed">{a.text}</p>}
       <Details a={a} />
       {paket && (
@@ -61,7 +53,7 @@ export default function BoerseKarte({ a, teile, mitLink = true }: { a: Karte; te
             href={paket ? `/flaechenboerse/${a.code}?paket=1` : `/flaechenboerse/${a.code}`}
             prefetch={false}
             className="btn-primary"
-            title={paket ? `Interesse am Paket (${paket.map((t) => t.code).join(", ")}) anmelden — unverbindlich` : `Interesse an Angebot ${a.code} anmelden — unverbindlich${a.eigen ? ", ohne Provision" : ", Provision nur bei Erfolg"}`}
+            title={paket ? `Interesse am Paket (${paket.map((t) => t.code).join(", ")}) anmelden — unverbindlich` : `Interesse an Angebot ${a.code} anmelden — unverbindlich, Provision nur bei Erfolg`}
           >
             Interesse anmelden
           </Link>

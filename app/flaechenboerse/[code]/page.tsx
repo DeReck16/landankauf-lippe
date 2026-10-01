@@ -65,15 +65,9 @@ export default async function Page(props: PageProps<"/flaechenboerse/[code]">) {
               <p>
                 <strong>So geht es weiter:</strong> Sie melden hier unverbindlich Ihr Interesse an. Wir schicken Ihnen einen persönlichen Zugang, dort schließen Sie online einen kurzen Nachweisvertrag. Stimmt der Eigentümer dem Kontakt zu, sehen Sie Namen, Kontaktdaten und Flurstücke — {pacht ? "den Pachtvertrag schließen Sie auf Wunsch online über uns (für Acker und Grünland)." : "den Kaufvertrag schließen Sie beim Notar."}
               </p>
-              {a.eigen ? (
-                <p>
-                  <strong>Ohne Provision:</strong> Diese Fläche gehört dem Geschäftsführer von Lippe Forst (TR Vertriebs GmbH) bzw. seiner Familie. Für sie fällt keine Provision an.
-                </p>
-              ) : (
-                <p>
-                  <strong>Provision nur bei Erfolg:</strong> {provision}. Kommt kein {pacht ? "Pachtvertrag" : "Kauf"} zustande, zahlen Sie nichts.
-                </p>
-              )}
+              <p>
+                <strong>Provision nur bei Erfolg:</strong> {provision}. Kommt kein {pacht ? "Pachtvertrag" : "Kauf"} zustande, zahlen Sie nichts.
+              </p>
               <p>
                 <Link href="/flaechenboerse" className="underline" title="Zur Übersicht aller aktuellen Angebote">Alle Angebote ansehen</Link>
               </p>

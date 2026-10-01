@@ -50,7 +50,7 @@ export default async function BoerseAbschnitt() {
         )}
 
         <p className="mt-6 text-sm text-[color:var(--color-muted)]">
-          Provision nur im Erfolgsfall — für Käufer {provisionKauf}, für Pächter {provisionPacht}; als „eigene Fläche“ gekennzeichnete Flächen ohne Provision. Für Eigentümer ist die Börse kostenlos.
+          Provision nur im Erfolgsfall — für Käufer {provisionKauf}, für Pächter {provisionPacht}. Für Eigentümer ist die Börse kostenlos.
         </p>
       </div>
     </section>

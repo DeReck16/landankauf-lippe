@@ -74,7 +74,7 @@ export default async function Page() {
             ))}
           </ol>
           <p className="mt-8 text-[color:var(--color-ink-soft)] max-w-3xl">
-            <strong>Provision nur bei Erfolg:</strong> für Käufer {provisionKauf}, für Pächter {provisionPacht}. Die genauen Konditionen stehen in Ihrem Vertrag, bevor Sie Namen oder Lage erfahren. Flächen, die dem Geschäftsführer von Lippe Forst bzw. seiner Familie gehören, sind als „eigene Fläche“ gekennzeichnet und ohne Provision. Für Eigentümer ist die Börse kostenlos — Angebote erscheinen hier nur anonym und nur mit ihrer Zustimmung.
+            <strong>Provision nur bei Erfolg:</strong> für Käufer {provisionKauf}, für Pächter {provisionPacht}. Die genauen Konditionen stehen in Ihrem Vertrag, bevor Sie Namen oder Lage erfahren. Für Eigentümer ist die Börse kostenlos — Angebote erscheinen hier nur anonym und nur mit ihrer Zustimmung.
           </p>
         </div>
       </section>

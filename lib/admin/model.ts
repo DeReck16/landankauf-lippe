@@ -65,8 +65,9 @@ export type LeadMeta = {
   /** Stand des Direktankaufs (nur bei weg „ankauf“). */
   ankauf?: { gewaehltAm: string; von: string; angebotAm?: string; preis?: number | null; ergebnis?: { am: string; von: string; wie: "gekauft" | "abgelehnt" | "zurueck"; notiz?: string } };
   /**
-   * Eigene Fläche des Geschäftsführers bzw. seiner Familie (Dennis 27.09.2026): in Börse und Vorgang
-   * offengelegt, ohne Provision (Eigengeschäft, kein Maklerlohn). Fehlt = aus der Quelle abgeleitet
+   * Eigene Fläche des Geschäftsführers bzw. seiner Familie (Dennis 27.09.2026): im Vorgang und in den
+   * Mails/Verträgen offengelegt, ohne Provision (Eigengeschäft, kein Maklerlohn). In der öffentlichen
+   * Börse seit 01.10.2026 NICHT gekennzeichnet („zu offen“). Fehlt = aus der Quelle abgeleitet
    * (von der Verwaltung eingestellte Flächen gelten als eigene).
    */
   eigeneFlaeche?: boolean;

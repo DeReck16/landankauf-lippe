@@ -536,9 +536,8 @@ export async function boerseAktion(formData: FormData): Promise<void> {
         const eigen = text(formData, "wert", 2) === "1";
         if (Boolean(meta.eigeneFlaeche) === eigen && meta.eigeneFlaeche !== undefined) return;
         meta.eigeneFlaeche = eigen;
-        oeffentlichBetroffen = b.online;
         z.anfragen[id] = { ...meta, boerse: meta.boerse ?? b, geaendert: { am: jetzt, von: email } };
-        meldung = eigen ? "Als eigene Fläche gekennzeichnet — offengelegt und ohne Provision." : "Nicht mehr als eigene Fläche gekennzeichnet — normale Vermittlung mit Provision.";
+        meldung = eigen ? "Als eigene Fläche gekennzeichnet — ohne Provision, in der öffentlichen Börse nicht sichtbar." : "Nicht mehr als eigene Fläche gekennzeichnet — normale Vermittlung mit Provision.";
         return { was: meldung, ref: id };
       }
       default:

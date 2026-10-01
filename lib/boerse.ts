@@ -1,7 +1,7 @@
 import "server-only";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { hasBlobToken } from "@/lib/admin/config";
-import { istEigeneFlaeche, leadView, type BoerseMeta, type LeadView } from "@/lib/admin/model";
+import { leadView, type BoerseMeta, type LeadView } from "@/lib/admin/model";
 import { jsonAendern, kurzwert, listLeads, mutateZustand, readZustand, websiteDateiLesen } from "@/lib/admin/store";
 import { grobeLage } from "@/lib/admin/matching";
 import { FLAECHENTYPEN } from "@/lib/lead-options";
@@ -34,7 +34,8 @@ export { artText, boerseLuecken, haText, provisionHinweis, provisionHinweisPacht
 // Nachweisvertrag → Zustimmung → Freigabe → Vermittlung).
 // Vergebene Flächen (Vertrag geschlossen) und Angebote von Eigentümern, die widerrufen, gekündigt
 // oder deren Zugang gesperrt ist, verschwinden automatisch. Eigene Flächen des Geschäftsführers
-// bzw. seiner Familie sind als solche gekennzeichnet und provisionsfrei (Dennis 27.09.2026).
+// bzw. seiner Familie sind provisionsfrei, werden hier aber NICHT gekennzeichnet — die Offenlegung
+// kommt erst später, in Einladung, Hinweis-Mail, Vorgang und Vertrag (Dennis 01.10.2026: „zu offen“).
 
 export const BOERSE_PFAD = "boerse/angebote.json";
 export const BOERSE_TAG = "flaechenboerse";
@@ -120,7 +121,6 @@ export async function boerseNeuSchreiben(): Promise<number> {
         text: b.text.trim(),
         seit: b.seit ?? new Date().toISOString(),
         ...(details ? { details } : {}),
-        ...(istEigeneFlaeche(lead, meta) ? { eigen: true } : {}),
       },
     });
   }

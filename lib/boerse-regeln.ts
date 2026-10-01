@@ -34,8 +34,6 @@ export type BoerseEintrag = {
   text: string;
   seit: string;
   details?: BoerseDetails;
-  /** Fläche des Geschäftsführers von Lippe Forst bzw. seiner Familie — offengelegt, ohne Provision. */
-  eigen?: boolean;
   /** Mehrere Flächen desselben Eigentümers, gleicher Art, gleichen Typs, gleiche Gemeinde → ein Paket. */
   paket?: string;
 };

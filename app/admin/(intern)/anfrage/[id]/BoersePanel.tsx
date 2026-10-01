@@ -63,7 +63,6 @@ export default function BoersePanel({ l, zustand }: { l: LeadView; zustand: Zust
     lage: oeffentlicheLage(b?.lage || (gemeinde ? `Raum ${gemeinde}` : "")),
     text: b?.text ?? "",
     details: b?.details,
-    eigen,
   };
   const luecken = boerseLuecken(b, l);
   const name = l.name !== "—" ? l.name : "";
@@ -89,7 +88,7 @@ export default function BoersePanel({ l, zustand }: { l: LeadView; zustand: Zust
           {b?.online ? `online seit ${tag(b.seit ?? b.geaendert?.am ?? new Date().toISOString())} · ${b.code}` : "nicht online"}
         </span>
         {eigen && (
-          <span className="lfa-badge lfa-badge-warn" title="Fläche des Geschäftsführers bzw. seiner Familie: in Börse und Vorgang offengelegt, ohne Provision (Eigengeschäft, kein Maklerlohn)">
+          <span className="lfa-badge lfa-badge-warn" title="Fläche des Geschäftsführers bzw. seiner Familie: ohne Provision (Eigengeschäft, kein Maklerlohn). In der öffentlichen Börse nicht gekennzeichnet — offengelegt wird erst in Einladung, Hinweis-Mail, Vorgang und Vertrag">
             eigene Fläche · ohne Provision
           </span>
         )}
@@ -211,8 +210,8 @@ export default function BoersePanel({ l, zustand }: { l: LeadView; zustand: Zust
           <input type="hidden" name="wert" value={eigen ? "0" : "1"} />
           <BestaetigenKnopf
             className="lfa-knopf lfa-knopf-leise lfa-knopf-klein"
-            frage={eigen ? "Nicht mehr als eigene Fläche kennzeichnen? Dann gilt die normale Provision." : "Als eigene Fläche des Geschäftsführers bzw. seiner Familie kennzeichnen? Offengelegt in Börse und Vorgang, ohne Provision."}
-            tipp="Eigene Flächen (Dennis bzw. Familie) werden offengelegt und ohne Provision angeboten — Eigengeschäft, kein Maklerlohn"
+            frage={eigen ? "Nicht mehr als eigene Fläche kennzeichnen? Dann gilt die normale Provision." : "Als eigene Fläche des Geschäftsführers bzw. seiner Familie kennzeichnen? Ohne Provision; offengelegt in Einladung, Hinweis-Mail, Vorgang und Vertrag — nicht in der öffentlichen Börse."}
+            tipp="Eigene Flächen (Dennis bzw. Familie) gehen ohne Provision raus — Eigengeschäft, kein Maklerlohn. Die Börse zeigt keinen Hinweis; offengelegt wird später in Einladung, Hinweis-Mail, Vorgang und Vertrag"
           >
             {eigen ? "Kennzeichnung „eigene Fläche“ entfernen" : "Als eigene Fläche kennzeichnen"}
           </BestaetigenKnopf>

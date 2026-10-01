@@ -30,7 +30,7 @@ export default function Page() {
 
           <h2>Warum wir das machen</h2>
           <p>
-            Wir bewirtschaften eigene Wald- und Wiesenflächen im Bereich Leopoldstal, Horn-Bad Meinberg, an der Egge und um den Püngelsberg. Wir kennen den Förster, den Jäger und den Lohnunternehmer, die hier arbeiten. Aus dieser Praxis ist das Geschäftsmodell entstanden: Wir kaufen Flächen selbst, vermitteln Käufer und Pächter und beraten andere Eigentümer auf dem gleichen Weg. Bieten wir eigene Flächen an, sagen wir das offen — und nehmen dafür keine Provision.
+            Wir bewirtschaften eigene Wald- und Wiesenflächen im Bereich Leopoldstal, Horn-Bad Meinberg, an der Egge und um den Püngelsberg. Wir kennen den Förster, den Jäger und den Lohnunternehmer, die hier arbeiten. Aus dieser Praxis ist das Geschäftsmodell entstanden: Wir kaufen Flächen selbst, vermitteln Käufer und Pächter und beraten andere Eigentümer auf dem gleichen Weg. Bieten wir eigene Flächen an, nehmen wir dafür keine Provision.
           </p>
 
           <h2>Unsere Grundregeln</h2>
