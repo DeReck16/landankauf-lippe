@@ -20,6 +20,190 @@ export type Article = {
 
 export const ARTICLES: Article[] = [
   {
+    slug: "biotopbaeume-privatwald-nrw-2026-foerderung-pro-baum",
+    title:
+      "Biotopbäume im Privatwald: Was NRW 2026 pro stehen gelassenem Baum zahlt — bis 1.400 Euro je Eiche, höchstens 30 je Hektar",
+    description:
+      "NRW zahlt 2026 je stehen gelassenem Alt- und Biotopbaum: Eiche bis 1.400 Euro, Rotbuche bis 430 Euro, Fichte bis 190 Euro. Höchstens 30 Bäume je Hektar. Was die neue Förderrichtlinie für Waldbesitzer in Lippe regelt, von der Auswahl über die Markierung bis zu den Pflichten.",
+    category: "Förderung",
+    publishedAt: "2026-10-05",
+    readingMinutes: 8,
+    keywords: [
+      "Biotopbaum Förderung NRW 2026",
+      "Biotopbäume Privatwald NRW",
+      "FöRL Privat- und Körperschaftswald 2026",
+      "Altbäume Förderung NRW Eiche 1.400 Euro",
+      "30 Bäume je Hektar Förderung NRW",
+      "Nutzungsentschädigung Biotopbaum NRW",
+    ],
+    heroImage: "/blog-biotopbaeume-2026.jpg",
+    faq: [
+      {
+        q: "Bekomme ich die Förderung für jeden alten Baum im Wald?",
+        a: "Nein. Gefördert werden höchstens 30 festgelegte Bäume je Hektar. Horst- und Höhlenbäume zählen aller Baumarten, unabhängig von Alter und Durchmesser. Sonstige Habitatbäume müssen älter als 120 Jahre sein oder einen Brusthöhendurchmesser von mehr als 40 Zentimetern haben (Nr. 2.1.3 der Richtlinie).",
+      },
+      {
+        q: "Wie lange muss ich den geförderten Baum stehen lassen?",
+        a: "Die Richtlinie nennt keine feste Zahl von Jahren. Alt- und Biotopbäume müssen über die Zerfallsphase hinaus an ihrem Standort im Wald bleiben (Nr. 6.5.1). Stichprobenkontrollen finden alle zehn Jahre statt, mindestens bei der Hälfte der geförderten Bäume je Antrag (Nr. 7.5.1).",
+      },
+      {
+        q: "Lassen sich Biotopbaum-Förderung und Klimaangepasstes Waldmanagement kombinieren?",
+        a: "Nur eingeschränkt. Wurde für Alt- und Biotopholz bereits eine Zuwendung gewährt, zum Beispiel im Klimaangepassten Waldmanagement, sind nur darüber hinaus zusätzlich ausgewählte Bäume förderfähig (Nr. 2.3.3). Eine Kumulierung mit anderen staatlichen Beihilfen für dieselben Ausgaben ist ausgeschlossen (Nr. 6.7).",
+      },
+      {
+        q: "Gibt es eine Antragsfrist für Biotopbäume?",
+        a: "Die Richtlinie setzt für Biotopbäume keinen festen Stichtag. Das Ministerium kann Fristen per Erlass festlegen; die jeweils geltenden Erlasse stehen auf waldbauernlotse.de (Nr. 1.1). Die Frist 15. Oktober 2026, die der Waldbauernlotse am 20. April 2026 gemeldet hat, betrifft die Förderung forstlicher Dienstleistungen, nicht die Einzelbäume.",
+      },
+    ],
+    content: `
+<p class="lead">Wer im Privatwald alte Eichen, dicke Buchen oder Bäume mit Höhlen stehen lässt, bekommt dafür seit Februar 2026 Geld — je Baum. Die neue Förderrichtlinie für den Privat- und Körperschaftswald (FöRL) zahlt je nach Baumart und Brusthöhendurchmesser zwischen 35 und 1.400 Euro. Wir haben die Richtlinie und ihre Anlage 1 mit den Fördersätzen im Wortlaut durchgesehen. Hier steht, was die Zahlen bedeuten, welche Bäume infrage kommen und welche Pflichten Sie danach übernehmen.</p>
+
+<figure>
+<img src="/blog-biotopbaeume-2026.jpg" alt="Alte Eiche mit Specht-Höhle im Nebel eines herbstlichen Laubwalds, daneben stehendes Totholz" width="1600" height="904" style="width:100%;height:auto;border-radius:14px" loading="lazy" />
+<figcaption>Symbolbild, mit KI erstellt. Es zeigt keinen konkreten Bestand im Kreis Lippe.</figcaption>
+</figure>
+
+<h2>Das Wichtigste in Kürze</h2>
+<ul>
+<li><strong>Laufzeit:</strong> Die Richtlinie gilt seit Februar 2026 und läuft bis zum 31. Dezember 2031.</li>
+<li><strong>Zahlung:</strong> ein Festbetrag je Baum, ausgezahlt nach Durchführung der Maßnahme.</li>
+<li><strong>Umfang:</strong> höchstens 30 festgelegte Bäume je Hektar.</li>
+<li><strong>Pflicht:</strong> Die Bäume bleiben über die Zerfallsphase hinaus an ihrem Standort im Wald.</li>
+<li><strong>Kein Rechtsanspruch:</strong> Die Bewilligung erfolgt im Rahmen der verfügbaren Haushaltsmittel.</li>
+<li><strong>Antrag:</strong> online über wald.web.nrw.de, Bewilligungsbehörde ist der Landesbetrieb Wald und Holz NRW.</li>
+</ul>
+
+<h2>Was NRW pro Baum zahlt</h2>
+<p>Die Beträge stehen in Anlage 1 der Richtlinie, Stand 30. Januar 2026. Sie gelten je Baum, nicht je Hektar.</p>
+
+<h3>Laubholz, Euro je Baum</h3>
+<div style="overflow-x:auto">
+<table style="width:100%;border-collapse:collapse;font-size:0.95rem">
+<thead><tr>
+<th style="text-align:left;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">Baumart</th>
+<th style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">unter 40 cm</th>
+<th style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">40 bis 59 cm</th>
+<th style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">60 bis 79 cm</th>
+<th style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">über 80 cm</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)"><strong>Eiche</strong></td>
+<td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">125</td>
+<td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">270</td>
+<td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">690</td>
+<td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)"><strong>1.400</strong></td>
+</tr>
+<tr>
+<td style="padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">Rotbuche, Ahorn, Esche, Hainbuche, Kirsche, Roteiche, sonstiges Laubholz</td>
+<td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">85</td>
+<td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">100</td>
+<td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">230</td>
+<td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">430</td>
+</tr>
+<tr>
+<td style="padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">Pappel, Birke, Erle, Weide</td>
+<td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">35</td>
+<td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">50</td>
+<td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">120</td>
+<td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">210</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<h3>Nadelholz, Euro je Baum</h3>
+<div style="overflow-x:auto">
+<table style="width:100%;border-collapse:collapse;font-size:0.95rem">
+<thead><tr>
+<th style="text-align:left;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">Baumart</th>
+<th style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">unter 40 cm</th>
+<th style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">40 bis 49 cm</th>
+<th style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">über 50 cm</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">Fichte</td>
+<td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">95</td>
+<td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">120</td>
+<td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">190</td>
+</tr>
+<tr>
+<td style="padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">Douglasie</td>
+<td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">85</td>
+<td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">110</td>
+<td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">240</td>
+</tr>
+<tr>
+<td style="padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">Kiefer</td>
+<td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">60</td>
+<td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">70</td>
+<td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">110</td>
+</tr>
+<tr>
+<td style="padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">Lärche, sonstiges Nadelholz</td>
+<td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">80</td>
+<td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">100</td>
+<td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">190</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<p>Die Staffel „unter 40 cm“ gilt nur für Bäume, die als Horst- oder Höhlenbaum zählen oder älter als 120 Jahre sind. Dazu weiter unten mehr.</p>
+
+<p>Zwei Rechenbeispiele aus der Tabelle: Zehn Eichen mit 60 bis 79 Zentimetern Brusthöhendurchmesser ergeben 6.900 Euro (10 × 690 Euro). Wären alle 30 Bäume je Hektar Eichen über 80 Zentimeter, läge die Obergrenze rechnerisch bei 42.000 Euro je Hektar.</p>
+
+<p>Ob sich der Verzicht auf den Holzerlös lohnt, hängt vom einzelnen Stamm ab. Zu den Erlösen bei Eiche und Buche lesen Sie unseren <a href="/blog/laubholzmarkt-2026-eiche-buche-nettoerloes-lippe">Laubholzmarkt-Beitrag vom Juli 2026</a>.</p>
+
+<h2>Wer antragsberechtigt ist und wie der Antrag läuft</h2>
+<ul>
+<li><strong>Wer:</strong> Eigentümerinnen und Eigentümer sowie Besitzerinnen und Besitzer forstwirtschaftlicher Flächen in Nordrhein-Westfalen (Nr. 2.2). Wer nicht Eigentümer der Fläche ist, legt eine Einverständniserklärung der Eigentümerin oder des Eigentümers vor (Nr. 7.1).</li>
+<li><strong>Wo:</strong> Der Antrag läuft über das Online-Portal wald.web.nrw.de. Auf Antrag kann zur Vermeidung unbilliger Härte darauf verzichtet werden (Nr. 7). Die Formulare stehen auf waldbauernlotse.de (Nr. 7.4).</li>
+<li><strong>Wer entscheidet:</strong> Bewilligungsbehörde ist der Landesbetrieb Wald und Holz Nordrhein-Westfalen (Nr. 7.2).</li>
+<li><strong>Mindestbetrag:</strong> Für Privatpersonen liegt die Bagatellgrenze bei 2.500 Euro Gesamtförderbetrag je Antrag (Nr. 6.3). Ein einzelner Baum mit 270 Euro erreicht sie nicht. Mehrere Bäume lassen sich in einem Antrag bündeln; bei Eichen zwischen 40 und 59 Zentimetern sind dafür rechnerisch zehn Stück nötig.</li>
+<li><strong>Auszahlung und Nachweis:</strong> Bei Festbeträgen wird nach Durchführung der Maßnahme gezahlt. Der Verwendungsnachweis ist binnen sechs Monaten nach Erfüllung des Zuwendungszwecks einzureichen, mit den Satellitenkoordinaten der Bäume (Nr. 2.3.3 und Nr. 7.3.2).</li>
+<li><strong>Beihilferecht:</strong> Die Förderung erfolgt als De-minimis-Beihilfe. Der Gesamtwert, den ein Unternehmen in drei Jahren erhält, darf 300.000 Euro nicht übersteigen (Nr. 6.6). Eine Kumulierung mit anderen staatlichen Beihilfen für dieselben Ausgaben ist ausgeschlossen (Nr. 6.7).</li>
+</ul>
+
+<h2>Die Auswahl: höchstens 30 Bäume je Hektar, in Gruppen</h2>
+<p>Gefördert werden höchstens 30 festgelegte Bäume je Hektar. Die Richtlinie unterscheidet zwei Gruppen (Nr. 2.1.3):</p>
+<ul>
+<li><strong>Horst- und Höhlenbäume</strong> aller Baumarten, unabhängig von Alter und Durchmesser,</li>
+<li><strong>sonstige Habitatbäume</strong>, die älter als 120 Jahre sind oder einen Brusthöhendurchmesser von mehr als 40 Zentimetern haben.</li>
+</ul>
+<p>Die Bäume werden möglichst gruppen- bis horstweise verteilt, mit höchstens 20 Bäumen je Horst (Nr. 2.3.3). Jeder Baum erhält einen Vermessungsbolzen am Stammfuß, etwa zehn Zentimeter lang mit rund 2,5 Zentimetern Kopfdurchmesser. Zusätzlich trägt er eine fortlaufende Nummer auf Brusthöhe. Die Koordinaten werden per Satellit erfasst.</p>
+
+<p><strong>Doppelungen vermeiden.</strong> Wurde für Alt- und Biotopholz bereits eine Zuwendung gewährt, etwa im <a href="/blog/klimaangepasstes-waldmanagement-foerderung-2026-erstantraege">Klimaangepassten Waldmanagement</a>, sind nur darüber hinaus zusätzlich ausgewählte Bäume förderfähig (Nr. 2.3.3).</p>
+
+<p><strong>Ausgleich und Ökokonto.</strong> Maßnahmen, die als Ausgleich für einen Eingriff oder im Rahmen des Ökokontos gefordert sind, werden nicht gefördert (Nr. 2.3.1.1). Zum Ökokonto lesen Sie unseren Beitrag zu <a href="/blog/oekopunkte-oekokonto-lippe">Ökopunkten und Ökokonto im Kreis Lippe</a>.</p>
+
+<p><strong>Schutzgebiete.</strong> In Naturschutzgebieten, FFH-Gebieten und geschützten Biotopen gelten für einzelne Maßnahmen besondere Bestimmungen (Nr. 1.3.1). Prüfen Sie vorab, ob Ihr Bestand in einem solchen Gebiet liegt.</p>
+
+<h2>Die Pflichten: kein Enddatum und Kontrolle alle zehn Jahre</h2>
+<p>Die Richtlinie setzt keine feste Zahl von Jahren fest. Geförderte Alt- und Biotopbäume müssen <strong>über die Zerfallsphase hinaus an ihrem Standort im Wald</strong> bleiben (Nr. 6.5.1). Das Ende der Pflicht hängt damit am Zerfall des Baums, nicht an einem Kalenderdatum.</p>
+
+<p>Stehende Alt- und Biotopbäume werden alle zehn Jahre stichprobenweise kontrolliert, mindestens bei der Hälfte der geförderten Bäume je Antrag. Das Ergebnis wird in der Förderakte dokumentiert (Nr. 7.5.1).</p>
+
+<p>Wird die geförderte Waldfläche verkauft, ist das während der Zweckbindung unverzüglich anzuzeigen. Die Verkaufenden können veranlassen, dass die Käufer die Verpflichtungen schriftlich übernehmen. Sind sie dazu nicht bereit, prüft die Bewilligungsbehörde eine Rückforderung mit Zinsen (Nr. 6.5.3). Wer über einen Verkauf nachdenkt, findet Hinweise auf unserer Seite zum <a href="/wald-verkaufen">Verkauf von Waldflächen</a>.</p>
+
+<p>Eine feste Antragsfrist für Biotopbäume nennt die Richtlinie nicht. Das Ministerium kann Fristen aber per Erlass setzen; die jeweils geltenden Erlasse stehen auf waldbauernlotse.de (Nr. 1.1). Ein Rechtsanspruch besteht ebenfalls nicht: Die Bewilligungsbehörde entscheidet im Rahmen der verfügbaren Haushaltsmittel.</p>
+
+<h2>Was Waldbesitzer in Lippe jetzt prüfen sollten</h2>
+<ol>
+<li><strong>Bestand sichten:</strong> Welche Eichen, Buchen oder anderen Laubbäume sind über 40 Zentimeter stark oder älter als 120 Jahre? Gibt es Horst- oder Höhlenbäume?</li>
+<li><strong>Erlös gegen Förderung rechnen:</strong> Halten Sie pro Baum den erwarteten Holzerlös gegen den Fördersatz, bevor Sie einschlagen oder warten.</li>
+<li><strong>Bindungen klären:</strong> Ist der Bestand schon über das Klimaangepasste Waldmanagement gefördert, im Ökokonto gebunden oder liegt er in einem Schutzgebiet?</li>
+<li><strong>Eigentum prüfen:</strong> Wenn Ihnen die Fläche nicht gehört, brauchen Sie die Einverständniserklärung der Eigentümerin oder des Eigentümers.</li>
+<li><strong>Verkauf mitdenken:</strong> Wer den Wald später verkaufen oder weitergeben will, sollte die Zweckbindung von Anfang an einplanen.</li>
+</ol>
+
+<p>Wenn Sie den Wert Ihrer Waldfläche ohnehin einschätzen lassen möchten, starten Sie mit unserer <a href="/blog/fluechen-quick-check-wertindikation">kostenlosen Wertindikation</a> oder schreiben Sie uns über das Formular auf dieser Seite. Wir antworten in der Regel innerhalb eines Werktags per E-Mail.</p>
+
+<p class="text-sm text-stone-500"><em>Stand: 5. Oktober 2026. Quellen: Richtlinien über die Gewährung von Zuwendungen zur Förderung forstlicher Maßnahmen im Privatwald und Körperschaftswald (FöRL Privat- und Körperschaftswald), Runderlass des Ministeriums für Landwirtschaft und Verbraucherschutz vom 30. Januar 2026, veröffentlicht im Ministerialblatt MB.NRW 2026 Nr. 33 am 6. Februar 2026, mit Anlage 1 (Fördersätze, Stand 30. Januar 2026); Waldbauernlotse, Meldung vom 20. April 2026 zu Antragsfristen. Eine spätere Änderung der Richtlinie haben wir bei der Prüfung am 5. Oktober 2026 nicht gefunden. Dieser Beitrag ersetzt keine Rechtsberatung im Einzelfall.</em></p>
+`,
+  },
+  {
     slug: "klimaangepasstes-waldmanagement-foerderung-2026-erstantraege",
     title:
       "Waldprämie startet neu: Ab 1. Oktober wieder Erstanträge fürs klimaangepasste Waldmanagement — was Waldbesitzer in Lippe jetzt vorbereiten sollten",
