@@ -20,6 +20,95 @@ export type Article = {
 
 export const ARTICLES: Article[] = [
   {
+    slug: "holzpreise-oktober-2026-fichte-trendwende-lippe",
+    title:
+      "Holzpreise drehen: Warum Fichtenholz im Oktober 2026 erstmals seit dem Rekordhoch wieder günstiger wird — und was das für Waldbesitzer in Lippe bedeutet",
+    description:
+      "Nach dem Rekordhoch vom Frühjahr 2026 zeigen aktuelle Verbandsmeldungen für Oktober einen Rückgang von rund 5 €/Fm bei Fichte — Käferholz wird günstiger, Industrieholz dagegen teurer. Was die Trendwende am Holzmarkt für Waldbesitzer im Kreis Lippe bedeutet: einschlagen, bündeln oder verkaufen.",
+    category: "Wald",
+    publishedAt: "2026-10-12",
+    readingMinutes: 8,
+    keywords: [
+      "Holzpreise Oktober 2026",
+      "Fichte Preis Festmeter 2026",
+      "Rundholzpreise Trendwende",
+      "Käferholz Preis Herbst 2026",
+      "Baukrise Sägewerke Holzmarkt",
+      "Privatwald Lippe Holzvermarktung",
+    ],
+    heroImage: "/blog-holzpreise-oktober-2026.jpg",
+    faq: [
+      {
+        q: "Wie haben sich die Fichten-Preise seit dem Rekordhoch im Frühjahr 2026 entwickelt?",
+        a: "Das bundesweite Leitsortiment B 2b+ lag Anfang 2026 bei rund 129 bis 132 €/Fm, in Nordrhein-Westfalen nach unserem Beitrag vom Juni als eine der stärksten Regionen teils nahe 150 €/Fm. Seit Mitte Juni pendelte die Marke BC 2b bundesweit bei 120 bis 125 €/Fm. Für Verträge von Oktober 2026 bis Ende Januar 2027 melden bayerische Waldbesitzervereinigungen einen weiteren Rückgang um rund 5 €/Fm auf 120 bis 123 €/Fm — der erste durchgehende Rückgang seit Monaten.",
+      },
+      {
+        q: "Warum fallen die Preise, wenn Rundholz doch als knapp gilt?",
+        a: "Weil das Problem nicht beim Angebot liegt, sondern bei der Nachfrage der Sägewerke. Nadel-Rundholz kostet laut Hauptverband der Deutschen Holzindustrie (HDH) mehr als doppelt so viel wie 2021, während Schnittholz kaum teurer ist als damals. Viele Sägewerke drosseln deshalb die Produktion — ihre Geschäftslage lag zuletzt bei −47,9 Punkten, dem schwächsten Wert aller vom Branchenverband erfassten Holz-Sparten. Wer weniger einschneidet, kauft auch weniger Rundholz.",
+      },
+      {
+        q: "Was bedeutet die Trendwende konkret für Käferholz?",
+        a: "Der Abschlag zum Frischholz hat sich vergrößert: Referenzpreise aus Bayern nennen für Oktober rund 98 €/Fm, rund 5 € weniger als im Sommer. Gegenüber den Kalamitätsjahren 2019 bis 2021, als Käferholz teils deutlich darunter notierte, bleibt das Niveau trotzdem hoch. Befallene Stämme sollten unabhängig vom Preistrend weiter zügig aufgearbeitet und abgefahren werden.",
+      },
+      {
+        q: "Lohnt sich jetzt noch der Holzverkauf, oder sollte man abwarten?",
+        a: "Das hängt vom Sortiment ab. Bei Säge-Fichte zeigt die Richtung seit Oktober erstmals seit Monaten nach unten — wer ohnehin hiebsreifes Holz hat, sollte nicht auf einen neuen Rekord warten. Bei Industrie- und Energieholz läuft es umgekehrt: Die Hackschnitzelpreise zogen im dritten Quartal 2026 um rund 13 Prozent an. Gemischte Sortimente lassen sich am besten getrennt vermarkten.",
+      },
+      {
+        q: "Bleiben die Preise langfristig über dem Niveau der Kalamitätsjahre?",
+        a: "Die strukturellen Gründe für die Verknappung bestehen fort: Der bundesweite Holzeinschlag fiel von rund 83 Millionen Festmetern (2021) auf 57,3 Millionen (2025), der Anteil an Kalamitätsholz von 50,5 auf 12,7 Millionen Festmeter. Die aktuelle Korrektur wirkt daher eher wie eine Normalisierung aus dem Rekordhoch heraus als eine Rückkehr zu den Tiefstpreisen 2019 bis 2021 — sofern 2027 keine neue großflächige Kalamität hinzukommt.",
+      },
+    ],
+    content: `
+<p class="lead">Im Juni haben wir an dieser Stelle gewarnt: Vom damaligen Rekordniveau aus sei das Abwärtsrisiko für Fichten-Preise größer als das verbleibende Aufwärtspotenzial. Vier Monate später bestätigt sich das. Aktuelle Preismeldungen für Verträge ab Oktober 2026 zeigen beim Fichten-Leitsortiment erstmals seit Monaten eine durchgehende Abwärtsbewegung — rund 5 €/Festmeter weniger als im Sommer. Was hinter der Trendwende steckt, warum sie nichts mit einem plötzlichen Holzüberangebot zu tun hat, und was Waldbesitzer im Kreis Lippe jetzt daraus machen sollten.</p>
+
+<figure>
+<img src="/blog-holzpreise-oktober-2026.jpg" alt="Frisch eingeschlagene Fichtenstämme an einem herbstlichen Waldweg im Lipper Bergland" width="1600" height="1066" style="width:100%;height:auto;border-radius:14px" loading="lazy" />
+<figcaption>Hoch bewertet bleibt der Holzpolter trotzdem: Die Preise liegen weiter weit über dem Niveau der Kalamitätsjahre — nur die Richtung hat sich im Oktober 2026 gedreht.</figcaption>
+</figure>
+
+<h2>Die Zahlen: Wo der Fichten-Preis im Oktober 2026 steht</h2>
+<p>Die Entwicklung seit Jahresbeginn 2026 im Überblick:</p>
+<ul>
+<li><strong>Jahresbeginn 2026:</strong> Bundesweit rund 129 bis 132 €/Fm netto für das Leitsortiment B 2b+ — ein neuer historischer Höchststand.</li>
+<li><strong>März 2026:</strong> Verbandsabschlüsse markieren mit über 130 €/Fm bundesweit den bisherigen Rekord. In Nordrhein-Westfalen lagen die Preise als eine der stärksten Regionen laut unserem <a href="/blog/holzpreise-2026-rekord-fichte-lippe-einschlagen-oder-warten">Beitrag vom Juni</a> teils nahe 150 €/Fm.</li>
+<li><strong>Seit Mitte Juni 2026:</strong> Das Sortiment BC 2b pendelt bundesweit bei 120 bis 125 €/Fm — 7 bis 10 € unter dem März-Hoch, aber weiterhin weit über dem Niveau der Kalamitätsjahre.</li>
+<li><strong>Oktober 2026 (aktuell):</strong> Für Lieferungen bis Ende Januar 2027 melden bayerische Waldbesitzervereinigungen ein weiteres Minus von rund 5 €/Fm auf 120 bis 123 €/Fm. Käferholz notiert bei rund 98 €/Fm — der Abschlag zum Frischholz hat sich damit nochmals vergrößert.</li>
+</ul>
+<p>Die aktuellen Festmeterpreise stammen aus Meldungen bayerischer Waldbesitzervereinigungen — eine eigene NRW-Herbstmeldung mit exaktem Festmeterpreis lag uns zum Redaktionsschluss nicht vor. Die Richtung bestätigen aber auch die bundesweiten Branchenberichte: Der Hauptverband der Deutschen Holzindustrie (HDH) spricht in seinem August-Bericht von spürbar mehr Meldungen über nachlassende Rundholzpreise. Für eine verbindliche Zahl zu Ihrem eigenen Bestand lohnt sich der direkte Anruf beim <strong>Landesverband Lippe</strong>, der im Kreis rund 15.700 Hektar Privatwald betreut, oder bei Ihrer Forstbetriebsgemeinschaft.</p>
+
+<h2>Warum die Preise drehen, obwohl Holz strukturell knapp bleibt</h2>
+<p>Der Grund liegt nicht im Wald, sondern in den Sägewerken. Nadel-Rundholz kostet nach HDH-Zahlen (Stand Mitte August 2026) bundesweit mehr als doppelt so viel wie 2021 — Schnittholz dagegen nur noch wenig mehr als damals. Diese Schere lässt sich für Sägewerke kaum noch schließen:</p>
+<ul>
+<li><strong>Schwache Baukonjunktur:</strong> Die Nachfrage nach Bauholz bleibt gedämpft. Baugenehmigungen zogen im ersten Halbjahr 2026 zwar um 15,1 Prozent auf 126.300 Wohnungen an — allerdings von einem historisch niedrigen Niveau aus. Bis mehr Genehmigungen zu mehr Sägewerksaufträgen werden, vergehen erfahrungsgemäß Monate.</li>
+<li><strong>Produktionsrückgang:</strong> 2025 war nach Angaben des Deutschen Säge- und Holzindustrie Bundesverbands (DeSH) das produktionsschwächste Jahr seit zehn Jahren. Nach interner Verbandseinschätzung könnte der Bauholz-Ausstoß 2026 um weitere 9 bis 10 Prozent sinken, falls sich an der Nachfrage nichts ändert.</li>
+<li><strong>Schlechte Geschäftslage:</strong> Die Sägewerke bewerten ihre Lage laut ifo-Geschäftsklima-Erhebung im Schnitt der letzten drei Monate mit −47,9 Punkten — der schwächste Wert aller vom HDH erfassten Holz-Sparten.</li>
+</ul>
+<p>Wer weniger schneidet, kauft auch weniger Rundholz — unabhängig davon, wie viel Fichte in den Wäldern tatsächlich nachwächst oder käferbedingt zur Aufarbeitung ansteht. Das knappe Angebot bleibt die strukturelle Grundlage des Marktes, aber die kurzfristige Nachfrage der Sägewerke bestimmt gerade die Richtung.</p>
+
+<h2>Zwei Sortimente, zwei Richtungen</h2>
+<p>Während Säge-Rundholz günstiger wird, läuft es beim Industrie- und Energieholz umgekehrt: Nach Zahlen des Deutschen Energieholz- und Pellet-Verbands (DEPI) zogen die Preise für Hackschnitzel der Klasse A1 im dritten Quartal 2026 um rund 13 Prozent an, auf 38,90 €/Srm netto. Der Grund ist derselbe wie beim Rundholzpreis, nur mit umgekehrtem Vorzeichen: Weil Sägewerke ihre Produktion drosseln, fallen auch weniger Sägenebenprodukte an — und genau die sind der wichtigste Rohstoff für Hackschnitzel und Pellets. Weniger Schnitt bedeutet also gleichzeitig billigeres Rundholz und teureres Restholz.</p>
+<p>Für Waldbesitzer mit gemischten Sortimenten lohnt sich deshalb, Säge- und Industrieholz getrennt zu vermarkten statt zu einem Mischpreis abzugeben — gerade bei Durchforstungen, bei denen beide Sortimente gleichzeitig anfallen.</p>
+
+<h2>Bleibt das Niveau langfristig über dem der Kalamitätsjahre?</h2>
+<p>Die strukturellen Gründe für die Verknappung sind nicht verschwunden. Der bundesweite Holzeinschlag ist nach Zahlen, die die baden-württembergische Landesforstverwaltung Forst BW nennt, von rund 83 Millionen Festmetern (2021) auf 57,3 Millionen Festmeter (2025) gefallen; der Anteil an Kalamitätsholz aus Sturm, Dürre und Käfer sank im selben Zeitraum von 50,5 auf 12,7 Millionen Festmeter. Die laufende Korrektur liest sich damit eher als Normalisierung aus einem kurzfristigen Rekordhoch heraus, nicht als Rückkehr zu den Tiefstpreisen der Käferjahre 2019 bis 2021 — vorausgesetzt, es kommt im Käferjahr 2027 zu keiner neuen großflächigen Kalamität in den verbliebenen Fichtenbeständen.</p>
+
+<h2>Was das für Waldbesitzer im Kreis Lippe bedeutet</h2>
+<ul>
+<li><strong>Hiebsreife Fichte:</strong> Wer ohnehin einschlagen will oder muss, sollte die Entscheidung nicht länger aufschieben. Das Preisniveau bleibt historisch hoch, aber die Richtung zeigt seit Oktober erstmals durchgehend nach unten — auf einen neuen Rekord zu warten, ist aktuell die schlechtere Wette als noch im Frühsommer.</li>
+<li><strong>Käferbefallene Stämme:</strong> unabhängig vom Preistrend weiter zügig aufarbeiten und aus dem Bestand holen, bevor Bläue und Qualitätsverlust den ohnehin gewachsenen Abschlag noch vertiefen.</li>
+<li><strong>Durchforstungen mit Industrieholz-Anteil:</strong> Sortimente getrennt anbieten — der Hackschnitzelmarkt zieht gerade an, während der Sägeholzmarkt nachgibt.</li>
+<li><strong>Mengen bündeln:</strong> Gerade in einem drehenden Markt zahlt sich die Vermarktung über eine Forstbetriebsgemeinschaft oder den Landesverband Lippe aus — wer allein mit kleinen Mengen verhandelt, bekommt die schwächeren Preise zuerst angeboten. Bei der Vermittlung von Lohnunternehmern unterstützen wir: <a href="/services/lohnunternehmer">Lohnunternehmer-Vermittlung</a>.</li>
+<li><strong>Verkauf der Fläche statt des Holzes:</strong> Wer ohnehin über einen Ausstieg nachdenkt, für den bleibt das Bewertungsniveau günstig — der Verkehrswert stehender Bestände hat sich vom Rekordpreis noch nicht spürbar gelöst. Wie Waldwerte zustande kommen, erklärt <a href="/blog/wald-als-vermoegensanlage-lippe">Wald als Vermögensanlage</a>; was bei Käferholz und Sturmwurf zu beachten ist, steht in <a href="/blog/kaeferholz-sturmwurf-lippe-privatwald">Käferholz und Sturmwurf im Lipper Privatwald</a>, Förderalternativen zum Verkauf in <a href="/blog/privatwald-lippe-halten-foerdern-verkaufen">Privatwald halten, fördern oder verkaufen</a>.</li>
+</ul>
+
+<h2>Was wir konkret tun</h2>
+<p>Wir kaufen und vermitteln Waldflächen im Kreis Lippe und Umland und sagen Ihnen vorab ehrlich, was Ihr Bestand im aktuellen Markt wert ist — nach Baumart, Alter, Erschließung und dem tagesaktuellen Holzpreis-Niveau. Eine erste Wertindikation ist kostenlos und unverbindlich: <a href="/wald-verkaufen">Wald verkaufen im Kreis Lippe</a> oder direkt über das <a href="/kontakt">Kontaktformular</a>.</p>
+
+<p class="text-sm text-stone-500"><em>Stand: 12. Oktober 2026. Quellen: Marktanalyse tacto.ai (Stand 12. Oktober 2026, Preismeldungen der Waldbesitzervereinigungen Mitterfels und Landshut); Hauptverband der Deutschen Holzindustrie (HDH), Monatsbericht vom 17. August 2026; Deutscher Energieholz- und Pellet-Verband (DEPI), Hackschnitzel-Marktbericht drittes Quartal 2026 (Meldung vom 6. Oktober 2026); Deutscher Säge- und Holzindustrie Bundesverband (DeSH), Einschätzung Juni 2026; Forst BW, Einschlagszahlen 2021–2025; eigener Beitrag „Holzpreise auf Rekordniveau" vom 11. Juni 2026 (aktualisiert 24. September 2026). Dieser Beitrag ersetzt keine individuelle Marktberatung und keine verbindliche Preisauskunft für Ihren Bestand.</em></p>
+`,
+  },
+  {
     slug: "biotopbaeume-privatwald-nrw-2026-foerderung-pro-baum",
     title:
       "Biotopbäume im Privatwald: Was NRW 2026 pro stehen gelassenem Baum zahlt — bis 1.400 Euro je Eiche, höchstens 30 je Hektar",
