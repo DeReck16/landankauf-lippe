@@ -266,10 +266,10 @@ export async function boerseVeroeffentlichen(id: string, von: string): Promise<{
 }
 
 export const EINWILLIGUNG_QUELLEN = ["telefonisch", "per E-Mail", "schriftlich", "im Kundenbereich"] as const;
-/** Einwilligung per Häkchen im Anfrageformular — nur über `veroeffentlichenAusFormular`, nie als Wahl in der Verwaltung. */
-export const FORMULAR_QUELLE = "im Formular";
-/** Höchstens so viele Anfragen je Tag gehen allein durch das Häkchen online — danach bleibt der Klick der Verwaltung (Schutz vor Massen-Einträgen). */
-export const FORMULAR_LIMIT_PRO_TAG = 10;
+/** Einwilligung per Bestätigungslink (Häkchen im Anfrageformular) — nur über `veroeffentlichungBestaetigen`, nie als Wahl in der Verwaltung. */
+export const LINK_QUELLE = "per Bestätigungslink";
+/** Höchstens so viele Bestätigungen je Tag gehen allein online — danach bleibt der Klick der Verwaltung (Schutz vor Massen-Einträgen). */
+export const BESTAETIGUNG_LIMIT_PRO_TAG = 10;
 
 /** Was der Schalter „Öffentlich“ noch braucht, bevor er veröffentlichen kann — die Verwaltung ergänzt es direkt dort. */
 export type SeiteFormular = {
@@ -362,7 +362,7 @@ async function schalteEinzeln(ctx: Kontext, id: string, ziel: "oeffentlich" | "n
       if (a.lage !== undefined) b.lage = a.lage.replace(/\s+/g, " ").trim().slice(0, 80);
     }
     const quelle = opt?.quelle;
-    const quelleOk = Boolean(quelle) && [...EINWILLIGUNG_QUELLEN, FORMULAR_QUELLE].includes(quelle!);
+    const quelleOk = Boolean(quelle) && [...EINWILLIGUNG_QUELLEN, LINK_QUELLE].includes(quelle!);
     const fehlt = fehlendeEckdaten(l, { ...b, einwilligung: b.einwilligung ?? { am: "", quelle: "", von: "" } }, z.orte);
     const einwilligungNoetig = !b.einwilligung && !quelleOk;
     // Reine Anfrage („Öffentlich“ gewählt, nichts mitgegeben): fehlt etwas, nichts speichern und das Formular mit Vorschlag zeigen.
@@ -405,7 +405,7 @@ async function schalteEinzeln(ctx: Kontext, id: string, ziel: "oeffentlich" | "n
     }
     meta[feld] = b;
     z.anfragen[id] = meta;
-    const wie = von === "Formular" ? "automatisch nach Einwilligung im Formular" : "per Schalter in der Anfragen-Liste";
+    const wie = von === "Kunde" ? "automatisch nach Bestätigung per E-Mail-Link" : "per Schalter in der Anfragen-Liste";
     return {
       was: b.online
         ? `${gesuch ? "In der Suchliste" : "In der Flächenbörse"} veröffentlicht (${b.code}) — ${wie}`
@@ -442,13 +442,23 @@ export async function seiteSchaltenViele(ids: string[], von: string, opt?: Pick<
 }
 
 /**
- * Häkchen im Anfrageformular („darf anonym auf lippeforst.de angezeigt werden“): Einwilligung erfassen und, wenn nichts
- * fehlt, sofort anonym veröffentlichen. Höchstens `FORMULAR_LIMIT_PRO_TAG` je Tag allein durch das Häkchen — darüber
- * wird die Einwilligung nur erfasst und die Verwaltung veröffentlicht mit einem Klick.
+ * Bestätigungslink aus der Eingangsbestätigung (Häkchen „anonym anzeigen“ im Anfrageformular): Erst jetzt gilt die
+ * Einwilligung — die E-Mail-Adresse ist damit bestätigt. Erfasst sie und veröffentlicht sofort, wenn die Eckdaten reichen.
+ * Höchstens `BESTAETIGUNG_LIMIT_PRO_TAG` je Tag gehen so allein online — darüber wird die Einwilligung nur erfasst und die
+ * Verwaltung veröffentlicht mit einem Klick.
  */
-export async function veroeffentlichenAusFormular(id: string): Promise<SeiteErgebnis> {
-  const frei = await drosseln("boerse-formular", "alle", [{ sekunden: 86_400, max: FORMULAR_LIMIT_PRO_TAG }]);
-  return seiteSchalten(id, "oeffentlich", "Formular", { quelle: FORMULAR_QUELLE, nurVorbereiten: !frei });
+export async function veroeffentlichungBestaetigen(id: string): Promise<SeiteErgebnis> {
+  const lead = (await listLeads()).find((x) => x.id === id);
+  if (!lead?.veroeffentlichen) return { ok: false, meldung: "Für diese Anfrage wurde keine Anzeige gewünscht." };
+  const frei = await drosseln("boerse-bestaetigung", "alle", [{ sekunden: 86_400, max: BESTAETIGUNG_LIMIT_PRO_TAG }]);
+  const r = await seiteSchalten(id, "oeffentlich", "Kunde", { quelle: LINK_QUELLE, nurVorbereiten: !frei });
+  const name = lead.name !== "—" ? lead.name : id;
+  await adminInfo(
+    `Flächenbörse: ${name} hat die Anzeige bestätigt`,
+    ["Der Bestätigungslink aus der Eingangsbestätigung wurde geklickt — die Einwilligung ist damit erfasst.", r.ok ? r.meldung : `Noch nicht online: ${r.meldung}`],
+    `${site.url}/admin/anfrage/${id}#boerse`,
+  ).catch((err) => console.error("[boerse] Verwaltungs-Hinweis", err));
+  return r;
 }
 
 /**
@@ -481,7 +491,10 @@ export async function boerseEinwilligungKunde(
   const lead = leads.find((x) => x.id === leadId);
   if (!lead) return null;
   const l = leadView(lead, zustand.anfragen[leadId]);
-  if (l.rolle !== "angebot" || (l.art !== "kauf" && l.art !== "pacht")) return null;
+  const gesuch = l.rolle === "gesuch";
+  // Erteilt wird im Kundenbereich nur für Angebote; widerrufen werden kann auch ein Suchauftrag (Link der Bestätigungsmail).
+  if ((l.rolle !== "angebot" && !(gesuch && !erteilt)) || (l.art !== "kauf" && l.art !== "pacht")) return null;
+  const feld = gesuch ? "suche" : "boerse";
   let ergebnis: "erteilt" | "widerrufen" | null = null;
   let warOnline = false;
   const jetzt = new Date().toISOString();
@@ -489,7 +502,7 @@ export async function boerseEinwilligungKunde(
     ergebnis = null;
     warOnline = false;
     const meta = { ...(z.anfragen[leadId] ?? {}) };
-    const alt = meta.boerse;
+    const alt = meta[feld];
     if (erteilt && alt?.einwilligung) {
       // Schon eingewilligt: nur neue Zusatzangaben übernehmen (sofern noch leer).
       const neuDetails = detailsBereinigen({ ...(details ?? {}), ...(alt.details ?? {}) });
@@ -499,13 +512,12 @@ export async function boerseEinwilligungKunde(
       return { was: `Zusatzangaben für die Flächenbörse aus dem Kundenbereich übernommen (${alt.code})`, ref: leadId };
     }
     if (!erteilt && !alt?.einwilligung) return;
-    const vorhanden = new Set(Object.values(z.anfragen).map((m) => m.boerse?.code).filter((c): c is string => Boolean(c)));
     const ha = flaechenHa ?? l.groesseWert.minHa ?? l.groesseWert.maxHa;
     const gemeinde = oeffentlicheLage(grobeLage(l, z.orte));
     const b: BoerseMeta = alt
       ? { ...alt }
       : {
-          code: neuerBoerseCode(vorhanden),
+          code: neuerBoerseCode(vergebeneCodes(z.anfragen), gesuch ? "LS" : "LF"),
           typ: (FLAECHENTYPEN as readonly string[]).includes(l.typ) ? l.typ : "Sonstiges",
           groesseHa: ha != null && ha > 0 ? Math.max(0.5, Math.round(ha * 2) / 2) : null,
           lage: gemeinde ? `Raum ${gemeinde}` : "",
@@ -526,9 +538,10 @@ export async function boerseEinwilligungKunde(
       ergebnis = "widerrufen";
     }
     b.geaendert = { am: jetzt, von: "kunde" };
-    meta.boerse = b;
+    meta[feld] = b;
     z.anfragen[leadId] = meta;
-    return { was: erteilt ? `Einwilligung in die Flächenbörse im Kundenbereich erteilt (${b.code})` : `Einwilligung in die Flächenbörse im Kundenbereich widerrufen${warOnline ? " — Angebot offline" : ""}`, ref: leadId };
+    const bn = gesuch ? "Suchliste" : "Flächenbörse";
+    return { was: erteilt ? `Einwilligung in die ${bn} im Kundenbereich erteilt (${b.code})` : `Einwilligung in die ${bn} widerrufen${warOnline ? ` — ${gesuch ? "Suchauftrag" : "Angebot"} offline` : ""}`, ref: leadId };
   });
   if (warOnline) await boerseNeuSchreiben();
   if (ergebnis) {
@@ -537,7 +550,7 @@ export async function boerseEinwilligungKunde(
       ergebnis === "erteilt" ? `Flächenbörse: ${name} ist einverstanden — jetzt veröffentlichen` : `Flächenbörse: ${name} hat die Einwilligung widerrufen`,
       ergebnis === "erteilt"
         ? ["Der Eigentümer hat im Kundenbereich angekreuzt, dass seine Fläche anonym in der Flächenbörse erscheinen darf.", "Angaben prüfen und im Dashboard mit einem Klick veröffentlichen (oder Automatik-Regel R1 einschalten)."]
-        : ["Der Eigentümer hat seine Einwilligung im Kundenbereich zurückgenommen.", warOnline ? "Das Angebot wurde sofort von der Website genommen." : "Das Angebot war nicht online."],
+        : [`${gesuch ? "Der Suchende hat" : "Der Eigentümer hat"} seine Einwilligung zurückgenommen.`, warOnline ? `${gesuch ? "Der Suchauftrag" : "Das Angebot"} wurde sofort von der Website genommen.` : `${gesuch ? "Der Suchauftrag" : "Das Angebot"} war nicht online.`],
       `${site.url}/admin/dashboard#boerse`,
     );
   }

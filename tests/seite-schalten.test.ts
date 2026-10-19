@@ -121,48 +121,73 @@ test("Schalter: offline nehmen und erledigte Anfragen entfernen Angebot wie Such
   assert.deepEqual(oeffentlich().gesuche, []);
 });
 
-const { veroeffentlichenAusFormular, FORMULAR_LIMIT_PRO_TAG, seiteSchaltenViele } = await import("@/lib/boerse");
+const { veroeffentlichungBestaetigen, BESTAETIGUNG_LIMIT_PRO_TAG, seiteSchaltenViele, boerseEinwilligungKunde } = await import("@/lib/boerse");
 
-test("Formular-Häkchen: erfasst die Einwilligung „im Formular“ und veröffentlicht sofort", async () => {
-  await anfrage("LL-FOR1", { name: "Gerd Gutsbesitzer", email: "gerd@example.com", ort: "Kalletal" });
-  await lageSetzen("LL-FOR1", "boerse", "Raum Kalletal", { code: "LF-5001" });
-  const r = await veroeffentlichenAusFormular("LL-FOR1");
+test("Bestätigungslink: ohne Häkchen im Formular wird nichts erfasst oder veröffentlicht", async () => {
+  await anfrage("LL-BES0", { name: "Nina Neinsager", email: "nina@example.com" });
+  await lageSetzen("LL-BES0", "boerse", "Raum Kalletal", { code: "LF-4999" });
+  const r = await veroeffentlichungBestaetigen("LL-BES0");
+  assert.equal(r.ok, false);
+  const { zustand } = await store.readZustand();
+  assert.equal(zustand.anfragen["LL-BES0"].boerse?.einwilligung, null);
+  assert.ok(!oeffentlich().angebote.some((a) => a.code === "LF-4999"));
+});
+
+test("Bestätigungslink: erfasst die Einwilligung „per Bestätigungslink“ und veröffentlicht sofort", async () => {
+  await anfrage("LL-BES1", { name: "Gerd Gutsbesitzer", email: "gerd@example.com", ort: "Kalletal", veroeffentlichen: true });
+  await lageSetzen("LL-BES1", "boerse", "Raum Kalletal", { code: "LF-5001" });
+  const r = await veroeffentlichungBestaetigen("LL-BES1");
   assert.equal(r.ok, true, r.meldung);
   const { zustand } = await store.readZustand();
-  const e = zustand.anfragen["LL-FOR1"].boerse?.einwilligung;
-  assert.equal(e?.quelle, "im Formular");
-  assert.equal(e?.von, "Formular");
+  const e = zustand.anfragen["LL-BES1"].boerse?.einwilligung;
+  assert.equal(e?.quelle, "per Bestätigungslink");
+  assert.equal(e?.von, "Kunde");
   assert.ok(oeffentlich().angebote.some((a) => a.code === "LF-5001"));
-  assert.ok(zustand.protokoll.some((p) => p.ref === "LL-FOR1" && /automatisch nach Einwilligung im Formular/.test(p.was)));
+  assert.ok(zustand.protokoll.some((p) => p.ref === "LL-BES1" && /automatisch nach Bestätigung per E-Mail-Link/.test(p.was)));
   assert.ok(!readFileSync(path.join(DIR, BOERSE_PFAD), "utf8").includes("Gutsbesitzer"), "kein Name in der öffentlichen Datei");
 });
 
-test("Formular-Häkchen: ohne Größe bleibt es vorbereitet, die Einwilligung ist trotzdem erfasst", async () => {
-  await anfrage("LL-FOR2", { groesse: "—", ort: "Lage" });
-  await lageSetzen("LL-FOR2", "boerse", "Raum Lage", { code: "LF-5002", groesseHa: null });
-  const r = await veroeffentlichenAusFormular("LL-FOR2");
+test("Bestätigungslink: ohne Größe bleibt es vorbereitet, die Einwilligung ist trotzdem erfasst", async () => {
+  await anfrage("LL-BES2", { groesse: "—", ort: "Lage", veroeffentlichen: true });
+  await lageSetzen("LL-BES2", "boerse", "Raum Lage", { code: "LF-5002", groesseHa: null });
+  const r = await veroeffentlichungBestaetigen("LL-BES2");
   assert.equal(r.ok, false);
   assert.match(r.meldung, /ungefähre Größe fehlt/);
   const { zustand } = await store.readZustand();
-  assert.equal(zustand.anfragen["LL-FOR2"].boerse?.einwilligung?.quelle, "im Formular");
-  assert.equal(zustand.anfragen["LL-FOR2"].boerse?.online, false);
+  assert.equal(zustand.anfragen["LL-BES2"].boerse?.einwilligung?.quelle, "per Bestätigungslink");
+  assert.equal(zustand.anfragen["LL-BES2"].boerse?.online, false);
 });
 
-test("Formular-Häkchen: ab dem Tageslimit wird nur noch vorbereitet, nicht veröffentlicht", async () => {
-  // Schon verbraucht: LL-FOR1 und LL-FOR2 (je ein Zähler-Schritt). Den Rest bis zum Limit auffüllen.
-  for (let i = 2; i < FORMULAR_LIMIT_PRO_TAG; i++) await store.drosseln("boerse-formular", "alle", [{ sekunden: 86_400, max: FORMULAR_LIMIT_PRO_TAG }]);
-  await anfrage("LL-FOR3", { ort: "Detmold" });
-  await lageSetzen("LL-FOR3", "boerse", "Raum Detmold", { code: "LF-5003" });
-  const r = await veroeffentlichenAusFormular("LL-FOR3");
+test("Bestätigungslink: auch ein Suchauftrag geht nach der Bestätigung online und lässt sich per Link widerrufen", async () => {
+  await anfrage("LL-BES4", { intent: "Fläche gesucht (Pacht)", name: "Hans Sucher", email: "hans2@example.com", ort: "Lemgo", groesse: "10 ha", veroeffentlichen: true });
+  await lageSetzen("LL-BES4", "suche", "Raum Lemgo", { code: "LS-5004", groesseHa: 10 });
+  const r = await veroeffentlichungBestaetigen("LL-BES4");
+  assert.equal(r.ok, true, r.meldung);
+  assert.ok(oeffentlich().gesuche.some((g) => g.code === "LS-5004"));
+
+  // Widerruf mit einem Klick (Link der Bestätigungsmail): sofort weg, Einwilligung zurückgenommen.
+  assert.equal(await boerseEinwilligungKunde("LL-BES4", false, null), "widerrufen");
+  assert.ok(!oeffentlich().gesuche.some((g) => g.code === "LS-5004"));
+  const { zustand } = await store.readZustand();
+  assert.equal(zustand.anfragen["LL-BES4"].suche?.einwilligung, null);
+  assert.equal(zustand.anfragen["LL-BES4"].suche?.online, false);
+});
+
+test("Bestätigungslink: ab dem Tageslimit wird nur noch vorbereitet, nicht veröffentlicht", async () => {
+  // Schon verbraucht: LL-BES1, LL-BES2, LL-BES4 (je ein Zähler-Schritt). Den Rest bis zum Limit auffüllen.
+  for (let i = 3; i < BESTAETIGUNG_LIMIT_PRO_TAG; i++) await store.drosseln("boerse-bestaetigung", "alle", [{ sekunden: 86_400, max: BESTAETIGUNG_LIMIT_PRO_TAG }]);
+  await anfrage("LL-BES3", { ort: "Detmold", veroeffentlichen: true });
+  await lageSetzen("LL-BES3", "boerse", "Raum Detmold", { code: "LF-5003" });
+  const r = await veroeffentlichungBestaetigen("LL-BES3");
   assert.equal(r.ok, false);
   assert.match(r.meldung, /wartet auf den Klick/);
   const { zustand } = await store.readZustand();
-  assert.equal(zustand.anfragen["LL-FOR3"].boerse?.einwilligung?.quelle, "im Formular");
-  assert.equal(zustand.anfragen["LL-FOR3"].boerse?.online, false);
+  assert.equal(zustand.anfragen["LL-BES3"].boerse?.einwilligung?.quelle, "per Bestätigungslink");
+  assert.equal(zustand.anfragen["LL-BES3"].boerse?.online, false);
   assert.ok(!oeffentlich().angebote.some((a) => a.code === "LF-5003"));
 
   // Der Klick der Verwaltung geht weiterhin (Einwilligung liegt ja vor).
-  const klick = await seiteSchalten("LL-FOR3", "oeffentlich", "admin@example.com");
+  const klick = await seiteSchalten("LL-BES3", "oeffentlich", "admin@example.com");
   assert.equal(klick.ok, true, klick.meldung);
   assert.ok(oeffentlich().angebote.some((a) => a.code === "LF-5003"));
 });

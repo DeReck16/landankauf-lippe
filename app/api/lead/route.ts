@@ -3,12 +3,13 @@ import { site } from "@/lib/site";
 import { antwortAdresse, dataPrefix, hasBlobToken, kundenAbsender } from "@/lib/admin/config";
 import { orteErgaenzen } from "@/lib/admin/daten";
 import { dateiAnlegen, drosseln, kurzwert, mutateZustand, readZustand } from "@/lib/admin/store";
-import { angebotZuCode, ladeBoerse, veroeffentlichenAusFormular } from "@/lib/boerse";
+import { angebotZuCode, ladeBoerse } from "@/lib/boerse";
 import { isGesuchIntent, isOekopunkteNachfrage } from "@/lib/lead-options";
 import { leadView } from "@/lib/admin/model";
 import { katasterNachholen } from "@/lib/portal/kataster";
 import { eingangPruefen, eingangsbestaetigung, type Eingabe } from "@/lib/portal/eingang";
 import { sendeMitPostausgang } from "@/lib/portal/mail";
+import { boerseToken } from "@/lib/portal/token";
 import { automatikNachAnfrage } from "@/lib/portal/automatik";
 
 /**
@@ -150,7 +151,7 @@ export async function POST(req: NextRequest) {
     input.message ?? "—",
     "",
     `Quelle: ${input.source}`,
-    ...(input.veroeffentlichen === "on" ? ["Anonym veröffentlichen: JA — freiwilliges Häkchen im Formular (Einwilligung); geht automatisch online, sobald Typ, Größe und Ort ausreichen."] : []),
+    ...(input.veroeffentlichen ? ["Anonym anzeigen: JA — freiwilliges Häkchen im Formular. Online geht es erst, wenn der Absender den Bestätigungslink aus der Eingangsbestätigung klickt (dann gilt die Einwilligung)."] : []),
     input.gclid && input.gclid !== "—"
       ? `🎯 Aus Google-Anzeige (gclid): ${input.gclid}`
       : `Kanal: organisch / direkt (keine gclid)`,
@@ -204,19 +205,10 @@ export async function POST(req: NextRequest) {
   // Ort fürs Matching schon jetzt nachschlagen, damit die Verwaltung ihn kennt.
   // Begrenzt (kurzer Text, max. 5 s), damit Formular-Spam OpenStreetMap nicht flutet;
   // Rest erledigt der Knopf „Fehlende Orte nachschlagen“ in der Verwaltung.
-  // Mit Häkchen „anonym veröffentlichen“ geht die Fläche bzw. das Gesuch danach gleich online (Einwilligung im Formular) —
-  // erst nach der Ortssuche, denn die grobe Lage kommt aus dem Ort.
-  const ortDa = input.ort !== "—" && input.ort.length <= 120;
-  if (blobOk && (ortDa || input.veroeffentlichen === "on")) {
-    after(async () => {
-      if (ortDa) await orteErgaenzen("Formular", [input.ort], 5_000).catch((err) => console.error("[lead] orte", err));
-      if (input.veroeffentlichen === "on") {
-        await veroeffentlichenAusFormular(id).then(
-          (r) => console.log(`[lead] ${id} Veröffentlichen-Häkchen: ${r.meldung}`),
-          (err) => console.error("[lead] veröffentlichen", id, err),
-        );
-      }
-    });
+  if (blobOk && input.ort !== "—" && input.ort.length <= 120) {
+    after(() =>
+      orteErgaenzen("Formular", [input.ort], 5_000).catch((err) => console.error("[lead] orte", err)),
+    );
   }
 
   // Mit Flurstück: amtliche Daten (ALKIS NRW) und Bodenrichtwert (BORIS NRW) gleich nachschlagen —
@@ -237,7 +229,9 @@ export async function POST(req: NextRequest) {
   if (blobOk) {
     bestaetigung = await drosseln("bestaetigung", kurzwert(input.email, "bestaetigung"), [{ sekunden: 86_400, max: 2 }]);
     if (bestaetigung) {
-      const b = eingangsbestaetigung(input, id, receivedAt);
+      // Mit Häkchen „anonym anzeigen“: Bestätigungslink (erst nach dem Klick gilt die Einwilligung und geht die Anzeige online).
+      const link = input.veroeffentlichen ? `${site.url}/kunde/boerse?t=${encodeURIComponent(boerseToken(id))}` : undefined;
+      const b = eingangsbestaetigung(input, id, receivedAt, link);
       after(() =>
         sendeMitPostausgang({ an: [input.email], betreff: b.betreff, text: b.text, von: kundenAbsender(), replyTo: antwortAdresse() }, "eingangsbestaetigung", { typ: "keiner" }).then(
           (r) => {

@@ -275,8 +275,8 @@ export default function LeadForm({
             <span>
               <strong>Optional:</strong>{" "}
               {gesuch
-                ? "Mein Suchauftrag darf anonym auf lippeforst.de angezeigt werden — nur mit Flächentyp, ungefährer Größe und Suchraum, nie mit Name oder Kontaktdaten. So können Eigentümer mir passende Flächen anbieten. Ich kann das jederzeit widerrufen."
-                : "Meine Fläche darf anonym auf lippeforst.de angezeigt werden — nur mit Flächentyp, ungefährer Größe und Gemeinde, nie mit Name, Kontaktdaten oder Flurstück. So finden wir schneller Interessenten. Ich kann das jederzeit widerrufen."}
+                ? "Mein Suchauftrag darf anonym auf lippeforst.de angezeigt werden — nur mit Flächentyp, ungefährer Größe und Suchraum, nie mit Name oder Kontaktdaten. So können Eigentümer mir passende Flächen anbieten. Angezeigt wird erst, wenn ich per Link in der E-Mail bestätige; widerrufen kann ich jederzeit."
+                : "Meine Fläche darf anonym auf lippeforst.de angezeigt werden — nur mit Flächentyp, ungefährer Größe und Gemeinde, nie mit Name, Kontaktdaten oder Flurstück. So finden wir schneller Interessenten. Angezeigt wird erst, wenn ich per Link in der E-Mail bestätige; widerrufen kann ich jederzeit."}
             </span>
           </label>
         )}

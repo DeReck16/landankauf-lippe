@@ -22,6 +22,11 @@ export type LeadRecord = {
   gclid: string;
   /** Gesuch aus der Flächenbörse: Kennung des Angebots (z. B. „LF-2731“), sonst „—“. */
   boerse: string;
+  /**
+   * Freiwilliges Häkchen im Formular: darf anonym auf lippeforst.de angezeigt werden. Wirksam wird die Einwilligung erst
+   * mit der Bestätigung per Link aus der Eingangsbestätigung (lib/boerse.ts → veroeffentlichungBestaetigen).
+   */
+  veroeffentlichen?: boolean;
 };
 
 export const LEAD_STATUS = {
@@ -434,5 +439,6 @@ export function normalizeLead(raw: Record<string, unknown>, fallbackId: string):
     consent: s(raw.consent),
     gclid: s(raw.gclid),
     boerse: typeof raw.boerse === "string" && /^LF-\d{4}$/.test(raw.boerse) ? raw.boerse : "—",
+    veroeffentlichen: raw.veroeffentlichen === true || raw.veroeffentlichen === "on",
   };
 }

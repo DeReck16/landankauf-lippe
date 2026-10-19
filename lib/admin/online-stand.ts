@@ -113,7 +113,7 @@ export function seitenStand(l: LeadView, sperre: string | null): Anzeige {
     schluessel: "nicht",
     ton: "leise",
     label: "Nicht öffentlich",
-    detail: b ? "Einwilligung fehlt" : "noch keine Börsen-Angaben",
+    detail: l.veroeffentlichen && !b?.einwilligung ? "wartet auf Bestätigung per Link" : b ? "Einwilligung fehlt" : "noch keine Börsen-Angaben",
     tipp: `Ohne Einwilligung des ${person} bleibt der ${wort} unveröffentlicht. „Öffentlich“ fragt danach, wie sie erteilt wurde, und zeigt ihn sofort.`,
     href: intern,
   };

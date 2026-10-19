@@ -47,31 +47,37 @@ test("Häkchen „anonym veröffentlichen“ zählt nur bei Verkaufen, Verpachte
   const mit = (intent: string, wert: unknown = "on") => {
     const r = eingangPruefen({ ...gueltig, intent, veroeffentlichen: wert });
     assert.ok(r.ok);
-    return r.ok ? r.eingabe.veroeffentlichen : "";
+    return r.ok ? r.eingabe.veroeffentlichen : null;
   };
-  assert.equal(mit("Verkaufen"), "on");
-  assert.equal(mit("Verpachten"), "on");
-  assert.equal(mit("Fläche gesucht (Pacht)"), "on");
-  assert.equal(mit("Fläche gesucht (Kauf)", "1"), "on");
-  assert.equal(mit("Bewertung"), "—");
-  assert.equal(mit("Ökopunkte gesucht"), "—");
-  assert.equal(mit("Verkaufen", "off"), "—");
-  assert.equal(mit("Verkaufen", true), "—");
+  assert.equal(mit("Verkaufen"), true);
+  assert.equal(mit("Verpachten"), true);
+  assert.equal(mit("Fläche gesucht (Pacht)"), true);
+  assert.equal(mit("Fläche gesucht (Kauf)", "1"), true);
+  assert.equal(mit("Bewertung"), false);
+  assert.equal(mit("Ökopunkte gesucht"), false);
+  assert.equal(mit("Verkaufen", "off"), false);
+  assert.equal(mit("Verkaufen", true), false);
   const ohne = eingangPruefen(gueltig);
-  assert.ok(ohne.ok && ohne.eingabe.veroeffentlichen === "—");
+  assert.ok(ohne.ok && ohne.eingabe.veroeffentlichen === false);
 });
 
-test("Eingangsbestätigung erwähnt die Veröffentlichung samt Widerruf nur mit Häkchen", () => {
-  const text = (intent: string, veroeffentlichen: "on" | "—") => eingangsbestaetigung({ intent, flaechentyp: "Ackerland", boerse: "—", veroeffentlichen }, "LL-TEST1", "2026-10-19T08:00:00.000Z").text;
+test("Eingangsbestätigung bittet bei gesetztem Häkchen um die Bestätigung per Link — und verspricht nichts vor dem Klick", () => {
+  const link = "https://lippeforst.de/kunde/boerse?t=abc";
+  const text = (intent: string, veroeffentlichen: boolean, l?: string) =>
+    eingangsbestaetigung({ intent, flaechentyp: "Ackerland", boerse: "—", veroeffentlichen }, "LL-TEST1", "2026-10-19T08:00:00.000Z", l).text;
 
-  const angebot = text("Verkaufen", "on");
-  assert.match(angebot, /Ihre Fläche anonym auf lippeforst\.de zeigen/);
+  const angebot = text("Verkaufen", true, link);
+  assert.match(angebot, /Sie haben angekreuzt, dass wir Ihre Fläche anonym auf lippeforst\.de zeigen dürfen/);
   assert.match(angebot, /nie mit Ihrem Namen, Ihren Kontaktdaten oder dem Flurstück/);
-  assert.match(angebot, /Antworten Sie einfach auf diese E-Mail/);
+  assert.match(angebot, /erst danach erscheint die Anzeige/);
+  assert.ok(angebot.includes(link));
+  assert.match(angebot, /Ohne Bestätigung bleibt alles unveröffentlicht/);
+  assert.match(angebot, /jederzeit über denselben Link oder per Antwort auf diese E-Mail widerrufen/);
 
-  const gesuch = text("Fläche gesucht (Pacht)", "on");
-  assert.match(gesuch, /Ihren Suchauftrag anonym auf lippeforst\.de zeigen/);
+  const gesuch = text("Fläche gesucht (Pacht)", true, link);
+  assert.match(gesuch, /Ihren Suchauftrag anonym auf lippeforst\.de zeigen dürfen/);
   assert.doesNotMatch(gesuch, /Flurstück/);
 
-  assert.doesNotMatch(text("Verkaufen", "—"), /anonym auf lippeforst\.de/);
+  assert.doesNotMatch(text("Verkaufen", false, link), /anonym auf lippeforst\.de/);
+  assert.doesNotMatch(text("Verkaufen", true), /anonym auf lippeforst\.de/, "ohne Link kein Absatz");
 });

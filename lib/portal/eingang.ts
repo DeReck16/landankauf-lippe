@@ -23,11 +23,11 @@ export type Eingabe = {
   /** Kennung eines Flächenbörse-Angebots (LF-1234), sonst „—“. */
   boerse: string;
   /**
-   * „on“ = freiwilliges Häkchen im Formular: Fläche bzw. Suchauftrag darf anonym auf lippeforst.de angezeigt werden
-   * (Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO, nur bei Verkaufen, Verpachten und Gesuchen), sonst „—“.
-   * Steht mit dem Eingangszeitpunkt im unveränderlichen Lead-Datensatz — das ist der Nachweis.
+   * Freiwilliges Häkchen im Formular: Fläche bzw. Suchauftrag darf anonym auf lippeforst.de angezeigt werden (nur bei
+   * Verkaufen, Verpachten und Gesuchen). Wirksam wird die Einwilligung (Art. 6 Abs. 1 lit. a DSGVO) erst mit dem Klick auf den
+   * Bestätigungslink der Eingangsbestätigung. Das Häkchen steht mit dem Eingangszeitpunkt im unveränderlichen Lead-Datensatz.
    */
-  veroeffentlichen: string;
+  veroeffentlichen: boolean;
 };
 
 /** Höchstlängen je Feld — alles darüber wird gekürzt (Schutz vor Missbrauch des Formulars). */
@@ -70,13 +70,13 @@ export function eingangPruefen(body: Record<string, unknown>): EingangsPruefung 
     consent: feld(body.consent, 10),
     gclid: feld(body.gclid, FELD_MAX.gclid),
     boerse: typeof body.boerse === "string" && /^LF-\d{4}$/.test(body.boerse.trim()) ? body.boerse.trim() : "—",
-    veroeffentlichen: "—",
+    veroeffentlichen: false,
   };
   // Nur bekannte Anliegen und Flächentypen — alles andere gilt als „Allgemein“ bzw. offen.
   if (!(INTENTS as readonly string[]).includes(e.intent)) e.intent = "Allgemein";
   if (!(FLAECHENTYPEN as readonly string[]).includes(e.flaechentyp)) e.flaechentyp = "—";
   // Das Veröffentlichen-Häkchen zählt nur dort, wo es angeboten wird: Verkaufen, Verpachten und Gesuche.
-  if ((body.veroeffentlichen === "on" || body.veroeffentlichen === "1") && (e.intent === "Verkaufen" || e.intent === "Verpachten" || isGesuchIntent(e.intent))) e.veroeffentlichen = "on";
+  if ((body.veroeffentlichen === "on" || body.veroeffentlichen === "1") && (e.intent === "Verkaufen" || e.intent === "Verpachten" || isGesuchIntent(e.intent))) e.veroeffentlichen = true;
   // Telefon: nur Ziffern und übliche Zeichen.
   if (e.phone !== "—" && !/^[+\d][\d\s()/.-]{3,}$/.test(e.phone)) e.phone = "—";
 
@@ -100,7 +100,13 @@ function zeitDe(iso: string): string {
  * Eingangsbestätigung: bewusst ohne Freitexte aus dem Formular (Name, Nachricht) — so
  * lässt sich das Formular nicht missbrauchen, um fremden Adressen beliebige Texte zu schicken.
  */
-export function eingangsbestaetigung(e: Pick<Eingabe, "intent" | "flaechentyp" | "boerse" | "veroeffentlichen">, id: string, am: string): { betreff: string; text: string } {
+export function eingangsbestaetigung(
+  e: Pick<Eingabe, "intent" | "flaechentyp" | "boerse" | "veroeffentlichen">,
+  id: string,
+  am: string,
+  /** Bestätigungslink für die Anzeige (nur mit Häkchen im Formular) — ohne Link kein Absatz dazu. */
+  veroeffentlichenLink?: string,
+): { betreff: string; text: string } {
   const anliegen = [e.intent, e.flaechentyp !== "—" ? e.flaechentyp : ""].filter(Boolean).join(" · ");
   return {
     betreff: `Ihre Anfrage bei Lippe Forst ist eingegangen (Vorgang ${id})`,
@@ -112,13 +118,15 @@ export function eingangsbestaetigung(e: Pick<Eingabe, "intent" | "flaechentyp" |
       `Ihre Vorgangsnummer: ${id}`,
       `Anliegen: ${anliegen}`,
       ...(e.boerse !== "—" ? [`Flächenbörse: Interesse an Angebot ${e.boerse}`] : []),
-      ...(e.veroeffentlichen === "on"
+      ...(e.veroeffentlichen && veroeffentlichenLink
         ? [
             "",
             isGesuchIntent(e.intent)
-              ? "Sie haben zugestimmt, dass wir Ihren Suchauftrag anonym auf lippeforst.de zeigen — nur mit Flächentyp, ungefährer Größe und Suchraum, nie mit Ihrem Namen oder Ihren Kontaktdaten. Das gilt, sobald die Angaben vollständig sind."
-              : "Sie haben zugestimmt, dass wir Ihre Fläche anonym auf lippeforst.de zeigen — nur mit Flächentyp, ungefährer Größe und Gemeinde, nie mit Ihrem Namen, Ihren Kontaktdaten oder dem Flurstück. Das gilt, sobald die Angaben vollständig sind.",
-            "Sie können die Zustimmung jederzeit widerrufen: Antworten Sie einfach auf diese E-Mail, dann nehmen wir die Anzeige sofort heraus.",
+              ? "Sie haben angekreuzt, dass wir Ihren Suchauftrag anonym auf lippeforst.de zeigen dürfen — nur mit Flächentyp, ungefährer Größe und Suchraum, nie mit Ihrem Namen oder Ihren Kontaktdaten."
+              : "Sie haben angekreuzt, dass wir Ihre Fläche anonym auf lippeforst.de zeigen dürfen — nur mit Flächentyp, ungefährer Größe und Gemeinde, nie mit Ihrem Namen, Ihren Kontaktdaten oder dem Flurstück.",
+            "Damit das niemand ohne Ihr Wissen auslösen kann, bestätigen Sie es bitte kurz mit einem Klick — erst danach erscheint die Anzeige:",
+            veroeffentlichenLink,
+            "Möchten Sie das nicht, tun Sie einfach nichts: Ohne Bestätigung bleibt alles unveröffentlicht. Eine erteilte Zustimmung können Sie jederzeit über denselben Link oder per Antwort auf diese E-Mail widerrufen.",
           ]
         : []),
       "",
