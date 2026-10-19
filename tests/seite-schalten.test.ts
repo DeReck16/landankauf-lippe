@@ -171,6 +171,51 @@ test("Bestätigungslink: auch ein Suchauftrag geht nach der Bestätigung online 
   const { zustand } = await store.readZustand();
   assert.equal(zustand.anfragen["LL-BES4"].suche?.einwilligung, null);
   assert.equal(zustand.anfragen["LL-BES4"].suche?.online, false);
+  assert.ok(zustand.anfragen["LL-BES4"].suche?.widerrufenAm, "Widerruf ist vermerkt");
+
+  // Derselbe Bestätigungslink schaltet die Anzeige nach dem Widerruf nicht wieder ein.
+  const nochmal = await veroeffentlichungBestaetigen("LL-BES4");
+  assert.deepEqual([nochmal.ok, nochmal.code], [false, "widerrufen"]);
+  assert.ok(!oeffentlich().gesuche.some((g) => g.code === "LS-5004"));
+  assert.equal((await store.readZustand()).zustand.anfragen["LL-BES4"].suche?.einwilligung, null);
+
+  // Nur die Verwaltung kann nach einem neuen Einverständnis wieder veröffentlichen — das hebt den Widerruf auf.
+  const neu = await seiteSchalten("LL-BES4", "oeffentlich", "admin@example.com", { quelle: "telefonisch" });
+  assert.equal(neu.ok, true, neu.meldung);
+  assert.equal((await store.readZustand()).zustand.anfragen["LL-BES4"].suche?.widerrufenAm, undefined);
+  await seiteSchalten("LL-BES4", "nicht", "admin@example.com");
+});
+
+test("Bestätigungslink: wiederholte Klicks ändern nichts und verbrauchen weder Kontingent noch Postfach", async () => {
+  // LL-BES1 ist bereits bestätigt und online (siehe oben).
+  const vorher = (await store.readZustand()).zustand.protokoll.length;
+  for (let i = 0; i < 6; i++) {
+    const r = await veroeffentlichungBestaetigen("LL-BES1");
+    assert.deepEqual([r.ok, r.code], [true, "bereits"]);
+  }
+  assert.equal((await store.readZustand()).zustand.protokoll.length, vorher, "kein neuer Verlaufseintrag");
+  assert.ok(oeffentlich().angebote.some((a) => a.code === "LF-5001"));
+});
+
+test("Bestätigungslink: eine von der Verwaltung offline genommene Anzeige bleibt offline", async () => {
+  await anfrage("LL-BES5", { name: "Olga Offline", email: "olga@example.com", ort: "Lage", veroeffentlichen: true });
+  await lageSetzen("LL-BES5", "boerse", "Raum Lage", { code: "LF-5005", einwilligung: { am: "2026-10-12", quelle: "telefonisch", von: "admin@example.com" }, online: true });
+  await boerseNeuSchreiben();
+  assert.ok(oeffentlich().angebote.some((a) => a.code === "LF-5005"));
+  await boerseOfflineNehmen(["LL-BES5"], "Verwaltung: Eigentümer wünscht Pause", "admin@example.com");
+
+  const r = await veroeffentlichungBestaetigen("LL-BES5");
+  assert.deepEqual([r.ok, r.code], [false, "offline"]);
+  assert.ok(!oeffentlich().angebote.some((a) => a.code === "LF-5005"));
+});
+
+test("Bestätigungslink: nach 30 Tagen nicht mehr zum Bestätigen — der Widerruf bleibt möglich", async () => {
+  await anfrage("LL-BES6", { receivedAt: "2026-08-01T09:00:00.000Z", veroeffentlichen: true, ort: "Detmold" });
+  await lageSetzen("LL-BES6", "boerse", "Raum Detmold", { code: "LF-5006" });
+  const r = await veroeffentlichungBestaetigen("LL-BES6");
+  assert.deepEqual([r.ok, r.code], [false, "abgelaufen"]);
+  const { zustand } = await store.readZustand();
+  assert.equal(zustand.anfragen["LL-BES6"].boerse?.einwilligung, null);
 });
 
 test("Bestätigungslink: ab dem Tageslimit wird nur noch vorbereitet, nicht veröffentlicht", async () => {

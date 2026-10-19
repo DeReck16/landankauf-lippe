@@ -11,8 +11,8 @@ export async function boerseBestaetigenAktion(fd: FormData): Promise<void> {
   const t = String(fd.get("t") ?? "").slice(0, 1500);
   const token = pruefeBoerse(t);
   if (!token) redirect("/kunde/boerse?fehler=link");
-  await veroeffentlichungBestaetigen(token.k);
-  redirect(`/kunde/boerse?t=${encodeURIComponent(t)}&ok=bestaetigt`);
+  const r = await veroeffentlichungBestaetigen(token.k);
+  redirect(`/kunde/boerse?t=${encodeURIComponent(t)}&${r.ok ? "ok=bestaetigt" : `hinweis=${r.code ?? "keine"}`}`);
 }
 
 export async function boerseWiderrufAktion(fd: FormData): Promise<void> {

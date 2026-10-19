@@ -270,6 +270,8 @@ export const EINWILLIGUNG_QUELLEN = ["telefonisch", "per E-Mail", "schriftlich",
 export const LINK_QUELLE = "per Bestätigungslink";
 /** Höchstens so viele Bestätigungen je Tag gehen allein online — danach bleibt der Klick der Verwaltung (Schutz vor Massen-Einträgen). */
 export const BESTAETIGUNG_LIMIT_PRO_TAG = 10;
+/** So lange nach dem Eingang der Anfrage gilt der Bestätigungslink zum Bestätigen (der Widerruf über denselben Link bleibt länger möglich). */
+export const BESTAETIGUNG_FRIST_TAGE = 30;
 
 /** Was der Schalter „Öffentlich“ noch braucht, bevor er veröffentlichen kann — die Verwaltung ergänzt es direkt dort. */
 export type SeiteFormular = {
@@ -283,7 +285,10 @@ export type SeiteFormular = {
   luecken: string[];
 };
 
-export type SeiteErgebnis = { ok: boolean; meldung: string; formular?: SeiteFormular };
+/** Warum ein Bestätigungslink nichts (mehr) bewirkt — feste Hinweise für die Seite, kein Freitext in der Adresse. */
+export type BestaetigungCode = "keine" | "abgelaufen" | "widerrufen" | "offline" | "bereits" | "zuviel";
+
+export type SeiteErgebnis = { ok: boolean; meldung: string; formular?: SeiteFormular; code?: BestaetigungCode };
 
 /** Eingaben der Verwaltung beim Veröffentlichen: nur Eckdaten. */
 export type SeiteOptionen = {
@@ -385,6 +390,7 @@ async function schalteEinzeln(ctx: Kontext, id: string, ziel: "oeffentlich" | "n
     if (!b.einwilligung) {
       b.einwilligung = { am: jetzt.slice(0, 10), quelle: quelle!, von };
       delete b.offline;
+      delete b.widerrufenAm;
     }
     const offen = luecken(b, leadView(lead, { ...meta, [feld]: b }));
     b.geaendert = { am: jetzt, von };
@@ -448,8 +454,19 @@ export async function seiteSchaltenViele(ids: string[], von: string, opt?: Pick<
  * Verwaltung veröffentlicht mit einem Klick.
  */
 export async function veroeffentlichungBestaetigen(id: string): Promise<SeiteErgebnis> {
-  const lead = (await listLeads()).find((x) => x.id === id);
-  if (!lead?.veroeffentlichen) return { ok: false, meldung: "Für diese Anfrage wurde keine Anzeige gewünscht." };
+  const [leads, { zustand }] = await Promise.all([listLeads(), readZustand()]);
+  const lead = leads.find((x) => x.id === id);
+  if (!lead?.veroeffentlichen) return { ok: false, code: "keine", meldung: "Für diese Anfrage wurde keine Anzeige gewünscht." };
+  if (Date.now() - Date.parse(lead.receivedAt) > BESTAETIGUNG_FRIST_TAGE * 86_400_000) return { ok: false, code: "abgelaufen", meldung: "Der Bestätigungslink ist abgelaufen." };
+  // Ein Klick ändert nur, was der Kunde noch nicht entschieden hat: einmal bestätigen, danach nur noch zurücknehmen —
+  // nie eine Anzeige gegen einen Widerruf oder eine Entscheidung der Verwaltung wieder einschalten.
+  const meta = zustand.anfragen[id];
+  const b = meta?.[leadView(lead, meta).rolle === "gesuch" ? "suche" : "boerse"];
+  if (b?.widerrufenAm) return { ok: false, code: "widerrufen", meldung: "Die Einwilligung wurde zurückgenommen." };
+  if (b?.offline) return { ok: false, code: "offline", meldung: "Die Anzeige wurde von der Verwaltung offline genommen." };
+  if (b?.einwilligung) return { ok: true, code: "bereits", meldung: "Die Bestätigung liegt bereits vor." };
+  // Wiederholte Versuche mit demselben Link zählen nicht gegen das gemeinsame Tageskontingent.
+  if (!(await drosseln("boerse-bestaetigung-anfrage", id, [{ sekunden: 86_400, max: 3 }]))) return { ok: false, code: "zuviel", meldung: "Zu viele Versuche heute." };
   const frei = await drosseln("boerse-bestaetigung", "alle", [{ sekunden: 86_400, max: BESTAETIGUNG_LIMIT_PRO_TAG }]);
   const r = await seiteSchalten(id, "oeffentlich", "Kunde", { quelle: LINK_QUELLE, nurVorbereiten: !frei });
   const name = lead.name !== "—" ? lead.name : id;
@@ -530,9 +547,11 @@ export async function boerseEinwilligungKunde(
       const d = detailsBereinigen({ ...(details ?? {}), ...(b.details ?? {}) });
       if (d) b.details = d;
       delete b.offline;
+      delete b.widerrufenAm;
       ergebnis = "erteilt";
     } else {
       b.einwilligung = null;
+      b.widerrufenAm = jetzt;
       warOnline = b.online;
       b.online = false;
       ergebnis = "widerrufen";

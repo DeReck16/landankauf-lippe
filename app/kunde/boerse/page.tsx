@@ -39,8 +39,17 @@ export default async function BoersePage(props: PageProps<"/kunde/boerse">) {
   const e = eckdatenFuer(l, b, (await readZustand()).zustand.orte);
   const eckdaten = [e.typ, haText(e.groesseHa), e.lage || "grobe Lage wird von uns ergänzt"].join(" · ");
 
+  // Feste Hinweise zu einem Klick, der nichts bewirkt hat — der Code kommt aus der Adresse, der Text nicht.
+  const HINWEISE: Record<string, string> = {
+    abgelaufen: "Dieser Bestätigungslink ist abgelaufen (30 Tage). Schreiben Sie uns kurz, dann veröffentlichen wir die Anzeige für Sie.",
+    widerrufen: "Sie hatten Ihre Einwilligung zurückgenommen. Für eine neue Anzeige schreiben Sie uns bitte kurz.",
+    offline: "Die Anzeige wurde von uns offline genommen. Wenn sie wieder erscheinen soll, schreiben Sie uns bitte kurz.",
+    zuviel: "Heute gab es schon zu viele Versuche — bitte versuchen Sie es morgen noch einmal.",
+  };
+  const hinweis = typeof sp.hinweis === "string" ? HINWEISE[sp.hinweis] : undefined;
+
   let inhalt: React.ReactNode;
-  if (sp.ok === "1") {
+  if (sp.ok === "1" || b?.widerrufenAm) {
     inhalt = (
       <p className="lfk-hinweis lfk-hinweis-ok" role="status">
         Ihre Einwilligung ist zurückgenommen. {wer} erscheint nicht (mehr) {wo} auf lippeforst.de.
@@ -49,6 +58,7 @@ export default async function BoersePage(props: PageProps<"/kunde/boerse">) {
   } else if (b?.einwilligung) {
     inhalt = (
       <>
+        {hinweis && <p className="lfk-hinweis" role="status">{hinweis}</p>}
         {sp.ok === "bestaetigt" && (
           <p className="lfk-hinweis lfk-hinweis-ok" role="status">
             Danke — Ihre Zustimmung ist vermerkt.{b.online ? ` ${wer} steht jetzt anonym auf lippeforst.de.` : " Die Anzeige geht online, sobald die Angaben vollständig sind."}
@@ -68,6 +78,7 @@ export default async function BoersePage(props: PageProps<"/kunde/boerse">) {
   } else if (l.veroeffentlichen) {
     inhalt = (
       <>
+        {hinweis && <p className="lfk-hinweis" role="status">{hinweis}</p>}
         <p className="lfk-unterzeile">
           Sie haben im Formular angekreuzt, dass wir {gesuch ? "Ihren Suchauftrag" : "Ihre Fläche"} anonym auf lippeforst.de zeigen dürfen. So würde die Anzeige erscheinen — nur diese Eckdaten, nie Ihr Name, Ihre Kontaktdaten oder das Flurstück:
         </p>

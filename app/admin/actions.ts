@@ -499,12 +499,14 @@ export async function boerseAktion(formData: FormData): Promise<void> {
         const am = text(formData, "am", 10);
         b.einwilligung = { am: /^\d{4}-\d{2}-\d{2}$/.test(am) ? am : jetzt.slice(0, 10), quelle: (EINWILLIGUNG_QUELLEN as readonly string[]).includes(quelle) ? quelle : "telefonisch", von: email };
         delete b.offline;
+        delete b.widerrufenAm;
         bestaetigen = !gesuch && text(formData, "bestaetigen", 2) === "1" && b.einwilligung.quelle !== "im Kundenbereich";
         was = `Einwilligung ${gesuch ? "des Suchenden in die Suchliste" : "des Eigentümers in die Flächenbörse"} erfasst (${b.einwilligung.quelle})`;
         break;
       }
       case "einwilligung-zurueck":
         b.einwilligung = null;
+        b.widerrufenAm = jetzt;
         oeffentlichBetroffen = b.online;
         b.online = false;
         was = `Einwilligung in die ${bn} widerrufen — ${gesuch ? "Gesuch" : "Angebot"} offline`;

@@ -190,6 +190,11 @@ export type BoerseMeta = {
   seit?: string;
   /** Automatisch offline genommen (vergeben, Widerruf, Kündigung, Sperre) — mit Grund für die Verwaltung. */
   offline?: { am: string; grund: string };
+  /**
+   * Einwilligung zurückgenommen (vom Kunden per Link oder von der Verwaltung erfasst): Der Bestätigungslink aus dem
+   * Formular wirkt danach nicht mehr — eine neue Anzeige gibt es nur, wenn die Verwaltung eine neue Einwilligung erfasst.
+   */
+  widerrufenAm?: string;
   /** Nicht mit anderen Flächen desselben Eigentümers zu einem Paket bündeln. */
   einzeln?: boolean;
   geaendert?: { am: string; von: string };
