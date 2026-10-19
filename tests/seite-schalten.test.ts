@@ -118,3 +118,49 @@ test("Schalter: offline nehmen und erledigte Anfragen entfernen Angebot wie Such
   await boerseNeuSchreiben();
   assert.deepEqual(oeffentlich().gesuche, []);
 });
+
+const { veroeffentlichenAusFormular, FORMULAR_LIMIT_PRO_TAG } = await import("@/lib/boerse");
+
+test("Formular-Häkchen: erfasst die Einwilligung „im Formular“ und veröffentlicht sofort", async () => {
+  await anfrage("LL-FOR1", { name: "Gerd Gutsbesitzer", email: "gerd@example.com", ort: "Kalletal" });
+  await lageSetzen("LL-FOR1", "boerse", "Raum Kalletal", { code: "LF-5001" });
+  const r = await veroeffentlichenAusFormular("LL-FOR1");
+  assert.equal(r.ok, true, r.meldung);
+  const { zustand } = await store.readZustand();
+  const e = zustand.anfragen["LL-FOR1"].boerse?.einwilligung;
+  assert.equal(e?.quelle, "im Formular");
+  assert.equal(e?.von, "Formular");
+  assert.ok(oeffentlich().angebote.some((a) => a.code === "LF-5001"));
+  assert.ok(zustand.protokoll.some((p) => p.ref === "LL-FOR1" && /automatisch nach Einwilligung im Formular/.test(p.was)));
+  assert.ok(!readFileSync(path.join(DIR, BOERSE_PFAD), "utf8").includes("Gutsbesitzer"), "kein Name in der öffentlichen Datei");
+});
+
+test("Formular-Häkchen: ohne Größe bleibt es vorbereitet, die Einwilligung ist trotzdem erfasst", async () => {
+  await anfrage("LL-FOR2", { groesse: "—", ort: "Lage" });
+  await lageSetzen("LL-FOR2", "boerse", "Raum Lage", { code: "LF-5002", groesseHa: null });
+  const r = await veroeffentlichenAusFormular("LL-FOR2");
+  assert.equal(r.ok, false);
+  assert.match(r.meldung, /ungefähre Größe fehlt/);
+  const { zustand } = await store.readZustand();
+  assert.equal(zustand.anfragen["LL-FOR2"].boerse?.einwilligung?.quelle, "im Formular");
+  assert.equal(zustand.anfragen["LL-FOR2"].boerse?.online, false);
+});
+
+test("Formular-Häkchen: ab dem Tageslimit wird nur noch vorbereitet, nicht veröffentlicht", async () => {
+  // Schon verbraucht: LL-FOR1 und LL-FOR2 (je ein Zähler-Schritt). Den Rest bis zum Limit auffüllen.
+  for (let i = 2; i < FORMULAR_LIMIT_PRO_TAG; i++) await store.drosseln("boerse-formular", "alle", [{ sekunden: 86_400, max: FORMULAR_LIMIT_PRO_TAG }]);
+  await anfrage("LL-FOR3", { ort: "Detmold" });
+  await lageSetzen("LL-FOR3", "boerse", "Raum Detmold", { code: "LF-5003" });
+  const r = await veroeffentlichenAusFormular("LL-FOR3");
+  assert.equal(r.ok, false);
+  assert.match(r.meldung, /wartet auf den Klick/);
+  const { zustand } = await store.readZustand();
+  assert.equal(zustand.anfragen["LL-FOR3"].boerse?.einwilligung?.quelle, "im Formular");
+  assert.equal(zustand.anfragen["LL-FOR3"].boerse?.online, false);
+  assert.ok(!oeffentlich().angebote.some((a) => a.code === "LF-5003"));
+
+  // Der Klick der Verwaltung geht weiterhin (Einwilligung liegt ja vor).
+  const klick = await seiteSchalten("LL-FOR3", "oeffentlich", "admin@example.com");
+  assert.equal(klick.ok, true, klick.meldung);
+  assert.ok(oeffentlich().angebote.some((a) => a.code === "LF-5003"));
+});

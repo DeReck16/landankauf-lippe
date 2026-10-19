@@ -268,6 +268,18 @@ export default function LeadForm({
           <label className="field-label" htmlFor="email">E-Mail *</label>
           <input id="email" name="email" type="email" required className="field-input" />
         </div>
+        {/* Freiwillige Einwilligung: anonym auf lippeforst.de zeigen — nur bei Verkaufen, Verpachten und Gesuchen. */}
+        {!nachfrage && (gesuch || intent === "Verkaufen" || intent === "Verpachten") && (
+          <label key={gesuch ? "veroeffentlichen-gesuch" : "veroeffentlichen-angebot"} className="checkbox-row sm:col-span-2">
+            <input type="checkbox" name="veroeffentlichen" />
+            <span>
+              <strong>Optional:</strong>{" "}
+              {gesuch
+                ? "Mein Suchauftrag darf anonym auf lippeforst.de angezeigt werden — nur mit Flächentyp, ungefährer Größe und Suchraum, nie mit Name oder Kontaktdaten. So können Eigentümer mir passende Flächen anbieten. Ich kann das jederzeit widerrufen."
+                : "Meine Fläche darf anonym auf lippeforst.de angezeigt werden — nur mit Flächentyp, ungefährer Größe und Gemeinde, nie mit Name, Kontaktdaten oder Flurstück. So finden wir schneller Interessenten. Ich kann das jederzeit widerrufen."}
+            </span>
+          </label>
+        )}
         <label className="checkbox-row sm:col-span-2">
           <input type="checkbox" name="consent" required />
           <span>

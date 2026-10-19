@@ -2,7 +2,7 @@ import "server-only";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { hasBlobToken } from "@/lib/admin/config";
 import { leadView, type BoerseMeta, type LeadMeta, type LeadView } from "@/lib/admin/model";
-import { jsonAendern, kurzwert, listLeads, mutateZustand, readZustand, websiteDateiLesen } from "@/lib/admin/store";
+import { drosseln, jsonAendern, kurzwert, listLeads, mutateZustand, readZustand, websiteDateiLesen } from "@/lib/admin/store";
 import { grobeLage } from "@/lib/admin/matching";
 import { FLAECHENTYPEN } from "@/lib/lead-options";
 import { gleichePerson } from "@/lib/portal/anbieter-regeln";
@@ -265,6 +265,10 @@ export async function boerseVeroeffentlichen(id: string, von: string): Promise<{
 }
 
 export const EINWILLIGUNG_QUELLEN = ["telefonisch", "per E-Mail", "schriftlich", "im Kundenbereich"] as const;
+/** Einwilligung per Häkchen im Anfrageformular — nur über `veroeffentlichenAusFormular`, nie als Wahl in der Verwaltung. */
+export const FORMULAR_QUELLE = "im Formular";
+/** Höchstens so viele Anfragen je Tag gehen allein durch das Häkchen online — danach bleibt der Klick der Verwaltung (Schutz vor Massen-Einträgen). */
+export const FORMULAR_LIMIT_PRO_TAG = 10;
 
 export type SeiteErgebnis = { ok: boolean; meldung: string; einwilligungNoetig?: boolean };
 
@@ -275,7 +279,7 @@ export type SeiteErgebnis = { ok: boolean; meldung: string; einwilligungNoetig?:
  * Anfrage als Einwilligung erfasst). Fehlende Angaben (Typ, Größe, Lage) werden aus der Anfrage vorgeschlagen, eine Lücke
  * oder verräterische Angabe verhindert das Veröffentlichen mit Begründung.
  */
-export async function seiteSchalten(id: string, ziel: "oeffentlich" | "nicht", von: string, einwilligung?: { quelle: string }): Promise<SeiteErgebnis> {
+export async function seiteSchalten(id: string, ziel: "oeffentlich" | "nicht", von: string, einwilligung?: { quelle: string; nurVorbereiten?: boolean }): Promise<SeiteErgebnis> {
   const [leads, kundenListe, vorgaenge] = await Promise.all([listLeads(), alleKunden(), alleVorgaenge()]);
   const lead = leads.find((x) => x.id === id);
   if (!lead) return { ok: false, meldung: "Anfrage nicht gefunden." };
@@ -328,7 +332,7 @@ export async function seiteSchalten(id: string, ziel: "oeffentlich" | "nicht", v
     }
     if (!b.einwilligung) {
       const quelle = einwilligung?.quelle;
-      if (!quelle || !(EINWILLIGUNG_QUELLEN as readonly string[]).includes(quelle)) {
+      if (!quelle || ![...EINWILLIGUNG_QUELLEN, FORMULAR_QUELLE].includes(quelle)) {
         ergebnis = { ok: false, einwilligungNoetig: true, meldung: `Keine Einwilligung erfasst — wie hat ${gesuch ? "der Suchende" : "der Eigentümer"} eingewilligt?` };
         return;
       }
@@ -337,7 +341,9 @@ export async function seiteSchalten(id: string, ziel: "oeffentlich" | "nicht", v
     }
     const offen = luecken(b, leadView(lead, { ...meta, [feld]: b }));
     b.geaendert = { am: jetzt, von };
-    if (offen.length === 0) {
+    if (offen.length === 0 && einwilligung?.nurVorbereiten) {
+      ergebnis = { ok: false, meldung: `${wort} vorbereitet (${b.code}) — wartet auf den Klick der Verwaltung.` };
+    } else if (offen.length === 0) {
       b.online = true;
       b.seit ??= jetzt;
       delete b.offline;
@@ -348,14 +354,27 @@ export async function seiteSchalten(id: string, ziel: "oeffentlich" | "nicht", v
     }
     meta[feld] = b;
     z.anfragen[id] = meta;
+    const wie = von === "Formular" ? "automatisch nach Einwilligung im Formular" : "per Schalter in der Anfragen-Liste";
     return {
-      was: offen.length === 0 ? `${gesuch ? "In der Suchliste" : "In der Flächenbörse"} veröffentlicht (${b.code}) — per Schalter in der Anfragen-Liste` : `${gesuch ? "Suchliste" : "Flächenbörse"}: Angaben vorbereitet (${b.code}), noch nicht veröffentlicht — ${offen.join(" · ")}`,
+      was: b.online
+        ? `${gesuch ? "In der Suchliste" : "In der Flächenbörse"} veröffentlicht (${b.code}) — ${wie}`
+        : `${gesuch ? "Suchliste" : "Flächenbörse"}: Angaben vorbereitet (${b.code}), noch nicht veröffentlicht — ${offen.length ? offen.join(" · ") : "wartet auf den Klick der Verwaltung"}`,
       ref: id,
     };
   });
 
   if (oeffentlichBetroffen) await boerseNeuSchreiben().catch((err) => console.error("[boerse] Neu schreiben fehlgeschlagen", err));
   return ergebnis;
+}
+
+/**
+ * Häkchen im Anfrageformular („darf anonym auf lippeforst.de angezeigt werden“): Einwilligung erfassen und, wenn nichts
+ * fehlt, sofort anonym veröffentlichen. Höchstens `FORMULAR_LIMIT_PRO_TAG` je Tag allein durch das Häkchen — darüber
+ * wird die Einwilligung nur erfasst und die Verwaltung veröffentlicht mit einem Klick.
+ */
+export async function veroeffentlichenAusFormular(id: string): Promise<SeiteErgebnis> {
+  const frei = await drosseln("boerse-formular", "alle", [{ sekunden: 86_400, max: FORMULAR_LIMIT_PRO_TAG }]);
+  return seiteSchalten(id, "oeffentlich", "Formular", { quelle: FORMULAR_QUELLE, nurVorbereiten: !frei });
 }
 
 /**

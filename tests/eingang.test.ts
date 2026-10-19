@@ -42,3 +42,36 @@ test("Eingangsbestätigung nennt Vorgangsnummer und Werktag, aber keine Freitext
   assert.doesNotMatch(b.text, /BUY NOW|Kaufen Sie jetzt/);
   assert.doesNotMatch(b.text, /Telefon|\+49|0176|05234/);
 });
+
+test("Häkchen „anonym veröffentlichen“ zählt nur bei Verkaufen, Verpachten und Gesuchen", () => {
+  const mit = (intent: string, wert: unknown = "on") => {
+    const r = eingangPruefen({ ...gueltig, intent, veroeffentlichen: wert });
+    assert.ok(r.ok);
+    return r.ok ? r.eingabe.veroeffentlichen : "";
+  };
+  assert.equal(mit("Verkaufen"), "on");
+  assert.equal(mit("Verpachten"), "on");
+  assert.equal(mit("Fläche gesucht (Pacht)"), "on");
+  assert.equal(mit("Fläche gesucht (Kauf)", "1"), "on");
+  assert.equal(mit("Bewertung"), "—");
+  assert.equal(mit("Ökopunkte gesucht"), "—");
+  assert.equal(mit("Verkaufen", "off"), "—");
+  assert.equal(mit("Verkaufen", true), "—");
+  const ohne = eingangPruefen(gueltig);
+  assert.ok(ohne.ok && ohne.eingabe.veroeffentlichen === "—");
+});
+
+test("Eingangsbestätigung erwähnt die Veröffentlichung samt Widerruf nur mit Häkchen", () => {
+  const text = (intent: string, veroeffentlichen: "on" | "—") => eingangsbestaetigung({ intent, flaechentyp: "Ackerland", boerse: "—", veroeffentlichen }, "LL-TEST1", "2026-10-19T08:00:00.000Z").text;
+
+  const angebot = text("Verkaufen", "on");
+  assert.match(angebot, /Ihre Fläche anonym auf lippeforst\.de zeigen/);
+  assert.match(angebot, /nie mit Ihrem Namen, Ihren Kontaktdaten oder dem Flurstück/);
+  assert.match(angebot, /Antworten Sie einfach auf diese E-Mail/);
+
+  const gesuch = text("Fläche gesucht (Pacht)", "on");
+  assert.match(gesuch, /Ihren Suchauftrag anonym auf lippeforst\.de zeigen/);
+  assert.doesNotMatch(gesuch, /Flurstück/);
+
+  assert.doesNotMatch(text("Verkaufen", "—"), /anonym auf lippeforst\.de/);
+});

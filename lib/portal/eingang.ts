@@ -1,4 +1,4 @@
-import { FLAECHENTYPEN, INTENTS } from "@/lib/lead-options";
+import { FLAECHENTYPEN, INTENTS, isGesuchIntent } from "@/lib/lead-options";
 import { GRUSS } from "./gruss";
 
 // Eingang einer Anfrage über das Formular (/api/lead): Prüfen und Begrenzen der
@@ -22,10 +22,16 @@ export type Eingabe = {
   gclid: string;
   /** Kennung eines Flächenbörse-Angebots (LF-1234), sonst „—“. */
   boerse: string;
+  /**
+   * „on“ = freiwilliges Häkchen im Formular: Fläche bzw. Suchauftrag darf anonym auf lippeforst.de angezeigt werden
+   * (Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO, nur bei Verkaufen, Verpachten und Gesuchen), sonst „—“.
+   * Steht mit dem Eingangszeitpunkt im unveränderlichen Lead-Datensatz — das ist der Nachweis.
+   */
+  veroeffentlichen: string;
 };
 
 /** Höchstlängen je Feld — alles darüber wird gekürzt (Schutz vor Missbrauch des Formulars). */
-export const FELD_MAX: Record<Exclude<keyof Eingabe, "boerse" | "consent">, number> = {
+export const FELD_MAX: Record<Exclude<keyof Eingabe, "boerse" | "consent" | "veroeffentlichen">, number> = {
   intent: 60,
   flaechentyp: 40,
   groesse: 80,
@@ -64,10 +70,13 @@ export function eingangPruefen(body: Record<string, unknown>): EingangsPruefung 
     consent: feld(body.consent, 10),
     gclid: feld(body.gclid, FELD_MAX.gclid),
     boerse: typeof body.boerse === "string" && /^LF-\d{4}$/.test(body.boerse.trim()) ? body.boerse.trim() : "—",
+    veroeffentlichen: "—",
   };
   // Nur bekannte Anliegen und Flächentypen — alles andere gilt als „Allgemein“ bzw. offen.
   if (!(INTENTS as readonly string[]).includes(e.intent)) e.intent = "Allgemein";
   if (!(FLAECHENTYPEN as readonly string[]).includes(e.flaechentyp)) e.flaechentyp = "—";
+  // Das Veröffentlichen-Häkchen zählt nur dort, wo es angeboten wird: Verkaufen, Verpachten und Gesuche.
+  if ((body.veroeffentlichen === "on" || body.veroeffentlichen === "1") && (e.intent === "Verkaufen" || e.intent === "Verpachten" || isGesuchIntent(e.intent))) e.veroeffentlichen = "on";
   // Telefon: nur Ziffern und übliche Zeichen.
   if (e.phone !== "—" && !/^[+\d][\d\s()/.-]{3,}$/.test(e.phone)) e.phone = "—";
 
@@ -91,7 +100,7 @@ function zeitDe(iso: string): string {
  * Eingangsbestätigung: bewusst ohne Freitexte aus dem Formular (Name, Nachricht) — so
  * lässt sich das Formular nicht missbrauchen, um fremden Adressen beliebige Texte zu schicken.
  */
-export function eingangsbestaetigung(e: Pick<Eingabe, "intent" | "flaechentyp" | "boerse">, id: string, am: string): { betreff: string; text: string } {
+export function eingangsbestaetigung(e: Pick<Eingabe, "intent" | "flaechentyp" | "boerse" | "veroeffentlichen">, id: string, am: string): { betreff: string; text: string } {
   const anliegen = [e.intent, e.flaechentyp !== "—" ? e.flaechentyp : ""].filter(Boolean).join(" · ");
   return {
     betreff: `Ihre Anfrage bei Lippe Forst ist eingegangen (Vorgang ${id})`,
@@ -103,6 +112,15 @@ export function eingangsbestaetigung(e: Pick<Eingabe, "intent" | "flaechentyp" |
       `Ihre Vorgangsnummer: ${id}`,
       `Anliegen: ${anliegen}`,
       ...(e.boerse !== "—" ? [`Flächenbörse: Interesse an Angebot ${e.boerse}`] : []),
+      ...(e.veroeffentlichen === "on"
+        ? [
+            "",
+            isGesuchIntent(e.intent)
+              ? "Sie haben zugestimmt, dass wir Ihren Suchauftrag anonym auf lippeforst.de zeigen — nur mit Flächentyp, ungefährer Größe und Suchraum, nie mit Ihrem Namen oder Ihren Kontaktdaten. Das gilt, sobald die Angaben vollständig sind."
+              : "Sie haben zugestimmt, dass wir Ihre Fläche anonym auf lippeforst.de zeigen — nur mit Flächentyp, ungefährer Größe und Gemeinde, nie mit Ihrem Namen, Ihren Kontaktdaten oder dem Flurstück. Das gilt, sobald die Angaben vollständig sind.",
+            "Sie können die Zustimmung jederzeit widerrufen: Antworten Sie einfach auf diese E-Mail, dann nehmen wir die Anzeige sofort heraus.",
+          ]
+        : []),
       "",
       "Wir melden uns in der Regel innerhalb eines Werktags per E-Mail bei Ihnen. Bei Rückfragen antworten Sie einfach auf diese E-Mail und nennen Sie Ihre Vorgangsnummer.",
       "",
