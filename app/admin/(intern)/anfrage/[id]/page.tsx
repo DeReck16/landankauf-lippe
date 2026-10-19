@@ -19,7 +19,8 @@ import { anschrift, datumDe, flaecheZeile, rolleVonLead } from "@/lib/portal/tex
 import { brwWarnung, brwZeile } from "@/lib/portal/wert";
 import { VORLAGEN, istFreigegeben, kundenVorlage } from "@/lib/vertraege/vorlagen";
 import { BERATUNG_THEMEN, RUECKMELDUNG_NAME, antwortGruppe, antwortOptionen, istBeratungThema, istRueckmeldungArt, themaVorschlag } from "@/lib/portal/rueckmeldung-typen";
-import { anfrageSpeichern, loeschwunschFormular, ortNeuSuchen, postfachFormular, rueckmeldungErfassen, wegFormular } from "../../../actions";
+import { anfrageSpeichern, loeschwunschFormular, ortNeuSuchen, postfachFormular, rueckmeldungErfassen, triUebergabeFormular, wegFormular } from "../../../actions";
+import { triVerbunden, triVorgangUrl } from "@/lib/portal/tri-uebergabe";
 import { ANKAUF_ERGEBNIS_NAME, WEG_NAME, WEG_TIPP } from "@/lib/portal/weg";
 import {
   bestaetigungSendenAktion,
@@ -586,6 +587,55 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
             </section>
           )}
 
+          {l.rolle === "angebot" && (
+            <section className="lfa-panel" id="tri">
+              <h2 className="lfa-h2" title="Gibt diese Fläche von Hand an die Verwaltung von TR Immobilien weiter. Von dort lässt sie sich per „An KurtInvest übergeben“ an den Partnermakler geben. Nur mit Einverständnis des Eigentümers; es geht keine E-Mail an ihn raus.">
+                An TR Immobilien weitergeben (→ KurtInvest)
+              </h2>
+              {l.meta.triUebergabe ? (
+                <div className="lfa-hinweis lfa-hinweis-ok" style={{ margin: 0 }}>
+                  <strong title="Die Fläche steht bei TR Immobilien in der Verwaltung als eigener Vorgang">Übergeben am {datumZeit(l.meta.triUebergabe.am)}</strong> ({l.meta.triUebergabe.von}) — dort Vorgang{" "}
+                  <a href={triVorgangUrl(l.meta.triUebergabe.triId)} target="_blank" rel="noreferrer" title="Öffnet den Vorgang in der Verwaltung von TR Immobilien (Anmeldung nötig)">
+                    {l.meta.triUebergabe.triId}
+                  </a>
+                  .
+                  <div className="lfa-klein" style={{ marginTop: "0.3rem" }}>
+                    Einverständnis des Eigentümers bestätigt am {datumZeit(l.meta.triUebergabe.einverstaendnis.am)} von {l.meta.triUebergabe.einverstaendnis.von}. Weiter geht es dort: Knopf „An KurtInvest übergeben“.
+                    Löschen Sie diese Anfrage endgültig, den Vorgang bei TR Immobilien bitte ebenfalls löschen.
+                  </div>
+                </div>
+              ) : l.status === "archiv" || (l.meta.loeschwunsch && !l.meta.loeschwunsch.erledigtAm) ? (
+                <p className="lfa-klein" style={{ margin: 0 }}>
+                  {l.status === "archiv" ? "Die Anfrage ist archiviert — archivierte Anfragen werden nicht weitergegeben." : "Es liegt ein Löschwunsch vor — es wird nichts weitergegeben."}
+                </p>
+              ) : !triVerbunden() ? (
+                <p className="lfa-hinweis lfa-hinweis-fehler" style={{ margin: 0 }}>
+                  Die Verbindung zu TR Immobilien ist noch nicht eingerichtet (Umgebungsvariable <code>TRI_VERWALTUNG_TOKEN</code> fehlt).
+                </p>
+              ) : (
+                <form action={triUebergabeFormular} className="lfa-stapel" style={{ display: "grid", gap: "0.6rem" }}>
+                  <input type="hidden" name="id" value={l.id} />
+                  <p className="lfa-klein" style={{ margin: 0 }}>
+                    Übermittelt werden Name, E-Mail, Telefon, Fläche (Art, Größe, Ort, Flurstück, Kataster-Daten) und die Nachricht des Eigentümers. Nicht: interne Notizen, Verlauf und Verträge. Der Eigentümer bekommt keine Mail.
+                  </p>
+                  <label className="lfa-klein" style={{ display: "flex", gap: "0.5rem", alignItems: "flex-start" }} title="Pflicht: Die Datenschutzerklärung verspricht, Daten nicht ohne Einwilligung weiterzugeben. Datum und Ihre Adresse werden bei beiden Verwaltungen vermerkt.">
+                    <input type="checkbox" name="einverstanden" value="ja" required style={{ marginTop: "0.2rem" }} />
+                    <span>Der Eigentümer ist mit der Weitergabe seiner Angaben an TR Immobilien und deren Partnermakler (derzeit KurtInvest, Bielefeld) einverstanden.</span>
+                  </label>
+                  <div className="lfa-knopfreihe">
+                    <BestaetigenKnopf
+                      className="lfa-knopf"
+                      frage={`Fläche von ${l.name} jetzt an die Verwaltung von TR Immobilien übergeben? Der Eigentümer bekommt keine Mail; rückgängig machen lässt sich das nur dort (Löschen).`}
+                      tipp="Legt die Fläche bei TR Immobilien als eigenen Vorgang an (mit Datum und Person des Einverständnisses). Wiederholen erzeugt keine Dublette. Danach lässt sie sich dort an KurtInvest übergeben."
+                    >
+                      An TR Immobilien übergeben
+                    </BestaetigenKnopf>
+                  </div>
+                </form>
+              )}
+            </section>
+          )}
+
           <section className="lfa-panel">
             <h2 className="lfa-h2">Bearbeitung</h2>
             <form action={anfrageSpeichern} className="lfa-formraster">
@@ -878,6 +928,11 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
                     <strong>Nur gesperrt (Aufbewahrungspflicht):</strong>{" "}
                     {plan.sperren.length === 0 ? "nichts" : plan.sperren.map((p) => `${p.was} bis ${p.bis.split("-").reverse().join(".")}`).join("; ")}. Gelöscht wird erst nach der Bestätigung.
                   </p>
+                  {l.meta.triUebergabe && (
+                    <p className="lfa-klein" style={{ margin: "0 0 0.5rem" }} title="Die Kopie bei TR Immobilien (und ggf. bei KurtInvest) löscht dieser Knopf nicht">
+                      <strong>Nicht erfasst:</strong> Der Vorgang {l.meta.triUebergabe.triId} bei TR Immobilien (Weitergabe vom {datumZeit(l.meta.triUebergabe.am)}) — dort bitte ebenfalls löschen; war er an KurtInvest übergeben, diesen über die Löschung informieren (Art. 19 DSGVO).
+                    </p>
+                  )}
                   {plan.blockiert.length > 0 && (
                     <div className="lfa-hinweis lfa-hinweis-fehler">
                       <strong>Gerade nicht möglich</strong> — die Daten werden für die laufende Abwicklung noch gebraucht (Art. 17 Abs. 1 lit. a DSGVO):

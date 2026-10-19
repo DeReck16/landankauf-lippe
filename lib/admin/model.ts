@@ -85,6 +85,12 @@ export type LeadMeta = {
   loeschwunsch?: { am: string; von: string; frist: string; erledigtAm?: string; erledigtVon?: string; notiz?: string };
   /** Letzte erfolgreich gesendete Mail an den Kunden (auch ohne Kundenakte) — für „Nachfassen“. */
   letzterKontakt?: string;
+  /**
+   * Von Hand an die Verwaltung von TR Immobilien weitergegeben (lib/portal/tri-uebergabe.ts), die den Vorgang
+   * bei Bedarf an den Partnermakler übergibt. Nur mit bestätigtem Einverständnis des Eigentümers; `triId` ist die
+   * Vorgangsnummer dort (TRI-…).
+   */
+  triUebergabe?: { am: string; von: string; triId: string; einverstaendnis: { am: string; von: string } };
 };
 
 /** Gehört das Angebot dem Geschäftsführer bzw. seiner Familie (eigene Fläche, ohne Provision)? */

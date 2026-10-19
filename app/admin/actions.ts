@@ -28,6 +28,7 @@ import { postfachUebernehmen, postfachZurKenntnis } from "@/lib/portal/postfach"
 import { rueckmeldungSpeichern } from "@/lib/portal/rueckmeldung";
 import { RUECKMELDUNG_NAME, istRueckmeldungArt } from "@/lib/portal/rueckmeldung-typen";
 import { ANKAUF_ERGEBNIS_NAME, ankaufErgebnis, preisLesen, wegSetzen } from "@/lib/portal/weg";
+import { anTriUebergeben } from "@/lib/portal/tri-uebergabe";
 
 // ---------------------------------------------------------------------------
 // Anmeldung per Link
@@ -244,6 +245,25 @@ export async function wegFormular(formData: FormData): Promise<void> {
   revalidatePath("/admin", "layout");
   menueErneuern();
   redirect(`${zurueck}?m=${encodeURIComponent(m)}&mt=${ok ? "ok" : "fehler"}#weg`);
+}
+
+/**
+ * Fläche an die Verwaltung von TR Immobilien weitergeben (lib/portal/tri-uebergabe.ts) — von dort geht sie bei Bedarf
+ * an KurtInvest. Nur mit Pflicht-Häkchen „Eigentümer ist einverstanden“; es geht keine Mail an den Eigentümer raus.
+ */
+export async function triUebergabeFormular(formData: FormData): Promise<void> {
+  const { email } = await requireAdmin();
+  const id = text(formData, "id", 40);
+  if (!/^LL-[A-Z0-9]+$/.test(id)) throw new Error("Ungültige Anfrage-ID");
+  const r = await anTriUebergeben(id, email, formData.get("einverstanden") === "ja");
+  revalidatePath("/admin", "layout");
+  menueErneuern();
+  const m = r.ok
+    ? r.test
+      ? "Testmodus: nichts gesendet, nur vermerkt (Vorgang „TRI-TESTMODUS“)."
+      : `An TR Immobilien übergeben — dort als Vorgang ${r.triId}. Von dort geht es mit „An KurtInvest übergeben“ weiter.`
+    : r.grund;
+  redirect(`/admin/anfrage/${id}?m=${encodeURIComponent(m)}&mt=${r.ok ? "ok" : "fehler"}#tri`);
 }
 
 /** Löschwunsch (Art. 17 DSGVO) vermerken bzw. ohne Löschen als erledigt vermerken (z. B. zurückgenommen). */

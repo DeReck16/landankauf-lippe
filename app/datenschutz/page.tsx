@@ -37,6 +37,9 @@ export default function Page() {
             Wir geben Ihre Daten nicht ohne Ihre Einwilligung an Dritte weiter — auch nicht an Pächter, Nachbarn, andere Landwirte oder Behörden (zur Weitergabe an ein Gegenüber nach der Freigabe siehe Abschnitt 4). Eine Übermittlung erfolgt nur dann, wenn dies für die Bearbeitung Ihres Anliegens unerlässlich ist (z. B. an Notar, Lohnunternehmer oder Behörde), und nur mit Ihrer ausdrücklichen Zustimmung. Bei Anfragen zur Energiepacht (Solar/Wind) geben wir Ihre Kontakt- und Flächendaten erst nach Ihrer ausdrücklichen Freigabe an ausgewählte Projektentwickler weiter, damit diese Ihnen Angebote unterbreiten können.
           </p>
           <p>
+            Möchten Sie, dass wir Ihre Fläche auch über unsere Schwestergesellschaft TR Immobilien GmbH (Horn-Bad Meinberg) und deren Partnermakler (derzeit Herr Hasan Kurt, KurtInvest, Bielefeld) anbieten lassen, geben wir Ihre Kontaktdaten und die Angaben zur Fläche nur mit Ihrer ausdrücklichen Einwilligung dorthin weiter (Art. 6 Abs. 1 lit. a DSGVO). Sie können sie jederzeit mit Wirkung für die Zukunft widerrufen; wir informieren die Empfänger dann über Ihren Widerruf bzw. Löschwunsch.
+          </p>
+          <p>
             Wenn Sie eine Fläche anbieten oder suchen, gleichen wir Ihre Angaben (Flächenart, Größe, Lage, Kauf oder Pacht) intern mit anderen Anfragen ab, um passende Gegenstücke zu finden. Der jeweils anderen Seite nennen wir dabei zunächst nur allgemeine Eckdaten ohne Namen, Kontaktdaten oder Flurstück (z. B. „ca. 5 ha Grünland im Raum Kalletal“). Ihre Kontaktdaten geben wir erst weiter, wenn Sie dem ausdrücklich zugestimmt haben (siehe Abschnitt 4). Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO.
           </p>
           <p>
