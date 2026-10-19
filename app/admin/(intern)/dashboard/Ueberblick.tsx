@@ -21,7 +21,7 @@ function Zeile({ z }: { z: Zaehler }) {
   );
 }
 
-function Spalte({ titel, tipp, zeilen, fuss }: { titel: string; tipp: string; zeilen: Zaehler[]; fuss?: React.ReactNode }) {
+function Spalte({ titel, tipp, zeilen }: { titel: string; tipp: string; zeilen: Zaehler[] }) {
   return (
     <div className="lfa-ueb-spalte">
       <h2 className="lfa-ueb-titel" title={tipp}>
@@ -32,7 +32,6 @@ function Spalte({ titel, tipp, zeilen, fuss }: { titel: string; tipp: string; ze
           <Zeile key={z.schluessel} z={z} />
         ))}
       </ul>
-      {fuss && <p className="lfa-klein lfa-ueb-fuss">{fuss}</p>}
     </div>
   );
 }
@@ -52,17 +51,8 @@ export default function Ueberblick({ u }: { u: UeberblickDaten }) {
       />
       <Spalte
         titel="Auf der Seite"
-        tipp="Flächen in der anonymen Flächenbörse auf lippeforst.de — Online, bereit zum Veröffentlichen oder noch ohne Einwilligung"
+        tipp="Flächen (Flächenbörse) und Suchaufträge (Liste „Gesucht“) auf lippeforst.de — online, bereit zum Veröffentlichen oder noch ohne Einwilligung"
         zeilen={u.seite}
-        fuss={
-          <>
-            Gesuche ({u.gesucheImAbgleich}) stehen nicht auf der Seite, nur im{" "}
-            <Link href="/admin/matching" title="Zum Matching: Paare aus Angebot und Gesuch">
-              Matching
-            </Link>
-            .
-          </>
-        }
       />
       <Spalte
         titel="Matching-Paare"

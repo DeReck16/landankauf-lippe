@@ -221,7 +221,6 @@ a.lfa-kachel:hover { border-color: var(--color-brand); }
 .lfa-ueb-ok { color: #1f4127; }
 .lfa-ueb-warn { color: #7a5410; }
 .lfa-ueb-rot { color: #8a2a1d; }
-.lfa-ueb-fuss { margin: 0.4rem 0 0; line-height: 1.4; }
 
 /* Anfragen-Liste: Tabelle am Desktop, Karten auf dem Handy */
 .lfa-liste {
@@ -259,6 +258,10 @@ a.lfa-kachel:hover { border-color: var(--color-brand); }
 .lfa-zelle-stapel { display: flex; flex-direction: column; gap: 0.2rem; align-items: flex-start; }
 .lfa-stand-link { text-decoration: none; }
 .lfa-stand-link:hover .lfa-badge { filter: brightness(0.95); }
+.lfa-seitewahl { display: flex; flex-direction: column; gap: 0.3rem; align-items: flex-start; margin-top: 0.3rem; }
+.lfa-seitewahl-feld { width: auto; padding: 0.15rem 0.5rem; font-size: 0.78rem; border-radius: 9999px; }
+.lfa-seitewahl-frage { display: flex; flex-direction: column; gap: 0.35rem; align-items: flex-start; padding: 0.45rem 0.55rem; border: 1px solid var(--color-line); border-radius: 0.6rem; background: #fdf3dd; max-width: 15rem; }
+.lfa-seitewahl-fehler { color: #8a2a1d; }
 .lfa-kontakt a { color: var(--color-ink-soft); text-decoration: none; overflow-wrap: anywhere; }
 .lfa-kontakt a.lfa-link-name { color: var(--color-brand-dark); }
 .lfa-kontakt a:hover { color: var(--color-brand); text-decoration: underline; }

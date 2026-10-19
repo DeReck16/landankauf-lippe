@@ -74,12 +74,12 @@ test("Konto: weitere Fläche eines Anbieters folgt der Quell-Anfrage", () => {
 
 test("Seite: Angebot ohne Börsen-Angaben ist nicht online", () => {
   const a = seitenStand(leadView(lead, undefined), null);
-  assert.deepEqual([a.label, a.detail], ["Nicht online", "noch keine Börsen-Angaben"]);
+  assert.deepEqual([a.label, a.detail], ["Nicht öffentlich", "noch keine Börsen-Angaben"]);
 });
 
 test("Seite: ohne Einwilligung bleibt es unveröffentlicht", () => {
   const a = seitenStand(leadView(lead, { boerse: { ...boerse, einwilligung: null } }), null);
-  assert.deepEqual([a.label, a.detail], ["Nicht online", "Einwilligung fehlt"]);
+  assert.deepEqual([a.label, a.detail], ["Nicht öffentlich", "Einwilligung fehlt"]);
 });
 
 test("Seite: Einwilligung und vollständige Angaben = bereit; veröffentlicht = online mit Link", () => {
@@ -115,16 +115,29 @@ test("Seite: vergeben, ausgestiegen, offline genommen, Direktankauf, erledigt", 
   assert.equal(ankauf.label, "Direktankauf");
 
   const erledigt = seitenStand(leadView(lead, { status: "erledigt", boerse }), null);
-  assert.deepEqual([erledigt.label, erledigt.detail], ["Nicht online", "Anfrage erledigt"]);
+  assert.deepEqual([erledigt.label, erledigt.detail], ["Nicht öffentlich", "Anfrage erledigt"]);
 });
 
-test("Seite: Gesuche sind nie öffentlich, Sonstiges hat keinen Stand", () => {
-  const gesuch = seitenStand(leadView({ ...lead, intent: "Fläche gesucht (Pacht)" }, undefined), null);
-  assert.deepEqual([gesuch.label, gesuch.detail], ["Nicht öffentlich", "im Abgleich"]);
+test("Seite: Suchauftrag wie Angebot — ohne Angaben nicht öffentlich, mit Einwilligung bereit, veröffentlicht online", () => {
+  const gesuchLead = { ...lead, intent: "Fläche gesucht (Pacht)" };
+  const suche = { ...boerse, code: "LS-2001", lage: "Raum Lemgo", groesseHa: null };
 
-  const beendet = seitenStand(leadView({ ...lead, intent: "Fläche gesucht (Pacht)" }, { status: "archiv" }), null);
-  assert.equal(beendet.detail, "nicht im Abgleich");
+  const ohne = seitenStand(leadView(gesuchLead, undefined), null);
+  assert.deepEqual([ohne.label, ohne.detail], ["Nicht öffentlich", "noch keine Börsen-Angaben"]);
 
+  const bereit = seitenStand(leadView(gesuchLead, { suche }), null);
+  assert.equal(bereit.label, "Bereit"); // eine Größe ist bei Gesuchen freiwillig
+
+  const online = seitenStand(leadView(gesuchLead, { suche: { ...suche, online: true, seit: "2026-10-05T08:00:00.000Z" } }), null);
+  assert.equal(online.label, "Online");
+  assert.equal(online.href, "/flaechenboerse#gesucht");
+  assert.match(online.detail ?? "", /LS-2001/);
+
+  const erfuellt = seitenStand(leadView(gesuchLead, { suche: { ...suche, online: true } }), "erfüllt (Vertrag geschlossen)");
+  assert.deepEqual([erfuellt.label, erfuellt.detail], ["Offline", "erfüllt (Vertrag geschlossen)"]);
+});
+
+test("Seite: Sonstiges hat keinen Stand", () => {
   const sonst = seitenStand(leadView({ ...lead, intent: "Bewertung" }, undefined), null);
   assert.equal(sonst.label, "—");
 });
@@ -174,7 +187,6 @@ test("Überblick: zählt Anliegen, Konto, Seite und Matching; Erledigte und Arch
   assert.equal(n(u.seite, "bereit"), 1);
   assert.equal(n(u.seite, "direkt"), 1);
   assert.equal(u.seite.find((z) => z.schluessel === "unsichtbar"), undefined); // leere Randfälle bleiben ausgeblendet
-  assert.equal(u.gesucheImAbgleich, 1);
 
   assert.equal(n(u.matching, "vorschlag"), 1);
   assert.equal(n(u.matching, "vorgemerkt"), 1);

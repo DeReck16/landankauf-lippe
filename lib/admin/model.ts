@@ -51,6 +51,8 @@ export type LeadMeta = {
   nachgefasstAm?: string;
   /** Angebot in der öffentlichen Flächenbörse (nur mit Einwilligung des Eigentümers). */
   boerse?: BoerseMeta;
+  /** Suchauftrag (Gesuch) in der öffentlichen Liste „Gesucht“ der Flächenbörse (nur mit Einwilligung des Suchenden, Kennung LS-…). */
+  suche?: BoerseMeta;
   /** Neueste Antwort auf die Nachfass-Mail (frühere stehen im Verlauf) — offen als Ticket, solange der Status „Neu“ ist. */
   rueckmeldung?: Rueckmeldung;
   /** E-Mails des Kunden aus dem Anfragenpostfach (Postfach-Abgleich, lib/portal/postfach.ts), neueste zuerst — offen, bis übernommen oder zur Kenntnis genommen. */

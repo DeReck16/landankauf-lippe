@@ -21,7 +21,7 @@ import { orteAusText, ortKey } from "@/lib/admin/geo";
 import { ladeKunde } from "@/lib/portal/speicher";
 import { beideUnterschrieben } from "@/lib/portal/schritte";
 import { LEAD_STATUS, MATCH_STATUS, leadView, type Art, type BoerseMeta, type LeadMeta, type LeadStatus, type MatchMeta, type Rolle } from "@/lib/admin/model";
-import { boerseLuecken, boerseNeuSchreiben, neuerBoerseCode } from "@/lib/boerse";
+import { EINWILLIGUNG_QUELLEN, boerseLuecken, boerseNeuSchreiben, neuerBoerseCode, seiteSchalten, sucheLuecken, vergebeneCodes, type SeiteErgebnis } from "@/lib/boerse";
 import { DETAIL_FELDER, detailsBereinigen } from "@/lib/boerse-regeln";
 import { einwilligungBestaetigen } from "@/lib/portal/boerse-mails";
 import { postfachUebernehmen, postfachZurKenntnis } from "@/lib/portal/postfach";
@@ -191,7 +191,7 @@ export async function anfrageSpeichern(formData: FormData): Promise<void> {
   // Erledigt/archiviert: ein Börsen-Angebot verschwindet sofort von der Website.
   if (bereich === "status" || bereich === "bearbeitung") {
     const { zustand } = await readZustand();
-    if (zustand.anfragen[id]?.boerse?.online) await boerseNeuSchreiben();
+    if (zustand.anfragen[id]?.boerse?.online || zustand.anfragen[id]?.suche?.online) await boerseNeuSchreiben();
   }
 
   if (ortGeaendert !== null) {
@@ -440,13 +440,17 @@ export async function paarAktion(formData: FormData): Promise<void> {
 // ---------------------------------------------------------------------------
 // Flächenbörse: Angaben, Einwilligung des Eigentümers, veröffentlichen
 
-const BOERSE_QUELLEN = ["telefonisch", "per E-Mail", "schriftlich", "im Kundenbereich"];
 
 export async function boerseAktion(formData: FormData): Promise<void> {
   const { email } = await requireAdmin();
   const id = text(formData, "id", 40);
   if (!/^LL-[A-Z0-9]+$/.test(id)) throw new Error("Ungültige Anfrage-ID");
   const aktion = text(formData, "aktion", 30);
+  // „suche“ = der Suchauftrag eines Gesuchs (Liste „Gesucht“), sonst das Angebot (Flächenbörse).
+  const feld: "boerse" | "suche" = text(formData, "feld", 8) === "suche" ? "suche" : "boerse";
+  const gesuch = feld === "suche";
+  const luecken = gesuch ? sucheLuecken : boerseLuecken;
+  const bn = gesuch ? "Suchliste" : "Flächenbörse";
   // Aus dem Dashboard zurück dorthin (fester Pfad, keine offene Weiterleitung), sonst zur Anfrage.
   const vomDashboard = text(formData, "zurueck", 40) === "/admin/dashboard";
   const zurueck = vomDashboard ? "/admin/dashboard" : `/admin/anfrage/${id}`;
@@ -464,8 +468,7 @@ export async function boerseAktion(formData: FormData): Promise<void> {
     oeffentlichBetroffen = false;
     bestaetigen = false;
     const meta: LeadMeta = { ...(z.anfragen[id] ?? {}) };
-    const vorhanden = new Set(Object.values(z.anfragen).map((m) => m.boerse?.code).filter((c): c is string => Boolean(c)));
-    const b: BoerseMeta = meta.boerse ? { ...meta.boerse } : { code: neuerBoerseCode(vorhanden), typ: "", groesseHa: null, lage: "", text: "", einwilligung: null, online: false };
+    const b: BoerseMeta = meta[feld] ? { ...meta[feld]! } : { code: neuerBoerseCode(vergebeneCodes(z.anfragen), gesuch ? "LS" : "LF"), typ: "", groesseHa: null, lage: "", text: "", einwilligung: null, online: false };
     let was = "";
     switch (aktion) {
       case "speichern": {
@@ -474,42 +477,42 @@ export async function boerseAktion(formData: FormData): Promise<void> {
         b.groesseHa = zahlOderNull(text(formData, "groesseHa", 12));
         b.lage = text(formData, "lage", 80);
         b.text = text(formData, "text", 300);
-        const details = detailsBereinigen(Object.fromEntries(DETAIL_FELDER.map((f) => [f.key, text(formData, `d_${f.key}`, 80)])));
+        const details = gesuch ? undefined : detailsBereinigen(Object.fromEntries(DETAIL_FELDER.map((f) => [f.key, text(formData, `d_${f.key}`, 80)])));
         if (details) b.details = details;
         else delete b.details;
         // Steht das Angebot online, darf das Speichern es nicht still von der Website nehmen:
         // enthalten die neuen Angaben etwas Verräterisches, wird nichts gespeichert.
         if (b.online) {
-          const luecken = boerseLuecken(b, leadView(lead!, { ...meta, boerse: b }));
-          if (luecken.length) {
-            meldung = `Nicht gespeichert — das Angebot steht online, und so dürfte es nicht erscheinen: ${luecken.join(" · ")}.`;
+          const offen = luecken(b, leadView(lead!, { ...meta, [feld]: b }));
+          if (offen.length) {
+            meldung = `Nicht gespeichert — das ${gesuch ? "Gesuch" : "Angebot"} steht online, und so dürfte es nicht erscheinen: ${offen.join(" · ")}.`;
             fehler = true;
             return;
           }
         }
-        was = `Angaben für die Flächenbörse gespeichert (${b.code})`;
+        was = `Angaben für die ${bn} gespeichert (${b.code})`;
         oeffentlichBetroffen = b.online;
         break;
       }
       case "einwilligung": {
         const quelle = text(formData, "quelle", 40);
         const am = text(formData, "am", 10);
-        b.einwilligung = { am: /^\d{4}-\d{2}-\d{2}$/.test(am) ? am : jetzt.slice(0, 10), quelle: BOERSE_QUELLEN.includes(quelle) ? quelle : "telefonisch", von: email };
+        b.einwilligung = { am: /^\d{4}-\d{2}-\d{2}$/.test(am) ? am : jetzt.slice(0, 10), quelle: (EINWILLIGUNG_QUELLEN as readonly string[]).includes(quelle) ? quelle : "telefonisch", von: email };
         delete b.offline;
-        bestaetigen = text(formData, "bestaetigen", 2) === "1" && b.einwilligung.quelle !== "im Kundenbereich";
-        was = `Einwilligung des Eigentümers in die Flächenbörse erfasst (${b.einwilligung.quelle})`;
+        bestaetigen = !gesuch && text(formData, "bestaetigen", 2) === "1" && b.einwilligung.quelle !== "im Kundenbereich";
+        was = `Einwilligung ${gesuch ? "des Suchenden in die Suchliste" : "des Eigentümers in die Flächenbörse"} erfasst (${b.einwilligung.quelle})`;
         break;
       }
       case "einwilligung-zurueck":
         b.einwilligung = null;
         oeffentlichBetroffen = b.online;
         b.online = false;
-        was = "Einwilligung in die Flächenbörse widerrufen — Angebot offline";
+        was = `Einwilligung in die ${bn} widerrufen — ${gesuch ? "Gesuch" : "Angebot"} offline`;
         break;
       case "online": {
-        const luecken = boerseLuecken(b, leadView(lead!, { ...meta, boerse: b }));
-        if (luecken.length) {
-          meldung = `Nicht veröffentlicht: ${luecken.join(" · ")}.`;
+        const offen = luecken(b, leadView(lead!, { ...meta, [feld]: b }));
+        if (offen.length) {
+          meldung = `Nicht veröffentlicht: ${offen.join(" · ")}.`;
           fehler = true;
           return;
         }
@@ -517,22 +520,24 @@ export async function boerseAktion(formData: FormData): Promise<void> {
         b.seit ??= jetzt;
         delete b.offline;
         oeffentlichBetroffen = true;
-        was = `In der Flächenbörse veröffentlicht (${b.code})`;
+        was = `In der ${bn} veröffentlicht (${b.code})`;
         break;
       }
       case "offline":
         if (!b.online) return;
         b.online = false;
         oeffentlichBetroffen = true;
-        was = `Aus der Flächenbörse genommen (${b.code})`;
+        was = `Aus der ${bn} genommen (${b.code})`;
         break;
       case "einzeln": {
+        if (gesuch) return;
         b.einzeln = text(formData, "wert", 2) === "1";
         oeffentlichBetroffen = b.online;
         was = b.einzeln ? `Flächenbörse: ${b.code} wird einzeln gezeigt (kein Paket)` : `Flächenbörse: ${b.code} darf mit weiteren Flächen desselben Eigentümers ein Paket bilden`;
         break;
       }
       case "eigen": {
+        if (gesuch) return;
         const eigen = text(formData, "wert", 2) === "1";
         if (Boolean(meta.eigeneFlaeche) === eigen && meta.eigeneFlaeche !== undefined) return;
         meta.eigeneFlaeche = eigen;
@@ -544,7 +549,7 @@ export async function boerseAktion(formData: FormData): Promise<void> {
         return;
     }
     b.geaendert = { am: jetzt, von: email };
-    meta.boerse = b;
+    meta[feld] = b;
     z.anfragen[id] = meta;
     meldung = was;
     return { was, ref: id };
@@ -561,4 +566,17 @@ export async function boerseAktion(formData: FormData): Promise<void> {
   menueErneuern();
   const name = lead && lead.name !== "—" ? `${lead.name}: ` : "";
   redirect(`${zurueck}?m=${encodeURIComponent(`${vomDashboard ? name : ""}${meldung || "Keine Änderung."}`)}&mt=${fehler ? "fehler" : "ok"}#boerse`);
+}
+
+/**
+ * Schalter „Auf der Seite“ in der Anfragen-Liste (Fläche bzw. Suchauftrag öffentlich machen oder von der Seite nehmen).
+ * Gibt das Ergebnis zurück statt weiterzuleiten, damit die Liste mit ihren Filtern stehen bleibt.
+ */
+export async function seiteSchaltenAktion(id: string, ziel: string, quelle?: string): Promise<SeiteErgebnis> {
+  const { email } = await requireAdmin();
+  if (!/^LL-[A-Z0-9]+$/.test(id) || (ziel !== "oeffentlich" && ziel !== "nicht")) return { ok: false, meldung: "Ungültige Eingabe." };
+  const r = await seiteSchalten(id, ziel, email, quelle ? { quelle } : undefined);
+  revalidatePath("/admin", "layout");
+  menueErneuern();
+  return r;
 }

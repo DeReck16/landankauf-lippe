@@ -1,7 +1,7 @@
 import "server-only";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { hasBlobToken } from "@/lib/admin/config";
-import { leadView, type BoerseMeta, type LeadView } from "@/lib/admin/model";
+import { leadView, type BoerseMeta, type LeadMeta, type LeadView } from "@/lib/admin/model";
 import { jsonAendern, kurzwert, listLeads, mutateZustand, readZustand, websiteDateiLesen } from "@/lib/admin/store";
 import { grobeLage } from "@/lib/admin/matching";
 import { FLAECHENTYPEN } from "@/lib/lead-options";
@@ -20,11 +20,12 @@ import {
   provisionHinweis,
   provisionHinweisPacht,
   standardProvision,
+  sucheLuecken,
   type BoerseArt,
   type BoerseEintrag,
 } from "./boerse-regeln";
 
-export { artText, boerseLuecken, haText, provisionHinweis, provisionHinweisPacht, type BoerseArt, type BoerseEintrag };
+export { artText, boerseLuecken, haText, provisionHinweis, provisionHinweisPacht, sucheLuecken, type BoerseArt, type BoerseEintrag };
 
 // Flächenbörse: Angebote zum Kauf und zur Pacht anonym auf lippeforst.de — nur Flächentyp, gerundete
 // Größe, Gemeinde, ein kurzer Text und feste Zusatzangaben; nie Name, Flurstück oder genaue Lage.
@@ -48,6 +49,8 @@ export type BoerseDatei = {
   /** Pächterprovision als Text (Stand beim letzten Veröffentlichen). */
   provisionPacht?: string;
   angebote: BoerseEintrag[];
+  /** Suchaufträge („Gesucht“) mit Einwilligung des Suchenden — Kennung LS-…, ohne Zusatzangaben und Pakete. */
+  gesuche?: BoerseEintrag[];
 };
 
 const LEER: BoerseDatei = { v: 1, stand: "", provision: "", angebote: [] };
@@ -61,7 +64,8 @@ export async function ladeBoerse(): Promise<BoerseDatei> {
     if (!d) return LEER;
     // Ältere Dateien kennen nur Kaufangebote (ohne „art“).
     const angebote = Array.isArray(d.angebote) ? d.angebote.map((a) => ({ ...a, art: a.art === "pacht" ? ("pacht" as const) : ("kauf" as const) })) : [];
-    return { ...LEER, ...d, angebote };
+    const gesuche = Array.isArray(d.gesuche) ? d.gesuche.map((a) => ({ ...a, art: a.art === "pacht" ? ("pacht" as const) : ("kauf" as const) })) : [];
+    return { ...LEER, ...d, angebote, gesuche };
   } catch {
     return LEER;
   }
@@ -78,17 +82,24 @@ export function provisionOderStandard(d: BoerseDatei, art: BoerseArt = "kauf"): 
   return d.provision || standardProvision("kauf");
 }
 
-export function neuerBoerseCode(vorhanden: Set<string>): string {
+/** Kennung eines Angebots („LF-1234“) bzw. — mit Präfix „LS“ — eines Suchauftrags („LS-1234“). */
+export function neuerBoerseCode(vorhanden: Set<string>, prefix: "LF" | "LS" = "LF"): string {
   for (let i = 0; i < 50; i++) {
-    const code = `LF-${1000 + Math.floor(Math.random() * 9000)}`;
+    const code = `${prefix}-${1000 + Math.floor(Math.random() * 9000)}`;
     if (!vorhanden.has(code)) return code;
   }
-  return `LF-${Date.now().toString().slice(-4)}`;
+  return `${prefix}-${Date.now().toString().slice(-4)}`;
+}
+
+/** Alle vergebenen Kennungen (Angebote und Suchaufträge) — damit keine zweimal vorkommt. */
+export function vergebeneCodes(anfragen: Record<string, { boerse?: BoerseMeta; suche?: BoerseMeta }>): Set<string> {
+  return new Set(Object.values(anfragen).flatMap((m) => [m.boerse?.code, m.suche?.code]).filter((c): c is string => Boolean(c)));
 }
 
 /** Warum ein Angebot trotz „online“ nicht (mehr) erscheinen darf — vergeben oder Eigentümer ausgestiegen. */
 export function sperrGrund(id: string, kunden: Map<string, M.KundeRecord>, vorgaenge: M.VorgangRecord[]): string | null {
   if (vorgaenge.some((v) => v.angebotId === id && v.abschluss)) return "vergeben (Vertrag geschlossen)";
+  if (vorgaenge.some((v) => v.gesuchId === id && v.abschluss)) return "erfüllt (Vertrag geschlossen)";
   const k = kunden.get(id);
   if (k?.widerruf) return "Eigentümer hat seine Vereinbarung widerrufen";
   if (k?.kuendigung) return "Eigentümer hat seine Vereinbarung gekündigt";
@@ -144,14 +155,34 @@ export async function boerseNeuSchreiben(): Promise<number> {
     for (const x of gleiche) x.e.paket = paket;
   }
   const angebote = kandidaten.map((k) => k.e).sort((a, b) => b.seit.localeCompare(a.seit));
+  // Suchaufträge: gleiche Regeln (Einwilligung, keine verräterischen Angaben, nicht erfüllt/ausgestiegen), nie als Paket.
+  const gesuche: BoerseEintrag[] = [];
+  for (const lead of leads) {
+    const meta = zustand.anfragen[lead.id];
+    const b = meta?.suche;
+    if (!b?.online) continue;
+    const l = leadView(lead, meta);
+    if (sucheLuecken(b, l).length || sperrGrund(lead.id, kunden, vorgaenge)) continue;
+    gesuche.push({
+      code: b.code,
+      art: l.art === "pacht" ? "pacht" : "kauf",
+      typ: b.typ,
+      groesseHa: oeffentlicheHa(b.groesseHa),
+      lage: oeffentlicheLage(b.lage),
+      text: b.text.trim(),
+      seit: b.seit ?? new Date().toISOString(),
+    });
+  }
+  gesuche.sort((a, b) => b.seit.localeCompare(a.seit));
   const k = M.aktuelleKonditionen(einstellungen);
-  const neu: BoerseDatei = { v: 1, stand: new Date().toISOString(), provision: provisionHinweis(k), provisionPacht: provisionHinweisPacht(k), angebote };
+  const neu: BoerseDatei = { v: 1, stand: new Date().toISOString(), provision: provisionHinweis(k), provisionPacht: provisionHinweisPacht(k), angebote, gesuche };
   await jsonAendern<BoerseDatei>(BOERSE_PFAD, () => ({ ...neu }), (d) => {
     d.v = 1;
     d.stand = neu.stand;
     d.provision = neu.provision;
     d.provisionPacht = neu.provisionPacht;
     d.angebote = neu.angebote;
+    d.gesuche = neu.gesuche;
   });
   revalidateTag(BOERSE_TAG, { expire: 0 });
   revalidatePath("/");
@@ -175,11 +206,14 @@ export async function boerseOfflineNehmen(ids: string[], grund: string, von: str
     anzahl = 0;
     const codes: string[] = [];
     for (const id of ziel) {
-      const m = z.anfragen[id];
-      if (!m?.boerse?.online) continue;
-      z.anfragen[id] = { ...m, boerse: { ...m.boerse, online: false, offline: { am, grund }, geaendert: { am, von } } };
-      codes.push(m.boerse.code);
-      anzahl++;
+      for (const feld of ["boerse", "suche"] as const) {
+        const m = z.anfragen[id];
+        const b = m?.[feld];
+        if (!m || !b?.online) continue;
+        z.anfragen[id] = { ...m, [feld]: { ...b, online: false, offline: { am, grund }, geaendert: { am, von } } };
+        codes.push(b.code);
+        anzahl++;
+      }
     }
     if (!anzahl) return;
     return { was: `Flächenbörse: ${codes.join(", ")} offline — ${grund}`, ref: [...ziel][0] };
@@ -228,6 +262,100 @@ export async function boerseVeroeffentlichen(id: string, von: string): Promise<{
   });
   if (ok) await boerseNeuSchreiben().catch((err) => console.error("[boerse] Neu schreiben fehlgeschlagen", err));
   return ok ? { ok, code } : { ok, grund };
+}
+
+export const EINWILLIGUNG_QUELLEN = ["telefonisch", "per E-Mail", "schriftlich", "im Kundenbereich"] as const;
+
+export type SeiteErgebnis = { ok: boolean; meldung: string; einwilligungNoetig?: boolean };
+
+/**
+ * Schalter „Auf der Seite“ in der Anfragen-Liste: eine Fläche (Angebot) bzw. einen Suchauftrag (Gesuch) von Hand
+ * öffentlich machen oder von der Website nehmen. Öffentlich wird nur mit erfasster Einwilligung — so verspricht es die
+ * Datenschutzerklärung. Fehlt sie, muss die Verwaltung beim Schalten angeben, wie sie erteilt wurde (sie wird dann wie in der
+ * Anfrage als Einwilligung erfasst). Fehlende Angaben (Typ, Größe, Lage) werden aus der Anfrage vorgeschlagen, eine Lücke
+ * oder verräterische Angabe verhindert das Veröffentlichen mit Begründung.
+ */
+export async function seiteSchalten(id: string, ziel: "oeffentlich" | "nicht", von: string, einwilligung?: { quelle: string }): Promise<SeiteErgebnis> {
+  const [leads, kundenListe, vorgaenge] = await Promise.all([listLeads(), alleKunden(), alleVorgaenge()]);
+  const lead = leads.find((x) => x.id === id);
+  if (!lead) return { ok: false, meldung: "Anfrage nicht gefunden." };
+  const sperre = sperrGrund(id, new Map(kundenListe.map((k) => [k.id, k])), vorgaenge);
+  const jetzt = new Date().toISOString();
+  let ergebnis: SeiteErgebnis = { ok: false, meldung: "Keine Änderung." };
+  let oeffentlichBetroffen = false;
+
+  await mutateZustand(von, (z) => {
+    ergebnis = { ok: false, meldung: "Keine Änderung." };
+    oeffentlichBetroffen = false;
+    const meta: LeadMeta = { ...(z.anfragen[id] ?? {}) };
+    const l = leadView(lead, meta);
+    const gesuch = l.rolle === "gesuch";
+    if ((l.rolle !== "angebot" && !gesuch) || (l.art !== "kauf" && l.art !== "pacht")) {
+      ergebnis = { ok: false, meldung: "Nur Angebote und Gesuche mit Kauf oder Pacht kommen auf die Seite." };
+      return;
+    }
+    const feld = gesuch ? "suche" : "boerse";
+    const luecken = gesuch ? sucheLuecken : boerseLuecken;
+    const wort = gesuch ? "Suchauftrag" : "Fläche";
+
+    if (ziel === "nicht") {
+      const b = meta[feld];
+      if (!b?.online) {
+        ergebnis = { ok: true, meldung: "Stand schon nicht öffentlich." };
+        return;
+      }
+      meta[feld] = { ...b, online: false, geaendert: { am: jetzt, von } };
+      z.anfragen[id] = meta;
+      oeffentlichBetroffen = true;
+      ergebnis = { ok: true, meldung: `${wort} von der Website genommen (${b.code}).` };
+      return { was: `${gesuch ? "Suchliste" : "Flächenbörse"}: ${b.code} von Hand offline genommen (Anfragen-Liste)`, ref: id };
+    }
+
+    if (sperre) {
+      ergebnis = { ok: false, meldung: `Nicht möglich: ${sperre}.` };
+      return;
+    }
+    // Angaben vorschlagen, ohne eigene Eingaben zu überschreiben.
+    const b: BoerseMeta = meta[feld]
+      ? { ...meta[feld]! }
+      : { code: neuerBoerseCode(vergebeneCodes(z.anfragen), gesuch ? "LS" : "LF"), typ: "", groesseHa: null, lage: "", text: "", einwilligung: null, online: false };
+    if (!b.typ) b.typ = (FLAECHENTYPEN as readonly string[]).includes(l.typ) ? l.typ : "Sonstiges";
+    const ha = l.groesseWert.minHa ?? l.groesseWert.maxHa;
+    if (b.groesseHa == null && ha != null && ha > 0) b.groesseHa = Math.max(0.5, Math.round(ha * 2) / 2);
+    if (!oeffentlicheLage(b.lage)) {
+      const gemeinde = oeffentlicheLage(grobeLage(l, z.orte));
+      if (gemeinde) b.lage = `Raum ${gemeinde}`;
+    }
+    if (!b.einwilligung) {
+      const quelle = einwilligung?.quelle;
+      if (!quelle || !(EINWILLIGUNG_QUELLEN as readonly string[]).includes(quelle)) {
+        ergebnis = { ok: false, einwilligungNoetig: true, meldung: `Keine Einwilligung erfasst — wie hat ${gesuch ? "der Suchende" : "der Eigentümer"} eingewilligt?` };
+        return;
+      }
+      b.einwilligung = { am: jetzt.slice(0, 10), quelle, von };
+      delete b.offline;
+    }
+    const offen = luecken(b, leadView(lead, { ...meta, [feld]: b }));
+    b.geaendert = { am: jetzt, von };
+    if (offen.length === 0) {
+      b.online = true;
+      b.seit ??= jetzt;
+      delete b.offline;
+      oeffentlichBetroffen = true;
+      ergebnis = { ok: true, meldung: `${wort} ist öffentlich (${b.code}).` };
+    } else {
+      ergebnis = { ok: false, meldung: `Noch nicht veröffentlicht: ${offen.join(" · ")}. Angaben in der Anfrage ergänzen.` };
+    }
+    meta[feld] = b;
+    z.anfragen[id] = meta;
+    return {
+      was: offen.length === 0 ? `${gesuch ? "In der Suchliste" : "In der Flächenbörse"} veröffentlicht (${b.code}) — per Schalter in der Anfragen-Liste` : `${gesuch ? "Suchliste" : "Flächenbörse"}: Angaben vorbereitet (${b.code}), noch nicht veröffentlicht — ${offen.join(" · ")}`,
+      ref: id,
+    };
+  });
+
+  if (oeffentlichBetroffen) await boerseNeuSchreiben().catch((err) => console.error("[boerse] Neu schreiben fehlgeschlagen", err));
+  return ergebnis;
 }
 
 /**

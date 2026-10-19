@@ -13,8 +13,6 @@ export type Ueberblick = {
   konto: Zaehler[];
   seite: Zaehler[];
   matching: Zaehler[];
-  /** Aktive Gesuche — sie stehen nie auf der Seite, nur im Matching. */
-  gesucheImAbgleich: number;
 };
 
 /** Anliegen aus Rolle und Art: „angebot:kauf“, „gesuch:pacht“, „keine“ — dieselben Werte nutzt der Filter „Anliegen“ der Anfragen-Liste. */
@@ -93,11 +91,10 @@ export function ueberblick(
     ton: k.ton,
   }));
 
-  // Seite: nur Angebote (Gesuche stehen nie auf der Seite).
-  const angebote = aktiv.filter((l) => l.rolle === "angebot");
-  const seitenStaende = new Map<string, Anzeige>(angebote.map((l) => [l.id, seitenStand(l, sperre(l.id))]));
+  // Seite: Flächen (Flächenbörse) und Suchaufträge (Liste „Gesucht“).
+  const seitenStaende = new Map<string, Anzeige>(flaechen.map((l) => [l.id, seitenStand(l, sperre(l.id))]));
   const SEITE: { schluessel: string; label: string; tipp: string; ton?: Ton }[] = [
-    { schluessel: "online", label: "Online", tipp: "Steht anonym in der Flächenbörse auf lippeforst.de", ton: "ok" },
+    { schluessel: "online", label: "Online", tipp: "Steht anonym auf lippeforst.de (Flächenbörse bzw. Liste „Gesucht“)", ton: "ok" },
     { schluessel: "bereit", label: "Bereit — Klick fehlt", tipp: "Einwilligung und Angaben vollständig — nur „Veröffentlichen“ fehlt", ton: "warn" },
     { schluessel: "angaben", label: "Angaben fehlen", tipp: "Einwilligung da, Börsen-Angaben unvollständig" },
     { schluessel: "nicht", label: "Ohne Einwilligung", tipp: "Keine Einwilligung bzw. noch keine Börsen-Angaben — bleibt unveröffentlicht" },
@@ -108,9 +105,9 @@ export function ueberblick(
   const seite: Zaehler[] = SEITE.map((k) => ({
     schluessel: k.schluessel,
     label: k.label,
-    n: angebote.filter((l) => seitenStaende.get(l.id)?.schluessel === k.schluessel).length,
+    n: flaechen.filter((l) => seitenStaende.get(l.id)?.schluessel === k.schluessel).length,
     href: `/admin?status=laufend&seite=${k.schluessel}`,
-    tipp: `${k.tipp} — laufende Angebote`,
+    tipp: `${k.tipp} — laufende Angebote und Gesuche`,
     ton: k.ton,
   })).filter((z) => z.n > 0 || z.schluessel === "online" || z.schluessel === "bereit");
 
@@ -136,7 +133,6 @@ export function ueberblick(
     konto,
     seite,
     matching,
-    gesucheImAbgleich: aktiv.filter((l) => l.rolle === "gesuch").length,
   };
 }
 

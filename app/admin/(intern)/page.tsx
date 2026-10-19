@@ -12,6 +12,7 @@ import { ANLIEGEN, passtZumAnliegen, passtZumStand } from "@/lib/admin/ueberblic
 import { sperrGrund } from "@/lib/boerse";
 import StatusSchnell from "./StatusSchnell";
 import StandBadge from "./StandBadge";
+import SeiteWahl from "./SeiteWahl";
 import AlleFreigeben from "./AlleFreigeben";
 import { Meldung } from "./teile";
 
@@ -26,6 +27,11 @@ function passtZurSuche(l: LeadView, q: string): boolean {
     .split(/\s+/)
     .filter(Boolean)
     .every((wort) => heu.includes(wort));
+}
+
+/** Der Schalter „Öffentlich“ gilt für laufende Angebote und Gesuche mit Kauf oder Pacht. */
+function schaltbar(l: LeadView): boolean {
+  return (l.rolle === "angebot" || l.rolle === "gesuch") && (l.art === "kauf" || l.art === "pacht") && l.status !== "archiv" && l.status !== "erledigt";
 }
 
 export default async function AnfragenPage(props: PageProps<"/admin">) {
@@ -48,8 +54,11 @@ export default async function AnfragenPage(props: PageProps<"/admin">) {
 
   const alleVorgaenge = [...portal.vorgaenge.values()];
   // Konto- und Seitenstand je Anfrage einmal ableiten — für Filter und Spalten.
-  const staende = new Map<string, { konto: Anzeige; seite: Anzeige }>(
-    leads.map((l) => [l.id, { konto: kontoStandFuer(l, portal.kunden.get(l.id), portal.kunden), seite: seitenStand(l, sperrGrund(l.id, portal.kunden, alleVorgaenge)) }]),
+  const staende = new Map<string, { konto: Anzeige; seite: Anzeige; sperre: string | null }>(
+    leads.map((l) => {
+      const sperre = sperrGrund(l.id, portal.kunden, alleVorgaenge);
+      return [l.id, { konto: kontoStandFuer(l, portal.kunden.get(l.id), portal.kunden), seite: seitenStand(l, sperre), sperre }];
+    }),
   );
 
   const sichtbar = leads.filter((l) => {
@@ -255,6 +264,14 @@ export default async function AnfragenPage(props: PageProps<"/admin">) {
                   </td>
                   <td data-label="Auf der Seite">
                     <StandBadge a={staende.get(l.id)!.seite} />
+                    {schaltbar(l) && (
+                      <SeiteWahl
+                        id={l.id}
+                        was={l.rolle === "gesuch" ? "Suchauftrag" : "Fläche"}
+                        online={Boolean((l.rolle === "gesuch" ? l.meta.suche : l.meta.boerse)?.online)}
+                        gesperrt={staende.get(l.id)!.sperre ?? (l.meta.weg === "ankauf" ? "Direktankauf gewählt — die Fläche wird nicht vermittelt" : null)}
+                      />
+                    )}
                   </td>
                   <td data-label="Status">
                     <StatusSchnell id={l.id} status={l.status} />

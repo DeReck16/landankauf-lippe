@@ -32,7 +32,7 @@ export const UMFANG = {
   anfrage: "Anfrage mit allen Formularangaben (Name, Kontakt, Ort, Flurstück, Nachricht)",
   verwaltung: "Bearbeitungsstand, Notizen, Kataster- und Matching-Angaben der Verwaltung",
   tickets: "Rückmeldungen, Tickets und E-Mails aus dem Postfach",
-  boerse: "Börsen-Angebot (offline und aus der öffentlichen Liste)",
+  boerse: "Börsen-Angebot bzw. Suchauftrag (offline und aus der öffentlichen Liste)",
   ankauf: "Angaben zum Direktankauf",
   kunde: "Kundenakte (Einladung, Angaben, freiwillige Angaben, Verlauf)",
   kundeTeil: "Kundenakte bis auf den Vertrag (Einladung, Angaben, freiwillige Angaben, Verlauf)",
@@ -252,7 +252,7 @@ function planAus(l: Lage): LoeschPlan {
   dazu(UMFANG.anfrage, l.lead ? 1 : 0);
   dazu(UMFANG.verwaltung, m ? 1 : 0);
   dazu(UMFANG.tickets, (m?.rueckmeldung ? 1 : 0) + (m?.postfach?.length ?? 0));
-  dazu(UMFANG.boerse, m?.boerse ? 1 : 0);
+  dazu(UMFANG.boerse, (m?.boerse ? 1 : 0) + (m?.suche ? 1 : 0));
   dazu(UMFANG.ankauf, m?.ankauf && !l.ankaufBehalten ? 1 : 0);
   if (l.kunde) {
     dazu(l.kundeEinstufung.wie === "sperren" ? UMFANG.kundeTeil : UMFANG.kunde, 1);
@@ -558,7 +558,7 @@ export async function vorgangLoeschen(id: string, von: string): Promise<LoeschEr
       zaehle(UMFANG.verwaltung, 1);
       const m = l.meta;
       zaehle(UMFANG.tickets, (m?.rueckmeldung ? 1 : 0) + (m?.postfach?.length ?? 0));
-      zaehle(UMFANG.boerse, m?.boerse ? 1 : 0);
+      zaehle(UMFANG.boerse, (m?.boerse ? 1 : 0) + (m?.suche ? 1 : 0));
       zaehle(UMFANG.ankauf, m?.ankauf && !l.ankaufBehalten ? 1 : 0);
     }
     zaehle(UMFANG.verlauf, protokollEntfernt);
@@ -656,7 +656,7 @@ export async function vorgangLoeschen(id: string, von: string): Promise<LoeschEr
     }
   });
 
-  // 11. Flächenbörse neu schreiben — das Angebot verschwindet aus der öffentlichen Datei.
+  // 11. Flächenbörse neu schreiben — Angebot bzw. Suchauftrag verschwindet aus der öffentlichen Datei.
   await schritt("Flächenbörse", async () => {
     await boerseNeuSchreiben();
   });

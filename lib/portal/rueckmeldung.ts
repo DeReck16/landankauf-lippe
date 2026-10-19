@@ -178,6 +178,12 @@ export async function rueckmeldungSpeichern(
       teile.push("Flächenbörse: offline");
     }
     if (artGeaendert && meta.boerse?.online) boerseAendern = true;
+    // Suchauftrag in der Liste „Gesucht“: erledigt, wieder aufgelebt oder anders eingeordnet → sofort von der Seite.
+    if (meta.suche?.online && (status === "erledigt" || statusVorher === "erledigt" || artGeaendert)) {
+      meta.suche = { ...meta.suche, online: false, geaendert: { am, von: opts.von } };
+      boerseAendern = true;
+      teile.push("Suchliste: offline");
+    }
     if (statusVorher !== status) {
       meta.status = status;
       teile.push(`Status → ${LEAD_STATUS[status].label}`);

@@ -113,7 +113,23 @@ export function boerseLuecken(b: BoerseMeta | undefined, l: LeadView): string[] 
   if (!b.einwilligung) fehlt.push("Einwilligung des Eigentümers fehlt");
   if (!b.typ) fehlt.push("Flächentyp fehlt");
   if (!b.groesseHa || b.groesseHa <= 0) fehlt.push("ungefähre Größe fehlt");
-  if (!oeffentlicheLage(b.lage)) fehlt.push("grobe Lage fehlt");
+  return [...fehlt, ...lageUndText(b, l)];
+}
+
+/** Dasselbe für einen Suchauftrag (Gesuch): Größe ist freiwillig, ein Direktankauf gibt es hier nicht. */
+export function sucheLuecken(b: BoerseMeta | undefined, l: LeadView): string[] {
+  const fehlt: string[] = [];
+  if (l.rolle !== "gesuch" || (l.art !== "kauf" && l.art !== "pacht")) fehlt.push("nur Gesuche (Rolle „Gesuch“, Art „Kauf“ oder „Pacht“) kommen in die Suchliste");
+  if (l.status === "archiv" || l.status === "erledigt") fehlt.push("die Anfrage ist erledigt oder archiviert");
+  if (!b) return [...fehlt, "noch keine Angaben für die Börse gespeichert"];
+  if (!b.einwilligung) fehlt.push("Einwilligung des Suchenden fehlt");
+  if (!b.typ) fehlt.push("Flächentyp fehlt");
+  return [...fehlt, ...lageUndText(b, l)];
+}
+
+function lageUndText(b: BoerseMeta, l: LeadView): string[] {
+  const fehlt: string[] = [];
+  if (!oeffentlicheLage(b.lage)) fehlt.push(l.rolle === "gesuch" ? "grober Suchraum fehlt" : "grobe Lage fehlt");
   const details = Object.values(b.details ?? {}).filter(Boolean).join(" ");
   fehlt.push(...enthaeltVerraeterisches(`${oeffentlicheLage(b.lage)} ${b.text} ${details}`, l.name));
   return fehlt;

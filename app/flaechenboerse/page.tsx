@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
 import BoerseKarte from "@/components/boerse/BoerseKarte";
+import GesuchKarte from "@/components/boerse/GesuchKarte";
 import { ladeBoerse, provisionOderStandard } from "@/lib/boerse";
 import { gruppieren } from "@/lib/boerse-regeln";
 import { seitenMetadaten } from "@/lib/seo";
@@ -28,6 +29,7 @@ export default async function Page() {
   const provisionKauf = provisionOderStandard(d, "kauf");
   const provisionPacht = provisionOderStandard(d, "pacht");
   const gruppen = gruppieren(d.angebote);
+  const gesuche = d.gesuche ?? [];
   return (
     <>
       <PageHero
@@ -59,6 +61,24 @@ export default async function Page() {
         </div>
       </section>
 
+      {gesuche.length > 0 && (
+        <section className="section bg-grain" id="gesucht">
+          <div className="container-page">
+            <span className="eyebrow">Gesucht</span>
+            <hr className="divider mt-3" />
+            <h2 className="text-3xl md:text-4xl">{gesuche.length === 1 ? "Eine Fläche wird gesucht." : `${gesuche.length} Flächen werden gesucht.`}</h2>
+            <p className="mt-4 text-[color:var(--color-ink-soft)] text-lg max-w-2xl">
+              Käufer und Pächter, die wir betreuen, suchen diese Flächen — anonym und ohne Namen. Haben Sie eine passende Fläche, melden Sie sich unten; für Eigentümer bleibt alles kostenlos.
+            </p>
+            <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {gesuche.map((g) => (
+                <GesuchKarte key={g.code} a={g} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       <section className="section bg-grain">
         <div className="container-page">
           <span className="eyebrow">So funktioniert es</span>
@@ -78,6 +98,19 @@ export default async function Page() {
           </p>
         </div>
       </section>
+
+      {gesuche.length > 0 && (
+        <section className="section" id="flaeche-anbieten">
+          <div className="container-narrow">
+            <LeadForm
+              defaultIntent="Verkaufen"
+              source="flaechenboerse-gesucht"
+              title="Passende Fläche anbieten"
+              subtitle="Sie haben eine Fläche, die zu einem Suchauftrag passt? Nennen Sie in der Nachricht gern die Kennung (z. B. LS-1234) — wir melden uns persönlich."
+            />
+          </div>
+        </section>
+      )}
 
       <section className="section" id="suchauftrag">
         <div className="container-narrow">
