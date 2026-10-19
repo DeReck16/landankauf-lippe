@@ -170,3 +170,38 @@ export function paketGroesse(teile: BoerseEintrag[]): number | null {
   const werte = teile.map((t) => t.groesseHa).filter((x): x is number => typeof x === "number" && x > 0);
   return werte.length ? werte.reduce((a, b) => a + b, 0) : null;
 }
+
+/** Auswahl der Filterleiste auf der Börse: Art (Kauf/Pacht) und Flächentyp; leer = alle. */
+export type BoerseFilter = { art: BoerseArt | ""; typ: string };
+
+/** Anzeigename des Flächentyps — wie auf der Karte („Fläche“, wenn keiner angegeben ist). */
+function typLabel(a: Pick<BoerseEintrag, "typ">): string {
+  return a.typ.trim() || "Fläche";
+}
+
+/** Eine Karte (Einzelfläche oder Paket) passt zur Auswahl; Pakete haben immer eine Art und einen Typ. */
+function passt(g: BoerseEintrag[], f: BoerseFilter): boolean {
+  return (!f.art || g[0].art === f.art) && (!f.typ || typLabel(g[0]) === f.typ);
+}
+
+export function filtereGruppen(gruppen: BoerseEintrag[][], f: BoerseFilter): BoerseEintrag[][] {
+  return gruppen.filter((g) => passt(g, f));
+}
+
+/**
+ * Wahlmöglichkeiten der Filterleiste mit Anzahl Karten. Jede Zahl gilt für die Auswahl der jeweils anderen
+ * Gruppe: Wer „Zur Pacht“ gewählt hat, sieht bei den Typen nur die Pachtflächen (die Zahl stimmt dann mit der Liste überein).
+ */
+export function filterOptionen(gruppen: BoerseEintrag[][], f: BoerseFilter): {
+  arten: { wert: BoerseArt; anzahl: number }[];
+  typen: { wert: string; anzahl: number }[];
+} {
+  const arten = (["kauf", "pacht"] as const).map((wert) => ({
+    wert,
+    anzahl: gruppen.filter((g) => passt(g, { ...f, art: wert })).length,
+  }));
+  const typen = [...new Set(gruppen.map((g) => typLabel(g[0])))]
+    .sort((x, y) => x.localeCompare(y, "de"))
+    .map((wert) => ({ wert, anzahl: gruppen.filter((g) => passt(g, { ...f, typ: wert })).length }));
+  return { arten, typen };
+}

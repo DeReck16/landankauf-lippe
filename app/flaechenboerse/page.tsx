@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
 import LeadForm from "@/components/LeadForm";
-import BoerseKarte from "@/components/boerse/BoerseKarte";
+import BoerseListe from "@/components/boerse/BoerseListe";
 import GesuchKarte from "@/components/boerse/GesuchKarte";
 import { ladeBoerse, provisionOderStandard } from "@/lib/boerse";
 import { gruppieren } from "@/lib/boerse-regeln";
@@ -48,11 +48,7 @@ export default async function Page() {
             {d.angebote.length === 0 ? "Gerade ist keine Fläche frei im Angebot." : `${d.angebote.length} ${d.angebote.length === 1 ? "Fläche" : "Flächen"} im Angebot`}
           </h2>
           {d.angebote.length > 0 ? (
-            <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {gruppen.map((g) => (
-                <BoerseKarte key={g[0].code} a={g[0]} teile={g} />
-              ))}
-            </div>
+            <BoerseListe gruppen={gruppen} />
           ) : (
             <p className="mt-4 text-[color:var(--color-ink-soft)] text-lg max-w-2xl">
               Neue Angebote kommen laufend dazu. Hinterlegen Sie unten einen Suchauftrag — wir melden uns, sobald eine passende Fläche angeboten wird.
