@@ -4,7 +4,7 @@ import { testUmgebung } from "./hilfe";
 
 testUmgebung();
 
-const { filterOptionen, filtereGruppen, gruppieren } = await import("@/lib/boerse-regeln");
+const { filterOptionen, filtereGruppen, gruppieren, kartenDaten } = await import("@/lib/boerse-regeln");
 type Eintrag = import("@/lib/boerse-regeln").BoerseEintrag;
 
 function eintrag(code: string, art: "kauf" | "pacht", typ: string, paket?: string): Eintrag {
@@ -48,4 +48,19 @@ test("Zahlen der Optionen gelten für die Auswahl der jeweils anderen Gruppe", (
 
   const wald = filterOptionen(gruppen, { art: "", typ: "Wald" });
   assert.deepEqual(wald.arten, [{ wert: "kauf", anzahl: 1 }, { wert: "pacht", anzahl: 0 }]);
+});
+
+test("ältere Einträge ohne Typ lassen Filter und Optionen nicht abstürzen", () => {
+  const alt = { ...eintrag("LF-1007", "kauf", "Acker"), typ: undefined as unknown as string };
+  const g = [[alt]];
+  assert.deepEqual(codes(filtereGruppen(g, { art: "", typ: "Fläche" })), ["LF-1007"]);
+  assert.deepEqual(filterOptionen(g, { art: "", typ: "" }).typen, [{ wert: "Fläche", anzahl: 1 }]);
+});
+
+test("Kartendaten für den Browser enthalten weder Zeitpunkt noch Paketkennung", () => {
+  const roh = { ...eintrag("LF-1008", "pacht", "Wald", "Pabc12345"), groesseHa: 12.4, details: { frei: "frei ab 01.10.2027" } };
+  const k = kartenDaten(roh);
+  assert.deepEqual(Object.keys(k).sort(), ["art", "code", "details", "groesseHa", "lage", "text", "typ"]);
+  assert.equal(k.groesseHa, 12);
+  assert.ok(!("details" in kartenDaten(eintrag("LF-1009", "kauf", "Acker"))));
 });

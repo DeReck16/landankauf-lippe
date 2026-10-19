@@ -174,17 +174,20 @@ export function paketGroesse(teile: BoerseEintrag[]): number | null {
 /** Auswahl der Filterleiste auf der Börse: Art (Kauf/Pacht) und Flächentyp; leer = alle. */
 export type BoerseFilter = { art: BoerseArt | ""; typ: string };
 
-/** Anzeigename des Flächentyps — wie auf der Karte („Fläche“, wenn keiner angegeben ist). */
+/** Das, was der Filter von einer Karte braucht. */
+type Filterbar = Pick<BoerseEintrag, "art" | "typ">;
+
+/** Anzeigename des Flächentyps — wie auf der Karte („Fläche“, wenn keiner angegeben ist; ältere Einträge können ihn auslassen). */
 function typLabel(a: Pick<BoerseEintrag, "typ">): string {
-  return a.typ.trim() || "Fläche";
+  return String(a.typ ?? "").trim() || "Fläche";
 }
 
 /** Eine Karte (Einzelfläche oder Paket) passt zur Auswahl; Pakete haben immer eine Art und einen Typ. */
-function passt(g: BoerseEintrag[], f: BoerseFilter): boolean {
+function passt(g: Filterbar[], f: BoerseFilter): boolean {
   return (!f.art || g[0].art === f.art) && (!f.typ || typLabel(g[0]) === f.typ);
 }
 
-export function filtereGruppen(gruppen: BoerseEintrag[][], f: BoerseFilter): BoerseEintrag[][] {
+export function filtereGruppen<T extends Filterbar>(gruppen: T[][], f: BoerseFilter): T[][] {
   return gruppen.filter((g) => passt(g, f));
 }
 
@@ -192,7 +195,7 @@ export function filtereGruppen(gruppen: BoerseEintrag[][], f: BoerseFilter): Boe
  * Wahlmöglichkeiten der Filterleiste mit Anzahl Karten. Jede Zahl gilt für die Auswahl der jeweils anderen
  * Gruppe: Wer „Zur Pacht“ gewählt hat, sieht bei den Typen nur die Pachtflächen (die Zahl stimmt dann mit der Liste überein).
  */
-export function filterOptionen(gruppen: BoerseEintrag[][], f: BoerseFilter): {
+export function filterOptionen(gruppen: Filterbar[][], f: BoerseFilter): {
   arten: { wert: BoerseArt; anzahl: number }[];
   typen: { wert: string; anzahl: number }[];
 } {
@@ -204,4 +207,15 @@ export function filterOptionen(gruppen: BoerseEintrag[][], f: BoerseFilter): {
     .sort((x, y) => x.localeCompare(y, "de"))
     .map((wert) => ({ wert, anzahl: gruppen.filter((g) => passt(g, { ...f, typ: wert })).length }));
   return { arten, typen };
+}
+
+/**
+ * Was eine Karte im Browser braucht — nicht mehr: kein Veröffentlichungszeitpunkt, keine Paketkennung.
+ * Die Größe wird beim Übergeben noch einmal öffentlich gerundet (ein bereits gerundeter Wert bleibt gleich),
+ * damit nie ein genauer Wert in den Seitenquelltext gelangt.
+ */
+export type KartenDaten = Pick<BoerseEintrag, "code" | "art" | "typ" | "groesseHa" | "lage" | "text" | "details">;
+
+export function kartenDaten(a: BoerseEintrag): KartenDaten {
+  return { code: a.code, art: a.art, typ: a.typ, groesseHa: oeffentlicheHa(a.groesseHa), lage: a.lage, text: a.text, ...(a.details ? { details: a.details } : {}) };
 }

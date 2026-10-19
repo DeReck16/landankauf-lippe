@@ -4,7 +4,7 @@ import LeadForm from "@/components/LeadForm";
 import BoerseListe from "@/components/boerse/BoerseListe";
 import GesuchKarte from "@/components/boerse/GesuchKarte";
 import { ladeBoerse, provisionOderStandard } from "@/lib/boerse";
-import { gruppieren } from "@/lib/boerse-regeln";
+import { gruppieren, kartenDaten } from "@/lib/boerse-regeln";
 import { seitenMetadaten } from "@/lib/seo";
 
 // Angebote kommen aus der Flächenbörse: alle 5 Minuten bzw. beim Veröffentlichen sofort neu.
@@ -48,7 +48,7 @@ export default async function Page() {
             {d.angebote.length === 0 ? "Gerade ist keine Fläche frei im Angebot." : `${d.angebote.length} ${d.angebote.length === 1 ? "Fläche" : "Flächen"} im Angebot`}
           </h2>
           {d.angebote.length > 0 ? (
-            <BoerseListe gruppen={gruppen} />
+            <BoerseListe gruppen={gruppen.map((g) => g.map(kartenDaten))} />
           ) : (
             <p className="mt-4 text-[color:var(--color-ink-soft)] text-lg max-w-2xl">
               Neue Angebote kommen laufend dazu. Hinterlegen Sie unten einen Suchauftrag — wir melden uns, sobald eine passende Fläche angeboten wird.

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { artText, filterOptionen, filtereGruppen, type BoerseEintrag, type BoerseFilter } from "@/lib/boerse-regeln";
+import { artText, filterOptionen, filtereGruppen, type BoerseFilter, type KartenDaten } from "@/lib/boerse-regeln";
 import BoerseKarte from "./BoerseKarte";
 
 function Wahl({ aktiv, sperre, label, anzahl, tipp, onClick }: { aktiv: boolean; sperre?: boolean; label: string; anzahl: number; tipp: string; onClick: () => void }) {
@@ -29,7 +29,7 @@ function Wahl({ aktiv, sperre, label, anzahl, tipp, onClick }: { aktiv: boolean;
  * Angebote der Flächenbörse als Karten mit Filterleiste (Kauf/Pacht und Flächentyp). Gefiltert wird im Browser,
  * die Seite selbst bleibt statisch (ISR). Die Leiste erscheint nur, wenn es etwas zum Auswählen gibt.
  */
-export default function BoerseListe({ gruppen }: { gruppen: BoerseEintrag[][] }) {
+export default function BoerseListe({ gruppen }: { gruppen: KartenDaten[][] }) {
   const [filter, setFilter] = useState<BoerseFilter>({ art: "", typ: "" });
   const gesamt = filterOptionen(gruppen, { art: "", typ: "" });
   const zeigeArt = gesamt.arten.every((a) => a.anzahl > 0);
