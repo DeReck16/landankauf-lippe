@@ -13,10 +13,17 @@ import { sperrGrund } from "@/lib/boerse";
 import StatusSchnell from "./StatusSchnell";
 import StandBadge from "./StandBadge";
 import SeiteWahl from "./SeiteWahl";
+import SammelKasten from "./SammelKasten";
+import SammelLeiste, { type SammelZeile } from "./SammelLeiste";
+import { eckdatenFuer, fehlendeEckdaten } from "@/lib/admin/boerse-vorschlag";
+import { haText } from "@/lib/boerse-regeln";
 import AlleFreigeben from "./AlleFreigeben";
 import { Meldung } from "./teile";
 
 export const metadata: Metadata = { title: "Anfragen" };
+
+// Der Sammel-Schalter veröffentlicht mehrere Anfragen nacheinander — bis zu 60 Sekunden (so viel erlaubt Vercel in jedem Tarif).
+export const maxDuration = 60;
 
 function passtZurSuche(l: LeadView, q: string): boolean {
   const heu = [l.id, l.name, l.email, l.phone, l.ort, l.flurstueck, l.message, l.intent, l.meta.notiz ?? ""]
@@ -61,6 +68,15 @@ export default async function AnfragenPage(props: PageProps<"/admin">) {
     }),
   );
 
+  /** Welche Anfrage sich mit dem Schalter veröffentlichen lässt — und was dann öffentlich erschiene (nur Eckdaten). */
+  const schalter = (l: LeadView) => {
+    if (!schaltbar(l)) return null;
+    const gesuch = l.rolle === "gesuch";
+    const b = gesuch ? l.meta.suche : l.meta.boerse;
+    const gesperrt = staende.get(l.id)!.sperre ?? (!gesuch && l.meta.weg === "ankauf" ? "Direktankauf gewählt — die Fläche wird nicht vermittelt" : null);
+    return { gesuch, b, gesperrt };
+  };
+
   const sichtbar = leads.filter((l) => {
     if (status === "offen" ? l.status === "archiv" : status === "laufend" ? l.status === "archiv" || l.status === "erledigt" : status !== "alle" && l.status !== status) return false;
     if (!passtZumAnliegen(l, rolle)) return false;
@@ -68,6 +84,22 @@ export default async function AnfragenPage(props: PageProps<"/admin">) {
     const st = staende.get(l.id)!;
     if (!passtZumStand(st.konto, konto) || !passtZumStand(st.seite, seite)) return false;
     return !q || passtZurSuche(l, q);
+  });
+
+  // Zeilen für „Ausgewählte veröffentlichen“: alle sichtbaren, die noch nicht öffentlich und nicht gesperrt sind — mit den Eckdaten, die erschienen.
+  const sammelZeilen: SammelZeile[] = sichtbar.flatMap((l) => {
+    const sw = schalter(l);
+    if (!sw || sw.gesperrt || sw.b?.online) return [];
+    const e = eckdatenFuer(l, sw.b, zustand.orte);
+    return [
+      {
+        id: l.id,
+        name: l.name,
+        kurz: [sw.gesuch ? "Gesucht" : "Angebot", artLabel(l.art), e.typ, haText(e.groesseHa), e.lage || "Lage offen"].join(" · "),
+        einwilligung: Boolean(sw.b?.einwilligung),
+        fehlt: fehlendeEckdaten(l, sw.b, zustand.orte),
+      },
+    ];
   });
 
   const aktiv = leads.filter((l) => l.status !== "archiv");
@@ -179,6 +211,8 @@ export default async function AnfragenPage(props: PageProps<"/admin">) {
         <Link href="/admin" className="lfa-knopf lfa-knopf-leise" title="Alle Filter und die Suche zurücksetzen">Zurücksetzen</Link>
       </form>
 
+      <SammelLeiste zeilen={sammelZeilen} />
+
       {sichtbar.length === 0 ? (
         <div className="lfa-panel lfa-leer">Keine Anfragen für diese Auswahl.</div>
       ) : (
@@ -202,6 +236,7 @@ export default async function AnfragenPage(props: PageProps<"/admin">) {
               const kunde = portal.kunden.get(l.id);
               const neuEreignisse = neu.kunde(kunde);
               const istNeu = neu.anfrage(l);
+              const sw = schalter(l);
               return (
                 <tr key={l.id} className={l.status === "neu" ? "lfa-zeile-neu" : undefined}>
                   <td data-label="Eingang">
@@ -263,15 +298,11 @@ export default async function AnfragenPage(props: PageProps<"/admin">) {
                     <StandBadge a={staende.get(l.id)!.konto} />
                   </td>
                   <td data-label="Auf der Seite">
-                    <StandBadge a={staende.get(l.id)!.seite} />
-                    {schaltbar(l) && (
-                      <SeiteWahl
-                        id={l.id}
-                        was={l.rolle === "gesuch" ? "Suchauftrag" : "Fläche"}
-                        online={Boolean((l.rolle === "gesuch" ? l.meta.suche : l.meta.boerse)?.online)}
-                        gesperrt={staende.get(l.id)!.sperre ?? (l.meta.weg === "ankauf" ? "Direktankauf gewählt — die Fläche wird nicht vermittelt" : null)}
-                      />
-                    )}
+                    <div className="lfa-seite-kopf">
+                      {sw && !sw.gesperrt && !sw.b?.online && <SammelKasten id={l.id} name={l.name} />}
+                      <StandBadge a={staende.get(l.id)!.seite} />
+                    </div>
+                    {sw && <SeiteWahl id={l.id} was={sw.gesuch ? "Suchauftrag" : "Fläche"} online={Boolean(sw.b?.online)} gesperrt={sw.gesperrt} />}
                   </td>
                   <td data-label="Status">
                     <StatusSchnell id={l.id} status={l.status} />

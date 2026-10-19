@@ -260,7 +260,15 @@ a.lfa-kachel:hover { border-color: var(--color-brand); }
 .lfa-stand-link:hover .lfa-badge { filter: brightness(0.95); }
 .lfa-seitewahl { display: flex; flex-direction: column; gap: 0.3rem; align-items: flex-start; margin-top: 0.3rem; }
 .lfa-seitewahl-feld { width: auto; padding: 0.15rem 0.5rem; font-size: 0.78rem; border-radius: 9999px; }
-.lfa-seitewahl-frage { display: flex; flex-direction: column; gap: 0.35rem; align-items: flex-start; padding: 0.45rem 0.55rem; border: 1px solid var(--color-line); border-radius: 0.6rem; background: #fdf3dd; max-width: 15rem; }
+.lfa-seitewahl-frage { display: flex; flex-direction: column; gap: 0.4rem; align-items: stretch; padding: 0.55rem 0.65rem; border: 1px solid var(--color-line); border-radius: 0.6rem; background: #fdf3dd; width: 100%; max-width: 17rem; }
+.lfa-seitewahl-frage label { display: flex; flex-direction: column; gap: 0.15rem; font-size: 0.74rem; color: var(--color-muted); }
+.lfa-seitewahl-eingabe { padding: 0.25rem 0.55rem; font-size: 0.82rem; border-radius: 0.5rem; }
+.lfa-sammelkasten { display: inline-flex; align-items: center; margin-right: 0.35rem; cursor: pointer; }
+.lfa-sammelkasten input { width: 1rem; height: 1rem; accent-color: var(--color-brand); cursor: pointer; }
+.lfa-sammelleiste { margin-bottom: 0.9rem; padding: 0.7rem 0.9rem; }
+.lfa-sammelfeld { display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; margin-top: 0.7rem; padding-top: 0.7rem; border-top: 1px solid var(--color-line); }
+.lfa-sammelliste { margin: 0.3rem 0 0; padding-left: 1.1rem; display: grid; gap: 0.15rem; }
+.lfa-sammelergebnis { margin: 0.6rem 0 0; padding-left: 1.1rem; }
 .lfa-seitewahl-fehler { color: #8a2a1d; }
 .lfa-kontakt a { color: var(--color-ink-soft); text-decoration: none; overflow-wrap: anywhere; }
 .lfa-kontakt a.lfa-link-name { color: var(--color-brand-dark); }

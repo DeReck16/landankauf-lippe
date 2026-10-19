@@ -21,7 +21,7 @@ import { orteAusText, ortKey } from "@/lib/admin/geo";
 import { ladeKunde } from "@/lib/portal/speicher";
 import { beideUnterschrieben } from "@/lib/portal/schritte";
 import { LEAD_STATUS, MATCH_STATUS, leadView, type Art, type BoerseMeta, type LeadMeta, type LeadStatus, type MatchMeta, type Rolle } from "@/lib/admin/model";
-import { EINWILLIGUNG_QUELLEN, boerseLuecken, boerseNeuSchreiben, neuerBoerseCode, seiteSchalten, sucheLuecken, vergebeneCodes, type SeiteErgebnis } from "@/lib/boerse";
+import { EINWILLIGUNG_QUELLEN, boerseLuecken, boerseNeuSchreiben, neuerBoerseCode, seiteSchalten, seiteSchaltenViele, sucheLuecken, vergebeneCodes, type SeiteErgebnis } from "@/lib/boerse";
 import { DETAIL_FELDER, detailsBereinigen } from "@/lib/boerse-regeln";
 import { einwilligungBestaetigen } from "@/lib/portal/boerse-mails";
 import { postfachUebernehmen, postfachZurKenntnis } from "@/lib/portal/postfach";
@@ -572,10 +572,28 @@ export async function boerseAktion(formData: FormData): Promise<void> {
  * Schalter „Auf der Seite“ in der Anfragen-Liste (Fläche bzw. Suchauftrag öffentlich machen oder von der Seite nehmen).
  * Gibt das Ergebnis zurück statt weiterzuleiten, damit die Liste mit ihren Filtern stehen bleibt.
  */
-export async function seiteSchaltenAktion(id: string, ziel: string, quelle?: string): Promise<SeiteErgebnis> {
+export async function seiteSchaltenAktion(
+  id: string,
+  ziel: string,
+  opt?: { quelle?: string; angaben?: { typ: string; groesse: string; lage: string } },
+): Promise<SeiteErgebnis> {
   const { email } = await requireAdmin();
   if (!/^LL-[A-Z0-9]+$/.test(id) || (ziel !== "oeffentlich" && ziel !== "nicht")) return { ok: false, meldung: "Ungültige Eingabe." };
-  const r = await seiteSchalten(id, ziel, email, quelle ? { quelle } : undefined);
+  // Nur Eckdaten: Flächentyp, Größe in ha, grobe Lage — die Prüfung gegen Namen, Adressen und Flurstücke macht seiteSchalten.
+  const a = opt?.angaben;
+  const angaben = a ? { typ: String(a.typ ?? "").slice(0, 40), groesseHa: zahlOderNull(String(a.groesse ?? "").trim().slice(0, 12)), lage: String(a.lage ?? "").slice(0, 80) } : undefined;
+  const r = await seiteSchalten(id, ziel, email, { quelle: opt?.quelle ? String(opt.quelle).slice(0, 40) : undefined, angaben });
+  revalidatePath("/admin", "layout");
+  menueErneuern();
+  return r;
+}
+
+/** Sammel-Schalter: ausgewählte Anfragen öffentlich machen (Einwilligung nur, wenn `quelle` mitkommt — dann für die, bei denen sie fehlt). */
+export async function seiteMassenAktion(ids: string[], quelle?: string): Promise<{ id: string; ok: boolean; meldung: string }[]> {
+  const { email } = await requireAdmin();
+  const sauber = [...new Set((Array.isArray(ids) ? ids : []).map(String))].filter((x) => /^LL-[A-Z0-9]+$/.test(x)).slice(0, 100);
+  if (sauber.length === 0) return [];
+  const r = await seiteSchaltenViele(sauber, email, quelle ? { quelle: String(quelle).slice(0, 40) } : undefined);
   revalidatePath("/admin", "layout");
   menueErneuern();
   return r;

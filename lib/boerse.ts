@@ -1,7 +1,8 @@
 import "server-only";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { hasBlobToken } from "@/lib/admin/config";
-import { leadView, type BoerseMeta, type LeadMeta, type LeadView } from "@/lib/admin/model";
+import { eckdatenFuer, fehlendeEckdaten } from "@/lib/admin/boerse-vorschlag";
+import { leadView, type BoerseMeta, type LeadMeta, type LeadRecord, type LeadView } from "@/lib/admin/model";
 import { drosseln, jsonAendern, kurzwert, listLeads, mutateZustand, readZustand, websiteDateiLesen } from "@/lib/admin/store";
 import { grobeLage } from "@/lib/admin/matching";
 import { FLAECHENTYPEN } from "@/lib/lead-options";
@@ -270,27 +271,54 @@ export const FORMULAR_QUELLE = "im Formular";
 /** Höchstens so viele Anfragen je Tag gehen allein durch das Häkchen online — danach bleibt der Klick der Verwaltung (Schutz vor Massen-Einträgen). */
 export const FORMULAR_LIMIT_PRO_TAG = 10;
 
-export type SeiteErgebnis = { ok: boolean; meldung: string; einwilligungNoetig?: boolean };
+/** Was der Schalter „Öffentlich“ noch braucht, bevor er veröffentlichen kann — die Verwaltung ergänzt es direkt dort. */
+export type SeiteFormular = {
+  /** Es ist noch keine Einwilligung erfasst — die Verwaltung gibt an, wie sie erteilt wurde. */
+  einwilligungNoetig: boolean;
+  /** Vorschlag bzw. gespeicherte Eckdaten (Typ, Größe in ha, grobe Lage) zum Prüfen und Ändern. */
+  typ: string;
+  groesseHa: number | null;
+  lage: string;
+  /** Was an den Eckdaten noch fehlt oder verräterisch ist. */
+  luecken: string[];
+};
+
+export type SeiteErgebnis = { ok: boolean; meldung: string; formular?: SeiteFormular };
+
+/** Eingaben der Verwaltung beim Veröffentlichen: nur Eckdaten. */
+export type SeiteOptionen = {
+  /** Wie die Einwilligung erteilt wurde — nur nötig, wenn noch keine erfasst ist. */
+  quelle?: string;
+  /** Eckdaten überschreiben (Flächentyp, Größe in ha, grobe Lage). */
+  angaben?: { typ?: string; groesseHa?: number | null; lage?: string };
+  /** Einwilligung und Eckdaten erfassen, aber nicht veröffentlichen. */
+  nurVorbereiten?: boolean;
+};
+
+type Kontext = { leads: LeadRecord[]; kunden: Map<string, M.KundeRecord>; vorgaenge: M.VorgangRecord[] };
+
+async function ladeKontext(): Promise<Kontext> {
+  const [leads, kundenListe, vorgaenge] = await Promise.all([listLeads(), alleKunden(), alleVorgaenge()]);
+  return { leads, kunden: new Map(kundenListe.map((k) => [k.id, k])), vorgaenge };
+}
 
 /**
- * Schalter „Auf der Seite“ in der Anfragen-Liste: eine Fläche (Angebot) bzw. einen Suchauftrag (Gesuch) von Hand
- * öffentlich machen oder von der Website nehmen. Öffentlich wird nur mit erfasster Einwilligung — so verspricht es die
- * Datenschutzerklärung. Fehlt sie, muss die Verwaltung beim Schalten angeben, wie sie erteilt wurde (sie wird dann wie in der
- * Anfrage als Einwilligung erfasst). Fehlende Angaben (Typ, Größe, Lage) werden aus der Anfrage vorgeschlagen, eine Lücke
- * oder verräterische Angabe verhindert das Veröffentlichen mit Begründung.
+ * Ein Angebot bzw. Suchauftrag öffentlich machen oder von der Seite nehmen — ohne die öffentliche Datei neu zu schreiben
+ * (`datei` sagt, ob das nötig ist). Öffentlich wird nur mit erfasster Einwilligung (so verspricht es die Datenschutzerklärung).
+ * Ohne Eingaben prüft der Aufruf nur: Fehlt die Einwilligung oder sind die Eckdaten unvollständig, schreibt er nichts und
+ * liefert das Formular mit Vorschlag zurück; mit `quelle` bzw. `angaben` wird erfasst und, wenn nichts fehlt, veröffentlicht.
  */
-export async function seiteSchalten(id: string, ziel: "oeffentlich" | "nicht", von: string, einwilligung?: { quelle: string; nurVorbereiten?: boolean }): Promise<SeiteErgebnis> {
-  const [leads, kundenListe, vorgaenge] = await Promise.all([listLeads(), alleKunden(), alleVorgaenge()]);
-  const lead = leads.find((x) => x.id === id);
-  if (!lead) return { ok: false, meldung: "Anfrage nicht gefunden." };
-  const sperre = sperrGrund(id, new Map(kundenListe.map((k) => [k.id, k])), vorgaenge);
+async function schalteEinzeln(ctx: Kontext, id: string, ziel: "oeffentlich" | "nicht", von: string, opt?: SeiteOptionen): Promise<{ ergebnis: SeiteErgebnis; datei: boolean }> {
+  const lead = ctx.leads.find((x) => x.id === id);
+  if (!lead) return { ergebnis: { ok: false, meldung: "Anfrage nicht gefunden." }, datei: false };
+  const sperre = sperrGrund(id, ctx.kunden, ctx.vorgaenge);
   const jetzt = new Date().toISOString();
   let ergebnis: SeiteErgebnis = { ok: false, meldung: "Keine Änderung." };
-  let oeffentlichBetroffen = false;
+  let datei = false;
 
   await mutateZustand(von, (z) => {
     ergebnis = { ok: false, meldung: "Keine Änderung." };
-    oeffentlichBetroffen = false;
+    datei = false;
     const meta: LeadMeta = { ...(z.anfragen[id] ?? {}) };
     const l = leadView(lead, meta);
     const gesuch = l.rolle === "gesuch";
@@ -310,7 +338,7 @@ export async function seiteSchalten(id: string, ziel: "oeffentlich" | "nicht", v
       }
       meta[feld] = { ...b, online: false, geaendert: { am: jetzt, von } };
       z.anfragen[id] = meta;
-      oeffentlichBetroffen = true;
+      datei = true;
       ergebnis = { ok: true, meldung: `${wort} von der Website genommen (${b.code}).` };
       return { was: `${gesuch ? "Suchliste" : "Flächenbörse"}: ${b.code} von Hand offline genommen (Anfragen-Liste)`, ref: id };
     }
@@ -319,38 +347,61 @@ export async function seiteSchalten(id: string, ziel: "oeffentlich" | "nicht", v
       ergebnis = { ok: false, meldung: `Nicht möglich: ${sperre}.` };
       return;
     }
-    // Angaben vorschlagen, ohne eigene Eingaben zu überschreiben.
+    // Eckdaten: Gespeichertes zuerst, sonst aus der Anfrage vorgeschlagen; Eingaben der Verwaltung überschreiben.
     const b: BoerseMeta = meta[feld]
       ? { ...meta[feld]! }
       : { code: neuerBoerseCode(vergebeneCodes(z.anfragen), gesuch ? "LS" : "LF"), typ: "", groesseHa: null, lage: "", text: "", einwilligung: null, online: false };
-    if (!b.typ) b.typ = (FLAECHENTYPEN as readonly string[]).includes(l.typ) ? l.typ : "Sonstiges";
-    const ha = l.groesseWert.minHa ?? l.groesseWert.maxHa;
-    if (b.groesseHa == null && ha != null && ha > 0) b.groesseHa = Math.max(0.5, Math.round(ha * 2) / 2);
-    if (!oeffentlicheLage(b.lage)) {
-      const gemeinde = oeffentlicheLage(grobeLage(l, z.orte));
-      if (gemeinde) b.lage = `Raum ${gemeinde}`;
+    const e = eckdatenFuer(l, b, z.orte);
+    b.typ = e.typ;
+    b.groesseHa = e.groesseHa;
+    b.lage = e.lage;
+    const a = opt?.angaben;
+    if (a) {
+      if (a.typ && (FLAECHENTYPEN as readonly string[]).includes(a.typ)) b.typ = a.typ;
+      if (a.groesseHa !== undefined) b.groesseHa = a.groesseHa != null && Number.isFinite(a.groesseHa) && a.groesseHa > 0 ? a.groesseHa : null;
+      if (a.lage !== undefined) b.lage = a.lage.replace(/\s+/g, " ").trim().slice(0, 80);
+    }
+    const quelle = opt?.quelle;
+    const quelleOk = Boolean(quelle) && [...EINWILLIGUNG_QUELLEN, FORMULAR_QUELLE].includes(quelle!);
+    const fehlt = fehlendeEckdaten(l, { ...b, einwilligung: b.einwilligung ?? { am: "", quelle: "", von: "" } }, z.orte);
+    const einwilligungNoetig = !b.einwilligung && !quelleOk;
+    // Reine Anfrage („Öffentlich“ gewählt, nichts mitgegeben): fehlt etwas, nichts speichern und das Formular mit Vorschlag zeigen.
+    if (!a && !quelle && (einwilligungNoetig || fehlt.length)) {
+      ergebnis = {
+        ok: false,
+        meldung: einwilligungNoetig ? `Keine Einwilligung erfasst — wie hat ${gesuch ? "der Suchende" : "der Eigentümer"} eingewilligt?` : `Eckdaten ergänzen: ${fehlt.join(" · ")}`,
+        formular: { einwilligungNoetig, typ: b.typ, groesseHa: b.groesseHa, lage: b.lage, luecken: fehlt },
+      };
+      return;
+    }
+    if (einwilligungNoetig) {
+      ergebnis = {
+        ok: false,
+        meldung: `Keine Einwilligung erfasst — wie hat ${gesuch ? "der Suchende" : "der Eigentümer"} eingewilligt?`,
+        formular: { einwilligungNoetig: true, typ: b.typ, groesseHa: b.groesseHa, lage: b.lage, luecken: fehlt },
+      };
+      return;
     }
     if (!b.einwilligung) {
-      const quelle = einwilligung?.quelle;
-      if (!quelle || ![...EINWILLIGUNG_QUELLEN, FORMULAR_QUELLE].includes(quelle)) {
-        ergebnis = { ok: false, einwilligungNoetig: true, meldung: `Keine Einwilligung erfasst — wie hat ${gesuch ? "der Suchende" : "der Eigentümer"} eingewilligt?` };
-        return;
-      }
-      b.einwilligung = { am: jetzt.slice(0, 10), quelle, von };
+      b.einwilligung = { am: jetzt.slice(0, 10), quelle: quelle!, von };
       delete b.offline;
     }
     const offen = luecken(b, leadView(lead, { ...meta, [feld]: b }));
     b.geaendert = { am: jetzt, von };
-    if (offen.length === 0 && einwilligung?.nurVorbereiten) {
+    if (offen.length === 0 && opt?.nurVorbereiten) {
       ergebnis = { ok: false, meldung: `${wort} vorbereitet (${b.code}) — wartet auf den Klick der Verwaltung.` };
     } else if (offen.length === 0) {
       b.online = true;
       b.seit ??= jetzt;
       delete b.offline;
-      oeffentlichBetroffen = true;
+      datei = true;
       ergebnis = { ok: true, meldung: `${wort} ist öffentlich (${b.code}).` };
     } else {
-      ergebnis = { ok: false, meldung: `Noch nicht veröffentlicht: ${offen.join(" · ")}. Angaben in der Anfrage ergänzen.` };
+      ergebnis = {
+        ok: false,
+        meldung: `Noch nicht veröffentlicht: ${offen.join(" · ")}.`,
+        formular: { einwilligungNoetig: false, typ: b.typ, groesseHa: b.groesseHa, lage: b.lage, luecken: offen },
+      };
     }
     meta[feld] = b;
     z.anfragen[id] = meta;
@@ -363,8 +414,31 @@ export async function seiteSchalten(id: string, ziel: "oeffentlich" | "nicht", v
     };
   });
 
-  if (oeffentlichBetroffen) await boerseNeuSchreiben().catch((err) => console.error("[boerse] Neu schreiben fehlgeschlagen", err));
+  return { ergebnis, datei };
+}
+
+/**
+ * Schalter „Auf der Seite“ in der Anfragen-Liste: eine Fläche (Angebot) bzw. einen Suchauftrag (Gesuch) von Hand
+ * öffentlich machen oder von der Website nehmen — immer nur mit den Eckdaten (Flächentyp, ungefähre Größe, grobe Lage).
+ */
+export async function seiteSchalten(id: string, ziel: "oeffentlich" | "nicht", von: string, opt?: SeiteOptionen): Promise<SeiteErgebnis> {
+  const { ergebnis, datei } = await schalteEinzeln(await ladeKontext(), id, ziel, von, opt);
+  if (datei) await boerseNeuSchreiben().catch((err) => console.error("[boerse] Neu schreiben fehlgeschlagen", err));
   return ergebnis;
+}
+
+/** Sammel-Schalter: mehrere Anfragen nacheinander öffentlich machen, die öffentliche Datei nur einmal neu schreiben. */
+export async function seiteSchaltenViele(ids: string[], von: string, opt?: Pick<SeiteOptionen, "quelle">): Promise<{ id: string; ok: boolean; meldung: string }[]> {
+  const ctx = await ladeKontext();
+  const out: { id: string; ok: boolean; meldung: string }[] = [];
+  let datei = false;
+  for (const id of ids) {
+    const r = await schalteEinzeln(ctx, id, "oeffentlich", von, opt?.quelle ? { quelle: opt.quelle } : undefined);
+    datei ||= r.datei;
+    out.push({ id, ok: r.ergebnis.ok, meldung: r.ergebnis.meldung });
+  }
+  if (datei) await boerseNeuSchreiben().catch((err) => console.error("[boerse] Neu schreiben fehlgeschlagen", err));
+  return out;
 }
 
 /**

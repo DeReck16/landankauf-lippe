@@ -51,7 +51,9 @@ test("Schalter: ohne Einwilligung fragt er nach, schreibt aber nichts", async ()
   await anfrage("LL-SCH1", {});
   const r = await seiteSchalten("LL-SCH1", "oeffentlich", "admin@example.com");
   assert.equal(r.ok, false);
-  assert.equal(r.einwilligungNoetig, true);
+  assert.equal(r.formular?.einwilligungNoetig, true);
+  assert.equal(r.formular?.typ, "Ackerland"); // Vorschlag aus der Anfrage
+  assert.equal(r.formular?.groesseHa, 6);
   const { zustand } = await store.readZustand();
   assert.equal(zustand.anfragen["LL-SCH1"], undefined);
 });
@@ -119,7 +121,7 @@ test("Schalter: offline nehmen und erledigte Anfragen entfernen Angebot wie Such
   assert.deepEqual(oeffentlich().gesuche, []);
 });
 
-const { veroeffentlichenAusFormular, FORMULAR_LIMIT_PRO_TAG } = await import("@/lib/boerse");
+const { veroeffentlichenAusFormular, FORMULAR_LIMIT_PRO_TAG, seiteSchaltenViele } = await import("@/lib/boerse");
 
 test("Formular-Häkchen: erfasst die Einwilligung „im Formular“ und veröffentlicht sofort", async () => {
   await anfrage("LL-FOR1", { name: "Gerd Gutsbesitzer", email: "gerd@example.com", ort: "Kalletal" });
@@ -163,4 +165,56 @@ test("Formular-Häkchen: ab dem Tageslimit wird nur noch vorbereitet, nicht ver�
   const klick = await seiteSchalten("LL-FOR3", "oeffentlich", "admin@example.com");
   assert.equal(klick.ok, true, klick.meldung);
   assert.ok(oeffentlich().angebote.some((a) => a.code === "LF-5003"));
+});
+
+test("Schalter: fehlen Eckdaten, liefert er das Formular mit Vorschlag — ergänzt, geht es sofort online", async () => {
+  await anfrage("LL-ANG1", { intent: "Fläche gesucht (Kauf)", name: "Rita Suchend", email: "rita@example.com", ort: "—", groesse: "—" });
+  // Einwilligung liegt vor, aber kein Suchraum: Der Schalter fragt nach, schreibt nichts.
+  await store.mutateZustand("test", (z) => {
+    z.anfragen["LL-ANG1"] = { suche: { code: "LS-6001", typ: "Ackerland", groesseHa: null, lage: "", text: "", einwilligung: { am: "2026-10-12", quelle: "telefonisch", von: "admin@example.com" }, online: false } };
+    return { was: "Test", ref: "LL-ANG1" };
+  });
+  const probe = await seiteSchalten("LL-ANG1", "oeffentlich", "admin@example.com");
+  assert.equal(probe.ok, false);
+  assert.equal(probe.formular?.einwilligungNoetig, false);
+  assert.match((probe.formular?.luecken ?? []).join(" "), /Suchraum/);
+  assert.ok(!oeffentlich().gesuche.some((g) => g.code === "LS-6001"));
+
+  // Eine verräterische Lage wird abgelehnt — auch direkt im Formular.
+  const falsch = await seiteSchalten("LL-ANG1", "oeffentlich", "admin@example.com", { angaben: { lage: "Musterstraße 5, Lemgo" } });
+  assert.equal(falsch.ok, false);
+  assert.ok(falsch.formular?.luecken.length);
+  assert.ok(!oeffentlich().gesuche.some((g) => g.code === "LS-6001"));
+
+  // Mit Eckdaten ergänzt: sofort öffentlich, Größe gerundet, kein Name.
+  const gut = await seiteSchalten("LL-ANG1", "oeffentlich", "admin@example.com", { angaben: { typ: "Wiese / Grünland", groesseHa: 7.3, lage: "Raum Lemgo" } });
+  assert.equal(gut.ok, true, gut.meldung);
+  const e = oeffentlich().gesuche.find((g) => g.code === "LS-6001");
+  assert.ok(e);
+  assert.deepEqual([e.lage, (e as unknown as { typ: string }).typ, (e as unknown as { groesseHa: number }).groesseHa], ["Raum Lemgo", "Wiese / Grünland", 7]);
+  assert.ok(!readFileSync(path.join(DIR, BOERSE_PFAD), "utf8").includes("Suchend"));
+});
+
+test("Sammel-Schalter: veröffentlicht die Bereiten, überspringt Unvollständige und ohne Einwilligung, mit Quelle auch ohne Einwilligung", async () => {
+  const einw = { am: "2026-10-12", quelle: "telefonisch", von: "admin@example.com" };
+  await anfrage("LL-SAM1", { name: "Sam Eins", email: "sam1@example.com" });
+  await anfrage("LL-SAM2", { name: "Sam Zwei", email: "sam2@example.com" });
+  await anfrage("LL-SAM3", { name: "Sam Drei", email: "sam3@example.com" });
+  await lageSetzen("LL-SAM1", "boerse", "Raum Blomberg", { code: "LF-7001", einwilligung: einw });
+  await lageSetzen("LL-SAM2", "boerse", "Raum Schieder", { code: "LF-7002" }); // keine Einwilligung
+  await lageSetzen("LL-SAM3", "boerse", "", { code: "LF-7003", einwilligung: einw }); // keine Lage
+
+  const ohneQuelle = await seiteSchaltenViele(["LL-SAM1", "LL-SAM2", "LL-SAM3"], "admin@example.com");
+  assert.deepEqual(ohneQuelle.map((r) => [r.id, r.ok]), [["LL-SAM1", true], ["LL-SAM2", false], ["LL-SAM3", false]]);
+  let codes = oeffentlich().angebote.map((a) => a.code);
+  assert.ok(codes.includes("LF-7001") && !codes.includes("LF-7002") && !codes.includes("LF-7003"));
+  const { zustand } = await store.readZustand();
+  assert.equal(zustand.anfragen["LL-SAM2"].boerse?.einwilligung, null, "ohne Angabe wird keine Einwilligung erfunden");
+
+  // Mit Quelle: SAM2 bekommt die Einwilligung erfasst und geht online; SAM3 bleibt wegen der fehlenden Lage draußen.
+  const mitQuelle = await seiteSchaltenViele(["LL-SAM2", "LL-SAM3"], "admin@example.com", { quelle: "per E-Mail" });
+  assert.deepEqual(mitQuelle.map((r) => [r.id, r.ok]), [["LL-SAM2", true], ["LL-SAM3", false]]);
+  codes = oeffentlich().angebote.map((a) => a.code);
+  assert.ok(codes.includes("LF-7002") && !codes.includes("LF-7003"));
+  assert.equal((await store.readZustand()).zustand.anfragen["LL-SAM2"].boerse?.einwilligung?.quelle, "per E-Mail");
 });
