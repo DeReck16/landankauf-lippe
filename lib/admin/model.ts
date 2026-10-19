@@ -90,7 +90,7 @@ export type LeadMeta = {
    * bei Bedarf an den Partnermakler übergibt. Nur mit bestätigtem Einverständnis des Eigentümers; `triId` ist die
    * Vorgangsnummer dort (TRI-…).
    */
-  triUebergabe?: { am: string; von: string; triId: string; einverstaendnis: { am: string; von: string } };
+  triUebergabe?: { am: string; von: string; triId: string; einverstaendnis: { am: string; von: string; wie?: string } };
 };
 
 /** Gehört das Angebot dem Geschäftsführer bzw. seiner Familie (eigene Fläche, ohne Provision)? */

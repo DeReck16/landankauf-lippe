@@ -3,6 +3,7 @@ import { testModus } from "@/lib/admin/config";
 import { leadView } from "@/lib/admin/model";
 import { triPayload } from "@/lib/portal/tri-payload";
 import { leadLesen, mutateZustand, readZustand } from "@/lib/admin/store";
+import { ladeKunde } from "@/lib/portal/speicher";
 
 /**
  * Fläche von Hand an die Verwaltung von TR Immobilien (tr-immobilien.com/admin) weitergeben, damit sie von dort
@@ -31,7 +32,8 @@ export function triVorgangUrl(triId: string): string {
   return `${TRI_URL}/admin/lead/${encodeURIComponent(triId)}`;
 }
 
-export async function anTriUebergeben(id: string, von: string, einverstanden: boolean): Promise<UebergabeErgebnis> {
+/** Wie das Einverständnis eingeholt wurde (freiwillig, z. B. „Telefonat 19.10.“) — geht mit und steht am Vorgang. */
+export async function anTriUebergeben(id: string, von: string, einverstanden: boolean, wie = ""): Promise<UebergabeErgebnis> {
   if (!einverstanden) return { ok: false, grund: "Ohne das Einverständnis des Eigentümers wird nichts weitergegeben — bitte das Häkchen setzen." };
   if (!/^LL-[A-Z0-9]+$/.test(id)) return { ok: false, grund: "Ungültige Anfrage-ID." };
 
@@ -44,8 +46,20 @@ export async function anTriUebergeben(id: string, von: string, einverstanden: bo
   if (meta?.loeschwunsch && !meta.loeschwunsch.erledigtAm) return { ok: false, grund: "Zu dieser Anfrage liegt ein Löschwunsch vor — nichts weitergegeben." };
   if (meta?.triUebergabe) return { ok: false, grund: `Schon an TR Immobilien übergeben (${meta.triUebergabe.triId}).` };
 
+  // Klare Signale des Eigentümers gegen eine Weitergabe — das Häkchen ersetzt sie nicht.
+  const kunde = await ladeKunde(id);
+  const gruende: [unknown, string][] = [
+    [meta?.rueckmeldung?.art === "kein-interesse", "Der Eigentümer hat „kein Interesse“ gemeldet"],
+    [meta?.boerse?.widerrufenAm, "Der Eigentümer hat seine Einwilligung in die Veröffentlichung widerrufen"],
+    [kunde?.widerruf, "Der Eigentümer hat die Vereinbarung widerrufen"],
+    [kunde?.kuendigung, "Der Eigentümer hat die Vereinbarung gekündigt"],
+    [kunde?.gesperrt, "Der Zugang des Eigentümers ist gesperrt"],
+  ];
+  const dagegen = gruende.find(([bedingung]) => bedingung)?.[1];
+  if (dagegen) return { ok: false, grund: `${dagegen} — nichts weitergegeben. Hat er sich inzwischen anders entschieden, bitte erst den Stand der Anfrage klären.` };
+
   const am = new Date().toISOString();
-  const payload = triPayload(l, meta, am, von);
+  const payload = triPayload(l, meta, am, von, wie.trim().slice(0, 200));
 
   let triId: string;
   let test = false;
@@ -83,7 +97,7 @@ export async function anTriUebergeben(id: string, von: string, einverstanden: bo
 
   await mutateZustand(von, (z) => {
     const m = { ...(z.anfragen[id] ?? {}) };
-    m.triUebergabe = { am, von, triId, einverstaendnis: { am, von } };
+    m.triUebergabe = { am, von, triId, einverstaendnis: { am, von, ...(wie.trim() ? { wie: wie.trim().slice(0, 200) } : {}) } };
     m.geaendert = { am, von };
     z.anfragen[id] = m;
     return { was: `An TR Immobilien übergeben → ${triId} (Einverständnis des Eigentümers bestätigt${test ? ", Testmodus: nichts gesendet" : ""})`, ref: id };

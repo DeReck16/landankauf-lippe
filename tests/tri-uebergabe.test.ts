@@ -51,6 +51,13 @@ test("Übergabe an TR Immobilien: Kontakt, Fläche, Kataster und Einverständnis
   assert.doesNotMatch(JSON.stringify(p), /INTERN|30 T€/, "interne Notizen gehen nie mit");
 });
 
+test("Übergabe an TR Immobilien: „Wie eingeholt?“ geht nur mit, wenn ausgefüllt", () => {
+  const mit = triPayload(leadView(LEAD, undefined), undefined, "2026-10-19T08:00:00.000Z", "admin@example.org", "Telefonat 19.10.");
+  assert.deepEqual(mit.einverstaendnis, { am: "2026-10-19T08:00:00.000Z", von: "admin@example.org", wie: "Telefonat 19.10." });
+  const ohne = triPayload(leadView(LEAD, undefined), undefined, "2026-10-19T08:00:00.000Z", "admin@example.org");
+  assert.equal("wie" in ohne.einverstaendnis, false);
+});
+
 test("Übergabe an TR Immobilien: ohne Kataster-Daten kein Kataster-Block", () => {
   const p = triPayload(leadView(LEAD, undefined), undefined, "2026-10-19T08:00:00.000Z", "admin@example.org");
   assert.equal(p.kataster, undefined);

@@ -4,7 +4,7 @@ import type { LeadMeta, LeadView } from "@/lib/admin/model";
  * Was bei der Übergabe einer Fläche an die Verwaltung von TR Immobilien mitgeht (reine Funktion, ohne Speicher —
  * Gegenstück: `leadAusLippeForst` in tr-immobilien.com). Nie dabei: interne Notizen, Verlauf, Verträge, Börsen-Texte.
  */
-export function triPayload(l: LeadView, meta: LeadMeta | undefined, am: string, von: string) {
+export function triPayload(l: LeadView, meta: LeadMeta | undefined, am: string, von: string, wie = "") {
   const k = meta?.kataster;
   const echt = (v: string) => (v !== "—" ? v : "");
   return {
@@ -36,6 +36,6 @@ export function triPayload(l: LeadView, meta: LeadMeta | undefined, am: string, 
           brwStichtag: k.brw?.stichtag,
         }
       : undefined,
-    einverstaendnis: { am, von },
+    einverstaendnis: { am, von, ...(wie ? { wie } : {}) },
   };
 }

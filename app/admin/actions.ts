@@ -255,7 +255,7 @@ export async function triUebergabeFormular(formData: FormData): Promise<void> {
   const { email } = await requireAdmin();
   const id = text(formData, "id", 40);
   if (!/^LL-[A-Z0-9]+$/.test(id)) throw new Error("Ungültige Anfrage-ID");
-  const r = await anTriUebergeben(id, email, formData.get("einverstanden") === "ja");
+  const r = await anTriUebergeben(id, email, formData.get("einverstanden") === "ja", text(formData, "wie", 200));
   revalidatePath("/admin", "layout");
   menueErneuern();
   const m = r.ok

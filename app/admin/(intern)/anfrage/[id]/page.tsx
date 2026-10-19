@@ -600,7 +600,8 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
                   </a>
                   .
                   <div className="lfa-klein" style={{ marginTop: "0.3rem" }}>
-                    Einverständnis des Eigentümers bestätigt am {datumZeit(l.meta.triUebergabe.einverstaendnis.am)} von {l.meta.triUebergabe.einverstaendnis.von}. Weiter geht es dort: Knopf „An KurtInvest übergeben“.
+                    Einverständnis des Eigentümers bestätigt am {datumZeit(l.meta.triUebergabe.einverstaendnis.am)} von {l.meta.triUebergabe.einverstaendnis.von}
+                    {l.meta.triUebergabe.einverstaendnis.wie ? ` (${l.meta.triUebergabe.einverstaendnis.wie})` : ""}. Weiter geht es dort: Knopf „An KurtInvest übergeben“.
                     Löschen Sie diese Anfrage endgültig, den Vorgang bei TR Immobilien bitte ebenfalls löschen.
                   </div>
                 </div>
@@ -622,6 +623,13 @@ export default async function AnfragePage(props: PageProps<"/admin/anfrage/[id]"
                     <input type="checkbox" name="einverstanden" value="ja" required style={{ marginTop: "0.2rem" }} />
                     <span>Der Eigentümer ist mit der Weitergabe seiner Angaben an TR Immobilien und deren Partnermakler (derzeit KurtInvest, Bielefeld) einverstanden.</span>
                   </label>
+                  <input
+                    name="wie"
+                    className="field-input"
+                    maxLength={200}
+                    placeholder="Wie eingeholt? (optional), z. B. Telefonat 19.10."
+                    title="Freiwillig: wann und wie der Eigentümer zugestimmt hat. Geht mit an TR Immobilien und steht dort am Vorgang."
+                  />
                   <div className="lfa-knopfreihe">
                     <BestaetigenKnopf
                       className="lfa-knopf"

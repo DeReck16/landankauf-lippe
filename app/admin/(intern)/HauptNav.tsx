@@ -30,6 +30,7 @@ export default function HauptNav({ z }: { z: NavZahlen }) {
   const pathname = usePathname();
   const dashboardAktiv = pathname.startsWith("/admin/dashboard");
   const anfragenAktiv = pathname === "/admin" || pathname.startsWith("/admin/anfrage/");
+  const kundenAktiv = pathname.startsWith("/admin/kunden");
   const matchingAktiv = pathname.startsWith("/admin/matching");
   const vorgaengeAktiv = pathname.startsWith("/admin/vorgaenge") || pathname.startsWith("/admin/vorgang/");
   const vorlagenAktiv = pathname.startsWith("/admin/vorlagen");
@@ -50,6 +51,13 @@ export default function HauptNav({ z }: { z: NavZahlen }) {
       <Link href="/admin" aria-current={anfragenAktiv ? "page" : undefined} title="Alle Anfragen aus dem Formular auf lippeforst.de, neueste zuerst">
         Anfragen
         <Zaehler n={z.neueAnfragen} puls tipp={`${z.neueAnfragen} neue Anfragen, noch nicht geöffnet`} />
+      </Link>
+      <Link
+        href="/admin/kunden"
+        aria-current={kundenAktiv ? "page" : undefined}
+        title="Alle Kunden mit Kontaktdaten, ihren Flächen und dem Stand im Kundenbereich — eine Zeile je Person, auch mit mehreren Anfragen"
+      >
+        Kunden
       </Link>
       <Link
         href="/admin/matching"
