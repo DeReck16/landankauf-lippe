@@ -20,6 +20,103 @@ export type Article = {
 
 export const ARTICLES: Article[] = [
   {
+    slug: "gruenland-ackerland-bodenpreise-2025-lippe",
+    title:
+      "Grünland wird 15 % teurer, Ackerland günstiger: Die neue Bodenpreis-Statistik 2025 zeigt zwei gegenläufige Märkte — was das für Eigentümer im Kreis Lippe bedeutet",
+    description:
+      "Die bundesweite Kaufwertestatistik für 2025 zeigt ein deutliches Auseinanderdriften: Ackerland wird im Schnitt 1,6 % günstiger, Grünland dagegen 15 % teurer. NRW bleibt mit rund 80.700 €/ha bundesweit das teuerste Agrarland — der Kreis Lippe liegt weit darunter. Was die neuen Zahlen für Eigentümer bedeuten.",
+    category: "Markt",
+    publishedAt: "2026-10-19",
+    readingMinutes: 8,
+    keywords: [
+      "Bodenpreise 2025 Deutschland",
+      "Grünlandpreise Anstieg 2025",
+      "Ackerlandpreis NRW 2025",
+      "Kaufwerte landwirtschaftliche Grundstücke",
+      "Flächenpreise Kreis Lippe",
+      "Grundstücksmarktbericht OWL",
+    ],
+    heroImage: "/blog-gruenland-ackerland-bodenpreise-2025.jpg",
+    faq: [
+      {
+        q: "Wie haben sich Acker- und Grünlandpreise 2025 bundesweit auseinanderentwickelt?",
+        a: "Nach Zahlen des Statistischen Bundesamts, ausgewertet vom Bundesverband gemeinnütziger Landgesellschaften (BLG), fiel der bundesweite Durchschnittspreis für Ackerland 2025 um 1,6 % auf 42.134 €/ha (2024: 42.800 €/ha) — vor allem bei Käufen ab 5 Hektar. Grünland bewegte sich entgegengesetzt: Der Preis stieg um rund 15 % auf 28.587 €/ha, ebenfalls getrieben von größeren Flächenkäufen. Insgesamt wechselten bundesweit 73.584 Hektar Agrarland den Eigentümer — 16,6 % mehr als 2024.",
+      },
+      {
+        q: "Warum wird Grünland plötzlich teurer, während Ackerland nachgibt?",
+        a: "Der BLG nennt als Grund für den Grünland-Anstieg die 2025 noch günstige wirtschaftliche Lage der Rinder- und Milchviehhalter — wer gut verdient, investiert in zusätzliche Weide- und Mähflächen. Beim Ackerland dämpfen dagegen hohe Zinsen, gestiegene Betriebsmittelkosten und unsichere Erzeugerpreise die Kauflaune bei größeren Flächen, die meist von expandierenden Ackerbaubetrieben erworben werden.",
+      },
+      {
+        q: "Bestätigt sich der Grünland-Trend auch im Kreis Lippe?",
+        a: "Ja. Nach dem Grundstücksmarktbericht des Gutachterausschusses für den Kreis Lippe und die Stadt Detmold sind die Grünlandpreise 2025 bei 24 Kauffällen auf 33,84 Hektar gestiegen, im Mittel auf rund 2,16 €/m² (21.600 €/ha). Beim Ackerland dagegen wertet der Gutachterausschuss das Preisniveau trotz eines niedrigeren Jahresdurchschnitts (rund 3,80 statt 5,26 €/m² in 2024) als konstant — der Rückgang im Schnitt geht auf die Zusammensetzung der verkauften Flächen zurück, nicht auf fallende Einzelpreise.",
+      },
+      {
+        q: "Warum ist NRW bundesweit das teuerste Agrarland, aber der Kreis Lippe trotzdem günstig?",
+        a: "NRW führt die Länderstatistik 2025 mit rund 80.732 €/ha an (IT.NRW) — getrieben vor allem vom Regierungsbezirk Münster mit über 120.000 €/ha, wo intensive Tierhaltung und Flächenknappheit aufeinandertreffen. Der Regierungsbezirk Detmold, zu dem der Kreis Lippe gehört, liegt mit rund 57.300 €/ha deutlich darunter, und die tatsächlichen Kreis-Lippe-Werte für Ackerland (38.000 bis 52.600 €/ha) nochmals darunter. Landesdurchschnitte sagen über eine einzelne Lipper Fläche also wenig aus.",
+      },
+      {
+        q: "Lohnt sich jetzt eher der Verkauf von Grünland oder von Ackerland?",
+        a: "Pauschal lässt sich das nicht beantworten, aber die Zahlen geben eine Richtung vor: Grünlandbesitzer treffen aktuell auf eine spürbar höhere Nachfrage als noch 2024 und damit auf einen günstigen Verkaufszeitpunkt. Ackerlandbesitzer sollten sich vom bundesweiten Minus nicht verunsichern lassen — im Kreis Lippe ist das Preisniveau laut Gutachterausschuss stabil, und die Nachfrage nach Flächen ist 2025 sogar gestiegen (+24 % Kauffälle). Eine kostenlose Wertindikation zeigt, was für die konkrete Fläche realistisch ist.",
+      },
+    ],
+    content: `
+<p class="lead">Zwei Flächenarten, zwei Richtungen: Während Ackerland bundesweit 2025 im Schnitt 1,6 % günstiger wurde, zog Grünland um rund 15 % an — die stärkste Bewegung seit Jahren. Die neue Kaufwertestatistik, ausgewertet vom Bundesverband gemeinnütziger Landgesellschaften (BLG) auf Basis amtlicher Zahlen des Statistischen Bundesamts, zeigt damit einen Bodenmarkt, der sich nicht mehr einheitlich entwickelt. Was hinter dem Auseinanderdriften steckt, wo der Kreis Lippe gegenüber dem NRW-Spitzenwert steht, und was der eigene Gutachterausschuss für Lippe meldet.</p>
+
+<figure>
+<img src="/blog-gruenland-ackerland-bodenpreise-2025.jpg" alt="Grüne Weide mit grasenden Rindern im Vordergrund, abgeerntetes Ackerland und bewaldete Hügel des Lipper Berglands im Herbstlicht" width="1600" height="1066" style="width:100%;height:auto;border-radius:14px" loading="lazy" />
+<figcaption>Zwei Flächenarten, zwei Preisrichtungen: Grünland (vorne) wurde 2025 bundesweit spürbar teurer, Ackerland (hinten) günstiger — die Landschaft des Lipper Berglands zeigt beides nebeneinander.</figcaption>
+</figure>
+
+<h2>Die Zahlen bundesweit: zwei Märkte, zwei Richtungen</h2>
+<p>Die amtliche Kaufwertestatistik für das Berichtsjahr 2025 im Überblick:</p>
+<ul>
+<li><strong>Agrarland insgesamt:</strong> bundesweit rund 35.000 €/ha im Mittel — etwa 300 € bzw. 0,9 % weniger als 2024.</li>
+<li><strong>Ackerland:</strong> 42.134 €/ha (2024: 42.800 €/ha), ein Minus von 1,6 %. Der Rückgang betrifft laut BLG vor allem Flächenkäufe ab 5 Hektar.</li>
+<li><strong>Grünland:</strong> 28.587 €/ha, ein Plus von rund 15 % gegenüber dem Vorjahr — ebenfalls vor allem bei größeren Flächen ab 5 Hektar.</li>
+<li><strong>Verkaufte Fläche:</strong> bundesweit 73.584 Hektar wechselten 2025 den Eigentümer, 16,6 % bzw. rund 10.500 Hektar mehr als 2024 — damit kamen rechnerisch etwa 4 Promille der deutschen Agrarfläche neu auf den Markt. West (37.467 ha, +17,8 %, v. a. Niedersachsen und Bayern) und Ost (36.116 ha, +15,3 %, v. a. Brandenburg und Sachsen-Anhalt) legten beide zu.</li>
+</ul>
+<p>Bei den Bundesländern führt Nordrhein-Westfalen die Rangliste weiterhin an: 80.732 €/ha im Landesschnitt, vor Bayern (78.170 €/ha) und mit deutlichem Abstand Schleswig-Holstein (39.187 €/ha). Im Osten liegt Mecklenburg-Vorpommern mit 24.176 €/ha vorn.</p>
+
+<h2>Warum Ackerland und Grünland auseinanderlaufen</h2>
+<p>Der BLG führt den Grünland-Anstieg vor allem auf die 2025 noch günstige wirtschaftliche Lage der Rinder- und Milchviehhalter zurück: Wer gut verdient, sichert sich zusätzliche Weide- und Mähflächen — und zahlt dafür spürbar mehr als noch 2024. Beim Ackerland wirkt das Gegenteil: hohe Zinsen, gestiegene Betriebsmittelkosten und unsichere Erzeugerpreise bremsen vor allem größere Flächenkäufe, die meist von expandierenden Ackerbaubetrieben getätigt werden. Das knappe Angebot an beiden Flächenarten bleibt bestehen — aber die Nachfrage verschiebt sich zwischen den Nutzungsarten.</p>
+
+<h2>NRW bleibt bundesweit Spitzenreiter — die Lage macht den Unterschied</h2>
+<p>Dass Nordrhein-Westfalen mit rund 80.732 €/ha bundesweit am teuersten ist, wird von der amtlichen Statistik von <a href="https://statistik.nrw/wirtschaft-und-umwelt/preise/bodenmarkt/kaufwerte-fuer-landwirtschaftliche-grundstuecke" target="_blank" rel="noopener">IT.NRW</a> bestätigt (Pressemitteilung vom 21.08.2026) — nach 81.953 € (2024) und 87.240 € (2023), also zwei Jahre in Folge leicht rückläufig, bei gleichzeitig 28,6 % mehr Kauffällen. Der Landesschnitt verdeckt aber eine enorme regionale Spanne:</p>
+<ul>
+<li><strong>Regierungsbezirk Münster:</strong> rund 121.500 €/ha — hier treffen intensive Tierhaltung und Flächenknappheit aufeinander.</li>
+<li><strong>Regierungsbezirk Düsseldorf:</strong> rund 102.800 €/ha.</li>
+<li><strong>NRW gesamt:</strong> rund 80.700 €/ha.</li>
+<li><strong>Regierungsbezirk Köln:</strong> rund 74.400 €/ha.</li>
+<li><strong>Regierungsbezirk Detmold (Ostwestfalen-Lippe):</strong> rund 57.300 €/ha — deutlich unter dem Landesschnitt.</li>
+<li><strong>Regierungsbezirk Arnsberg:</strong> rund 45.200 €/ha.</li>
+</ul>
+<p>Wer im Kreis Lippe eine Fläche besitzt und die Schlagzeile „NRW teuerstes Agrarland Deutschlands" liest, sollte sich davon also nicht blenden lassen — die eigene Lage im Regierungsbezirk Detmold liegt gut 30 Prozent unter dem Landesmittel. Eine ausführliche Aufschlüsselung nach Regierungsbezirk und Bonität führen wir im Ratgeber <a href="/ratgeber/ackerland-preis-nrw">Was kostet 1 Hektar Ackerland in NRW?</a>.</p>
+
+<h2>Was der Gutachterausschuss für den Kreis Lippe meldet</h2>
+<p>Noch genauer wird es mit den Zahlen des Gutachterausschusses für Grundstückswerte im Kreis Lippe und in der Stadt Detmold, die wir laufend in unsere Wertindikation einpflegen:</p>
+<ul>
+<li><strong>Ackerland:</strong> 2024 im Mittel rund 5,26 €/m² (52.600 €/ha), 2025 rechnerisch rund 3,80 €/m² (38.000 €/ha) — der Gutachterausschuss wertet das Preis<em>niveau</em> trotzdem als konstant; der niedrigere Jahresdurchschnitt kommt aus der Zusammensetzung der verkauften Flächen, nicht aus fallenden Einzelpreisen.</li>
+<li><strong>Grünland:</strong> 2025 bei 24 Kauffällen auf 33,84 Hektar im Mittel rund 2,16 €/m² (21.600 €/ha) — und damit laut Gutachterausschuss gestiegen. Das deckt sich mit dem bundesweiten Grünland-Plus von 15 %.</li>
+<li><strong>Wald</strong> (inklusive Aufwuchs): 2025 bei 28 Kauffällen auf 45 Hektar im Mittel rund 1,53 €/m² (15.300 €/ha).</li>
+<li><strong>Handelsvolumen insgesamt:</strong> Die Zahl der land- und forstwirtschaftlichen Kauffälle im Kreis Lippe stieg 2025 um weitere 24 % — nach einem bereits kräftigen Zuwachs 2024.</li>
+</ul>
+<p>Mehr zu den Lipper Kaufwerten und speziell zu den fast verdoppelten Waldverkäufen 2025 in unserem Beitrag <a href="/blog/bodenmarkt-lippe-nrw-2025-kaufwerte-gefallen">Bodenmarkt NRW und Lippe: Kaufwerte gefallen — Waldverkäufe fast verdoppelt</a>; amtliche Bodenrichtwerte je Gemeinde stehen im Ratgeber <a href="/ratgeber/bodenrichtwerte-lippe">Bodenrichtwerte Kreis Lippe</a>.</p>
+
+<h2>Was das für Eigentümer in Lippe bedeutet</h2>
+<ul>
+<li><strong>Grünlandbesitzer:</strong> Die Nachfrage ist spürbar höher als noch 2024, lokal wie bundesweit. Wer über einen Verkauf nachdenkt, trifft aktuell auf einen günstigen Zeitpunkt — insbesondere für Flächen, die sich an Rinder- oder Milchviehhalter in der Nähe vermitteln lassen.</li>
+<li><strong>Ackerlandbesitzer:</strong> Vom bundesweiten Minus sollte sich niemand verunsichern lassen. Im Kreis Lippe bleibt das Preisniveau laut Gutachterausschuss stabil, und die Zahl der Käufer wächst weiter — ein ruhiger, aber aktiver Markt.</li>
+<li><strong>Gemischte Flächen (Acker, Grünland, Wald):</strong> Getrennt bewerten lassen statt pauschal — die drei Nutzungsarten entwickeln sich gerade unterschiedlich genug, dass ein Gesamtpreis pro Hektar wenig aussagt.</li>
+<li><strong>Verkauf oder Verpachtung:</strong> Wem ein Verkauf zu früh ist, für den kann eine Verpachtung die Zwischenlösung sein — Pachtpreise und Vertragsgestaltung für Ackerland in NRW erklären wir im Ratgeber <a href="/ratgeber/pachtpreise-ackerland-nrw">Pachtpreise Ackerland NRW</a>.</li>
+</ul>
+
+<h2>Was wir konkret tun</h2>
+<p>Lippe Forst kauft und vermittelt Ackerland, Wiesen und Wald im Kreis Lippe und Umland — mit einer kostenlosen, unverbindlichen Wertindikation auf Basis der aktuellen Gutachterausschuss- und Bodenrichtwert-Zahlen für Ihre konkrete Lage, nicht nur nach Landes- oder Kreisdurchschnitt. Je nach Fläche: <a href="/ackerland-verkaufen">Ackerland verkaufen</a>, <a href="/wiese-verkaufen">Wiese verkaufen</a> oder <a href="/wald-verkaufen">Wald verkaufen</a> — oder direkt <a href="/flaeche-bewerten">kostenlos bewerten lassen</a> bzw. über das <a href="/kontakt">Kontaktformular</a>.</p>
+
+<p class="text-sm text-stone-500"><em>Stand: 19. Oktober 2026. Quellen: Bundesverband gemeinnütziger Landgesellschaften (BLG) auf Basis von Zahlen des Statistischen Bundesamts (Destatis), Berichtsjahr 2025 (Meldung vom 16. September 2026, Agra Europe/AgE); IT.NRW, Kaufwerte für landwirtschaftliche Grundstücke 2025 (Pressemitteilung vom 21. August 2026); Grundstücksmarktberichte 2025 und 2026 des Gutachterausschusses für Grundstückswerte im Kreis Lippe und in der Stadt Detmold. Dieser Beitrag ersetzt keine individuelle Wertermittlung für Ihre Fläche.</em></p>
+`,
+  },
+  {
     slug: "holzpreise-oktober-2026-fichte-trendwende-lippe",
     title:
       "Holzpreise drehen: Warum Fichtenholz im Oktober 2026 erstmals seit dem Rekordhoch wieder günstiger wird — und was das für Waldbesitzer in Lippe bedeutet",
