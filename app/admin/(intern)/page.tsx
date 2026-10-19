@@ -7,8 +7,11 @@ import { LEAD_STATUS, formatGroesse, type LeadStatus, type LeadView } from "@/li
 import { FLAECHENTYPEN } from "@/lib/lead-options";
 import { ROLLE_LABEL, ROLLE_TIPP, artLabel, datumZeit } from "@/lib/admin/format";
 import { ladeNeu, ladePortal } from "@/lib/admin/neu";
-import { STUFE_INFO, stufe } from "@/lib/portal/model";
+import { kontoStandFuer, seitenStand, type Anzeige } from "@/lib/admin/online-stand";
+import { ANLIEGEN, passtZumAnliegen, passtZumStand } from "@/lib/admin/ueberblick";
+import { sperrGrund } from "@/lib/boerse";
 import StatusSchnell from "./StatusSchnell";
+import StandBadge from "./StandBadge";
 import AlleFreigeben from "./AlleFreigeben";
 import { Meldung } from "./teile";
 
@@ -32,6 +35,8 @@ export default async function AnfragenPage(props: PageProps<"/admin">) {
   const status = typeof sp.status === "string" ? sp.status : "offen";
   const rolle = typeof sp.rolle === "string" ? sp.rolle : "alle";
   const typ = typeof sp.typ === "string" ? sp.typ : "alle";
+  const konto = typeof sp.konto === "string" ? sp.konto : "alle";
+  const seite = typeof sp.seite === "string" ? sp.seite : "alle";
 
   const [{ leads, zustand }, portal, neu] = await Promise.all([ladeVerwaltung(), ladePortal(), ladeNeu(email)]);
   const { kandidaten } = findeKandidaten(leads, zustand);
@@ -41,10 +46,18 @@ export default async function AnfragenPage(props: PageProps<"/admin">) {
     for (const id of [k.angebot.id, k.gesuch.id]) matchesJeAnfrage.set(id, (matchesJeAnfrage.get(id) ?? 0) + 1);
   }
 
+  const alleVorgaenge = [...portal.vorgaenge.values()];
+  // Konto- und Seitenstand je Anfrage einmal ableiten — für Filter und Spalten.
+  const staende = new Map<string, { konto: Anzeige; seite: Anzeige }>(
+    leads.map((l) => [l.id, { konto: kontoStandFuer(l, portal.kunden.get(l.id), portal.kunden), seite: seitenStand(l, sperrGrund(l.id, portal.kunden, alleVorgaenge)) }]),
+  );
+
   const sichtbar = leads.filter((l) => {
-    if (status === "offen" ? l.status === "archiv" : status !== "alle" && l.status !== status) return false;
-    if (rolle !== "alle" && l.rolle !== rolle) return false;
+    if (status === "offen" ? l.status === "archiv" : status === "laufend" ? l.status === "archiv" || l.status === "erledigt" : status !== "alle" && l.status !== status) return false;
+    if (!passtZumAnliegen(l, rolle)) return false;
     if (typ !== "alle" && l.typ !== typ) return false;
+    const st = staende.get(l.id)!;
+    if (!passtZumStand(st.konto, konto) || !passtZumStand(st.seite, seite)) return false;
     return !q || passtZurSuche(l, q);
   });
 
@@ -90,8 +103,9 @@ export default async function AnfragenPage(props: PageProps<"/admin">) {
         </label>
         <label>
           Status
-          <select name="status" defaultValue={status} className="field-select" title="Nach Bearbeitungsstand filtern. „Offen“ blendet nur das Archiv aus.">
+          <select name="status" defaultValue={status} className="field-select" title="Nach Bearbeitungsstand filtern. „Alle außer Archiv“ blendet nur das Archiv aus, „Laufend“ zusätzlich die Erledigten.">
             <option value="offen">Alle außer Archiv</option>
+            <option value="laufend">Laufend (ohne Erledigte)</option>
             <option value="alle">Alle inkl. Archiv</option>
             {(Object.keys(LEAD_STATUS) as LeadStatus[]).map((s) => (
               <option key={s} value={s}>{LEAD_STATUS[s].label}</option>
@@ -99,12 +113,24 @@ export default async function AnfragenPage(props: PageProps<"/admin">) {
           </select>
         </label>
         <label>
-          Art
-          <select name="rolle" defaultValue={rolle} className="field-select" title="Angebote (Fläche wird angeboten), Gesuche (Fläche wird gesucht) oder sonstige Anliegen">
+          Anliegen
+          <select name="rolle" defaultValue={rolle} className="field-select" title="Was der Lead will: Fläche verkaufen oder verpachten, eine Fläche suchen (Kauf oder Pacht) oder eine Auskunft">
             <option value="alle">Alle</option>
-            <option value="angebot">Angebote</option>
-            <option value="gesuch">Gesuche</option>
-            <option value="keine">Sonstige</option>
+            <option value="angebot">Alle Angebote</option>
+            {ANLIEGEN.filter((a) => a.schluessel.startsWith("angebot:")).map((a) => (
+              <option key={a.schluessel} value={a.schluessel}>
+                {"\u2003"}
+                {a.label}
+              </option>
+            ))}
+            <option value="gesuch">Alle Gesuche</option>
+            {ANLIEGEN.filter((a) => a.schluessel.startsWith("gesuch:")).map((a) => (
+              <option key={a.schluessel} value={a.schluessel}>
+                {"\u2003"}
+                {a.label}
+              </option>
+            ))}
+            <option value="keine">Auskunft / Sonstige</option>
           </select>
         </label>
         <label>
@@ -114,6 +140,30 @@ export default async function AnfragenPage(props: PageProps<"/admin">) {
             {FLAECHENTYPEN.map((t) => (
               <option key={t} value={t}>{t}</option>
             ))}
+          </select>
+        </label>
+        <label>
+          Konto
+          <select name="konto" defaultValue={konto} className="field-select" title="Stand im Kundenbereich: nicht eingeladen, eingeladen, angemeldet oder onboarded (Vereinbarung unterschrieben)">
+            <option value="alle">Alle</option>
+            <option value="nicht">Nicht eingeladen</option>
+            <option value="eingeladen">Eingeladen</option>
+            <option value="angemeldet">Angemeldet</option>
+            <option value="onboarded">Onboarded</option>
+            <option value="aus">Ausgestiegen</option>
+          </select>
+        </label>
+        <label>
+          Auf der Seite
+          <select name="seite" defaultValue={seite} className="field-select" title="Ob die Fläche auf lippeforst.de steht: online, bereit zum Veröffentlichen, ohne Einwilligung oder offline">
+            <option value="alle">Alle</option>
+            <option value="online">Online</option>
+            <option value="bereit">Bereit — Klick fehlt</option>
+            <option value="angaben">Angaben fehlen</option>
+            <option value="nicht">Ohne Einwilligung</option>
+            <option value="offline">Offline</option>
+            <option value="direkt">Direktankauf</option>
+            <option value="unsichtbar">Prüfen</option>
           </select>
         </label>
         <button type="submit" className="lfa-knopf" title="Liste mit diesen Filtern neu laden">Filtern</button>
@@ -132,6 +182,8 @@ export default async function AnfragenPage(props: PageProps<"/admin">) {
               <th title="Ort bzw. Suchregion, wie im Formular angegeben (oder in der Anfrage fürs Matching korrigiert)">Ort</th>
               <th title="Name öffnet die Anfrage; E-Mail und Telefon starten direkt Mail bzw. Anruf">Kontakt</th>
               <th title="Anzahl passender Gegenstücke im Matching (ohne verworfene)">Matches</th>
+              <th title="Stand im Kundenbereich: nicht eingeladen → eingeladen → angemeldet → onboarded (Vereinbarung unterschrieben)">Konto</th>
+              <th title="Steht die Fläche auf lippeforst.de? Angebote erscheinen anonym in der Flächenbörse, Gesuche werden nur intern abgeglichen">Auf der Seite</th>
               <th title="Bearbeitungsstand — Auswahl speichert sofort">Status</th>
             </tr>
           </thead>
@@ -177,11 +229,6 @@ export default async function AnfragenPage(props: PageProps<"/admin">) {
                       {(istNeu || neuEreignisse.length > 0) && <span className="lfa-puls" title={istNeu ? "Neue Anfrage — noch nicht geöffnet" : `${neuEreignisse.length} neue Ereignisse im Kundenbereich`} />}
                       {l.name}
                     </Link>
-                    {kunde && (
-                      <div>
-                        <span className="lfa-badge lfa-badge-keine" title={STUFE_INFO[stufe(kunde)].tipp}>Onboarding: {STUFE_INFO[stufe(kunde)].label}</span>
-                      </div>
-                    )}
                     {neuEreignisse.length > 0 && <div className="lfa-neu-text">{neuEreignisse[0].text}</div>}
                     {l.email !== "—" && (
                       <div>
@@ -202,6 +249,12 @@ export default async function AnfragenPage(props: PageProps<"/admin">) {
                     ) : (
                       <span className="lfa-klein" title={l.rolle === "keine" ? "Nimmt nicht am Matching teil" : "Noch kein passendes Gegenstück"}>—</span>
                     )}
+                  </td>
+                  <td data-label="Konto">
+                    <StandBadge a={staende.get(l.id)!.konto} />
+                  </td>
+                  <td data-label="Auf der Seite">
+                    <StandBadge a={staende.get(l.id)!.seite} />
                   </td>
                   <td data-label="Status">
                     <StatusSchnell id={l.id} status={l.status} />

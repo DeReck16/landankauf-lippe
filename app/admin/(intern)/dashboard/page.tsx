@@ -4,6 +4,11 @@ import { testModus } from "@/lib/admin/config";
 import { requireAdmin } from "@/lib/admin/session";
 import { formatGroesse, type LeadView } from "@/lib/admin/model";
 import { artLabel, datum, datumZeit } from "@/lib/admin/format";
+import { ladeVerwaltung } from "@/lib/admin/daten";
+import { findeKandidaten } from "@/lib/admin/matching";
+import { ladeNeu, ladePortal } from "@/lib/admin/neu";
+import { ueberblick } from "@/lib/admin/ueberblick";
+import { sperrGrund } from "@/lib/boerse";
 import type { NachfassKandidat } from "@/lib/portal/anfrage-typen";
 import { aufgabenAus, faelligeErinnerung, hauptAktion, sammelEinladungen, type Aufgabe } from "@/lib/portal/aufgaben";
 import { seitText } from "@/lib/portal/assistent-typen";
@@ -31,6 +36,7 @@ import AnfrageAktionen from "./AnfrageAktionen";
 import AntwortKompakt from "./AntwortKompakt";
 import { AbschnittErgebnis, AufklappenBeiErgebnis, EinKlick } from "./EinKlick";
 import Nachfassen from "./Nachfassen";
+import Ueberblick from "./Ueberblick";
 import PostfachAktionen from "./PostfachAktionen";
 import SammelKnopf from "./SammelKnopf";
 
@@ -564,7 +570,9 @@ function NachfassenAbschnitt({ liste, tage, test }: { liste: NachfassKandidat[];
 export default async function DashboardPage(props: PageProps<"/admin/dashboard">) {
   const { email } = await requireAdmin();
   const sp = await props.searchParams;
-  const d = await ladeDashboard(email);
+  const [d, { leads, zustand }, portal, neu] = await Promise.all([ladeDashboard(email), ladeVerwaltung(), ladePortal(), ladeNeu(email)]);
+  const vorgaengeAlle = [...portal.vorgaenge.values()];
+  const ueb = ueberblick(leads, portal.kunden, (id) => sperrGrund(id, portal.kunden, vorgaengeAlle), findeKandidaten(leads, zustand).kandidaten, (l) => neu.anfrage(l));
   const fokus = typeof sp.k === "string" ? sp.k : "";
   const test = testModus();
   const aufgaben = aufgabenAus(d);
@@ -601,6 +609,7 @@ export default async function DashboardPage(props: PageProps<"/admin/dashboard">
         </div>
       </div>
       <Meldung sp={sp} />
+      <Ueberblick u={ueb} />
       <AlleFreigeben e={d.einstellungen} zurueck="/admin/dashboard" />
       <AbschnittErgebnis ziel="weg" />
 
