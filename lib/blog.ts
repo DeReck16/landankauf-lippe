@@ -20,6 +20,97 @@ export type Article = {
 
 export const ARTICLES: Article[] = [
   {
+    slug: "waldzustandsbericht-nrw-2025-eiche-lippe-wiederbewaldung",
+    title:
+      "Waldzustandsbericht NRW: Nur 29 Prozent der Baumkronen gesund, die Eiche bleibt Sorgenkind — was das für Waldbesitzer in Lippe bedeutet",
+    description:
+      "Der aktuelle Waldzustandsbericht NRW zeigt eine leichte Erholung ohne Trendwende: 29 % der Bäume mit gesunder Krone, die Borkenkäferkalamität von 2018 gilt als beendet, die Eiche bleibt mit 59 % deutlicher Kronenverlichtung das Sorgenkind. Wie der Landesverband Lippe seine Dürreflächen konkret wiederbewaldet — und was das für private Waldbesitzer im Kreis Lippe bedeutet.",
+    category: "Wald",
+    publishedAt: "2026-10-26",
+    readingMinutes: 8,
+    keywords: [
+      "Waldzustandsbericht NRW 2025",
+      "Kronenverlichtung Eiche 2025",
+      "Borkenkäferkalamität Ende NRW",
+      "Waldzustand Nordrhein-Westfalen",
+      "Wiederbewaldung Lippe",
+      "Privatwald Förderung Kreis Lippe",
+    ],
+    heroImage: "/blog-waldzustandsbericht-2025-lippe.jpg",
+    faq: [
+      {
+        q: "Wie hat sich der Zustand der NRW-Wälder laut Waldzustandsbericht entwickelt?",
+        a: "Nach dem von Landwirtschaftsministerin Silke Gorißen am 20. November 2025 vorgestellten Waldzustandsbericht zeigten 29 % der Bäume in NRW eine gesunde, dichte Krone — 2 Prozentpunkte mehr als im Vorjahr. Der Anteil leicht verlichteter Kronen stieg um 3 Punkte auf 37 %, der Anteil schwer geschädigter Bäume mit stark verlichteter Krone sank um 5 Punkte auf 34 %. Grund waren die insgesamt niederschlagsreichen Jahre 2023 bis 2025, die den Bäumen halfen, einen Teil der Schäden der vorangegangenen Dürrejahre auszugleichen.",
+      },
+      {
+        q: "Ist diese Erholung eine echte Trendwende?",
+        a: "Nein. Sowohl das Landesumweltministerium als auch die Schutzgemeinschaft Deutscher Wald (SDW) NRW stufen die Verbesserung ausdrücklich als Wetter-Effekt ein, nicht als Trendwende: Zwei nasse Jahre haben akute Defizite gelindert, die strukturellen Ursachen — Versauerung der Waldböden durch jahrzehntelange Säure- und Nährstoffeinträge sowie der fortschreitende Klimawandel — bestehen unverändert fort. Für 2026 wird keine Fortsetzung der Erholung garantiert.",
+      },
+      {
+        q: "Welche Baumart ist am stärksten geschädigt?",
+        a: "Die Eiche. Nur 7 % der erfassten Eichen zeigten 2025 keine Kronenverlichtung, 59 % eine deutliche. Die durchschnittliche Kronenverlichtung sank zwar von 33,0 % auf 30,7 %, bleibt damit aber der höchste Wert aller erfassten Baumarten — unter anderem wegen des Eichenprachtkäfers und, regional unter anderem in Ostwestfalen, eines verstärkten Befalls mit Eichenmehltaupilz. Die Buche verbesserte sich dagegen deutlich (24 % ohne Verlichtung, 40 % gering, 36 % deutlich), auch weil sie 2025 nach drei Jahren starker Fruktifikation kaum Früchte ausbildete.",
+      },
+      {
+        q: "Ist die Borkenkäferkalamität in NRW vorbei?",
+        a: "Laut Bericht kann die seit 2018 laufende Borkenkäferkalamität als beendet betrachtet werden: Die per Satellit erfasste Nadelholz-Schadfläche liegt bei rund 139.700 Hektar (Stand August 2025), wuchs 2025 aber nur noch um 1.557 Hektar — deutlich weniger als in den Vorjahren. Bei der Fichte zeigten 55 % der Bäume keine Kronenverlichtung, die mittlere Verlichtung sank auf 18,1 %, auch weil die verbliebenen Fichtenbestände jünger und vitaler sind. Einzelne Befallsherde bleiben trotzdem möglich.",
+      },
+      {
+        q: "Was bedeutet der Bericht konkret für private Waldbesitzer im Kreis Lippe?",
+        a: "Die lokale Praxis zeigt, wie die landesweiten Zahlen vor Ort aussehen: Der Landesverband Lippe wandelt seit den 1980er-Jahren Nadelholz-Monokulturen in Mischwälder um und wiederbewaldet mit der Spendenaktion „Lippe pflanzt“ und Partnern wie den Stadtwerken Detmold gezielt jene Flächen, die zwischen 2018 und 2022 durch Dürre und Borkenkäfer vor allem in den Fichtenbeständen entstanden sind. Für private Eigentümer heißt das: Wiederbewaldung mit standortangepassten Mischbaumarten statt erneuter Nadelholz-Monokultur, verfügbare Förderprogramme (Biotopbäume, Wiederbewaldung) aktiv nutzen und die eigene Fläche realistisch einordnen — Halten, Fördern oder Verkaufen sind je nach Zustand und Zielen unterschiedlich sinnvoll.",
+      },
+    ],
+    content: `
+<p class="lead">Dem Wald in Nordrhein-Westfalen geht es etwas besser als in den vergangenen Jahren — aber von Entwarnung kann keine Rede sein. Der aktuelle Waldzustandsbericht, den Landwirtschaftsministerin Silke Gorißen am 20. November 2025 in Düsseldorf vorstellte, zeigt eine leichte Erholung bei gleichzeitig weiterhin hohem Schadniveau: Nur 29 % der Bäume tragen eine gesunde, dichte Krone, die Eiche bleibt mit 59 % deutlicher Kronenverlichtung das Sorgenkind, und die seit 2018 laufende Borkenkäferkalamität gilt zwar als beendet — ihre Folgen prägen den Wald aber noch Jahrzehnte. Was die Zahlen bedeuten, und wie der Landesverband Lippe als größter zusammenhängender Waldbesitzer im Kreis Lippe seine Dürreflächen konkret wiederbewaldet.</p>
+
+<figure>
+<img src="/blog-waldzustandsbericht-2025-lippe.jpg" alt="Frisch gepflanzte junge Eichen mit Verbissschutz auf einer gerodeten Kalamitätsfläche, im Hintergrund abgestorbene Fichten-Dürrständer vor bewaldeten Hügeln des Lipper Berglands im Herbst" width="1600" height="1075" style="width:100%;height:auto;border-radius:14px" loading="lazy" />
+<figcaption>Wiederbewaldung in der Praxis: junge Eichen mit Verbissschutz vor abgestorbenen Fichten-Dürrständern — genau das Bild, das die Jahre 2018 bis 2022 in vielen Lipper Wäldern hinterlassen haben.</figcaption>
+</figure>
+
+<h2>Die Zahlen: Wie es dem NRW-Wald 2025 ging</h2>
+<p>Die Waldzustandserhebung ist seit rund 40 Jahren fester Bestandteil des forstlichen Umweltmonitorings in NRW. Die zentralen Werte für 2025 im Überblick:</p>
+<ul>
+<li><strong>Gesunde, dichte Krone:</strong> 29 % der Bäume — 2 Prozentpunkte mehr als 2024.</li>
+<li><strong>Leicht verlichtete Krone:</strong> 37 % — ein Plus von 3 Punkten.</li>
+<li><strong>Stark verlichtete, schwer geschädigte Krone:</strong> 34 % — ein Minus von 5 Punkten gegenüber dem Vorjahr.</li>
+<li><strong>Waldfläche NRW gesamt:</strong> rund 950.000 Hektar.</li>
+<li><strong>Jungwald-Zuwachs:</strong> Die Fläche junger Bäume bis 20 Jahre wuchs laut Landeswaldinventur um gut 35.000 Hektar, mit einem Laubholzanteil von 72 % — ein Hinweis darauf, dass der Waldumbau in der Breite ankommt.</li>
+</ul>
+<p>Grund für die Verbesserung waren die insgesamt niederschlagsreichen Jahre 2023 und 2024 sowie ein meist ausreichend nasses 2025: Sie halfen den Bäumen, die Schäden der vorangegangenen Extremjahre zumindest in Teilen auszugleichen. Der nächste Bericht für das Erhebungsjahr 2026 wird nach diesem Rhythmus voraussichtlich im November 2026 vorgestellt.</p>
+
+<h2>Jede Baumart im Einzelnen</h2>
+<ul>
+<li><strong>Eiche:</strong> Nur 7 % ohne Kronenverlichtung, 34 % gering, 59 % deutlich betroffen. Die durchschnittliche Verlichtung sinkt von 33,0 % auf 30,7 % — bleibt damit aber der höchste Wert aller erfassten Baumarten. Ursache sind neben Trockenstress vor allem der Eichenprachtkäfer sowie, örtlich unter anderem im Münsterland und in Ostwestfalen, ein verstärkter Befall mit Eichenmehltaupilz, der zu Vergilbungen und Blattverbräunungen führt.</li>
+<li><strong>Buche:</strong> 24 % ohne Verlichtung, 40 % gering, 36 % deutlich — eine deutliche Verbesserung gegenüber dem Vorjahr. Nach drei Jahren starker Fruktifikation bildete die Buche 2025 nur geringen Fruchtanhang, was zur Erholung der Kronen beitrug.</li>
+<li><strong>Fichte:</strong> 55 % ohne Verlichtung, 22 % gering, 23 % deutlich; die mittlere Kronenverlichtung sinkt auf 18,1 %. Die Erholung setzt sich nach dem Ende der Borkenkäferkalamität fort — auch weil die verbliebenen Fichtenbestände jünger und vitaler sind.</li>
+<li><strong>Kiefer:</strong> 10 % ohne Verlichtung, 58 % gering, 32 % deutlich; die durchschnittliche Verlichtung sinkt leicht auf 24,9 %. Kiefern stehen meist auf sandigen Böden mit geringer Wasserhaltefähigkeit, wo sich Dürrephasen besonders negativ auswirken.</li>
+</ul>
+
+<h2>Warum die Erholung keine Trendwende ist</h2>
+<p>Sowohl das Landesumweltministerium als auch die Schutzgemeinschaft Deutscher Wald (SDW) NRW sind sich einig: Der Witterungsverlauf der vergangenen zwei Jahre ist der entscheidende Faktor für die verbesserte Vitalität — eine echte Trendwende ist das nicht, und sie wird auch für die Zukunft nicht erwartet. Die strukturellen Ursachen für die Waldschäden bleiben bestehen: Neben dem Klimawandel versauern Waldböden weiterhin durch langfristige Säure- und Nährstoffeinträge aus Industriegesellschaft und Verkehr, und Dürre- sowie Hitzephasen schädigen Feinwurzelsystem und Leitungsbahnen der Bäume dauerhaft. „Die Wiederbewaldung bleibt eine Generationenaufgabe“, brachte es Ministerin Gorißen auf den Punkt. Das Land unterstützt Waldbesitzer seit 2018 mit mehr als 160 Millionen Euro für Schadensbeseitigung und Wiederbewaldung, davon allein 2025 mehr als 16,5 Millionen Euro; bis Jahresende sollen rund 15.000 Hektar Kalamitätsflächen mit Landesunterstützung wiederaufgeforstet sein.</p>
+
+<h2>Die Borkenkäferkalamität von 2018 gilt als beendet — die Folgen bleiben</h2>
+<p>Eine der konkretesten Zahlen im Bericht: Die seit 2018 durch Windwurf und Borkenkäfer entstandene Nadelholz-Schadfläche wird per Satellit erfasst (Copernicus) und liegt bei rund 139.700 Hektar — umgerechnet knapp 15 % der gesamten NRW-Waldfläche. Entscheidend ist aber die Dynamik: 2025 wuchs diese Fläche nur noch um 1.557 Hektar, deutlich weniger als in den Jahren zuvor. Die 2018 entstandene Borkenkäferkalamität kann damit laut Bericht als beendet betrachtet werden, auch wenn einzelne Befallsherde weiterhin auftreten. Für Waldbesitzer mit noch intakten Fichtenbeständen heißt das: Die akute Gefahr ist gesunken, ersetzt aber nicht die laufende Kontrolle — mehr dazu in unserem Beitrag <a href="/blog/kaeferholz-sturmwurf-lippe-privatwald">Käferholz und Sturmwurf: Was Lipper Privatwaldbesitzer 2024/2025 tun konnten — und können</a>.</p>
+
+<h2>Lippe zeigt, wie Wiederbewaldung in der Praxis aussieht</h2>
+<p>Wie sich die landesweiten Zahlen vor Ort auswirken, lässt sich im Kreis Lippe konkret beobachten. Der Landesverband Lippe bewirtschaftet als größter zusammenhängender Waldbesitzer der Region rund 15.700 Hektar Wald naturnah und nachhaltig — und setzt bereits seit den 1980er-Jahren auf Mischwälder statt Nadelholz-Monokulturen, um das Risiko flächendeckender Ausfälle zu verringern, wie es laut Forstabteilungsleiterin Susanne Hoffmann zwischen 2018 und 2022 bei den Fichtenarealen in Lippe geschehen ist.</p>
+<p>Seit dem 31. August 2021 läuft die Spendenaktion „Lippe pflanzt“: Für 4 Euro pro Setzling finanzieren Bürgerinnen und Bürger die Wiederbewaldung von Dürreflächen in mittlerweile sieben ausgewiesenen Zukunftswäldern. Bis Mitte November 2025 kamen so rund 123.000 Euro zusammen. Gepflanzt werden ausschließlich Mischwälder — vor allem Eichen, ergänzt um Baumarten wie Linde, Elsbeere, Esskastanie, Lärche, Douglasie oder Tanne, je nach Standort. Auch Unternehmen beteiligen sich: Die Stadtwerke Detmold spendeten 2026 erneut 60.000 Euro und finanzierten damit die Wiederbewaldung einer rund 3,5 Hektar großen Schadfläche bei Detmold-Hiddesen mit Traubeneichen, Edelkastanien, Douglasien und Kiefern.</p>
+
+<h2>Was das für private Waldbesitzer im Kreis Lippe bedeutet</h2>
+<ul>
+<li><strong>Beim Wiederaufforsten auf Mischwald statt Monokultur setzen:</strong> Die Praxis des Landesverbandes Lippe bestätigt, was der Landeswald-Bericht landesweit zeigt — reine Nadelholzbestände bleiben anfällig. Standortangepasste Mischungen aus Laub- und Nadelbäumen sind widerstandsfähiger gegenüber künftigen Dürre- und Käferjahren.</li>
+<li><strong>Verfügbare Förderung nutzen, bevor Fristen greifen:</strong> Neben der Wiederbewaldungsprämie lohnt sich ein Blick auf die Biotopbaumförderung, die stehen gelassene Altbäume honoriert — Details in <a href="/blog/biotopbaeume-privatwald-nrw-2026-foerderung-pro-baum">Biotopbäume im Privatwald: Was NRW 2026 pro stehen gelassenem Baum zahlt</a>. Die gesetzliche Wiederbewaldungsfrist erklären wir in <a href="/blog/landeswaldgesetz-nrw-2026-wiederbewaldung-vier-jahre">Vier Jahre statt zwei: Was die Forstgesetz-Novelle für Waldbesitzer in Lippe ändert</a>.</li>
+<li><strong>Eichenbestände besonders im Blick behalten:</strong> Als am stärksten geschädigte Baumart verdient die Eiche zusätzliche Aufmerksamkeit — Trockenstress, Eichenprachtkäfer und lokal auch Mehltaupilz wirken zusammen.</li>
+<li><strong>Die eigene Fläche realistisch einordnen:</strong> Je nach Zustand, Alter und Zielen ist Halten, Fördern oder Verkaufen unterschiedlich sinnvoll — eine Einordnung der drei Wege bietet <a href="/blog/privatwald-lippe-halten-foerdern-verkaufen">Privatwald in Lippe: Halten, fördern oder verkaufen</a>; was Wald als Vermögensanlage langfristig erträgt, erklärt <a href="/blog/wald-als-vermoegensanlage-lippe">Wald als Vermögensanlage</a>.</li>
+</ul>
+
+<h2>Was wir konkret tun</h2>
+<p>Lippe Forst kauft und vermittelt Wald, Wiesen und Ackerland im Kreis Lippe und Umland — mit einer ehrlichen Einschätzung, ob eine Kalamitätsfläche sich eher für Wiederaufforstung mit Förderung, für die Vermittlung eines Lohnunternehmers zur Aufarbeitung oder für einen Verkauf eignet. Bei der Suche nach geeigneten Partnern für Pflanzung oder Holzernte unterstützt unsere <a href="/services/lohnunternehmer">Lohnunternehmer-Vermittlung</a>. Wer eine konkrete Waldfläche besitzt: <a href="/wald-verkaufen">Wald verkaufen</a> oder unverbindlich <a href="/flaeche-bewerten">kostenlos bewerten lassen</a> — oder direkt über das <a href="/kontakt">Kontaktformular</a> Kontakt aufnehmen.</p>
+
+<p class="text-sm text-stone-500"><em>Stand: 26. Oktober 2026. Quellen: Ministerium für Landwirtschaft und Verbraucherschutz NRW, Waldzustandsbericht 2025 (Pressemitteilung und Langfassung, vorgestellt am 20. November 2025 durch Ministerin Silke Gorißen); Schutzgemeinschaft Deutscher Wald (SDW) NRW, Pressemitteilung „Waldzustandsbericht 2025 — Leichte Erholung, keine Trendwende“ vom 20.11.2025; Landesverband Lippe, Pressemitteilungen zur Aktion „Lippe pflanzt“ (14.11.2025) und zur Spende der Stadtwerke Detmold (09.04.2026). Dieser Beitrag ersetzt keine individuelle Begutachtung Ihrer Fläche.</em></p>
+`,
+  },
+  {
     slug: "gruenland-ackerland-bodenpreise-2025-lippe",
     title:
       "Grünland wird 15 % teurer, Ackerland günstiger: Die neue Bodenpreis-Statistik 2025 zeigt zwei gegenläufige Märkte — was das für Eigentümer im Kreis Lippe bedeutet",
