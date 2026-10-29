@@ -1,0 +1,63 @@
+[
+  {
+    "id": "AAMkAGBeispiel1",
+    "internetMessageId": "<beispiel-1@example.com>",
+    "receivedDateTime": "2026-10-28T06:15:00Z",
+    "from": {
+      "emailAddress": {
+        "name": "Erika Beispiel",
+        "address": "erika@example.com"
+      }
+    },
+    "toRecipients": [
+      {
+        "emailAddress": {
+          "name": "TR Vertriebs GmbH",
+          "address": "info@tr-immobilien.com"
+        }
+      }
+    ],
+    "subject": "Re: Lippe Forst — Ihre Anfrage LL-BEISPIEL",
+    "body": {
+      "contentType": "text",
+      "content": "Guten Tag,\n\nkein Interesse.\n"
+    },
+    "parentFolderName": "Posteingang",
+    "isRead": true,
+    "parentFolderId": "AAMkAGOrdnerPosteingang",
+    "anhaenge": [
+      {
+        "name": "notiz.txt",
+        "contentType": "text/plain",
+        "size": 15,
+        "pfad": "anhaenge/beispiel-1/notiz.txt"
+      }
+    ]
+  },
+  {
+    "id": "AAMkAGBeispiel2",
+    "internetMessageId": "<beispiel-2@example.com>",
+    "receivedDateTime": "2026-10-28T07:40:00.1234567Z",
+    "from": {
+      "emailAddress": {
+        "name": "Karl Beispiel",
+        "address": "karl@example.com"
+      }
+    },
+    "toRecipients": [
+      {
+        "emailAddress": {
+          "name": "Lippe Forst",
+          "address": "anfrage@lippeforst.de"
+        }
+      }
+    ],
+    "subject": "AW: Lippe Forst",
+    "body": {
+      "contentType": "html",
+      "content": "<html><body><p>Guten Tag,</p><p>kein Interesse, bitte nicht mehr anschreiben.</p><p><a href=\"https://lippeforst.de/kunde/antwort?t=abcdefghij.klmnopqrst\">Antwort</a></p></body></html>"
+    },
+    "parentFolderName": "Junk-E-Mail",
+    "anhaenge": []
+  }
+]
