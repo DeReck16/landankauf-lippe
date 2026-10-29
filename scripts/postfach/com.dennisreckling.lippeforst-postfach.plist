@@ -13,7 +13,13 @@
      Protokoll:          ~/Library/Logs/lippeforst-postfach.log
      Ist der Mac um 07:40 im Ruhezustand, holt launchd den Lauf beim Aufwachen nach;
      war er aus, laeuft der naechste Abgleich am Folgetag (14 Tage Rueckblick, es geht nichts verloren).
-     /usr/bin/python3 wie beim DHL-Rechnungsabgleich: dessen Automation-Freigabe fuer Outlook gilt auch hier. -->
+     /usr/bin/python3 wie beim DHL-Rechnungsabgleich: dessen Automation-Freigabe fuer Outlook gilt auch hier.
+
+     Linux ohne Outlook: diese plist nicht verwenden. Dort liest ein Assistent das Postfach
+     per Microsoft Graph und legt nachrichten.json ab; das Skript hat selbst keinen Graph-Zugang.
+     Aufruf: python3 scripts/postfach/abgleich.py mit Quelle json und Export-Ordner.
+     Variablen (LF_POSTFACH_TOKEN, LF_URL, LF_POSTFACH_ZUSTAND_DIR, LF_POSTFACH_LOG) und das
+     Schema: scripts/postfach/README.md. AppleScript wird in diesem Modus nicht aufgerufen. -->
 <plist version="1.0">
 <dict>
   <key>Label</key>
