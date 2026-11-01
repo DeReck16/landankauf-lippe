@@ -1,10 +1,12 @@
 import "server-only";
+import { createHmac } from "node:crypto";
+import { sessionSecret } from "@/lib/admin/config";
 import { leadView, type LeadView } from "@/lib/admin/model";
 import { drosseln, kurzwert, listLeads, readZustand } from "@/lib/admin/store";
 import { anbieterAbgleichFuer } from "@/lib/portal/anbieter-gruppe";
 import { alleAktionen, assistentPlan } from "@/lib/portal/assistent";
 import type { AssistentAktion } from "@/lib/portal/assistent-typen";
-import { aufgabenAus } from "@/lib/portal/aufgaben";
+import { aufgabenAus, type AufgabeQuelle } from "@/lib/portal/aufgaben";
 import { linkErstellen, mailsSenden, type AusfuehrZeile } from "@/lib/portal/ausfuehren";
 import { automatikVon, type AutomatikEinstellungen } from "@/lib/portal/automatik-regeln";
 import { ladeDashboard } from "@/lib/portal/dashboard";
@@ -36,47 +38,90 @@ function istErlaubterKnopf(id: string): id is ApiKnopf {
 }
 
 /** Warum die API diesen Knopf jetzt nicht drücken darf (null = darf, vorbehaltlich der Sperren des Systems). */
-export function knopfGrund(id: string, art: M.Art, automatik: AutomatikEinstellungen): string | null {
+export function knopfGrund(id: string, pacht: boolean, vermittlung: boolean, automatik: AutomatikEinstellungen): string | null {
   if (!istErlaubterKnopf(id)) return `„${id}“ gibt es per API nicht (erlaubt: ${API_KNOEPFE.join(", ")}).`;
   if (automatik.notAus) return "Not-Aus der Automatik ist an — nur die Verwaltung.";
-  if (art !== "pacht") return "Kauf läuft nur in der Verwaltung (wie bei der Automatik).";
+  if (!pacht) return "Nur Pacht läuft per API (Kauf und unklare Art bleiben in der Verwaltung, wie bei der Automatik).";
   if (RECHTSSCHALTER.includes(id) && !(automatik.recht34c && automatik.vorlagenGeprueft)) {
     return "Gesperrt, bis in den Einstellungen „§ 34c-Erlaubnis liegt vor“ und „Vorlagen anwaltlich geprüft“ bestätigt sind (dieselbe Sperre wie bei der Automatik).";
   }
+  // Ob TR selbst kauft („Selbst kaufen“) oder Lippe Forst vermittelt, entscheidet die Verwaltung — die Automatik wartet darauf ebenso.
+  if (RECHTSSCHALTER.includes(id) && !vermittlung) return "Der Weg des Angebots ist nicht „Vermitteln“ (offen oder Direktankauf) — das entscheidet die Verwaltung.";
   return null;
 }
 
-type Ansichten = Map<string, LeadView>;
+/** Anfragen und Kundenakten: beide nennen Namen, Adressen und Nummern der Beteiligten. */
+export type Ansichten = { leads: Map<string, LeadView>; kunden: Map<string, M.KundeRecord> };
 
 async function ansichten(): Promise<Ansichten> {
-  const [leads, { zustand }] = await Promise.all([listLeads(), readZustand()]);
-  return new Map(leads.map((l) => [l.id, leadView(l, zustand.anfragen[l.id])]));
+  const [leads, { zustand }, kunden] = await Promise.all([listLeads(), readZustand(), alleKunden()]);
+  return { leads: new Map(leads.map((l) => [l.id, leadView(l, zustand.anfragen[l.id])])), kunden: new Map(kunden.map((k) => [k.id, k])) };
+}
+
+/** Alles, was eine Person der Anfrage verrät: Angaben der Anfrage und der Kundenakte (Stammdaten, Unterschrift). */
+function personen(id: string, a: Ansichten): { name: string; email: string; phone: string }[] {
+  const l = a.leads.get(id);
+  const k = a.kunden.get(id);
+  const liste = l ? [{ name: l.name, email: l.email, phone: l.phone }] : [];
+  if (k) {
+    const sd = k.stammdaten;
+    liste.push({ name: k.name ?? "", email: k.email, phone: "" });
+    if (sd) liste.push({ name: sd.name, email: "", phone: sd.telefon }, { name: sd.betrieb, email: "", phone: "" }, { name: sd.strasse, email: "", phone: "" });
+    if (k.vertrag) liste.push({ name: k.vertrag.signatur.name, email: k.vertrag.signatur.email, phone: "" });
+  }
+  return liste;
 }
 
 const STRASSE = /\b[\p{L}.-]+(?:stra(?:ß|ss)e|str\.|weg|allee|platz|gasse|ring|damm|ufer|pfad)\s*\d+\s*[a-z]?\b/giu;
 
-/** Text ohne Anschriften, Nummern und ohne Name/Mail/Telefon der genannten Anfragen. */
-function rein(text: string, ids: Iterable<string>, a: Ansichten, max = 300): string {
+/** Text ohne Anschriften, Nummern und ohne Name/Mail/Telefon der genannten Anfragen und ihrer Kundenakten. */
+export function rein(text: string, ids: Iterable<string>, a: Ansichten, max = 300): string {
   let t = String(text ?? "").replace(/\s+/g, " ").trim();
   for (const id of new Set(ids)) {
-    const v = a.get(id);
-    if (v) t = schwaerzen(t, eigeneAngaben(v));
+    for (const p of personen(id, a)) t = schwaerzen(t, eigeneAngaben(p));
   }
   t = schwaerzen(t, null).replace(STRASSE, "[Adresse]");
   return t.length > max ? `${t.slice(0, max - 2).trimEnd()} …` : t;
 }
 
+/** Anfragen, um die es in einer Aufgabe geht (für die Schwärzung der Namen aus Anfrage und Kundenakte). */
+function quellIds(q: AufgabeQuelle): string[] {
+  switch (q.typ) {
+    case "vorgang": return q.x.key.split("~");
+    case "anfrage": return [q.a.id];
+    case "rueckmeldung": return [q.r.id];
+    case "boerse": return [q.b.id];
+    case "erklaerung": return [q.e.id];
+    case "loeschwunsch": return [q.l.id];
+    case "ankauf": return [q.k.id];
+    default: return [];
+  }
+}
+
 const idsIn = (...texte: string[]): string[] => texte.flatMap((t) => t.match(/LL-[A-Z0-9]+/g) ?? []);
 
-function aktionAnsicht(a: AssistentAktion, art: M.Art, automatik: AutomatikEinstellungen, ids: string[], an: Ansichten) {
-  const grund = knopfGrund(a.id, art, automatik);
+/** Pacht nur, wenn der Vorgang UND beide Anfragen ausdrücklich Pacht sind — alles andere gilt als Kauf. */
+const istPacht = (art: M.Art, ids: string[], an: Ansichten): boolean => art === "pacht" && ids.length === 2 && ids.every((id) => an.leads.get(id)?.art === "pacht");
+
+/**
+ * Signatur für die API: gebunden an den Zugang und mit dem Geheimnis des Servers gesichert. Die Rohsignatur des Dashboards enthält
+ * einen Hash über Empfängeradressen und Stand und gehört nicht nach draußen (sonst ließen sich Adressen gegen sie probieren).
+ */
+export function apiSignatur(zugangId: string, key: string, id: string, ziel: string, roh: string): string {
+  return createHmac("sha256", sessionSecret()).update(JSON.stringify(["api-knopf", zugangId, key, id, ziel, roh])).digest("hex").slice(0, 32);
+}
+
+const istVermittlung = (ids: string[], an: Ansichten): boolean => an.leads.get(ids[0])?.meta.weg === "vermittlung";
+
+function aktionAnsicht(a: AssistentAktion, pacht: boolean, automatik: AutomatikEinstellungen, ids: string[], an: Ansichten, key: string, zugangId: string) {
+  const grund = knopfGrund(a.id, pacht, istVermittlung(ids, an), automatik);
   return {
     id: a.id,
     ziel: a.ziel ?? null,
     knopf: rein(a.knopf, ids, an, 80),
     dran: a.dran,
     gesperrt: a.gesperrt ? rein(a.gesperrt, ids, an) : null,
-    signatur: a.signatur,
+    signatur: apiSignatur(zugangId, key, a.id, a.ziel ?? "", a.signatur),
     mails: a.mails.map((m) => ({ zweck: m.zweck, rolle: m.rolle })),
     api: grund === null && !a.gesperrt,
     apiGrund: grund,
@@ -84,7 +129,7 @@ function aktionAnsicht(a: AssistentAktion, art: M.Art, automatik: AutomatikEinst
 }
 
 /** Aufgaben („Jetzt zu tun“), Vorgänge mit ihren Knöpfen und die offenen Matching-Vorschläge — alles ohne personenbezogene Angaben. */
-export async function vorgaengeLesen() {
+export async function vorgaengeLesen(zugangId: string) {
   const [dash, an, einstellungen] = await Promise.all([ladeDashboard("api@lippeforst.de", site.url), ansichten(), ladeEinstellungen()]);
   const automatik = automatikVon(einstellungen.automatik);
   const vorgaenge = [...dash.jetzt, ...dash.warten].map((x) => {
@@ -98,12 +143,23 @@ export async function vorgaengeLesen() {
       stand: rein(x.plan.stand, ids, an),
       wartetSeit: x.plan.wartetSeit,
       boerse: x.boerse,
-      aktionen: alleAktionen(x.plan).map((a) => aktionAnsicht(a, x.art, automatik, ids, an)),
+      aktionen: alleAktionen(x.plan).map((a) => aktionAnsicht(a, istPacht(x.art, ids, an), automatik, ids, an, x.key, zugangId)),
     };
   });
   const aufgaben = aufgabenAus(dash).map((a) => {
-    const ids = idsIn(a.id, a.href);
-    return { id: a.id, prio: a.prio, typ: a.quelle.typ, titel: rein(a.titel, ids, an, 160), grund: rein(a.grund, ids, an), seit: a.seit, ueberfaellig: a.ueberfaellig, neu: a.neu };
+    const ids = [...quellIds(a.quelle), ...idsIn(a.id, a.href)];
+    // Mails aus dem Postfach und der Postausgang tragen Betreff und Adressen: dafür nur der Typ, der Text steht in der Verwaltung.
+    const frei = a.quelle.typ !== "postfach" && a.quelle.typ !== "postausgang";
+    return {
+      id: a.id,
+      prio: a.prio,
+      typ: a.quelle.typ,
+      titel: frei ? rein(a.titel, ids, an, 160) : "Text nur in der Verwaltung",
+      grund: frei ? rein(a.grund, ids, an) : "",
+      seit: a.seit,
+      ueberfaellig: a.ueberfaellig,
+      neu: a.neu,
+    };
   });
   const vorschlaege = dash.vorschlaege.map((v) => {
     const ids = v.key.split("~");
@@ -129,21 +185,34 @@ async function umgebung() {
 /** Einen Knopf des Klick-Assistenten drücken (nur der gesehene Stand: die Signatur muss noch gelten). */
 export async function knopfAusfuehren(e: KnopfEingabe, von: string, zugangId: string): Promise<AktionErgebnis> {
   if (!istPaarKey(e.key)) return { ok: false, status: 400, fehler: "key: LL-…~LL-… erwartet." };
+  if (!istErlaubterKnopf(e.id)) return { ok: false, status: 403, fehler: `„${e.id}“ gibt es per API nicht (erlaubt: ${API_KNOEPFE.join(", ")}).` };
   const einstellungen = await ladeEinstellungen();
   const automatik = automatikVon(einstellungen.automatik);
   const ctx = await V.ladeVorgangKontext(e.key);
   if (!ctx) return { ok: false, status: 404, fehler: "Vorgang nicht gefunden." };
-  const grund = knopfGrund(e.id, ctx.art, automatik);
+  if (!ctx.meta && !ctx.vorgang) return { ok: false, status: 409, fehler: "Dieses Paar ist nicht vorgemerkt — erst per Aktion paar vormerken." };
+  const ids = e.key.split("~");
+  const an = await ansichten();
+  const grund = knopfGrund(e.id, istPacht(ctx.art, ids, an), istVermittlung(ids, an), automatik);
   if (grund) return { ok: false, status: 403, fehler: grund };
-  // Anbieter mit mehreren Flächen: vorher abgleichen, damit keine zweite Einladung entsteht (wie im Dashboard).
+  const u = await umgebung();
+  const veraltet = { ok: false as const, status: 409 as const, fehler: "Nichts ausgeführt — der Stand hat sich geändert. Vorgänge neu lesen und mit der neuen Signatur wiederholen." };
+  const finde = (c: V.VorgangKontext) => alleAktionen(assistentPlan(c, u)).find((x) => x.id === e.id && (x.ziel ?? "") === e.ziel);
+  const stimmt = (x: AssistentAktion | undefined): x is AssistentAktion => Boolean(x) && apiSignatur(zugangId, e.key, x!.id, x!.ziel ?? "", x!.signatur) === e.signatur;
+  // Erst prüfen, dann schreiben: Mit veralteter Signatur ändert nichts etwas (auch nicht der Abgleich unten).
+  if (!stimmt(finde(ctx))) return veraltet;
+  // Anbieter mit mehreren Flächen: abgleichen, damit keine zweite Einladung entsteht (wie im Dashboard); ändert das den Stand, gilt die Signatur nicht mehr.
   await anbieterAbgleichFuer(e.key.split("~")[0], von);
   const frisch = (await V.ladeVorgangKontext(e.key)) ?? ctx;
-  const u = await umgebung();
-  const a = alleAktionen(assistentPlan(frisch, u)).find((x) => x.id === e.id && (x.ziel ?? "") === e.ziel);
-  if (!a || a.signatur !== e.signatur) {
-    return { ok: false, status: 409, fehler: "Nichts ausgeführt — der Stand hat sich geändert. Vorgänge neu lesen und mit der neuen Signatur wiederholen." };
+  const a = finde(frisch);
+  if (!stimmt(a)) return veraltet;
+  if (a.gesperrt) return { ok: false, status: 409, fehler: `Nicht möglich: ${rein(a.gesperrt, ids, an)}` };
+
+  // Mails an den Anbieter nur, wenn der Weg „Vermitteln“ gewählt ist (wie bei der Automatik, r3Paare); sonst bleibt nur, was den Suchenden betrifft.
+  const mails = a.mails.filter((m) => !(m.rolle === "anbieter" && frisch.angebot.meta.weg !== "vermittlung"));
+  if (["einladen", "erinnern", "pacht-erinnern"].includes(a.id) && mails.length === 0) {
+    return { ok: false, status: 409, fehler: "Nichts zu senden: Der Weg des Angebots ist noch offen oder Direktankauf — das entscheidet die Verwaltung." };
   }
-  if (a.gesperrt) return { ok: false, status: 409, fehler: `Nicht möglich: ${a.gesperrt}` };
 
   // Erst jetzt zählen: Abgelehntes (veralteter Stand, gesperrt) verbraucht nichts. Derselbe Knopf höchstens einmal je Minute (kein Doppelversand).
   if (!(await drosseln("api-knopf-einmal", kurzwert(`${e.key}|${e.id}|${e.ziel}`, "knopf"), [{ sekunden: 60, max: 1 }]))) {
@@ -157,19 +226,21 @@ export async function knopfAusfuehren(e: KnopfEingabe, von: string, zugangId: st
   switch (a.id) {
     case "einladen":
     case "erinnern":
-      for (const m of a.mails) {
+      for (const m of mails) {
         if (m.neuerLink && !(await linkErstellen(von, m, u, zeilen))) continue;
         await mailsSenden(von, e.key, u, [m], zeilen);
       }
       break;
+    case "pacht-erinnern":
+      await mailsSenden(von, e.key, u, mails, zeilen);
+      break;
     case "hinweise":
     case "freigabe-mitteilen":
-    case "pacht-erinnern":
       await mailsSenden(von, e.key, u, a.mails, zeilen);
       break;
     case "freigeben": {
       const r = await V.freigeben(e.key, von);
-      if (!r.ok) return { ok: false, status: 409, fehler: `Freigabe nicht möglich: ${r.fehler ?? "unbekannt"}` };
+      if (!r.ok) return { ok: false, status: 409, fehler: `Freigabe nicht möglich: ${rein(r.fehler ?? "unbekannt", ids, an)}` };
       zeilen.push({ art: "ok", text: "Kontakt freigegeben — beide sehen die Kontaktdaten jetzt im Kundenbereich" });
       await mailsSenden(von, e.key, u, a.mails, zeilen);
       break;
@@ -178,8 +249,7 @@ export async function knopfAusfuehren(e: KnopfEingabe, von: string, zugangId: st
       return { ok: false, status: 403, fehler: `„${a.id}“ gibt es per API nicht.` };
   }
 
-  const an = await ansichten();
-  const text = zeilen.map((z) => `${z.art === "fehler" ? "FEHLER" : z.art === "ok" ? "ok" : "Hinweis"}: ${rein(z.text, e.key.split("~"), an, 240)}`).join(" · ");
+  const text = zeilen.map((z) => `${z.art === "fehler" ? "FEHLER" : z.art === "ok" ? "ok" : "Hinweis"}: ${rein(z.text, ids, an, 240)}`).join(" · ");
   if (zeilen.some((z) => z.art === "fehler") && !zeilen.some((z) => z.art === "ok")) return { ok: false, status: 409, fehler: text || "Nicht ausgeführt." };
   return { ok: true, text: text || "Ausgeführt." };
 }

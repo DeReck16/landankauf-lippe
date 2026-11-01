@@ -52,7 +52,7 @@ export async function GET(request: Request) {
   if (q.get("vorgaenge") !== null) {
     if (!pruefung.zugang.rechte.includes("board:vorgang")) return fehler(403, "Recht fehlt: board:vorgang");
     const { vorgaengeLesen } = await import("@/lib/api/vorgaenge");
-    return NextResponse.json({ ok: true, ...(await vorgaengeLesen()) }, { headers: KEIN_CACHE });
+    return NextResponse.json({ ok: true, ...(await vorgaengeLesen(pruefung.zugang.id)) }, { headers: KEIN_CACHE });
   }
   const details = pruefung.zugang.rechte.includes("board:details");
   const daten = await boardLesen({

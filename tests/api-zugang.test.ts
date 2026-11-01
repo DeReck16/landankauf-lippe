@@ -305,7 +305,7 @@ test("Eigene Notizen eines Zugangs werden nicht anfragespezifisch geschwärzt, f
 });
 
 test("Klick-Assistent per API: Rechte, Eingabe, Kauf bleibt draußen, Rechts-Schalter und Not-Aus gelten wie bei der Automatik", async () => {
-  const r = await Z.zugangAnlegen("admin@example.com", { name: "Vorgang Test", rechte: ["board:lesen", "board:vorgang"], tage: 30 });
+  const r = await Z.zugangAnlegen("admin@example.com", { name: "Vorgang Test", rechte: ["board:lesen", "board:vorgang", "board:paare"], tage: 30 });
   assert.equal(r.ok, true);
   if (!r.ok) return;
   const vorgang = r.schluessel;
@@ -326,6 +326,12 @@ test("Klick-Assistent per API: Rechte, Eingabe, Kauf bleibt draußen, Rechts-Sch
   assert.ok(Array.isArray(d.aufgaben) && Array.isArray(d.vorgaenge) && Array.isArray(d.vorschlaege));
   assert.deepEqual(Object.keys(d.automatik).sort(), ["notAus", "rechtsschalter"]);
   for (const verboten of ["Pächterfrau", "Pachtsucher", "paula@example.org", "peter@example.org", "9990000", "9991111", "Musterfrau", "erika@example.org"]) assert.ok(!text.includes(verboten), `${verboten} darf nicht in der Antwort stehen`);
+
+  // Ein Paar, das nicht vorgemerkt ist, hat keine Knöpfe — erst vormerken (per Aktion paar)
+  const unvorgemerkt = await knopf(vorgang, { key: "LL-TEST0020~LL-TEST0021", id: "einladen", signatur: "abcdef0123456789" });
+  assert.equal(unvorgemerkt.status, 409);
+  assert.match(await unvorgemerkt.text(), /nicht vorgemerkt/);
+  assert.equal((await post(vorgang, { aktion: "paar", angebot: "LL-TEST0020", gesuch: "LL-TEST0021", status: "vorgemerkt" })).status, 200);
 
   // Eingabe
   assert.equal((await knopf(vorgang, { key: "kein-key", id: "einladen", signatur: "abcdef0123456789" })).status, 400);
@@ -366,8 +372,36 @@ test("Klick-Assistent per API: Rechte, Eingabe, Kauf bleibt draußen, Rechts-Sch
   await store.jsonAendern("portal/einstellungen.json", () => ({}), (e: Record<string, unknown>) => {
     e.automatik = { ...(e.automatik as object | undefined), notAus: false, recht34c: true, vorlagenGeprueft: true };
   });
-  // Mit den Bestätigungen ist die Rechts-Sperre offen (Signatur stimmt weiterhin nicht: 409 statt 403)
-  assert.equal((await knopf(vorgang, { key: "LL-TEST0020~LL-TEST0021", id: "hinweise", signatur: "abcdef0123456789" })).status, 409);
+  // Mit den Bestätigungen ist die Rechts-Sperre offen, aber der Weg „Vermitteln“ muss gewählt sein (Selbst kaufen/offen entscheidet die Verwaltung)
+  const wegOffen = await knopf(vorgang, { key: "LL-TEST0020~LL-TEST0021", id: "hinweise", signatur: "abcdef0123456789" });
+  assert.equal(wegOffen.status, 403);
+  assert.match(await wegOffen.text(), /Weg/);
+  await store.mutateZustand("test", (z) => {
+    z.anfragen["LL-TEST0020"] = { ...(z.anfragen["LL-TEST0020"] ?? {}), weg: "vermittlung" };
+  });
+  assert.equal((await knopf(vorgang, { key: "LL-TEST0020~LL-TEST0021", id: "hinweise", signatur: "abcdef0123456789" })).status, 409, "mit Weg Vermitteln: nur noch die Signatur trennt");
+});
+
+test("Klick-Assistent: Schwärzung kennt auch die Kundenakte, die Signatur für die API ist an Zugang und Geheimnis gebunden", async () => {
+  const { rein, apiSignatur } = await import("@/lib/api/vorgaenge");
+  const lead = { id: "LL-TEST0030", name: "Paula Pächterin", email: "paula@example.org", phone: "0171 1112222" } as unknown as import("@/lib/admin/model").LeadView;
+  const kunde = {
+    id: "LL-TEST0030",
+    email: "kundenkonto@example.org",
+    name: "Eigentümerin Kontoname",
+    stammdaten: { name: "Gerda Geheimname", betrieb: "Hof Geheimhof", strasse: "Geheimweg 12", plz: "32805", ort: "Horn", telefon: "05234 998877", eigenschaft: "privat" },
+    vertrag: { signatur: { name: "G. Unterschriftsname", email: "unterschrift@example.org" } },
+  } as unknown as import("@/lib/portal/model").KundeRecord;
+  const an = { leads: new Map([[lead.id, lead]]), kunden: new Map([[kunde.id, kunde]]) };
+  const text = "Gerda Geheimname (Hof Geheimhof, Geheimweg 12) hat als G. Unterschriftsname unterschrieben; Mail unterschrift@example.org und kundenkonto@example.org, Tel 05234 998877, Paula Pächterin rief an.";
+  const aus = rein(text, ["LL-TEST0030"], an);
+  for (const verboten of ["Geheimname", "Geheimhof", "Geheimweg", "Unterschriftsname", "unterschrift@", "kundenkonto@", "998877", "Pächterin", "Paula"]) assert.ok(!aus.includes(verboten), `${verboten} darf nicht stehen bleiben: ${aus}`);
+
+  const s1 = apiSignatur("zugang1", "LL-A~LL-B", "einladen", "", "roh123");
+  assert.notEqual(s1, "roh123");
+  assert.equal(s1, apiSignatur("zugang1", "LL-A~LL-B", "einladen", "", "roh123"), "stabil");
+  assert.notEqual(s1, apiSignatur("zugang2", "LL-A~LL-B", "einladen", "", "roh123"), "an den Zugang gebunden");
+  assert.notEqual(s1, apiSignatur("zugang1", "LL-A~LL-B", "erinnern", "", "roh123"), "an den Knopf gebunden");
 });
 
 test("Börsen-Angebote: offline nehmen und öffentliche Angaben anpassen — mit Leck-Prüfung und eigenen Rechten", async () => {
