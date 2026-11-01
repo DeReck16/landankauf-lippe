@@ -430,12 +430,13 @@ async function boerseAendern(a: Extract<BoardAktion, { aktion: "boerse"; was: "o
     }
     const b: BoerseMeta = { ...meta.boerse };
     if (a.was === "offline") {
-      if (!b.online) return;
+      if (!b.online && b.offline) return;
+      // Wie in der Verwaltung: von Hand offline genommen bleibt offline, bis die Verwaltung neu veröffentlicht (auch die Automatik
+      // rührt es nicht an). Steht ein Angebot ohne diese Markierung schon offline, wird sie nachgetragen.
+      st.oeffentlich = b.online;
+      st.was = b.online ? `Aus der Flächenbörse genommen (${b.code})` : `Offline-Markierung gesetzt (${b.code})`;
       b.online = false;
-      // Wie in der Verwaltung: von Hand offline genommen bleibt offline, bis die Verwaltung neu veröffentlicht (auch die Automatik rührt es nicht an).
       b.offline = { am: new Date().toISOString(), grund: `per API offline genommen (${wer})` };
-      st.oeffentlich = true;
-      st.was = `Aus der Flächenbörse genommen (${b.code})`;
     } else {
       const neu = a.aenderung;
       if (neu.typ !== undefined) b.typ = neu.typ;
