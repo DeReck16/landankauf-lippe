@@ -299,6 +299,9 @@ export default async function VorlagenPage(props: PageProps<"/admin/vorlagen">) 
             Alle Sitzungen beenden
           </BestaetigenKnopf>
         </form>
+        <p className="lfa-klein" style={{ marginTop: "0.8rem" }}>
+          Zugänge für Skripte und Claude (Board lesen und sicher ergänzen, ohne Anmeldung): <Link href="/admin/api-zugaenge" title="API-Zugänge anlegen, einsehen und sperren">API-Zugänge verwalten</Link>.
+        </p>
       </section>
 
       <section className="lfa-panel" id="geloescht">
