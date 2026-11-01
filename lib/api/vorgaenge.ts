@@ -184,7 +184,7 @@ export async function vorgaengeLesen(zugangId: string) {
   });
   return {
     stand: new Date().toISOString(),
-    automatik: { notAus: automatik.notAus, rechtsschalter: automatik.recht34c && automatik.vorlagenGeprueft },
+    automatik: { notAus: automatik.notAus, probelauf: automatik.probelauf, rechtsschalter: automatik.recht34c && automatik.vorlagenGeprueft, regeln: automatik.regeln },
     anzahl: { aufgaben: aufgaben.length, vorgaenge: vorgaenge.length, vorschlaege: vorschlaege.length },
     aufgaben,
     vorgaenge,

@@ -324,7 +324,7 @@ test("Klick-Assistent per API: Rechte, Eingabe, Kauf bleibt draußen, Rechts-Sch
   const text = await res.text();
   const d = JSON.parse(text);
   assert.ok(Array.isArray(d.aufgaben) && Array.isArray(d.vorgaenge) && Array.isArray(d.vorschlaege));
-  assert.deepEqual(Object.keys(d.automatik).sort(), ["notAus", "rechtsschalter"]);
+  assert.deepEqual(Object.keys(d.automatik).sort(), ["notAus", "probelauf", "regeln", "rechtsschalter"].sort());
   for (const verboten of ["Pächterfrau", "Pachtsucher", "paula@example.org", "peter@example.org", "9990000", "9991111", "Musterfrau", "erika@example.org"]) assert.ok(!text.includes(verboten), `${verboten} darf nicht in der Antwort stehen`);
 
   // Ein Paar, das nicht vorgemerkt ist, hat keine Knöpfe — erst vormerken (per Aktion paar)
