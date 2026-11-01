@@ -229,7 +229,16 @@ export async function boerseOfflineNehmen(ids: string[], grund: string, von: str
  * und nie für Angebote, die schon einmal offline genommen wurden (`offline` gesetzt) — die bleiben
  * offline, bis die Verwaltung sie selbst veröffentlicht.
  */
-export async function boerseVeroeffentlichen(id: string, von: string, wie = "automatisch nach Einwilligung (R1)"): Promise<{ ok: boolean; grund?: string; code?: string; luecken?: string[] }> {
+/**
+ * `linkErlaubt: false` = für Einwilligungen per Bestätigungslink ist kein Platz im Tageszähler reserviert (die API reserviert vorab): dann
+ * wird so ein Eintrag hier, innerhalb derselben Zustandsänderung, nicht veröffentlicht — auch wenn die Einwilligung erst nach dem Vorab-Lesen kam.
+ */
+export async function boerseVeroeffentlichen(
+  id: string,
+  von: string,
+  wie = "automatisch nach Einwilligung (R1)",
+  opt: { linkErlaubt?: boolean } = {},
+): Promise<{ ok: boolean; grund?: string; code?: string; luecken?: string[] }> {
   const [leads, kundenListe, vorgaenge] = await Promise.all([listLeads(), alleKunden(), alleVorgaenge()]);
   const lead = leads.find((x) => x.id === id);
   if (!lead) return { ok: false, grund: "Anfrage nicht gefunden" };
@@ -251,6 +260,10 @@ export async function boerseVeroeffentlichen(id: string, von: string, wie = "aut
     }
     if (b.online || b.offline) {
       grund = b.online ? "schon online" : `von Hand offline genommen (${b.offline?.grund ?? "—"})`;
+      return;
+    }
+    if (b.einwilligung.quelle === LINK_QUELLE && opt.linkErlaubt === false) {
+      grund = "Einwilligung per Bestätigungslink: Im Tageszähler war kein Platz reserviert — bitte noch einmal versuchen";
       return;
     }
     const luecken = boerseLuecken(b, leadView(lead, meta));

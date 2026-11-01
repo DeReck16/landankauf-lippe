@@ -9,6 +9,7 @@ const DIR = testUmgebung();
 const Z = await import("@/lib/api/zugang");
 const B = await import("@/lib/api/board");
 const store = await import("@/lib/admin/store");
+const { boerseVeroeffentlichen } = await import("@/lib/boerse");
 const boardRoute = await import("@/app/api/verwaltung/board/route");
 const ichRoute = await import("@/app/api/verwaltung/ich/route");
 
@@ -405,6 +406,14 @@ test("Börsen-Angebote: offline nehmen und öffentliche Angaben anpassen — mit
   assert.equal(voll.status, 429, "zehn Link-Einträge sind erreicht");
   assert.match(await voll.text(), /Verwaltung online/);
   assert.equal((await meta("LL-TEST0014")).online, false);
+
+  // Kam die Link-Einwilligung erst nach dem Vorab-Lesen, ohne reservierten Platz: die Veröffentlichung selbst lehnt ab
+  const ohnePlatz = await boerseVeroeffentlichen("LL-TEST0014", "API: Test", "per API nach Einwilligung", { linkErlaubt: false });
+  assert.equal(ohnePlatz.ok, false);
+  assert.match(ohnePlatz.grund ?? "", /Tageszähler/);
+  assert.equal((await meta("LL-TEST0014")).online, false);
+  assert.equal((await boerseVeroeffentlichen("LL-TEST0014", "API: Test", "per API nach Einwilligung", { linkErlaubt: true })).ok, true);
+  assert.equal((await meta("LL-TEST0014")).online, true);
 
   const tag = new Date().toISOString().slice(0, 10);
   const prot = (await store.jsonLesen<{ eintraege: { aktion: string; ref: string }[] }>(`admin/api-protokoll/${tag}.json`))?.daten.eintraege ?? [];

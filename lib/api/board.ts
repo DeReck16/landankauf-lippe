@@ -398,11 +398,13 @@ async function boerseOnline(anfrage: string, wer: string): Promise<AktionErgebni
   const lead = leads.find((l) => l.id === anfrage);
   const meta = zustand.anfragen[anfrage];
   const b = meta?.boerse;
+  let linkPlatz = false;
   if (lead && b?.einwilligung?.quelle === LINK_QUELLE && !b.online && !b.offline && boerseLuecken(b, leadView(lead, meta)).length === 0) {
-    const frei = await drosseln("boerse-bestaetigung", "alle", [{ sekunden: 86_400, max: BESTAETIGUNG_LIMIT_PRO_TAG }]);
-    if (!frei) return { ok: false, status: 429, fehler: `Heute sind schon ${BESTAETIGUNG_LIMIT_PRO_TAG} Einwilligungen per Bestätigungslink allein online gegangen. Weitere stellt die Verwaltung online (Schutz vor Massen-Einträgen).` };
+    linkPlatz = await drosseln("boerse-bestaetigung", "alle", [{ sekunden: 86_400, max: BESTAETIGUNG_LIMIT_PRO_TAG }]);
+    if (!linkPlatz) return { ok: false, status: 429, fehler: `Heute sind schon ${BESTAETIGUNG_LIMIT_PRO_TAG} Einwilligungen per Bestätigungslink allein online gegangen. Weitere stellt die Verwaltung online (Schutz vor Massen-Einträgen).` };
   }
-  const r = await boerseVeroeffentlichen(anfrage, wer, "per API nach Einwilligung");
+  // Der Platz ist vorab reserviert; kam die Einwilligung per Link erst nach dem Lesen oben, lehnt die Veröffentlichung selbst ab (ohne Platz).
+  const r = await boerseVeroeffentlichen(anfrage, wer, "per API nach Einwilligung", { linkErlaubt: linkPlatz });
   if (r.ok) {
     await apiProtokoll(wer, "boerse", anfrage, `Veröffentlicht (${r.code})`);
     erneuern();
