@@ -1,8 +1,8 @@
 import "server-only";
 import { createHmac } from "node:crypto";
 import { sessionSecret } from "@/lib/admin/config";
-import { leadView, type LeadView } from "@/lib/admin/model";
-import { drosseln, kurzwert, listLeads, readZustand } from "@/lib/admin/store";
+import { leadView, type LeadMeta, type LeadView } from "@/lib/admin/model";
+import { drosseln, kurzwert, listLeads, mutateZustand, readZustand } from "@/lib/admin/store";
 import { anbieterAbgleichFuer } from "@/lib/portal/anbieter-gruppe";
 import { alleAktionen, assistentPlan } from "@/lib/portal/assistent";
 import type { AssistentAktion } from "@/lib/portal/assistent-typen";
@@ -14,6 +14,7 @@ import * as M from "@/lib/portal/model";
 import { basisUrl } from "@/lib/portal/sitzung";
 import { alleKunden, istPaarKey, ladeEinstellungen } from "@/lib/portal/speicher";
 import * as V from "@/lib/portal/vorgang";
+import { WEG_NAME } from "@/lib/portal/weg";
 import { site } from "@/lib/site";
 import { eigeneAngaben, schwaerzen, type AktionErgebnis } from "./board";
 
@@ -272,4 +273,45 @@ export async function knopfAusfuehren(e: KnopfEingabe, von: string, zugangId: st
   const text = zeilen.map((z) => `${z.art === "fehler" ? "FEHLER" : z.art === "ok" ? "ok" : "Hinweis"}: ${rein(z.text, ids, an, 240)}`).join(" · ");
   if (zeilen.some((z) => z.art === "fehler") && !zeilen.some((z) => z.art === "ok")) return { ok: false, status: 409, fehler: text || "Nicht ausgeführt." };
   return { ok: true, text: text || "Ausgeführt." };
+}
+
+/**
+ * Weg eines Angebots auf „Vermitteln“ setzen — die einzige Wahl, die die API trifft (keine Mail, kein Statuswechsel, nur die Weiche; in der
+ * Verwaltung jederzeit wieder offen zu machen). „Selbst kaufen“ nimmt die Börse offline und braucht einen Preis: nur die Verwaltung. Die Routine
+ * trifft die Wahl nach Rücksprache mit Codex (siehe Skill). Alle Prüfungen stehen in derselben Zustandsänderung wie das Schreiben: Stellt die
+ * Verwaltung gleichzeitig auf „Selbst kaufen“ um, bleibt es dabei.
+ */
+export async function wegVermitteln(anfrage: string, von: string): Promise<{ ok: boolean; geaendert: boolean; ergebnis: AktionErgebnis }> {
+  const nein = (status: 404 | 409, fehler: string) => ({ ok: false, geaendert: false, ergebnis: { ok: false as const, status, fehler } });
+  const lead = (await ansichten()).leads.get(anfrage);
+  if (!lead) return nein(404, "Anfrage nicht gefunden.");
+  if (lead.rolle !== "angebot") return nein(409, "Den Weg gibt es nur bei Angeboten (Verkaufen/Verpachten).");
+  let fehler: string | null = null;
+  let geaendert = false;
+  let schonSo = false;
+  await mutateZustand(von, (z) => {
+    fehler = null;
+    geaendert = false;
+    schonSo = false;
+    const meta: LeadMeta = { ...(z.anfragen[anfrage] ?? {}) };
+    if (meta.weg === "ankauf") {
+      fehler = "Für dieses Angebot ist „Selbst kaufen“ gewählt — das ändert nur die Verwaltung.";
+      return;
+    }
+    if (meta.weg === "vermittlung") {
+      schonSo = true;
+      return;
+    }
+    if (meta.status === "archiv" || meta.status === "erledigt") {
+      fehler = "Die Anfrage ist erledigt oder archiviert.";
+      return;
+    }
+    meta.weg = "vermittlung";
+    meta.geaendert = { am: new Date().toISOString(), von };
+    z.anfragen[anfrage] = meta;
+    geaendert = true;
+    return { was: `Weg → ${WEG_NAME.vermittlung}`, ref: anfrage };
+  });
+  if (fehler) return nein(409, fehler);
+  return { ok: true, geaendert, ergebnis: { ok: true, text: schonSo ? "Der Weg war schon „Vermitteln“." : "Weg → Vermitteln." } };
 }

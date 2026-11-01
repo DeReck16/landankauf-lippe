@@ -405,6 +405,36 @@ test("Klick-Assistent per API: Rechte, Eingabe, Kauf bleibt draußen, Rechts-Sch
   assert.equal((await knopf(vorgang, { key: "LL-TEST0020~LL-TEST0021", id: "hinweise", signatur: "abcdef0123456789" })).status, 409, "mit Weg Vermitteln: nur noch die Signatur trennt");
 });
 
+test("Weg per API: nur „Vermitteln“, nur bei Angeboten, „Selbst kaufen“ bleibt bei der Verwaltung", async () => {
+  const r = await Z.zugangAnlegen("admin@example.com", { name: "Weg Test", rechte: ["board:lesen", "board:vorgang"], tage: 30 });
+  assert.equal(r.ok, true);
+  if (!r.ok) return;
+  const weg = (s: string, anfrage: string, wert: unknown = "vermittlung") => post(s, { aktion: "weg", anfrage, weg: wert });
+  await anfrage("LL-TEST0016", { intent: "Verpachten", name: "Wilma Weide", email: "weide2@example.org", ort: "Lage" });
+  await anfrage("LL-TEST0017", { intent: "Verkaufen", name: "Wolfgang Wiese", email: "wiese@example.org", ort: "Lage" });
+  await anfrage("LL-TEST0018", { intent: "Fläche gesucht (Pacht)", name: "Werner Wald", email: "wald@example.org", ort: "Lage" });
+  await store.mutateZustand("test", (z) => {
+    z.anfragen["LL-TEST0017"] = { ...(z.anfragen["LL-TEST0017"] ?? {}), weg: "ankauf" };
+  });
+
+  assert.equal((await weg(lesen, "LL-TEST0016")).status, 403, "ohne board:vorgang geht es nicht");
+  assert.equal((await weg(r.schluessel, "LL-TEST0016", "ankauf")).status, 400, "Selbst kaufen gibt es per API nie");
+  assert.equal((await weg(r.schluessel, "LL-TEST0016", ["vermittlung"])).status, 400);
+  assert.equal((await weg(r.schluessel, "kein-id")).status, 400);
+  assert.equal((await weg(r.schluessel, "LL-TESTGIBTSNICHT")).status, 404);
+  assert.equal((await weg(r.schluessel, "LL-TEST0018")).status, 409, "bei Gesuchen gibt es keinen Weg");
+  assert.equal((await weg(r.schluessel, "LL-TEST0017")).status, 409, "eine Entscheidung „Selbst kaufen“ ändert nur die Verwaltung");
+  assert.equal((await store.readZustand()).zustand.anfragen["LL-TEST0017"].weg, "ankauf");
+
+  assert.equal((await weg(r.schluessel, "LL-TEST0016")).status, 200);
+  assert.equal((await store.readZustand()).zustand.anfragen["LL-TEST0016"].weg, "vermittlung");
+  const verlauf = await store.verlaufLesen("LL-TEST0016", (await store.readZustand()).zustand.protokoll);
+  assert.ok(verlauf.some((e) => e.von === "API: Weg Test" && e.was.includes("Vermitteln")));
+  const nochmal = await weg(r.schluessel, "LL-TEST0016");
+  assert.equal(nochmal.status, 200);
+  assert.match(await nochmal.text(), /schon/);
+});
+
 test("Klick-Assistent: Schwärzung kennt auch die Kundenakte, die Signatur für die API ist an Zugang und Geheimnis gebunden", async () => {
   const { rein, apiSignatur } = await import("@/lib/api/vorgaenge");
   const lead = { id: "LL-TEST0030", name: "Paula Pächterin", email: "paula@example.org", phone: "0171 1112222" } as unknown as import("@/lib/admin/model").LeadView;

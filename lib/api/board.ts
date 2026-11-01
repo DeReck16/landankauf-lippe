@@ -182,7 +182,8 @@ export type BoardAktion =
   | { aktion: "boerse"; anfrage: string; was: "offline" }
   | { aktion: "boerse"; anfrage: string; was: "veroeffentlichen" }
   | { aktion: "boerse"; anfrage: string; was: "aendern"; aenderung: BoerseAenderung }
-  | { aktion: "knopf"; key: string; id: string; ziel: string; signatur: string; kauf: boolean };
+  | { aktion: "knopf"; key: string; id: string; ziel: string; signatur: string; kauf: boolean }
+  | { aktion: "weg"; anfrage: string; weg: "vermittlung" };
 
 /** Öffentliche Angaben eines Börsen-Angebots, die per API geändert werden dürfen (alles andere nur in der Verwaltung). */
 export type BoerseAenderung = { typ?: string; groesseHa?: number | null; lage?: string; text?: string; details?: Partial<Record<keyof BoerseDetails, string>> };
@@ -251,6 +252,11 @@ export function aktionPruefen(roh: unknown): { ok: true; aktion: BoardAktion } |
     if (Object.keys(a).length === 0) return nein("Nichts zu ändern angegeben (typ, groesseHa, lage, text, details).");
     return { ok: true, aktion: { aktion: "boerse", anfrage: b.anfrage, was: "aendern", aenderung: a } };
   }
+  if (b.aktion === "weg") {
+    if (!istText(b.anfrage) || !ID.test(b.anfrage)) return nein("anfrage: LL-… erwartet.");
+    if (b.weg !== "vermittlung") return nein("weg: nur „vermittlung“ per API — „Selbst kaufen“ (Börse, Preis) entscheidet nur die Verwaltung.");
+    return { ok: true, aktion: { aktion: "weg", anfrage: b.anfrage, weg: "vermittlung" } };
+  }
   if (b.aktion === "knopf") {
     if (!istText(b.key) || !PAAR.test(b.key)) return nein("key: LL-…~LL-… erwartet.");
     if (!istText(b.id) || !/^[a-z-]{3,30}$/.test(b.id)) return nein("id: Name des Knopfs (einladen, erinnern, hinweise, freigeben, …).");
@@ -260,7 +266,7 @@ export function aktionPruefen(roh: unknown): { ok: true; aktion: BoardAktion } |
     if (b.kauf !== undefined && typeof b.kauf !== "boolean") return nein("kauf: true oder false.");
     return { ok: true, aktion: { aktion: "knopf", key: b.key, id: b.id, ziel, signatur: b.signatur, kauf: b.kauf === true } };
   }
-  return nein("Aktion unbekannt (notiz, status, paar, boerse, knopf).");
+  return nein("Aktion unbekannt (notiz, status, paar, boerse, knopf, weg).");
 }
 
 /** Welche Rechte eine geprüfte Aktion erlauben (eines davon genügt). Angebot offline nehmen darf auch, wer abschließen darf. */
@@ -268,7 +274,7 @@ export function rechteFuer(a: BoardAktion): Recht[] {
   if (a.aktion === "notiz") return ["board:notiz"];
   if (a.aktion === "paar") return ["board:paare"];
   if (a.aktion === "boerse") return a.was === "offline" ? ["board:boerse", "board:abschliessen"] : ["board:boerse"];
-  if (a.aktion === "knopf") return ["board:vorgang"];
+  if (a.aktion === "knopf" || a.aktion === "weg") return ["board:vorgang"];
   return [geschlossen(a.status) ? "board:abschliessen" : "board:status"];
 }
 
@@ -327,6 +333,15 @@ export async function boardAktion(a: BoardAktion, von: string, zugangId: string)
     return { ok: true, text: st.geaendert ? `Status → ${LEAD_STATUS[neu].label}` : "Status war schon so gesetzt." };
   }
 
+  if (a.aktion === "weg") {
+    const { wegVermitteln } = await import("./vorgaenge");
+    const r = await wegVermitteln(a.anfrage, wer);
+    if (r.ok && r.geaendert) {
+      await apiProtokoll(wer, "weg", a.anfrage, "Weg → Vermitteln");
+      erneuern();
+    }
+    return r.ergebnis;
+  }
   if (a.aktion === "knopf") {
     // Eigenes Modul (Klick-Assistent); erst bei Bedarf geladen, weil es dieses hier für die Schwärzung braucht.
     const { knopfAusfuehren } = await import("./vorgaenge");
@@ -390,7 +405,7 @@ const geschlossen = (s: LeadStatus | undefined): boolean => s === "erledigt" || 
  * Eigenes, nie gekürztes Protokoll aller Änderungen per API (eine Datei je Tag). Das Gesamtprotokoll und der Verlauf
  * je Anfrage sind in der Länge begrenzt und könnten durch Masse verdrängt werden — hier bleibt jede Änderung stehen.
  */
-async function apiProtokoll(von: string, aktion: "notiz" | "status" | "paar" | "boerse" | "knopf", ref: string, was: string): Promise<void> {
+async function apiProtokoll(von: string, aktion: "notiz" | "status" | "paar" | "boerse" | "knopf" | "weg", ref: string, was: string): Promise<void> {
   const am = new Date().toISOString();
   await jsonAendern<{ v: 1; eintraege: { am: string; von: string; aktion: string; ref: string; was: string }[] }>(
     `admin/api-protokoll/${am.slice(0, 10)}.json`,
