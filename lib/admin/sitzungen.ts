@@ -33,6 +33,20 @@ export async function sitzungNochGueltig(ausgestelltSek: number): Promise<boolea
   }
 }
 
+/**
+ * Wie `sitzungNochGueltig`, aber direkt aus dem Speicher (ohne Zwischenspeicher) und bei Lesefehlern „ungültig“.
+ * Für Vorgänge, die nach „Alle Sitzungen beenden“ nicht mehr durchgehen dürfen (z. B. einen API-Schlüssel anlegen).
+ */
+export async function sitzungNochGueltigUngepuffert(ausgestelltSek: number): Promise<boolean> {
+  try {
+    const s = (await jsonLesen<SitzungsSperren>(PFAD))?.daten ?? {};
+    return !s.alleVor || ausgestelltSek >= s.alleVor;
+  } catch (err) {
+    console.error("[sitzungen] Sperrliste nicht lesbar — Vorgang abgelehnt", err);
+    return false;
+  }
+}
+
 /** Alle bisher ausgestellten Sitzungen (alle Geräte, alle Admins) beenden. */
 export async function alleSitzungenBeenden(von: string): Promise<number> {
   const jetzt = Math.floor(Date.now() / 1000);

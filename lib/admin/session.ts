@@ -3,7 +3,7 @@ import { cache } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { SESSION_COOKIE } from "./config";
-import { sitzungNochGueltig } from "./sitzungen";
+import { sitzungNochGueltig, sitzungNochGueltigUngepuffert } from "./sitzungen";
 import { createSessionToken, verifySessionToken } from "./token";
 
 // Data Access Layer: jede Verwaltungsseite und jede Server Action prüft die
@@ -46,5 +46,5 @@ export async function endSession(): Promise<void> {
  */
 export async function sitzungNochGueltigFrisch(): Promise<boolean> {
   const session = verifySessionToken((await cookies()).get(SESSION_COOKIE)?.value);
-  return session !== null && (await sitzungNochGueltig(session.i));
+  return session !== null && (await sitzungNochGueltigUngepuffert(session.i));
 }
