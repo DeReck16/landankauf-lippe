@@ -381,6 +381,21 @@ test("Börsen-Angebote: offline nehmen und öffentliche Angaben anpassen — mit
   assert.ok(verlauf10.some((e) => e.von.startsWith("API: ") && e.was.includes("per API nach Einwilligung")));
   assert.equal((await online("LL-TEST0010")).status, 200, "zweiter Aufruf: schon online");
 
+  // Einwilligung per Bestätigungslink: derselbe Tageszähler wie beim Link selbst (Schutz vor Massen-Einträgen)
+  const link = { am: "2026-10-01", quelle: "per Bestätigungslink", von: "Kunde" };
+  await anfrage("LL-TEST0013", { intent: "Verpachten", name: "Karla Rain", ort: "Lage", email: "rain@example.org" });
+  await anfrage("LL-TEST0014", { intent: "Verpachten", name: "Lars Feld", ort: "Lage", email: "feld@example.org" });
+  await store.mutateZustand("test", (z) => {
+    z.anfragen["LL-TEST0013"] = { boerse: { code: "LF-8004", typ: "Ackerland", groesseHa: 2, lage: "Lage", text: "Ruhige Fläche am Ortsrand", einwilligung: link, online: false } };
+    z.anfragen["LL-TEST0014"] = { boerse: { code: "LF-8005", typ: "Ackerland", groesseHa: 2, lage: "Lage", text: "Ruhige Fläche am Ortsrand", einwilligung: link, online: false } };
+  });
+  assert.equal((await online("LL-TEST0013")).status, 200, "erster Link-Eintrag des Tages geht online");
+  for (let i = 0; i < 9; i++) await store.drosseln("boerse-bestaetigung", "alle", [{ sekunden: 86_400, max: 10 }]);
+  const voll = await online("LL-TEST0014");
+  assert.equal(voll.status, 429, "zehn Link-Einträge sind erreicht");
+  assert.match(await voll.text(), /Verwaltung online/);
+  assert.equal((await meta("LL-TEST0014")).online, false);
+
   const tag = new Date().toISOString().slice(0, 10);
   const prot = (await store.jsonLesen<{ eintraege: { aktion: string; ref: string }[] }>(`admin/api-protokoll/${tag}.json`))?.daten.eintraege ?? [];
   assert.ok(prot.filter((e) => e.aktion === "boerse" && e.ref === "LL-TEST0006").length >= 3);

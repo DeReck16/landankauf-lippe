@@ -2,7 +2,7 @@ import "server-only";
 import { revalidatePath } from "next/cache";
 import { menueErneuern } from "@/lib/admin/menue";
 import { LEAD_STATUS, MATCH_STATUS, formatGroesse, leadView, paarKey, type BoerseMeta, type LeadMeta, type LeadStatus, type LeadView, type MatchMeta } from "@/lib/admin/model";
-import { boerseNeuSchreiben, boerseVeroeffentlichen } from "@/lib/boerse";
+import { BESTAETIGUNG_LIMIT_PRO_TAG, LINK_QUELLE, boerseNeuSchreiben, boerseVeroeffentlichen } from "@/lib/boerse";
 import { DETAIL_FELDER, boerseLuecken, detailsBereinigen, type BoerseDetails } from "@/lib/boerse-regeln";
 import { FLAECHENTYPEN } from "@/lib/lead-options";
 import { drosseln, jsonAendern, kurzwert, listLeads, mutateZustand, readZustand, verlaufLesen } from "@/lib/admin/store";
@@ -392,6 +392,16 @@ function luckenFuerApi(luecken: string[]): string[] {
  * kein Widerruf/Kündigung/Sperre des Eigentümers (`sperrGrund`), und nie ein Angebot, das offline genommen wurde (das öffnet nur die Verwaltung).
  */
 async function boerseOnline(anfrage: string, wer: string): Promise<AktionErgebnis> {
+  // Schutz vor Massen-Einträgen wie beim Bestätigungslink: Einwilligungen per Link gehen höchstens BESTAETIGUNG_LIMIT_PRO_TAG je Tag allein
+  // online (gemeinsamer Zähler); darüber stellt sie nur die Verwaltung online. Gezählt wird nur, was sonst wirklich online ginge.
+  const [leads, { zustand }] = await Promise.all([listLeads(), readZustand()]);
+  const lead = leads.find((l) => l.id === anfrage);
+  const meta = zustand.anfragen[anfrage];
+  const b = meta?.boerse;
+  if (lead && b?.einwilligung?.quelle === LINK_QUELLE && !b.online && !b.offline && boerseLuecken(b, leadView(lead, meta)).length === 0) {
+    const frei = await drosseln("boerse-bestaetigung", "alle", [{ sekunden: 86_400, max: BESTAETIGUNG_LIMIT_PRO_TAG }]);
+    if (!frei) return { ok: false, status: 429, fehler: `Heute sind schon ${BESTAETIGUNG_LIMIT_PRO_TAG} Einwilligungen per Bestätigungslink allein online gegangen. Weitere stellt die Verwaltung online (Schutz vor Massen-Einträgen).` };
+  }
   const r = await boerseVeroeffentlichen(anfrage, wer, "per API nach Einwilligung");
   if (r.ok) {
     await apiProtokoll(wer, "boerse", anfrage, `Veröffentlicht (${r.code})`);
