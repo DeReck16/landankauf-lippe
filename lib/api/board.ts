@@ -110,7 +110,8 @@ export type PaarZeile = {
   geaendert: string | null;
 };
 
-export async function boardLesen(opt: { status?: "offen" | "alle"; paare?: "aktiv" | "alle"; anfrage?: string; details?: boolean }) {
+/** `leser`: Verlaufsname des fragenden Zugangs („API: <Name>“). */
+export async function boardLesen(opt: { status?: "offen" | "alle"; paare?: "aktiv" | "alle"; anfrage?: string; details?: boolean; leser?: string }) {
   const [leads, { zustand }, kunden] = await Promise.all([listLeads(), readZustand(), alleKunden()]);
   const akten = new Map(kunden.map((k) => [k.id, k]));
   const views = leads.map((l) => leadView(l, zustand.anfragen[l.id]));
@@ -128,7 +129,10 @@ export async function boardLesen(opt: { status?: "offen" | "alle"; paare?: "akti
       paare: Object.entries(zustand.paare)
         .filter(([k]) => k.split("~").includes(v.id))
         .map(([k, p]) => paarZeile(k, p, Boolean(opt.details) && eig)),
-      verlauf: verlauf.slice(0, 40).map((e) => ({ am: e.am, von: e.von.includes("@") ? "Verwaltung" : e.von, was: schwaerzen(e.was, eig) })),
+      // Den eigenen Text sieht ein Zugang nur allgemein geschwärzt: Würde er anfragespezifisch geschwärzt, verriete „[entfernt]“
+      // einem Schlüssel mit Schreib- und Leserecht, ob ein geratener Name zur Anfrage gehört. Alles andere (auch Text anderer
+      // Zugänge) bleibt voll geschwärzt, damit kein Zugang fremde Namen weiterreicht.
+      verlauf: verlauf.slice(0, 40).map((e) => ({ am: e.am, von: e.von.includes("@") ? "Verwaltung" : e.von, was: schwaerzen(e.was, opt.leser && e.von === opt.leser ? null : eig) })),
     };
   }
 
@@ -391,6 +395,12 @@ async function boerseAendern(a: Extract<BoardAktion, { aktion: "boerse" }>, wer:
       st.was = `Aus der Flächenbörse genommen (${b.code})`;
     } else {
       const neu = a.aenderung;
+      // Online ändert die API nur Typ und Größe. Bei Freitext ließe sich über die Ablehnung („enthält den Namen des
+      // Eigentümers“) ein Name erraten; die Ablehnung hängt hier nie vom Inhalt ab. Freitext: erst offline nehmen oder in der Verwaltung.
+      if (b.online && (neu.lage !== undefined || neu.text !== undefined || neu.details !== undefined)) {
+        st.fehler = { ok: false, status: 409, fehler: "Das Angebot steht online: Lage, Text und Zusatzangaben ändert die Verwaltung. Per API erst offline nehmen (was: offline), dann ändern." };
+        return;
+      }
       if (neu.typ !== undefined) b.typ = neu.typ;
       if (neu.groesseHa !== undefined) b.groesseHa = neu.groesseHa;
       if (neu.lage !== undefined) b.lage = neu.lage;

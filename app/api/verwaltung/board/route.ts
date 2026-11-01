@@ -55,6 +55,7 @@ export async function GET(request: Request) {
     paare: q.get("paare") === "alle" ? "alle" : "aktiv",
     anfrage,
     details: Boolean(anfrage) && details,
+    leser: pruefung.von,
   });
   if (!daten) return fehler(404, "Anfrage nicht gefunden.");
   return NextResponse.json({ ok: true, ...daten }, { headers: KEIN_CACHE });

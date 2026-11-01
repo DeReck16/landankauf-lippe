@@ -52,7 +52,9 @@ export async function POST(request: Request) {
   for (const u of (Array.isArray(body.uebernehmen) ? (body.uebernehmen as Uebernahme[]) : []).slice(0, 10)) {
     const anfrage = typeof u.anfrage === "string" ? u.anfrage : "";
     const art = typeof u.art === "string" ? u.art : "";
-    const von = typeof u.von === "string" && u.von.trim() ? u.von.trim().slice(0, 60) : "postfach";
+    // „API: …“ gehört den API-Zugängen (das Board behandelt deren Verlaufstext anders) und lässt sich hier nicht vortäuschen.
+    const angegeben = typeof u.von === "string" ? u.von.trim().slice(0, 60) : "";
+    const von = angegeben && !/^api\s*:/i.test(angegeben) ? angegeben : "postfach";
     if (!/^LL-[A-Z0-9]+$/.test(anfrage) || !istRueckmeldungArt(art)) {
       uebernommen.push({ anfrage: anfrage || "?", ok: false, text: "Anfrage oder Antwort ungültig." });
       continue;

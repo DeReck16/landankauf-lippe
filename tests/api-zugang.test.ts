@@ -63,7 +63,7 @@ test("Zugang anlegen: Schlüssel nur einmal, im Speicher nur der Hash", async ()
   if (!r.ok) return;
   assert.match(r.schluessel, /^lfk_[a-f0-9]{10}_[A-Za-z0-9_-]{43}$/);
   schreiben = r.schluessel;
-  const geheimnis = r.schluessel.split("_")[2];
+  const geheimnis = r.schluessel.split("_").slice(2).join("_");
   assert.ok(!speicherText().includes(geheimnis), "Geheimnis darf nirgends im Speicher stehen");
   assert.ok(!JSON.stringify(await Z.zugaengeListe()).includes("hash"), "Liste ohne Hash");
 
@@ -82,6 +82,11 @@ test("Zugang anlegen: ungültige Eingaben und Doppelnamen werden abgelehnt", asy
   assert.equal((await Z.zugangAnlegen("a", { name: "Zu lang", rechte: ["board:lesen"], tage: 5000 })).ok, false);
   const doppelt = await Z.zugangAnlegen("a", { name: "tagesbearbeitung", rechte: ["board:lesen"], tage: 30 });
   assert.equal(doppelt.ok, false);
+  // Auch ein gesperrter Name bleibt vergeben: Der Name steht im Verlauf, ein neuer Zugang soll nicht als dessen Urheber gelten
+  const alt1 = await Z.zugangAnlegen("a", { name: "Wechsel", rechte: ["board:lesen"], tage: 30 });
+  assert.equal(alt1.ok, true);
+  if (alt1.ok) assert.equal(await Z.zugangSperren("a", alt1.id), true);
+  assert.equal((await Z.zugangAnlegen("a", { name: "wechsel", rechte: ["board:lesen"], tage: 30 })).ok, false, "gesperrter Name ist nicht frei");
 });
 
 test("Prüfung: gültig, falsch, fehlend, Recht fehlt", async () => {
@@ -220,7 +225,7 @@ test("Anmeldeprobe /ich nennt Name und Rechte, nie den Schlüssel", async () => 
   assert.equal(d.ok, true);
   assert.equal(d.zugang.name, "Nur lesen");
   assert.deepEqual(d.zugang.rechte, ["board:lesen"]);
-  assert.ok(!text.includes(lesen.split("_")[2]));
+  assert.ok(!text.includes(lesen.split("_").slice(2).join("_")));
   assert.equal((await ichRoute.GET(new Request("https://lippeforst.de/api/verwaltung/ich"))).status, 401);
 });
 
@@ -275,6 +280,27 @@ test("Notizen und Verlauf: nur mit board:details, Adressen und Nummern geschwär
   assert.ok(!liste.includes("Rückruf"), "in der Liste stehen nie Paar-Notizen");
 });
 
+test("Eigene Notizen eines Zugangs werden nicht anfragespezifisch geschwärzt, fremde schon (kein Rate-Orakel über „[entfernt]“)", async () => {
+  await anfrage("LL-TEST0009", { name: "Karl Orakel", email: "orakel@example.org", phone: "0171 5550000" });
+  assert.equal((await post(schreiben, { aktion: "notiz", anfrage: "LL-TEST0009", text: "Karl Orakel meldet sich, mail orakel@example.org" })).status, 200);
+  assert.equal((await post(schreiben, { aktion: "notiz", anfrage: "LL-TEST0009", text: "Berta Beispiel meldet sich, mail beispiel@example.org" })).status, 200);
+  await store.mutateZustand("admin@example.com", () => ({ was: "Notiz: Karl Orakel rief an", ref: "LL-TEST0009" }));
+  const detail = async (s: string) => (await boardRoute.GET(new Request("https://lippeforst.de/api/verwaltung/board?anfrage=LL-TEST0009", { headers: { authorization: `Bearer ${s}` } }))).text();
+
+  const eigen = await detail(schreiben);
+  assert.ok(eigen.includes("Karl Orakel meldet sich") && eigen.includes("Berta Beispiel meldet sich"), "geratener Name und echter Name sehen für den Schreiber gleich aus");
+  assert.ok(!eigen.includes("@example.org"), "Adressen bleiben allgemein geschwärzt");
+  assert.ok(!eigen.includes("Karl Orakel rief an") && eigen.includes("[entfernt] rief an"), "Text der Verwaltung bleibt anfragespezifisch geschwärzt");
+
+  // Ein anderer Zugang sieht den Text des ersten voll geschwärzt: kein Namen-Weiterreichen
+  const anderer = await Z.zugangAnlegen("admin@example.com", { name: "Fremd lesen", rechte: ["board:lesen", "board:details"], tage: 30 });
+  assert.equal(anderer.ok, true);
+  if (!anderer.ok) return;
+  const fremd = await detail(anderer.schluessel);
+  assert.ok(!fremd.includes("Karl Orakel") && fremd.includes("[entfernt] meldet sich"));
+  assert.ok(fremd.includes("Berta Beispiel meldet sich"));
+});
+
 test("Börsen-Angebote: offline nehmen und öffentliche Angaben anpassen — mit Leck-Prüfung und eigenen Rechten", async () => {
   await anfrage("LL-TEST0006", { intent: "Verpachten", name: "Maxine Börsenfrau", ort: "Lage", email: "boerse@example.org" });
   await store.mutateZustand("test", (z) => {
@@ -299,13 +325,18 @@ test("Börsen-Angebote: offline nehmen und öffentliche Angaben anpassen — mit
   assert.equal((await aendern(schreiben, { details: { gibtsnicht: "x" } })).status, 400);
   assert.equal((await post(schreiben, { aktion: "boerse", anfrage: "LL-TEST0006", was: "veroeffentlichen" })).status, 400, "Veröffentlichen gibt es per API nicht");
 
-  // Ändern: gültig, dann verräterisch (online → 422, Angebot bleibt unverändert)
-  assert.equal((await aendern(schreiben, { text: "Ruhige Wiese am Ortsrand", groesseHa: 2.5, details: { frei: "ab sofort" } })).status, 200);
+  // Online: nur Typ und Größe. Freitext lehnt die API immer gleich ab — die Antwort darf nie verraten, ob ein Name zum Eigentümer passt
+  assert.equal((await aendern(schreiben, { groesseHa: 2.5 })).status, 200);
   const b = await boerseMeta();
-  assert.deepEqual([b.text, b.groesseHa, b.details?.frei, b.online], ["Ruhige Wiese am Ortsrand", 2.5, "ab sofort", true]);
-  assert.equal((await aendern(schreiben, { text: "Fläche von Maxine, Rufnummer 0171 1234567" })).status, 422);
-  assert.equal((await aendern(schreiben, { lage: "Lage, Flur 5 Flurstück 12" })).status, 422);
-  assert.equal((await boerseMeta()).text, "Ruhige Wiese am Ortsrand");
+  assert.deepEqual([b.text, b.groesseHa, b.online], ["Ruhige Fläche am Ortsrand", 2.5, true]);
+  const mitName = await aendern(schreiben, { text: "Fläche von Börsenfrau" });
+  const ohneName = await aendern(schreiben, { text: "Fläche von Beispielmann" });
+  assert.equal(mitName.status, 409);
+  assert.equal(ohneName.status, 409);
+  assert.equal(await mitName.text(), await ohneName.text(), "gleiche Antwort, ob der Name passt oder nicht");
+  assert.equal((await aendern(schreiben, { lage: "Lage, Flur 5 Flurstück 12" })).status, 409);
+  assert.equal((await aendern(schreiben, { details: { frei: "ab sofort" } })).status, 409);
+  assert.equal((await boerseMeta()).text, "Ruhige Fläche am Ortsrand");
 
   // Offline nehmen: mit Börsen-Recht und mit Abschließen-Recht; zweiter Aufruf ist wirkungslos
   assert.equal((await post(abschluss, { aktion: "boerse", anfrage: "LL-TEST0006", was: "offline" })).status, 200);

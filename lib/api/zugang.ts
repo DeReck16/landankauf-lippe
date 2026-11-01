@@ -110,8 +110,9 @@ export async function zugangAnlegen(von: string, eingabe: { name: string; rechte
       fehler = `Höchstens ${MAX_AKTIVE_ZUGAENGE} aktive Zugänge — erst einen sperren.`;
       return false;
     }
-    if (Object.values(d.zugaenge).some((z) => istAktiv(z) && z.name.toLowerCase() === name.toLowerCase())) {
-      fehler = "Es gibt schon einen aktiven Zugang mit diesem Namen.";
+    // Auch gesperrte und abgelaufene Namen zählen: Der Name steht im Verlauf, und ein neuer Zugang soll darin nicht als Urheber alter Einträge gelten.
+    if (Object.values(d.zugaenge).some((z) => z.name.toLowerCase() === name.toLowerCase())) {
+      fehler = "Es gibt schon einen Zugang mit diesem Namen (auch gesperrte zählen) — nimm einen neuen Namen.";
       return false;
     }
     d.zugaenge[id] = zugang;
