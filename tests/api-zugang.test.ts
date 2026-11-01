@@ -224,3 +224,53 @@ test("Höchstens 20 aktive Zugänge", async () => {
   }
   assert.equal(abgelehnt, true);
 });
+
+test("Eingabe: Nicht-Texte und Fantasie-Status werden abgewiesen, bevor Rechte oder Zustand berührt werden", async () => {
+  const vorher = JSON.stringify((await store.readZustand()).zustand);
+  const faelle: unknown[] = [
+    { aktion: "status", anfrage: "LL-TEST0001", status: ["erledigt"] },
+    { aktion: "status", anfrage: "LL-TEST0001", status: "constructor" },
+    { aktion: "status", anfrage: "LL-TEST0001", status: "__proto__" },
+    { aktion: "status", anfrage: ["LL-TEST0001"], status: "in_arbeit" },
+    { aktion: "notiz", paar: ["LL-TEST0001~LL-TEST0002"], text: "x" },
+    { aktion: "notiz", anfrage: ["LL-TEST0001"], text: "x" },
+    { aktion: "notiz", anfrage: "LL-TEST0001", text: ["x"] },
+    { aktion: "notiz", anfrage: "LL-TEST0001", paar: "LL-TEST0001~LL-TEST0002", text: "beides" },
+    { aktion: "notiz", text: "weder noch" },
+    { aktion: "paar", angebot: ["LL-TEST0001"], gesuch: "LL-TEST0002", status: "vorgemerkt" },
+    { aktion: "paar", angebot: "LL-TEST0001", gesuch: "LL-TEST0002", status: ["vorgemerkt"] },
+    { aktion: ["status"], anfrage: "LL-TEST0001", status: "neu" },
+    ["status"],
+    "status",
+    null,
+  ];
+  for (const f of faelle) {
+    // Auch mit allen Rechten: kein Weg an der Prüfung vorbei.
+    const res = await boardRoute.POST(mitSchluessel(schreiben, { method: "POST", body: JSON.stringify(f) }));
+    assert.equal(res.status, 400, `abgewiesen: ${JSON.stringify(f)}`);
+  }
+  assert.equal(JSON.stringify((await store.readZustand()).zustand), vorher, "der Zustand bleibt unverändert");
+});
+
+test("Notizen und Verlauf: nur mit board:details, Adressen und Nummern geschwärzt", async () => {
+  await store.mutateZustand("test", (z) => {
+    z.anfragen["LL-TEST0001"] = { ...(z.anfragen["LL-TEST0001"] ?? {}), notiz: "Frau Muster, 0171 1234567, erika@example.org" };
+    z.paare["LL-TEST0001~LL-TEST0002"] = { status: "vorgemerkt", notiz: "Rückruf +49 171 7654321" };
+  });
+  assert.equal((await post(schreiben, { aktion: "notiz", anfrage: "LL-TEST0001", text: "Rückruf unter 0171 7654321 oder karl@example.org" })).status, 200);
+
+  const detail = (s: string) => boardRoute.GET(new Request("https://lippeforst.de/api/verwaltung/board?anfrage=LL-TEST0001", { headers: { authorization: `Bearer ${s}` } }));
+
+  const kurz = await (await detail(lesen)).text();
+  assert.ok(!kurz.includes("Muster, "), "ohne board:details keine Notiz");
+  assert.ok(!kurz.includes("1234567") && !kurz.includes("7654321") && !kurz.includes("@example.org"));
+  assert.ok(!kurz.includes("Rückruf"), "auch keine Notiz am Paar und kein Verlauf");
+
+  const voll = await (await detail(schreiben)).text();
+  assert.ok(voll.includes("[E-Mail]") && voll.includes("[Telefon]"));
+  assert.ok(!voll.includes("1234567") && !voll.includes("7654321") && !voll.includes("@example.org"));
+  assert.ok(voll.includes("2026-"), "Datumsangaben bleiben lesbar");
+
+  const liste = await (await boardRoute.GET(mitSchluessel(schreiben))).text();
+  assert.ok(!liste.includes("Rückruf"), "in der Liste stehen nie Paar-Notizen");
+});

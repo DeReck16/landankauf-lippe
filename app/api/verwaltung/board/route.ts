@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { hasBlobToken } from "@/lib/admin/config";
-import { boardAktion, boardLesen, rechtFuer, type BoardAktion } from "@/lib/api/board";
+import { aktionPruefen, boardAktion, boardLesen, rechtFuer } from "@/lib/api/board";
 import { zugangPruefen } from "@/lib/api/zugang";
 
 // Board der Verwaltung per API — nur mit API-Zugang (Bearer lfk_…), Rechte siehe lib/api/zugang.ts.
@@ -43,15 +43,16 @@ export async function POST(request: Request) {
   const grund = await zugangPruefen(request);
   if (!grund.ok) return fehler(grund.status, grund.fehler);
   if (!hasBlobToken()) return fehler(503, "Kein Speicher verbunden.");
-  let body: BoardAktion;
+  let roh: unknown;
   try {
-    body = (await request.json()) as BoardAktion;
+    roh = await request.json();
   } catch {
     return fehler(400, "Kein gültiges JSON.");
   }
-  if (!body || typeof body !== "object" || !["notiz", "status", "paar"].includes(body.aktion)) return fehler(400, "Aktion unbekannt (notiz, status, paar).");
-  const recht = rechtFuer(body);
+  const p = aktionPruefen(roh);
+  if (!p.ok) return fehler(400, p.fehler);
+  const recht = rechtFuer(p.aktion);
   if (!grund.zugang.rechte.includes(recht)) return fehler(403, `Recht fehlt: ${recht}`);
-  const r = await boardAktion(body, grund.von);
+  const r = await boardAktion(p.aktion, grund.von);
   return r.ok ? NextResponse.json({ ok: true, text: r.text }, { headers: KEIN_CACHE }) : fehler(r.status, r.fehler);
 }

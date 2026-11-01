@@ -13,6 +13,15 @@ import type { Recht } from "./zugang";
 // Nie möglich: Mails senden, einladen, Zustimmungen/Freigabe, Börse veröffentlichen, Löschen.
 
 const ID = /^LL-[A-Z0-9]+$/;
+const PAAR = /^LL-[A-Z0-9]+~LL-[A-Z0-9]+$/;
+
+const MAIL = /[^\s@<>()]+@[^\s@<>()]+\.[^\s@<>()]+/g;
+const TELEFON = /(?<![\w.])(?:\+\d{1,3}|0\d)[\d\s/()-]{6,}\d/g;
+
+/** Freitext (Notizen, Verlauf) enthält gelegentlich Adressen oder Nummern — sie verlassen die Verwaltung nicht per API. */
+export function schwaerzen(text: string): string {
+  return text.replace(MAIL, "[E-Mail]").replace(TELEFON, "[Telefon]");
+}
 
 export type BoardZeile = {
   id: string;
@@ -88,13 +97,12 @@ export async function boardLesen(opt: { status?: "offen" | "alle"; paare?: "akti
     return {
       anfrage: {
         ...zeile(v, stufe(akten.get(v.id))),
-        ...(opt.details ? { nachricht: v.message === "—" ? "" : v.message.slice(0, 2000) } : {}),
-        notiz: v.meta.notiz ?? null,
+        ...(opt.details ? { nachricht: v.message === "—" ? "" : schwaerzen(v.message.slice(0, 2000)), notiz: schwaerzen(v.meta.notiz ?? "") || null } : {}),
       },
       paare: Object.entries(zustand.paare)
         .filter(([k]) => k.split("~").includes(v.id))
-        .map(([k, p]) => paarZeile(k, p)),
-      verlauf: verlauf.slice(0, 40).map((e) => ({ am: e.am, von: e.von.includes("@") ? "Verwaltung" : e.von, was: e.was })),
+        .map(([k, p]) => paarZeile(k, p, Boolean(opt.details))),
+      verlauf: verlauf.slice(0, 40).map((e) => ({ am: e.am, von: e.von.includes("@") ? "Verwaltung" : e.von, was: schwaerzen(e.was) })),
     };
   }
 
@@ -104,7 +112,7 @@ export async function boardLesen(opt: { status?: "offen" | "alle"; paare?: "akti
     .map((l) => zeile(l, stufe(akten.get(l.id))));
   const paare = Object.entries(zustand.paare)
     .filter(([, p]) => (opt.paare ?? "aktiv") === "alle" || p.status !== "verworfen")
-    .map(([k, p]) => paarZeile(k, p))
+    .map(([k, p]) => paarZeile(k, p, false))
     .sort((a, b) => (b.geaendert ?? "").localeCompare(a.geaendert ?? ""));
   return {
     stand: new Date().toISOString(),
@@ -114,7 +122,7 @@ export async function boardLesen(opt: { status?: "offen" | "alle"; paare?: "akti
   };
 }
 
-function paarZeile(key: string, p: MatchMeta): PaarZeile {
+function paarZeile(key: string, p: MatchMeta, mitNotiz: boolean): PaarZeile {
   const [angebot, gesuch] = key.split("~");
   return {
     key,
@@ -124,7 +132,7 @@ function paarZeile(key: string, p: MatchMeta): PaarZeile {
     zustimmungAnbieter: p.zustimmungAnbieter ?? null,
     zustimmungSuchender: p.zustimmungSuchender ?? null,
     ablehnung: p.ablehnung ? { rolle: p.ablehnung.rolle, am: p.ablehnung.am } : null,
-    notiz: p.notiz ?? null,
+    notiz: mitNotiz && p.notiz ? schwaerzen(p.notiz) : null,
     geaendert: p.geaendert?.am ?? null,
   };
 }
@@ -133,13 +141,45 @@ function paarZeile(key: string, p: MatchMeta): PaarZeile {
 // Einträge
 
 export type BoardAktion =
-  | { aktion: "notiz"; anfrage?: string; paar?: string; text: string }
-  | { aktion: "status"; anfrage: string; status: string }
-  | { aktion: "paar"; angebot: string; gesuch: string; status: string };
+  | { aktion: "notiz"; anfrage: string; text: string }
+  | { aktion: "notiz"; paar: string; text: string }
+  | { aktion: "status"; anfrage: string; status: LeadStatus }
+  | { aktion: "paar"; angebot: string; gesuch: string; status: "vorgemerkt" | "verworfen" };
 
 export type AktionErgebnis = { ok: true; text: string } | { ok: false; status: 400 | 403 | 404 | 409 | 422; fehler: string };
 
-/** Welches Recht eine Aktion braucht (für die Prüfung vor dem Ausführen). */
+const istText = (x: unknown): x is string => typeof x === "string";
+
+/**
+ * Eingabe streng prüfen, bevor irgendein Recht oder Zustand angefasst wird: nur echte Texte in den erwarteten
+ * Formen (ein Array oder Objekt, das „zufällig“ wie ein Text aussieht, wird abgewiesen).
+ */
+export function aktionPruefen(roh: unknown): { ok: true; aktion: BoardAktion } | { ok: false; fehler: string } {
+  const nein = (fehler: string) => ({ ok: false as const, fehler });
+  if (!roh || typeof roh !== "object" || Array.isArray(roh)) return nein("Kein gültiges JSON-Objekt.");
+  const b = roh as Record<string, unknown>;
+  if (b.aktion === "notiz") {
+    if (!istText(b.text)) return nein("text muss ein Text sein.");
+    const text = b.text.replace(/\s+/g, " ").trim().slice(0, 500);
+    if (!text) return nein("Text fehlt.");
+    if ((b.anfrage === undefined) === (b.paar === undefined)) return nein("Entweder anfrage (LL-…) oder paar (LL-…~LL-…) angeben.");
+    if (b.paar !== undefined) return istText(b.paar) && PAAR.test(b.paar) ? { ok: true, aktion: { aktion: "notiz", paar: b.paar, text } } : nein("paar: LL-…~LL-… erwartet.");
+    return istText(b.anfrage) && ID.test(b.anfrage) ? { ok: true, aktion: { aktion: "notiz", anfrage: b.anfrage, text } } : nein("anfrage: LL-… erwartet.");
+  }
+  if (b.aktion === "status") {
+    if (!istText(b.anfrage) || !ID.test(b.anfrage)) return nein("anfrage: LL-… erwartet.");
+    if (!istText(b.status) || !Object.hasOwn(LEAD_STATUS, b.status)) return nein("Status unbekannt (neu, in_arbeit, beantwortet, erledigt, archiv).");
+    return { ok: true, aktion: { aktion: "status", anfrage: b.anfrage, status: b.status as LeadStatus } };
+  }
+  if (b.aktion === "paar") {
+    if (!istText(b.angebot) || !ID.test(b.angebot) || !istText(b.gesuch) || !ID.test(b.gesuch)) return nein("angebot und gesuch: LL-… erwartet.");
+    if (b.status !== "vorgemerkt" && b.status !== "verworfen") return nein("Status: vorgemerkt oder verworfen.");
+    return { ok: true, aktion: { aktion: "paar", angebot: b.angebot, gesuch: b.gesuch, status: b.status } };
+  }
+  return nein("Aktion unbekannt (notiz, status, paar).");
+}
+
+/** Welches Recht eine geprüfte Aktion braucht. */
 export function rechtFuer(a: BoardAktion): Recht {
   if (a.aktion === "notiz") return "board:notiz";
   if (a.aktion === "paar") return "board:paare";
@@ -149,22 +189,16 @@ export function rechtFuer(a: BoardAktion): Recht {
 export async function boardAktion(a: BoardAktion, von: string): Promise<AktionErgebnis> {
   const wer = von.slice(0, 80);
   if (a.aktion === "notiz") {
-    const text = String(a.text ?? "").replace(/\s+/g, " ").trim().slice(0, 500);
-    if (!text) return { ok: false, status: 400, fehler: "Text fehlt." };
-    const ref = a.paar ?? a.anfrage ?? "";
-    const gueltig = a.paar ? /^LL-[A-Z0-9]+~LL-[A-Z0-9]+$/.test(ref) : ID.test(ref);
-    if (!gueltig) return { ok: false, status: 400, fehler: "Anfrage (LL-…) oder Paar (LL-…~LL-…) angeben." };
+    const ref = "paar" in a ? a.paar : a.anfrage;
     const { zustand } = await readZustand();
-    const existiert = a.paar ? Boolean(zustand.paare[ref]) || (await paarMoeglich(ref)) : (await listLeads()).some((l) => l.id === ref);
+    const existiert = "paar" in a ? Boolean(zustand.paare[ref]) || (await paarMoeglich(ref)) : (await listLeads()).some((l) => l.id === ref);
     if (!existiert) return { ok: false, status: 404, fehler: "Nicht gefunden." };
-    await mutateZustand(wer, () => ({ was: `Notiz: ${text}`, ref }));
+    await mutateZustand(wer, () => ({ was: `Notiz: ${a.text}`, ref }));
     return { ok: true, text: "Notiz im Verlauf eingetragen." };
   }
 
   if (a.aktion === "status") {
-    if (!ID.test(a.anfrage ?? "")) return { ok: false, status: 400, fehler: "Anfrage (LL-…) fehlt." };
-    if (!(a.status in LEAD_STATUS)) return { ok: false, status: 400, fehler: "Status unbekannt (neu, in_arbeit, beantwortet, erledigt, archiv)." };
-    const neu = a.status as LeadStatus;
+    const neu = a.status;
     const leads = await listLeads();
     if (!leads.some((l) => l.id === a.anfrage)) return { ok: false, status: 404, fehler: "Anfrage nicht gefunden." };
     const st: { fehler: AktionErgebnis | null; geaendert: boolean } = { fehler: null, geaendert: false };
@@ -190,33 +224,29 @@ export async function boardAktion(a: BoardAktion, von: string): Promise<AktionEr
     return { ok: true, text: st.geaendert ? `Status → ${LEAD_STATUS[neu].label}` : "Status war schon so gesetzt." };
   }
 
-  if (a.aktion === "paar") {
-    if (!ID.test(a.angebot ?? "") || !ID.test(a.gesuch ?? "")) return { ok: false, status: 400, fehler: "Angebot und Gesuch (LL-…) angeben." };
-    if (a.status !== "vorgemerkt" && a.status !== "verworfen") return { ok: false, status: 400, fehler: "Status: vorgemerkt oder verworfen." };
-    const key = paarKey(a.angebot, a.gesuch);
-    if (a.status === "vorgemerkt" && !(await paarMoeglich(key))) {
-      return { ok: false, status: 422, fehler: "Passt nicht: Angebot und Gesuch müssen vorhanden, nicht archiviert und von gleicher Art (Kauf/Pacht) sein." };
-    }
-    const st: { fehler: AktionErgebnis | null; geaendert: boolean } = { fehler: null, geaendert: false };
-    await mutateZustand(wer, (z) => {
-      const alt = z.paare[key];
-      if (alt?.status === "kontakt" || alt?.status === "abschluss") {
-        st.fehler = { ok: false, status: 409, fehler: "Kontakt ist schon freigegeben — nur in der Verwaltung änderbar." };
-        return;
-      }
-      if (a.status === "vorgemerkt" && alt && alt.status !== "vorschlag" && alt.status !== "verworfen") return; // schon weiter
-      if (alt?.status === a.status) return;
-      const meta: MatchMeta = { ...(alt ?? { status: "vorschlag" }), status: a.status as MatchMeta["status"] };
-      meta.geaendert = { am: new Date().toISOString(), von: wer };
-      z.paare[key] = meta;
-      st.geaendert = true;
-      return { was: a.status === "vorgemerkt" ? "Paar vorgemerkt" : "Paar verworfen", ref: key };
-    });
-    if (st.fehler) return st.fehler;
-    if (st.geaendert) erneuern();
-    return { ok: true, text: st.geaendert ? `Paar ${MATCH_STATUS[a.status as "vorgemerkt" | "verworfen"].label.toLowerCase()}.` : "Keine Änderung nötig." };
+  // Rest: a.aktion === "paar"
+  const key = paarKey(a.angebot, a.gesuch);
+  if (a.status === "vorgemerkt" && !(await paarMoeglich(key))) {
+    return { ok: false, status: 422, fehler: "Passt nicht: Angebot und Gesuch müssen vorhanden, nicht archiviert und von gleicher Art (Kauf/Pacht) sein." };
   }
-  return { ok: false, status: 400, fehler: "Aktion unbekannt (notiz, status, paar)." };
+  const st: { fehler: AktionErgebnis | null; geaendert: boolean } = { fehler: null, geaendert: false };
+  await mutateZustand(wer, (z) => {
+    const alt = z.paare[key];
+    if (alt?.status === "kontakt" || alt?.status === "abschluss") {
+      st.fehler = { ok: false, status: 409, fehler: "Kontakt ist schon freigegeben — nur in der Verwaltung änderbar." };
+      return;
+    }
+    if (a.status === "vorgemerkt" && alt && alt.status !== "vorschlag" && alt.status !== "verworfen") return; // schon weiter
+    if (alt?.status === a.status) return;
+    const meta: MatchMeta = { ...(alt ?? { status: "vorschlag" }), status: a.status };
+    meta.geaendert = { am: new Date().toISOString(), von: wer };
+    z.paare[key] = meta;
+    st.geaendert = true;
+    return { was: a.status === "vorgemerkt" ? "Paar vorgemerkt" : "Paar verworfen", ref: key };
+  });
+  if (st.fehler) return st.fehler;
+  if (st.geaendert) erneuern();
+  return { ok: true, text: st.geaendert ? `Paar ${MATCH_STATUS[a.status].label.toLowerCase()}.` : "Keine Änderung nötig." };
 }
 
 /** Beide Anfragen gibt es, sind nicht archiviert, Rolle passt, gleiche Art. */
