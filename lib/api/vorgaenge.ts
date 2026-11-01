@@ -49,7 +49,7 @@ export function knopfGrund(id: string, art: VorgangArt, vermittlung: boolean, au
   if (art === "unklar") return "Die Art (Pacht oder Kauf) ist nicht eindeutig — nur die Verwaltung.";
   if (art === "kauf") {
     if (!KAUF_KNOEPFE.includes(id as ApiKnopf)) return `Bei Kauf nur ${KAUF_KNOEPFE.join(" und ")} (die Automatik nimmt Kauf aus, bis der GwG-Ablauf steht) — der Rest bleibt in der Verwaltung.`;
-    if (!kauf) return "Kauf läuft per API nur mit ausdrücklichem kauf:true (nur auf Anweisung von Dennis, nie in der Routine).";
+    if (!kauf) return "Kauf läuft per API nur mit dem Recht board:vorgang-kauf und ausdrücklichem kauf:true (nur auf Anweisung von Dennis, nie in der Routine).";
   }
   if (RECHTSSCHALTER.includes(id) && !(automatik.recht34c && automatik.vorlagenGeprueft)) {
     return "Gesperrt, bis in den Einstellungen „§ 34c-Erlaubnis liegt vor“ und „Vorlagen anwaltlich geprüft“ bestätigt sind (dieselbe Sperre wie bei der Automatik).";
@@ -128,8 +128,8 @@ export function apiSignatur(zugangId: string, key: string, id: string, ziel: str
 
 const istVermittlung = (ids: string[], an: Ansichten): boolean => an.leads.get(ids[0])?.meta.weg === "vermittlung";
 
-function aktionAnsicht(a: AssistentAktion, art: VorgangArt, automatik: AutomatikEinstellungen, ids: string[], an: Ansichten, key: string, zugangId: string) {
-  const grund = knopfGrund(a.id, art, istVermittlung(ids, an), automatik, true);
+function aktionAnsicht(a: AssistentAktion, art: VorgangArt, automatik: AutomatikEinstellungen, ids: string[], an: Ansichten, key: string, zugangId: string, kaufRecht: boolean) {
+  const grund = knopfGrund(a.id, art, istVermittlung(ids, an), automatik, kaufRecht);
   return {
     id: a.id,
     ziel: a.ziel ?? null,
@@ -139,14 +139,14 @@ function aktionAnsicht(a: AssistentAktion, art: VorgangArt, automatik: Automatik
     signatur: apiSignatur(zugangId, key, a.id, a.ziel ?? "", art, a.signatur),
     mails: a.mails.map((m) => ({ zweck: m.zweck, rolle: m.rolle })),
     api: grund === null && !a.gesperrt,
-    /** Bei Kauf nur mit ausdrücklichem kauf:true im Aufruf (nur auf Anweisung von Dennis). */
+    /** Bei Kauf nur mit dem Recht board:vorgang-kauf und kauf:true im Aufruf (nur auf Anweisung von Dennis). */
     nurMitKauf: art === "kauf",
     apiGrund: grund,
   };
 }
 
 /** Aufgaben („Jetzt zu tun“), Vorgänge mit ihren Knöpfen und die offenen Matching-Vorschläge — alles ohne personenbezogene Angaben. */
-export async function vorgaengeLesen(zugangId: string) {
+export async function vorgaengeLesen(zugangId: string, kaufRecht: boolean) {
   const [dash, an, einstellungen] = await Promise.all([ladeDashboard("api@lippeforst.de", site.url), ansichten(), ladeEinstellungen()]);
   const automatik = automatikVon(einstellungen.automatik);
   const vorgaenge = [...dash.jetzt, ...dash.warten].map((x) => {
@@ -160,7 +160,7 @@ export async function vorgaengeLesen(zugangId: string) {
       stand: rein(x.plan.stand, ids, an),
       wartetSeit: x.plan.wartetSeit,
       boerse: x.boerse,
-      aktionen: alleAktionen(x.plan).map((a) => aktionAnsicht(a, artVon(x.art, ids, an), automatik, ids, an, x.key, zugangId)),
+      aktionen: alleAktionen(x.plan).map((a) => aktionAnsicht(a, artVon(x.art, ids, an), automatik, ids, an, x.key, zugangId, kaufRecht)),
     };
   });
   const aufgaben = aufgabenAus(dash).map((a) => {

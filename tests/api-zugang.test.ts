@@ -325,6 +325,8 @@ test("Klick-Assistent per API: Rechte, Eingabe, Kauf bleibt draußen, Rechts-Sch
   const d = JSON.parse(text);
   assert.ok(Array.isArray(d.aufgaben) && Array.isArray(d.vorgaenge) && Array.isArray(d.vorschlaege));
   assert.deepEqual(Object.keys(d.automatik).sort(), ["notAus", "probelauf", "regeln", "rechtsschalter"].sort());
+  const kaufKnoepfe = d.vorgaenge.filter((v: { art: string }) => v.art === "kauf").flatMap((v: { aktionen: { api: boolean }[] }) => v.aktionen);
+  assert.ok(kaufKnoepfe.every((a: { api: boolean }) => a.api === false), "ohne board:vorgang-kauf ist bei Kauf nichts per API möglich")
   for (const verboten of ["Pächterfrau", "Pachtsucher", "paula@example.org", "peter@example.org", "9990000", "9991111", "Musterfrau", "erika@example.org"]) assert.ok(!text.includes(verboten), `${verboten} darf nicht in der Antwort stehen`);
 
   // Ein Paar, das nicht vorgemerkt ist, hat keine Knöpfe — erst vormerken (per Aktion paar)
@@ -352,7 +354,14 @@ test("Klick-Assistent per API: Rechte, Eingabe, Kauf bleibt draußen, Rechts-Sch
   assert.match(await kauf.text(), /Kauf/);
 
   // Kauf geht nur mit ausdrücklichem kauf:true und nur für Einladen und Hinweise (die Automatik nimmt Kauf aus, bis der GwG-Ablauf steht)
-  const kk = (id: string, extra: Record<string, unknown> = {}) => knopf(vorgang, { key: "LL-TEST0001~LL-TEST0002", id, signatur: "abcdef0123456789", ...extra });
+  const kaufZugang = await Z.zugangAnlegen("admin@example.com", { name: "Vorgang Kauf Test", rechte: ["board:lesen", "board:vorgang", "board:vorgang-kauf"], tage: 30 });
+  assert.equal(kaufZugang.ok, true);
+  if (!kaufZugang.ok) return;
+  // Ohne das eigene Recht reicht das Flag nicht
+  const ohneRecht = await knopf(vorgang, { key: "LL-TEST0001~LL-TEST0002", id: "einladen", signatur: "abcdef0123456789", kauf: true });
+  assert.equal(ohneRecht.status, 403);
+  assert.match(await ohneRecht.text(), /board:vorgang-kauf/);
+  const kk = (id: string, extra: Record<string, unknown> = {}) => knopf(kaufZugang.schluessel, { key: "LL-TEST0001~LL-TEST0002", id, signatur: "abcdef0123456789", ...extra });
   assert.equal((await kk("einladen", { kauf: "ja" })).status, 400, "kauf muss ein echter Wahrheitswert sein");
   assert.equal((await kk("einladen", { kauf: false })).status, 403);
   assert.equal((await kk("einladen", { kauf: true })).status, 409, "mit kauf:true erreicht Einladen die Signaturprüfung");

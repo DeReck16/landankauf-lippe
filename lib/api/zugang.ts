@@ -22,6 +22,7 @@ export const RECHTE = {
   "board:paare": "Paare vormerken oder verwerfen (keine Mail, keine Freigabe)",
   "board:boerse": "Angebote in der Flächenbörse anonym online stellen (nur mit Einwilligung des Eigentümers, ohne Namen und Adresse im Text), offline nehmen und ihre öffentlichen Angaben anpassen",
   "board:vorgang": "Aufgaben, Vorgänge und Matching-Vorschläge des Dashboards lesen (ohne Namen) und die Knöpfe Einladen, Erinnern, Hinweise und Freigeben drücken — mit denselben Sperren wie im Dashboard; Hinweise und Freigabe nur, wenn die Rechts-Bestätigungen der Automatik gesetzt sind, Kauf nie",
+  "board:vorgang-kauf": "Bei Kauf-Vorgängen Einladen und Hinweise drücken (zusätzlich zu board:vorgang; nur auf ausdrückliche Anweisung von Dennis, nie für die Routine — Kauf gilt bei der Automatik als ausgenommen, bis der GwG-Ablauf steht)",
 } as const;
 export type Recht = keyof typeof RECHTE;
 

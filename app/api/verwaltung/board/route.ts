@@ -52,7 +52,7 @@ export async function GET(request: Request) {
   if (q.get("vorgaenge") !== null) {
     if (!pruefung.zugang.rechte.includes("board:vorgang")) return fehler(403, "Recht fehlt: board:vorgang");
     const { vorgaengeLesen } = await import("@/lib/api/vorgaenge");
-    return NextResponse.json({ ok: true, ...(await vorgaengeLesen(pruefung.zugang.id)) }, { headers: KEIN_CACHE });
+    return NextResponse.json({ ok: true, ...(await vorgaengeLesen(pruefung.zugang.id, pruefung.zugang.rechte.includes("board:vorgang-kauf"))) }, { headers: KEIN_CACHE });
   }
   const details = pruefung.zugang.rechte.includes("board:details");
   const daten = await boardLesen({
@@ -83,6 +83,8 @@ export async function POST(request: Request) {
   if (!p.ok) return fehler(400, p.fehler);
   const rechte = rechteFuer(p.aktion);
   if (!rechte.some((r) => grund.zugang.rechte.includes(r))) return fehler(403, `Recht fehlt: ${rechte.join(" oder ")}`);
+  // Kauf braucht ein eigenes Recht (nicht nur das Flag im Aufruf): Die Routine hält es nie.
+  if (p.aktion.aktion === "knopf" && p.aktion.kauf && !grund.zugang.rechte.includes("board:vorgang-kauf")) return fehler(403, "Recht fehlt: board:vorgang-kauf");
   const r = await boardAktion(p.aktion, grund.von, grund.zugang.id);
   return r.ok ? NextResponse.json({ ok: true, text: r.text }, { headers: KEIN_CACHE }) : fehler(r.status, r.fehler);
 }
