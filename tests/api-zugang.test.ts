@@ -324,29 +324,62 @@ test("Börsen-Angebote: offline nehmen und öffentliche Angaben anpassen — mit
   assert.equal((await aendern(schreiben, { groesseHa: -3 })).status, 400);
   assert.equal((await aendern(schreiben, { text: "siehe https://beispiel.example" })).status, 400);
   assert.equal((await aendern(schreiben, { details: { gibtsnicht: "x" } })).status, 400);
-  assert.equal((await post(schreiben, { aktion: "boerse", anfrage: "LL-TEST0006", was: "veroeffentlichen" })).status, 400, "Veröffentlichen gibt es per API nicht");
+  assert.equal((await post(lesen, { aktion: "boerse", anfrage: "LL-TEST0006", was: "veroeffentlichen" })).status, 403, "Veröffentlichen braucht board:boerse");
+  assert.equal((await post(schreiben, { aktion: "boerse", anfrage: "LL-TEST0006", was: "gibtsnicht" })).status, 400);
 
-  // Online: nur Typ und Größe. Freitext lehnt die API immer gleich ab — die Antwort darf nie verraten, ob ein Name zum Eigentümer passt
-  assert.equal((await aendern(schreiben, { groesseHa: 2.5 })).status, 200);
+  // Online ändern: gültig, dann verräterisch (422, Angebot bleibt unverändert). Die Gründe nennen Name, Flur und Nummer nie einzeln.
+  assert.equal((await aendern(schreiben, { text: "Ruhige Wiese am Ortsrand", groesseHa: 2.5, details: { frei: "ab sofort" } })).status, 200);
   const b = await boerseMeta();
-  assert.deepEqual([b.text, b.groesseHa, b.online], ["Ruhige Fläche am Ortsrand", 2.5, true]);
+  assert.deepEqual([b.text, b.groesseHa, b.details?.frei, b.online], ["Ruhige Wiese am Ortsrand", 2.5, "ab sofort", true]);
   const mitName = await aendern(schreiben, { text: "Fläche von Börsenfrau" });
-  const ohneName = await aendern(schreiben, { text: "Fläche von Beispielmann" });
-  assert.equal(mitName.status, 409);
-  assert.equal(ohneName.status, 409);
-  assert.equal(await mitName.text(), await ohneName.text(), "gleiche Antwort, ob der Name passt oder nicht");
-  assert.equal((await aendern(schreiben, { lage: "Lage, Flur 5 Flurstück 12" })).status, 409);
-  assert.equal((await aendern(schreiben, { details: { frei: "ab sofort" } })).status, 409);
-  assert.equal((await boerseMeta()).text, "Ruhige Fläche am Ortsrand");
+  const mitFlur = await aendern(schreiben, { lage: "Lage, Flur 5 Flurstück 12" });
+  assert.equal(mitName.status, 422);
+  assert.equal(mitFlur.status, 422);
+  const nameText = await mitName.text();
+  assert.equal(nameText, await mitFlur.text(), "gleiche Antwort für Name und Flur");
+  assert.ok(nameText.includes("erkennen lassen") && !nameText.includes("Namen des Eigentümers"));
+  assert.equal((await boerseMeta()).text, "Ruhige Wiese am Ortsrand");
 
-  // Offline nehmen: mit Börsen-Recht und mit Abschließen-Recht; zweiter Aufruf ist wirkungslos
+  // Offline nehmen: mit Börsen-Recht und mit Abschließen-Recht; bleibt offline (wie in der Verwaltung); zweiter Aufruf ist wirkungslos
   assert.equal((await post(abschluss, { aktion: "boerse", anfrage: "LL-TEST0006", was: "offline" })).status, 200);
   assert.equal((await boerseMeta()).online, false);
+  assert.match((await boerseMeta()).offline?.grund ?? "", /per API offline genommen/);
   assert.equal((await post(schreiben, { aktion: "boerse", anfrage: "LL-TEST0006", was: "offline" })).status, 200);
   assert.equal((await aendern(schreiben, { text: "Offline geändert" })).status, 200, "offline darf man Angaben anpassen");
   assert.equal((await boerseMeta()).online, false, "Ändern veröffentlicht nie");
+  const wieder = await post(schreiben, { aktion: "boerse", anfrage: "LL-TEST0006", was: "veroeffentlichen" });
+  assert.equal(wieder.status, 409, "was die API offline nahm, öffnet nur die Verwaltung wieder");
+  assert.match(await wieder.text(), /offline genommen/);
+  assert.equal((await boerseMeta()).online, false);
   assert.equal((await post(schreiben, { aktion: "boerse", anfrage: "LL-GIBTSNICHT", was: "offline" })).status, 404);
   assert.equal((await post(schreiben, { aktion: "boerse", anfrage: "LL-TEST0001", was: "offline" })).status, 409, "ohne Börsen-Angebot");
+
+  // Anonym online stellen: nur mit Einwilligung des Eigentümers und ohne Verräterisches
+  const einwilligung = { am: "2026-10-01", quelle: "per E-Mail", von: "test" };
+  await anfrage("LL-TEST0010", { intent: "Verpachten", name: "Hanna Wiesel", ort: "Lage", email: "wiesel@example.org" });
+  await anfrage("LL-TEST0011", { intent: "Verpachten", name: "Ingo Weide", ort: "Lage", email: "weide@example.org" });
+  await anfrage("LL-TEST0012", { intent: "Verpachten", name: "Jutta Koppel", ort: "Lage", email: "koppel@example.org" });
+  await store.mutateZustand("test", (z) => {
+    z.anfragen["LL-TEST0010"] = { boerse: { code: "LF-8001", typ: "Ackerland", groesseHa: 2, lage: "Lage", text: "Ruhige Fläche am Ortsrand", einwilligung, online: false } };
+    z.anfragen["LL-TEST0011"] = { boerse: { code: "LF-8002", typ: "Ackerland", groesseHa: 2, lage: "Lage", text: "Ruhige Fläche am Ortsrand", online: false } };
+    z.anfragen["LL-TEST0012"] = { boerse: { code: "LF-8003", typ: "Ackerland", groesseHa: 2, lage: "Lage", text: "Fläche von Koppel", einwilligung, online: false } };
+  });
+  const online = (id: string) => post(schreiben, { aktion: "boerse", anfrage: id, was: "veroeffentlichen" });
+  const meta = async (id: string) => (await store.readZustand()).zustand.anfragen[id].boerse!;
+
+  assert.equal((await online("LL-TEST0011")).status, 409, "ohne Einwilligung des Eigentümers");
+  assert.equal((await meta("LL-TEST0011")).online, false);
+  const verraeterisch = await online("LL-TEST0012");
+  assert.equal(verraeterisch.status, 422, "Name im Text");
+  assert.ok(!(await verraeterisch.text()).includes("Namen des Eigentümers"));
+  assert.equal((await meta("LL-TEST0012")).online, false);
+  assert.equal((await online("LL-GIBTSNICHT")).status, 404);
+
+  assert.equal((await online("LL-TEST0010")).status, 200);
+  assert.equal((await meta("LL-TEST0010")).online, true);
+  const verlauf10 = await store.verlaufLesen("LL-TEST0010", (await store.readZustand()).zustand.protokoll);
+  assert.ok(verlauf10.some((e) => e.von.startsWith("API: ") && e.was.includes("per API nach Einwilligung")));
+  assert.equal((await online("LL-TEST0010")).status, 200, "zweiter Aufruf: schon online");
 
   const tag = new Date().toISOString().slice(0, 10);
   const prot = (await store.jsonLesen<{ eintraege: { aktion: string; ref: string }[] }>(`admin/api-protokoll/${tag}.json`))?.daten.eintraege ?? [];

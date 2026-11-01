@@ -229,7 +229,7 @@ export async function boerseOfflineNehmen(ids: string[], grund: string, von: str
  * und nie für Angebote, die schon einmal offline genommen wurden (`offline` gesetzt) — die bleiben
  * offline, bis die Verwaltung sie selbst veröffentlicht.
  */
-export async function boerseVeroeffentlichen(id: string, von: string): Promise<{ ok: boolean; grund?: string; code?: string }> {
+export async function boerseVeroeffentlichen(id: string, von: string, wie = "automatisch nach Einwilligung (R1)"): Promise<{ ok: boolean; grund?: string; code?: string; luecken?: string[] }> {
   const [leads, kundenListe, vorgaenge] = await Promise.all([listLeads(), alleKunden(), alleVorgaenge()]);
   const lead = leads.find((x) => x.id === id);
   if (!lead) return { ok: false, grund: "Anfrage nicht gefunden" };
@@ -239,8 +239,10 @@ export async function boerseVeroeffentlichen(id: string, von: string): Promise<{
   let ok = false;
   let grund = "";
   let code = "";
+  let offen: string[] = [];
   await mutateZustand(von, (z) => {
     ok = false;
+    offen = [];
     const meta = z.anfragen[id];
     const b = meta?.boerse;
     if (!meta || !b?.einwilligung) {
@@ -254,15 +256,16 @@ export async function boerseVeroeffentlichen(id: string, von: string): Promise<{
     const luecken = boerseLuecken(b, leadView(lead, meta));
     if (luecken.length) {
       grund = luecken.join(" · ");
+      offen = luecken;
       return;
     }
     z.anfragen[id] = { ...meta, boerse: { ...b, online: true, seit: b.seit ?? jetzt, geaendert: { am: jetzt, von } } };
     ok = true;
     code = b.code;
-    return { was: `In der Flächenbörse veröffentlicht (${b.code}) — automatisch nach Einwilligung (R1)`, ref: id };
+    return { was: `In der Flächenbörse veröffentlicht (${b.code}) — ${wie}`, ref: id };
   });
   if (ok) await boerseNeuSchreiben().catch((err) => console.error("[boerse] Neu schreiben fehlgeschlagen", err));
-  return ok ? { ok, code } : { ok, grund };
+  return ok ? { ok, code } : { ok, grund, luecken: offen };
 }
 
 export const EINWILLIGUNG_QUELLEN = ["telefonisch", "per E-Mail", "schriftlich", "im Kundenbereich"] as const;

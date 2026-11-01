@@ -2,7 +2,7 @@ import "server-only";
 import { revalidatePath } from "next/cache";
 import { menueErneuern } from "@/lib/admin/menue";
 import { LEAD_STATUS, MATCH_STATUS, formatGroesse, leadView, paarKey, type BoerseMeta, type LeadMeta, type LeadStatus, type LeadView, type MatchMeta } from "@/lib/admin/model";
-import { boerseNeuSchreiben } from "@/lib/boerse";
+import { boerseNeuSchreiben, boerseVeroeffentlichen } from "@/lib/boerse";
 import { DETAIL_FELDER, boerseLuecken, detailsBereinigen, type BoerseDetails } from "@/lib/boerse-regeln";
 import { FLAECHENTYPEN } from "@/lib/lead-options";
 import { drosseln, jsonAendern, kurzwert, listLeads, mutateZustand, readZustand, verlaufLesen } from "@/lib/admin/store";
@@ -13,7 +13,7 @@ import type { Recht } from "./zugang";
 
 // Lesen und sichere Einträge am Board der Verwaltung per API (Rechte: lib/api/zugang.ts).
 // Nie dabei: Namen, E-Mail-Adressen, Telefonnummern, Anschriften, Kundenakten-Inhalte, Verträge.
-// Nie möglich: Mails senden, einladen, Zustimmungen/Freigabe, Börse veröffentlichen, Löschen.
+// Nie möglich: Mails senden, einladen, Zustimmungen/Freigabe/Einwilligung erteilen, Löschen. Börse: anonym online stellen nur mit Einwilligung des Eigentümers.
 
 const ID = /^LL-[A-Z0-9]+$/;
 const PAAR = /^LL-[A-Z0-9]+~LL-[A-Z0-9]+$/;
@@ -180,6 +180,7 @@ export type BoardAktion =
   | { aktion: "status"; anfrage: string; status: LeadStatus }
   | { aktion: "paar"; angebot: string; gesuch: string; status: "vorgemerkt" | "verworfen" }
   | { aktion: "boerse"; anfrage: string; was: "offline" }
+  | { aktion: "boerse"; anfrage: string; was: "veroeffentlichen" }
   | { aktion: "boerse"; anfrage: string; was: "aendern"; aenderung: BoerseAenderung };
 
 /** Öffentliche Angaben eines Börsen-Angebots, die per API geändert werden dürfen (alles andere nur in der Verwaltung). */
@@ -218,7 +219,8 @@ export function aktionPruefen(roh: unknown): { ok: true; aktion: BoardAktion } |
   if (b.aktion === "boerse") {
     if (!istText(b.anfrage) || !ID.test(b.anfrage)) return nein("anfrage: LL-… erwartet.");
     if (b.was === "offline") return { ok: true, aktion: { aktion: "boerse", anfrage: b.anfrage, was: "offline" } };
-    if (b.was !== "aendern") return nein("was: offline oder aendern.");
+    if (b.was === "veroeffentlichen") return { ok: true, aktion: { aktion: "boerse", anfrage: b.anfrage, was: "veroeffentlichen" } };
+    if (b.was !== "aendern") return nein("was: offline, veroeffentlichen oder aendern.");
     const a: BoerseAenderung = {};
     if (b.typ !== undefined) {
       if (!istText(b.typ) || !(FLAECHENTYPEN as readonly string[]).includes(b.typ)) return nein(`typ: ${FLAECHENTYPEN.join(", ")}.`);
@@ -314,7 +316,7 @@ export async function boardAktion(a: BoardAktion, von: string, zugangId: string)
     return { ok: true, text: st.geaendert ? `Status → ${LEAD_STATUS[neu].label}` : "Status war schon so gesetzt." };
   }
 
-  if (a.aktion === "boerse") return boerseAendern(a, wer);
+  if (a.aktion === "boerse") return a.was === "veroeffentlichen" ? boerseOnline(a.anfrage, wer) : boerseAendern(a, wer);
 
   // Rest: a.aktion === "paar"
   const key = paarKey(a.angebot, a.gesuch);
@@ -378,7 +380,32 @@ async function apiProtokoll(von: string, aktion: "notiz" | "status" | "paar" | "
   );
 }
 
-async function boerseAendern(a: Extract<BoardAktion, { aktion: "boerse" }>, wer: string): Promise<AktionErgebnis> {
+/** Alles, was den Eigentümer erkennbar machen würde, steht unter einem Satz: keine Auskunft, ob gerade ein Name, eine Flur oder eine Nummer angeschlagen hat. */
+function luckenFuerApi(luecken: string[]): string[] {
+  const rest = luecken.filter((x) => !x.startsWith("Lage oder Text enthält "));
+  return rest.length < luecken.length ? [...rest, "Lage oder Text enthält Angaben, die den Eigentümer erkennen lassen (Name, Adresse, Flur, Nummer)"] : rest;
+}
+
+/**
+ * Angebot anonym online stellen — mit denselben Prüfungen wie in der Verwaltung (`boerseVeroeffentlichen`): Einwilligung des
+ * Eigentümers (Bestätigungslink oder Verwaltung; per API nie erteilbar), keine Namen/Adressen/Flur im Text, keine vergebene Fläche und
+ * kein Widerruf/Kündigung/Sperre des Eigentümers (`sperrGrund`), und nie ein Angebot, das offline genommen wurde (das öffnet nur die Verwaltung).
+ */
+async function boerseOnline(anfrage: string, wer: string): Promise<AktionErgebnis> {
+  const r = await boerseVeroeffentlichen(anfrage, wer, "per API nach Einwilligung");
+  if (r.ok) {
+    await apiProtokoll(wer, "boerse", anfrage, `Veröffentlicht (${r.code})`);
+    erneuern();
+    return { ok: true, text: `Angebot ist online (${r.code}) — anonym, ohne Namen und Adresse.` };
+  }
+  if (r.grund === "Anfrage nicht gefunden") return { ok: false, status: 404, fehler: "Anfrage nicht gefunden." };
+  if (r.grund === "schon online") return { ok: true, text: "Angebot war schon online." };
+  if (r.grund === "keine Einwilligung") return { ok: false, status: 409, fehler: "Nicht veröffentlicht: Der Eigentümer hat der anonymen Veröffentlichung noch nicht zugestimmt (Bestätigungslink aus dem Formular). Die Einwilligung erfasst nur die Verwaltung." };
+  if (r.luecken?.length) return { ok: false, status: 422, fehler: `Nicht veröffentlicht: ${luckenFuerApi(r.luecken).join(" · ")}.` };
+  return { ok: false, status: 409, fehler: `Nicht veröffentlicht: ${r.grund ?? "unbekannter Grund"}.` };
+}
+
+async function boerseAendern(a: Extract<BoardAktion, { aktion: "boerse"; was: "offline" | "aendern" }>, wer: string): Promise<AktionErgebnis> {
   const lead = (await listLeads()).find((l) => l.id === a.anfrage);
   if (!lead) return { ok: false, status: 404, fehler: "Anfrage nicht gefunden." };
   const st: { fehler: AktionErgebnis | null; was: string; oeffentlich: boolean } = { fehler: null, was: "", oeffentlich: false };
@@ -395,16 +422,12 @@ async function boerseAendern(a: Extract<BoardAktion, { aktion: "boerse" }>, wer:
     if (a.was === "offline") {
       if (!b.online) return;
       b.online = false;
+      // Wie in der Verwaltung: von Hand offline genommen bleibt offline, bis die Verwaltung neu veröffentlicht (auch die Automatik rührt es nicht an).
+      b.offline = { am: new Date().toISOString(), grund: `per API offline genommen (${wer})` };
       st.oeffentlich = true;
       st.was = `Aus der Flächenbörse genommen (${b.code})`;
     } else {
       const neu = a.aenderung;
-      // Online ändert die API nur Typ und Größe. Bei Freitext ließe sich über die Ablehnung („enthält den Namen des
-      // Eigentümers“) ein Name erraten; die Ablehnung hängt hier nie vom Inhalt ab. Freitext: erst offline nehmen oder in der Verwaltung.
-      if (b.online && (neu.lage !== undefined || neu.text !== undefined || neu.details !== undefined)) {
-        st.fehler = { ok: false, status: 409, fehler: "Das Angebot steht online: Lage, Text und Zusatzangaben ändert die Verwaltung. Per API erst offline nehmen (was: offline), dann ändern." };
-        return;
-      }
       if (neu.typ !== undefined) b.typ = neu.typ;
       if (neu.groesseHa !== undefined) b.groesseHa = neu.groesseHa;
       if (neu.lage !== undefined) b.lage = neu.lage;
@@ -420,7 +443,7 @@ async function boerseAendern(a: Extract<BoardAktion, { aktion: "boerse" }>, wer:
       if (b.online) {
         const offen = boerseLuecken(b, leadView(lead, { ...meta, boerse: b }));
         if (offen.length) {
-          st.fehler = { ok: false, status: 422, fehler: `Nicht gespeichert — das Angebot steht online, und so dürfte es nicht erscheinen: ${offen.join(" · ")}.` };
+          st.fehler = { ok: false, status: 422, fehler: `Nicht gespeichert — das Angebot steht online, und so dürfte es nicht erscheinen: ${luckenFuerApi(offen).join(" · ")}.` };
           return;
         }
       }
