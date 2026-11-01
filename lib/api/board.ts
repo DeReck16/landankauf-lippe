@@ -332,7 +332,7 @@ export async function boardAktion(a: BoardAktion, von: string, zugangId: string)
     const { knopfAusfuehren } = await import("./vorgaenge");
     const r = await knopfAusfuehren(a, wer, zugangId);
     if (r.ok) {
-      await apiProtokoll(wer, "knopf", a.key, `${a.id}${a.ziel ? ` (${a.ziel})` : ""}`);
+      await apiProtokoll(wer, "knopf", a.key, `${a.id}${a.ziel ? ` (${a.ziel})` : ""}${a.kauf ? " [kauf:true]" : ""}`);
       erneuern();
     }
     return r;
