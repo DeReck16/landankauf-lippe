@@ -405,6 +405,42 @@ test("Klick-Assistent per API: Rechte, Eingabe, Kauf bleibt draußen, Rechts-Sch
   assert.equal((await knopf(vorgang, { key: "LL-TEST0020~LL-TEST0021", id: "hinweise", signatur: "abcdef0123456789" })).status, 409, "mit Weg Vermitteln: nur noch die Signatur trennt");
 });
 
+test("Rechte ändern (nur Verwaltung): derselbe Schlüssel, neue Rechte gelten sofort; per API gibt es das nie", async () => {
+  const r = await Z.zugangAnlegen("admin@example.com", { name: "Rechte Wechsel", rechte: ["board:lesen"], tage: 30 });
+  assert.equal(r.ok, true);
+  if (!r.ok) return;
+  const pruefe = (recht: import("@/lib/api/zugang").Recht) => Z.zugangPruefen(mitSchluessel(r.schluessel), recht);
+  assert.equal((await pruefe("board:notiz")).ok, false);
+
+  const mehr = await Z.zugangRechteAendern("admin@example.com", r.id, ["board:lesen", "board:notiz", "gibt-es-nicht"]);
+  assert.equal(mehr.ok, true);
+  if (mehr.ok) {
+    assert.deepEqual(mehr.zugang.rechte, ["board:lesen", "board:notiz"], "Unbekanntes fällt weg");
+    assert.deepEqual(mehr.zugang.rechteGeaendert?.vorher, ["board:lesen"]);
+    assert.equal(mehr.zugang.rechteGeaendert?.von, "admin@example.com");
+  }
+  assert.equal((await pruefe("board:notiz")).ok, true, "derselbe Schlüssel, neue Rechte sofort");
+
+  const unveraendert = await Z.zugangRechteAendern("admin@example.com", r.id, ["board:notiz", "board:lesen"]);
+  assert.equal(unveraendert.ok && unveraendert.geaendert, false, "gleiche Rechte: keine Änderung, kein Protokolleintrag");
+  const weniger = await Z.zugangRechteAendern("admin@example.com", r.id, ["board:lesen"]);
+  assert.equal(weniger.ok, true);
+  assert.equal((await pruefe("board:notiz")).ok, false, "zurückgenommene Rechte gelten sofort nicht mehr");
+
+  assert.equal((await Z.zugangRechteAendern("admin@example.com", r.id, [])).ok, false, "mindestens ein Recht");
+  assert.equal((await Z.zugangRechteAendern("admin@example.com", r.id, ["gibt-es-nicht"])).ok, false);
+  assert.equal((await Z.zugangRechteAendern("admin@example.com", "0000000000", ["board:lesen"])).ok, false, "unbekannter Zugang");
+
+  // Per API gibt es keine Rechte-Änderung
+  const roh = await post(schreiben, { aktion: "rechte", anfrage: "LL-TEST0001", rechte: ["board:vorgang-kauf"] });
+  assert.equal(roh.status, 400);
+
+  // Gesperrte Zugänge bleiben, wie sie sind
+  assert.equal(await Z.zugangSperren("admin@example.com", r.id), true);
+  const gesperrt = await Z.zugangRechteAendern("admin@example.com", r.id, ["board:lesen", "board:notiz"]);
+  assert.equal(gesperrt.ok, false);
+});
+
 test("Weg per API: nur „Vermitteln“, nur bei Angeboten, „Selbst kaufen“ bleibt bei der Verwaltung", async () => {
   const r = await Z.zugangAnlegen("admin@example.com", { name: "Weg Test", rechte: ["board:lesen", "board:vorgang"], tage: 30 });
   assert.equal(r.ok, true);

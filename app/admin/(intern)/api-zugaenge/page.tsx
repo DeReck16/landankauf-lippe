@@ -3,7 +3,7 @@ import { requireAdmin } from "@/lib/admin/session";
 import { datumZeit } from "@/lib/admin/format";
 import { RECHTE, zugaengeListe, type ZugangInfo } from "@/lib/api/zugang";
 import { site } from "@/lib/site";
-import { zugangSperrenAktion } from "../../api-zugang-actions";
+import { zugangRechteAktion, zugangSperrenAktion } from "../../api-zugang-actions";
 import ZugangFormular from "../../ZugangFormular";
 import BestaetigenKnopf from "../BestaetigenKnopf";
 
@@ -61,7 +61,27 @@ export default async function ApiZugaengePage() {
                   return (
                     <tr key={z.id}>
                       <td title={`Kennung ${z.id}`}>{z.name}</td>
-                      <td className="lfa-klein">{z.rechte.map((r) => <div key={r} title={RECHTE[r]}><code>{r}</code></div>)}</td>
+                      <td className="lfa-klein">
+                        {z.rechte.map((r) => <div key={r} title={RECHTE[r]}><code>{r}</code></div>)}
+                        {z.rechteGeaendert ? <div title={`Vorher: ${z.rechteGeaendert.vorher.join(", ")}`}>Rechte geändert {datumZeit(z.rechteGeaendert.am)}</div> : null}
+                        {z.aktiv && (
+                          <details style={{ marginTop: "0.4rem" }}>
+                            <summary title="Rechte dieses Zugangs ändern, ohne einen neuen Zugang anzulegen — der Schlüssel bleibt derselbe">Rechte ändern</summary>
+                            <form action={zugangRechteAktion}>
+                              <input type="hidden" name="id" value={z.id} />
+                              {rechte.map((r) => (
+                                <label key={r.schluessel} style={{ display: "flex", gap: "0.4rem", margin: "0.2rem 0" }} title={r.text}>
+                                  <input type="checkbox" name="recht" value={r.schluessel} defaultChecked={z.rechte.includes(r.schluessel as (typeof z.rechte)[number])} />
+                                  <code>{r.schluessel}</code>
+                                </label>
+                              ))}
+                              <BestaetigenKnopf className="lfa-knopf lfa-knopf-klein" frage={`Rechte von „${z.name}“ ändern?`} tipp="Die neuen Rechte gelten sofort für den bestehenden Schlüssel. Es geht keine E-Mail raus; die Änderung steht im Protokoll.">
+                                Rechte speichern
+                              </BestaetigenKnopf>
+                            </form>
+                          </details>
+                        )}
+                      </td>
                       <td className="lfa-klein">{datumZeit(z.erstelltAm)}<br />{z.erstelltVon}</td>
                       <td className="lfa-klein">{datumZeit(z.laeuftAb)}</td>
                       <td className="lfa-klein">{z.zuletztGenutzt ? `${datumZeit(z.zuletztGenutzt)} (${z.nutzungen}×)` : "noch nie"}</td>

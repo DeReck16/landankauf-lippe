@@ -44,6 +44,8 @@ export type Zugang = {
   gesperrtVon?: string;
   zuletztGenutzt?: string;
   nutzungen: number;
+  /** Zuletzt geänderte Rechte (nur über die Verwaltung): wann, von wem, was vorher galt. */
+  rechteGeaendert?: { am: string; von: string; vorher: Recht[] };
 };
 
 /** Zugang ohne Hash — für Anzeige und Antworten. */
@@ -122,6 +124,43 @@ export async function zugangAnlegen(von: string, eingabe: { name: string; rechte
   });
   if (fehler) return { ok: false, fehler };
   return { ok: true, id, schluessel: `lfk_${id}_${geheimnis}`, zugang: info(zugang) };
+}
+
+/**
+ * Rechte eines noch gültigen Zugangs ändern (nur über die Verwaltung, nie per API): Der Schlüssel bleibt derselbe, die neuen Rechte gelten sofort.
+ * So muss für ein neues Recht kein neuer Zugang angelegt und keine Schlüsseldatei verschoben werden.
+ */
+export async function zugangRechteAendern(von: string, id: string, roh: string[]): Promise<{ ok: true; zugang: ZugangInfo; geaendert: boolean } | { ok: false; fehler: string }> {
+  const rechte = [...new Set(roh.filter(istRecht))];
+  if (rechte.length === 0) return { ok: false, fehler: "Mindestens ein Recht auswählen." };
+  let fehler = "";
+  let ergebnis: ZugangInfo | null = null;
+  let geaendert = false;
+  await jsonAendern<Datei>(PFAD, leer, (d) => {
+    fehler = "";
+    ergebnis = null;
+    geaendert = false;
+    const z = d.zugaenge[id];
+    if (!z) {
+      fehler = "Zugang nicht gefunden.";
+      return false;
+    }
+    if (!istAktiv(z)) {
+      fehler = "Gesperrte oder abgelaufene Zugänge lassen sich nicht ändern.";
+      return false;
+    }
+    const gleichBleibt = z.rechte.length === rechte.length && z.rechte.every((r) => rechte.includes(r));
+    if (gleichBleibt) {
+      ergebnis = info(z);
+      return false;
+    }
+    z.rechteGeaendert = { am: new Date().toISOString(), von, vorher: z.rechte };
+    z.rechte = rechte;
+    ergebnis = info(z);
+    geaendert = true;
+  });
+  if (fehler || !ergebnis) return { ok: false, fehler: fehler || "Nicht geändert." };
+  return { ok: true, zugang: ergebnis, geaendert };
 }
 
 export async function zugangSperren(von: string, id: string): Promise<boolean> {

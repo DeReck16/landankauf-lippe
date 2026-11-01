@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin, sitzungNochGueltigFrisch } from "@/lib/admin/session";
 import { mutateZustand } from "@/lib/admin/store";
-import { zugangAnlegen, zugangSperren } from "@/lib/api/zugang";
+import { zugangAnlegen, zugangRechteAendern, zugangSperren } from "@/lib/api/zugang";
 
 export type ZugangState = { status: "idle" | "ok" | "fehler"; text?: string; schluessel?: string; name?: string };
 
@@ -33,5 +33,18 @@ export async function zugangSperrenAktion(formData: FormData): Promise<void> {
   if (await zugangSperren(email, id)) {
     await mutateZustand(email, () => ({ was: `API-Zugang ${id} gesperrt` }));
   }
+  revalidatePath("/admin/api-zugaenge");
+}
+
+/** Rechte eines bestehenden Zugangs ändern (nur mit Anmeldung in der Verwaltung). */
+export async function zugangRechteAktion(formData: FormData): Promise<void> {
+  const { email } = await requireAdmin();
+  const id = String(formData.get("id") ?? "");
+  if (!/^[a-f0-9]{10}$/.test(id)) throw new Error("Ungültiger Zugang");
+  // Wie beim Anlegen: Wurde gerade „Alle Sitzungen beenden“ ausgelöst, darf von dieser Sitzung aus nichts mehr erweitert werden.
+  if (!(await sitzungNochGueltigFrisch())) throw new Error("Die Sitzung wurde beendet — bitte neu anmelden.");
+  const r = await zugangRechteAendern(email, id, formData.getAll("recht").map(String));
+  if (!r.ok) throw new Error(r.fehler);
+  if (r.geaendert) await mutateZustand(email, () => ({ was: `API-Zugang „${r.zugang.name}“: Rechte geändert (${r.zugang.rechte.join(", ")})` }));
   revalidatePath("/admin/api-zugaenge");
 }
