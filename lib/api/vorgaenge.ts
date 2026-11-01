@@ -27,6 +27,11 @@ import { eigeneAngaben, schwaerzen, type AktionErgebnis } from "./board";
 export const API_KNOEPFE = ["einladen", "erinnern", "hinweise", "freigeben", "freigabe-mitteilen", "pacht-erinnern"] as const;
 export type ApiKnopf = (typeof API_KNOEPFE)[number];
 
+/** Bei Kauf nur diese beiden, und nur mit ausdrücklichem `kauf: true` im Aufruf (Dennis, 01.11.2026: „Dashboard 5 du machen“). Die Routine setzt es nie. */
+export const KAUF_KNOEPFE: readonly ApiKnopf[] = ["einladen", "hinweise"];
+
+export type VorgangArt = "pacht" | "kauf" | "unklar";
+
 /** Diese Knöpfe lösen den „Nachweis“ aus (Hinweis auf eine Fläche bzw. Freigabe der Kontakte): nur mit den Rechts-Bestätigungen. */
 const RECHTSSCHALTER: readonly ApiKnopf[] = ["hinweise", "freigeben", "freigabe-mitteilen"];
 
@@ -38,10 +43,14 @@ function istErlaubterKnopf(id: string): id is ApiKnopf {
 }
 
 /** Warum die API diesen Knopf jetzt nicht drücken darf (null = darf, vorbehaltlich der Sperren des Systems). */
-export function knopfGrund(id: string, pacht: boolean, vermittlung: boolean, automatik: AutomatikEinstellungen): string | null {
+export function knopfGrund(id: string, art: VorgangArt, vermittlung: boolean, automatik: AutomatikEinstellungen, kauf = false): string | null {
   if (!istErlaubterKnopf(id)) return `„${id}“ gibt es per API nicht (erlaubt: ${API_KNOEPFE.join(", ")}).`;
   if (automatik.notAus) return "Not-Aus der Automatik ist an — nur die Verwaltung.";
-  if (!pacht) return "Nur Pacht läuft per API (Kauf und unklare Art bleiben in der Verwaltung, wie bei der Automatik).";
+  if (art === "unklar") return "Die Art (Pacht oder Kauf) ist nicht eindeutig — nur die Verwaltung.";
+  if (art === "kauf") {
+    if (!KAUF_KNOEPFE.includes(id as ApiKnopf)) return `Bei Kauf nur ${KAUF_KNOEPFE.join(" und ")} (die Automatik nimmt Kauf aus, bis der GwG-Ablauf steht) — der Rest bleibt in der Verwaltung.`;
+    if (!kauf) return "Kauf läuft per API nur mit ausdrücklichem kauf:true (nur auf Anweisung von Dennis, nie in der Routine).";
+  }
   if (RECHTSSCHALTER.includes(id) && !(automatik.recht34c && automatik.vorlagenGeprueft)) {
     return "Gesperrt, bis in den Einstellungen „§ 34c-Erlaubnis liegt vor“ und „Vorlagen anwaltlich geprüft“ bestätigt sind (dieselbe Sperre wie bei der Automatik).";
   }
@@ -100,30 +109,38 @@ function quellIds(q: AufgabeQuelle): string[] {
 
 const idsIn = (...texte: string[]): string[] => texte.flatMap((t) => t.match(/LL-[A-Z0-9]+/g) ?? []);
 
-/** Pacht nur, wenn der Vorgang UND beide Anfragen ausdrücklich Pacht sind — alles andere gilt als Kauf. */
-const istPacht = (art: M.Art, ids: string[], an: Ansichten): boolean => art === "pacht" && ids.length === 2 && ids.every((id) => an.leads.get(id)?.art === "pacht");
+/** Pacht bzw. Kauf nur, wenn der Vorgang UND beide Anfragen ausdrücklich diese Art haben — alles andere ist „unklar“ und bleibt gesperrt. */
+function artVon(art: M.Art, ids: string[], an: Ansichten): VorgangArt {
+  const beide = (x: string) => ids.length === 2 && ids.every((id) => an.leads.get(id)?.art === x);
+  if (art === "pacht" && beide("pacht")) return "pacht";
+  if (art === "kauf" && beide("kauf")) return "kauf";
+  return "unklar";
+}
 
 /**
  * Signatur für die API: gebunden an den Zugang und mit dem Geheimnis des Servers gesichert. Die Rohsignatur des Dashboards enthält
  * einen Hash über Empfängeradressen und Stand und gehört nicht nach draußen (sonst ließen sich Adressen gegen sie probieren).
  */
-export function apiSignatur(zugangId: string, key: string, id: string, ziel: string, roh: string): string {
-  return createHmac("sha256", sessionSecret()).update(JSON.stringify(["api-knopf", zugangId, key, id, ziel, roh])).digest("hex").slice(0, 32);
+export function apiSignatur(zugangId: string, key: string, id: string, ziel: string, art: VorgangArt, roh: string): string {
+  // Die Art gehört dazu: Wird ein Paar von Pacht auf Kauf umgestellt, gilt eine alte Signatur nicht mehr.
+  return createHmac("sha256", sessionSecret()).update(JSON.stringify(["api-knopf", zugangId, key, id, ziel, art, roh])).digest("hex").slice(0, 32);
 }
 
 const istVermittlung = (ids: string[], an: Ansichten): boolean => an.leads.get(ids[0])?.meta.weg === "vermittlung";
 
-function aktionAnsicht(a: AssistentAktion, pacht: boolean, automatik: AutomatikEinstellungen, ids: string[], an: Ansichten, key: string, zugangId: string) {
-  const grund = knopfGrund(a.id, pacht, istVermittlung(ids, an), automatik);
+function aktionAnsicht(a: AssistentAktion, art: VorgangArt, automatik: AutomatikEinstellungen, ids: string[], an: Ansichten, key: string, zugangId: string) {
+  const grund = knopfGrund(a.id, art, istVermittlung(ids, an), automatik, true);
   return {
     id: a.id,
     ziel: a.ziel ?? null,
     knopf: rein(a.knopf, ids, an, 80),
     dran: a.dran,
     gesperrt: a.gesperrt ? rein(a.gesperrt, ids, an) : null,
-    signatur: apiSignatur(zugangId, key, a.id, a.ziel ?? "", a.signatur),
+    signatur: apiSignatur(zugangId, key, a.id, a.ziel ?? "", art, a.signatur),
     mails: a.mails.map((m) => ({ zweck: m.zweck, rolle: m.rolle })),
     api: grund === null && !a.gesperrt,
+    /** Bei Kauf nur mit ausdrücklichem kauf:true im Aufruf (nur auf Anweisung von Dennis). */
+    nurMitKauf: art === "kauf",
     apiGrund: grund,
   };
 }
@@ -143,7 +160,7 @@ export async function vorgaengeLesen(zugangId: string) {
       stand: rein(x.plan.stand, ids, an),
       wartetSeit: x.plan.wartetSeit,
       boerse: x.boerse,
-      aktionen: alleAktionen(x.plan).map((a) => aktionAnsicht(a, istPacht(x.art, ids, an), automatik, ids, an, x.key, zugangId)),
+      aktionen: alleAktionen(x.plan).map((a) => aktionAnsicht(a, artVon(x.art, ids, an), automatik, ids, an, x.key, zugangId)),
     };
   });
   const aufgaben = aufgabenAus(dash).map((a) => {
@@ -175,7 +192,7 @@ export async function vorgaengeLesen(zugangId: string) {
   };
 }
 
-export type KnopfEingabe = { key: string; id: string; ziel: string; signatur: string };
+export type KnopfEingabe = { key: string; id: string; ziel: string; signatur: string; kauf: boolean };
 
 async function umgebung() {
   const [einstellungen, kunden] = await Promise.all([ladeEinstellungen(), alleKunden()]);
@@ -193,19 +210,20 @@ export async function knopfAusfuehren(e: KnopfEingabe, von: string, zugangId: st
   if (!ctx.meta && !ctx.vorgang) return { ok: false, status: 409, fehler: "Dieses Paar ist nicht vorgemerkt — erst per Aktion paar vormerken." };
   const ids = e.key.split("~");
   const an = await ansichten();
-  const grund = knopfGrund(e.id, istPacht(ctx.art, ids, an), istVermittlung(ids, an), automatik);
+  const grund = knopfGrund(e.id, artVon(ctx.art, ids, an), istVermittlung(ids, an), automatik, e.kauf);
   if (grund) return { ok: false, status: 403, fehler: grund };
   const u = await umgebung();
   const veraltet = { ok: false as const, status: 409 as const, fehler: "Nichts ausgeführt — der Stand hat sich geändert. Vorgänge neu lesen und mit der neuen Signatur wiederholen." };
   const finde = (c: V.VorgangKontext) => alleAktionen(assistentPlan(c, u)).find((x) => x.id === e.id && (x.ziel ?? "") === e.ziel);
-  const stimmt = (x: AssistentAktion | undefined): x is AssistentAktion => Boolean(x) && apiSignatur(zugangId, e.key, x!.id, x!.ziel ?? "", x!.signatur) === e.signatur;
+  const stimmt = (x: AssistentAktion | undefined, art: VorgangArt): x is AssistentAktion => Boolean(x) && apiSignatur(zugangId, e.key, x!.id, x!.ziel ?? "", art, x!.signatur) === e.signatur;
   // Erst prüfen, dann schreiben: Mit veralteter Signatur ändert nichts etwas (auch nicht der Abgleich unten).
-  if (!stimmt(finde(ctx))) return veraltet;
+  const art = artVon(ctx.art, ids, an);
+  if (!stimmt(finde(ctx), art)) return veraltet;
   // Anbieter mit mehreren Flächen: abgleichen, damit keine zweite Einladung entsteht (wie im Dashboard); ändert das den Stand, gilt die Signatur nicht mehr.
   await anbieterAbgleichFuer(e.key.split("~")[0], von);
   const frisch = (await V.ladeVorgangKontext(e.key)) ?? ctx;
   const a = finde(frisch);
-  if (!stimmt(a)) return veraltet;
+  if (!stimmt(a, artVon(frisch.art, ids, await ansichten()))) return veraltet;
   if (a.gesperrt) return { ok: false, status: 409, fehler: `Nicht möglich: ${rein(a.gesperrt, ids, an)}` };
 
   // Mails an den Anbieter nur, wenn der Weg „Vermitteln“ gewählt ist (wie bei der Automatik, r3Paare); sonst bleibt nur, was den Suchenden betrifft.

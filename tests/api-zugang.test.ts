@@ -351,6 +351,20 @@ test("Klick-Assistent per API: Rechte, Eingabe, Kauf bleibt draußen, Rechts-Sch
   assert.equal(kauf.status, 403);
   assert.match(await kauf.text(), /Kauf/);
 
+  // Kauf geht nur mit ausdrücklichem kauf:true und nur für Einladen und Hinweise (die Automatik nimmt Kauf aus, bis der GwG-Ablauf steht)
+  const kk = (id: string, extra: Record<string, unknown> = {}) => knopf(vorgang, { key: "LL-TEST0001~LL-TEST0002", id, signatur: "abcdef0123456789", ...extra });
+  assert.equal((await kk("einladen", { kauf: "ja" })).status, 400, "kauf muss ein echter Wahrheitswert sein");
+  assert.equal((await kk("einladen", { kauf: false })).status, 403);
+  assert.equal((await kk("einladen", { kauf: true })).status, 409, "mit kauf:true erreicht Einladen die Signaturprüfung");
+  for (const id of ["erinnern", "freigeben", "freigabe-mitteilen", "pacht-erinnern"]) {
+    const nein = await kk(id, { kauf: true });
+    assert.equal(nein.status, 403, `${id} bleibt bei Kauf in der Verwaltung`);
+    assert.match(await nein.text(), /Bei Kauf nur/);
+  }
+  const kaufHinweis = await kk("hinweise", { kauf: true });
+  assert.equal(kaufHinweis.status, 403, "Hinweise bei Kauf: erst die Rechts-Bestätigungen");
+  assert.match(await kaufHinweis.text(), /34c/);
+
   // Hinweise und Freigabe: gesperrt, solange die Rechts-Bestätigungen fehlen
   const hinweis = await knopf(vorgang, { key: "LL-TEST0020~LL-TEST0021", id: "hinweise", signatur: "abcdef0123456789" });
   assert.equal(hinweis.status, 403);
@@ -397,11 +411,12 @@ test("Klick-Assistent: Schwärzung kennt auch die Kundenakte, die Signatur für 
   const aus = rein(text, ["LL-TEST0030"], an);
   for (const verboten of ["Geheimname", "Geheimhof", "Geheimweg", "Unterschriftsname", "unterschrift@", "kundenkonto@", "998877", "Pächterin", "Paula"]) assert.ok(!aus.includes(verboten), `${verboten} darf nicht stehen bleiben: ${aus}`);
 
-  const s1 = apiSignatur("zugang1", "LL-A~LL-B", "einladen", "", "roh123");
+  const s1 = apiSignatur("zugang1", "LL-A~LL-B", "einladen", "", "pacht", "roh123");
   assert.notEqual(s1, "roh123");
-  assert.equal(s1, apiSignatur("zugang1", "LL-A~LL-B", "einladen", "", "roh123"), "stabil");
-  assert.notEqual(s1, apiSignatur("zugang2", "LL-A~LL-B", "einladen", "", "roh123"), "an den Zugang gebunden");
-  assert.notEqual(s1, apiSignatur("zugang1", "LL-A~LL-B", "erinnern", "", "roh123"), "an den Knopf gebunden");
+  assert.equal(s1, apiSignatur("zugang1", "LL-A~LL-B", "einladen", "", "pacht", "roh123"), "stabil");
+  assert.notEqual(s1, apiSignatur("zugang2", "LL-A~LL-B", "einladen", "", "pacht", "roh123"), "an den Zugang gebunden");
+  assert.notEqual(s1, apiSignatur("zugang1", "LL-A~LL-B", "erinnern", "", "pacht", "roh123"), "an den Knopf gebunden");
+  assert.notEqual(s1, apiSignatur("zugang1", "LL-A~LL-B", "einladen", "", "kauf", "roh123"), "an die Art gebunden: Pacht→Kauf entwertet die Signatur");
 });
 
 test("Börsen-Angebote: offline nehmen und öffentliche Angaben anpassen — mit Leck-Prüfung und eigenen Rechten", async () => {

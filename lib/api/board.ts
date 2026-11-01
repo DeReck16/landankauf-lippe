@@ -182,7 +182,7 @@ export type BoardAktion =
   | { aktion: "boerse"; anfrage: string; was: "offline" }
   | { aktion: "boerse"; anfrage: string; was: "veroeffentlichen" }
   | { aktion: "boerse"; anfrage: string; was: "aendern"; aenderung: BoerseAenderung }
-  | { aktion: "knopf"; key: string; id: string; ziel: string; signatur: string };
+  | { aktion: "knopf"; key: string; id: string; ziel: string; signatur: string; kauf: boolean };
 
 /** Öffentliche Angaben eines Börsen-Angebots, die per API geändert werden dürfen (alles andere nur in der Verwaltung). */
 export type BoerseAenderung = { typ?: string; groesseHa?: number | null; lage?: string; text?: string; details?: Partial<Record<keyof BoerseDetails, string>> };
@@ -257,7 +257,8 @@ export function aktionPruefen(roh: unknown): { ok: true; aktion: BoardAktion } |
     const ziel = b.ziel === undefined ? "" : b.ziel;
     if (!istText(ziel) || !/^[a-z0-9-]{0,40}$/.test(ziel)) return nein("ziel: kurzer Name oder leer.");
     if (!istText(b.signatur) || !/^[A-Za-z0-9_-]{8,64}$/.test(b.signatur)) return nein("signatur: aus der Antwort von GET ?vorgaenge=1 übernehmen.");
-    return { ok: true, aktion: { aktion: "knopf", key: b.key, id: b.id, ziel, signatur: b.signatur } };
+    if (b.kauf !== undefined && typeof b.kauf !== "boolean") return nein("kauf: true oder false.");
+    return { ok: true, aktion: { aktion: "knopf", key: b.key, id: b.id, ziel, signatur: b.signatur, kauf: b.kauf === true } };
   }
   return nein("Aktion unbekannt (notiz, status, paar, boerse, knopf).");
 }
