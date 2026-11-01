@@ -36,7 +36,7 @@ export function schwaerzen(text: string, eigene?: RegExp | null): string {
 const TITEL = new Set(["herr", "frau", "dr", "prof", "und", "von", "van", "der", "den", "zu"]);
 
 /** Name, Adresse und Nummer dieser einen Anfrage (und die Wörter des Namens), damit sie auch im Freitext nicht auftauchen. */
-function eigeneAngaben(v: Pick<LeadView, "name" | "email" | "phone">): RegExp | null {
+export function eigeneAngaben(v: Pick<LeadView, "name" | "email" | "phone">): RegExp | null {
   const teile = new Set<string>();
   for (const s of [v.name, v.email, v.phone]) if (s.trim().length >= 4 && s !== "—") teile.add(s.trim());
   for (const w of v.name.split(/[\s,;]+/)) {
@@ -181,7 +181,8 @@ export type BoardAktion =
   | { aktion: "paar"; angebot: string; gesuch: string; status: "vorgemerkt" | "verworfen" }
   | { aktion: "boerse"; anfrage: string; was: "offline" }
   | { aktion: "boerse"; anfrage: string; was: "veroeffentlichen" }
-  | { aktion: "boerse"; anfrage: string; was: "aendern"; aenderung: BoerseAenderung };
+  | { aktion: "boerse"; anfrage: string; was: "aendern"; aenderung: BoerseAenderung }
+  | { aktion: "knopf"; key: string; id: string; ziel: string; signatur: string };
 
 /** Öffentliche Angaben eines Börsen-Angebots, die per API geändert werden dürfen (alles andere nur in der Verwaltung). */
 export type BoerseAenderung = { typ?: string; groesseHa?: number | null; lage?: string; text?: string; details?: Partial<Record<keyof BoerseDetails, string>> };
@@ -250,7 +251,15 @@ export function aktionPruefen(roh: unknown): { ok: true; aktion: BoardAktion } |
     if (Object.keys(a).length === 0) return nein("Nichts zu ändern angegeben (typ, groesseHa, lage, text, details).");
     return { ok: true, aktion: { aktion: "boerse", anfrage: b.anfrage, was: "aendern", aenderung: a } };
   }
-  return nein("Aktion unbekannt (notiz, status, paar, boerse).");
+  if (b.aktion === "knopf") {
+    if (!istText(b.key) || !PAAR.test(b.key)) return nein("key: LL-…~LL-… erwartet.");
+    if (!istText(b.id) || !/^[a-z-]{3,30}$/.test(b.id)) return nein("id: Name des Knopfs (einladen, erinnern, hinweise, freigeben, …).");
+    const ziel = b.ziel === undefined ? "" : b.ziel;
+    if (!istText(ziel) || !/^[a-z0-9-]{0,40}$/.test(ziel)) return nein("ziel: kurzer Name oder leer.");
+    if (!istText(b.signatur) || !/^[A-Za-z0-9_-]{8,64}$/.test(b.signatur)) return nein("signatur: aus der Antwort von GET ?vorgaenge=1 übernehmen.");
+    return { ok: true, aktion: { aktion: "knopf", key: b.key, id: b.id, ziel, signatur: b.signatur } };
+  }
+  return nein("Aktion unbekannt (notiz, status, paar, boerse, knopf).");
 }
 
 /** Welche Rechte eine geprüfte Aktion erlauben (eines davon genügt). Angebot offline nehmen darf auch, wer abschließen darf. */
@@ -258,6 +267,7 @@ export function rechteFuer(a: BoardAktion): Recht[] {
   if (a.aktion === "notiz") return ["board:notiz"];
   if (a.aktion === "paar") return ["board:paare"];
   if (a.aktion === "boerse") return a.was === "offline" ? ["board:boerse", "board:abschliessen"] : ["board:boerse"];
+  if (a.aktion === "knopf") return ["board:vorgang"];
   return [geschlossen(a.status) ? "board:abschliessen" : "board:status"];
 }
 
@@ -316,6 +326,16 @@ export async function boardAktion(a: BoardAktion, von: string, zugangId: string)
     return { ok: true, text: st.geaendert ? `Status → ${LEAD_STATUS[neu].label}` : "Status war schon so gesetzt." };
   }
 
+  if (a.aktion === "knopf") {
+    // Eigenes Modul (Klick-Assistent); erst bei Bedarf geladen, weil es dieses hier für die Schwärzung braucht.
+    const { knopfAusfuehren } = await import("./vorgaenge");
+    const r = await knopfAusfuehren(a, wer, zugangId);
+    if (r.ok) {
+      await apiProtokoll(wer, "knopf", a.key, `${a.id}${a.ziel ? ` (${a.ziel})` : ""}`);
+      erneuern();
+    }
+    return r;
+  }
   if (a.aktion === "boerse") return a.was === "veroeffentlichen" ? boerseOnline(a.anfrage, wer) : boerseAendern(a, wer);
 
   // Rest: a.aktion === "paar"
@@ -369,7 +389,7 @@ const geschlossen = (s: LeadStatus | undefined): boolean => s === "erledigt" || 
  * Eigenes, nie gekürztes Protokoll aller Änderungen per API (eine Datei je Tag). Das Gesamtprotokoll und der Verlauf
  * je Anfrage sind in der Länge begrenzt und könnten durch Masse verdrängt werden — hier bleibt jede Änderung stehen.
  */
-async function apiProtokoll(von: string, aktion: "notiz" | "status" | "paar" | "boerse", ref: string, was: string): Promise<void> {
+async function apiProtokoll(von: string, aktion: "notiz" | "status" | "paar" | "boerse" | "knopf", ref: string, was: string): Promise<void> {
   const am = new Date().toISOString();
   await jsonAendern<{ v: 1; eintraege: { am: string; von: string; aktion: string; ref: string; was: string }[] }>(
     `admin/api-protokoll/${am.slice(0, 10)}.json`,

@@ -79,6 +79,7 @@ test("Zugang anlegen: Schlüssel nur einmal, im Speicher nur der Hash", async ()
 
 test("Zugang anlegen: ungültige Eingaben und Doppelnamen werden abgelehnt", async () => {
   assert.equal((await Z.zugangAnlegen("a", { name: "ab", rechte: ["board:lesen"], tage: 30 })).ok, false);
+  assert.equal((await Z.zugangAnlegen("a", { name: "Bot@example.com", rechte: ["board:lesen"], tage: 30 })).ok, false, "kein @ im Namen");
   assert.equal((await Z.zugangAnlegen("a", { name: "Ohne Recht", rechte: ["gibt-es-nicht"], tage: 30 })).ok, false);
   assert.equal((await Z.zugangAnlegen("a", { name: "Zu lang", rechte: ["board:lesen"], tage: 5000 })).ok, false);
   const doppelt = await Z.zugangAnlegen("a", { name: "tagesbearbeitung", rechte: ["board:lesen"], tage: 30 });
@@ -303,6 +304,72 @@ test("Eigene Notizen eines Zugangs werden nicht anfragespezifisch geschwärzt, f
   assert.ok(fremd.includes("[entfernt] rief an"), "Text der Verwaltung bleibt voll geschwärzt");
 });
 
+test("Klick-Assistent per API: Rechte, Eingabe, Kauf bleibt draußen, Rechts-Schalter und Not-Aus gelten wie bei der Automatik", async () => {
+  const r = await Z.zugangAnlegen("admin@example.com", { name: "Vorgang Test", rechte: ["board:lesen", "board:vorgang"], tage: 30 });
+  assert.equal(r.ok, true);
+  if (!r.ok) return;
+  const vorgang = r.schluessel;
+  const lesenVorgaenge = (s: string) => boardRoute.GET(new Request("https://lippeforst.de/api/verwaltung/board?vorgaenge=1", { headers: { authorization: `Bearer ${s}` } }));
+  const knopf = (s: string, body: Record<string, unknown>) => post(s, { aktion: "knopf", ...body });
+
+  // Rechte: ohne board:vorgang weder lesen noch drücken
+  assert.equal((await lesenVorgaenge(lesen)).status, 403);
+  assert.equal((await knopf(lesen, { key: "LL-TEST0001~LL-TEST0002", id: "einladen", signatur: "abcdef0123456789" })).status, 403);
+
+  // Lesen: Aufgaben, Vorgänge, Vorschläge — ohne Namen, Adressen und Nummern
+  await anfrage("LL-TEST0020", { intent: "Verpachten", name: "Paula Pächterfrau", email: "paula@example.org", phone: "0171 9990000", ort: "Lage" });
+  await anfrage("LL-TEST0021", { intent: "Fläche gesucht (Pacht)", name: "Peter Pachtsucher", email: "peter@example.org", phone: "0170 9991111", ort: "Lage" });
+  const res = await lesenVorgaenge(vorgang);
+  assert.equal(res.status, 200);
+  const text = await res.text();
+  const d = JSON.parse(text);
+  assert.ok(Array.isArray(d.aufgaben) && Array.isArray(d.vorgaenge) && Array.isArray(d.vorschlaege));
+  assert.deepEqual(Object.keys(d.automatik).sort(), ["notAus", "rechtsschalter"]);
+  for (const verboten of ["Pächterfrau", "Pachtsucher", "paula@example.org", "peter@example.org", "9990000", "9991111", "Musterfrau", "erika@example.org"]) assert.ok(!text.includes(verboten), `${verboten} darf nicht in der Antwort stehen`);
+
+  // Eingabe
+  assert.equal((await knopf(vorgang, { key: "kein-key", id: "einladen", signatur: "abcdef0123456789" })).status, 400);
+  assert.equal((await knopf(vorgang, { key: "LL-TEST0020~LL-TEST0021", id: "EINLADEN!", signatur: "abcdef0123456789" })).status, 400);
+  assert.equal((await knopf(vorgang, { key: "LL-TEST0020~LL-TEST0021", id: "einladen", signatur: "x" })).status, 400);
+  assert.equal((await knopf(vorgang, { key: "LL-TEST0020~LL-TEST0021", id: "einladen", ziel: ["a"], signatur: "abcdef0123456789" })).status, 400);
+  assert.equal((await knopf(vorgang, { key: "LL-TESTGIBTSNICHT~LL-TEST0021", id: "einladen", signatur: "abcdef0123456789" })).status, 404);
+
+  // Was es per API nie gibt: Zustimmung erfassen, Verträge, Provision, Löschen …
+  for (const id of ["zustimmung", "pacht-vorbereiten", "pacht-unterschrift", "provision-bezahlt", "kauf-wirksam", "freigabe-zurueckziehen", "paar-beenden"]) {
+    const nein = await knopf(vorgang, { key: "LL-TEST0020~LL-TEST0021", id, signatur: "abcdef0123456789" });
+    assert.equal(nein.status, 403, `${id} gibt es per API nicht`);
+  }
+
+  // Kauf bleibt in der Verwaltung (LL-TEST0001 Verkaufen ↔ LL-TEST0002 Kauf-Gesuch)
+  const kauf = await knopf(vorgang, { key: "LL-TEST0001~LL-TEST0002", id: "einladen", signatur: "abcdef0123456789" });
+  assert.equal(kauf.status, 403);
+  assert.match(await kauf.text(), /Kauf/);
+
+  // Hinweise und Freigabe: gesperrt, solange die Rechts-Bestätigungen fehlen
+  const hinweis = await knopf(vorgang, { key: "LL-TEST0020~LL-TEST0021", id: "hinweise", signatur: "abcdef0123456789" });
+  assert.equal(hinweis.status, 403);
+  assert.match(await hinweis.text(), /34c/);
+  assert.equal((await knopf(vorgang, { key: "LL-TEST0020~LL-TEST0021", id: "freigeben", signatur: "abcdef0123456789" })).status, 403);
+
+  // Einladen: erlaubt, aber nur mit dem gesehenen Stand (Signatur)
+  const falsch = await knopf(vorgang, { key: "LL-TEST0020~LL-TEST0021", id: "einladen", signatur: "abcdef0123456789" });
+  assert.equal(falsch.status, 409, "falsche Signatur: nichts ausgeführt");
+  assert.match(await falsch.text(), /Stand hat sich geändert/);
+
+  // Not-Aus der Automatik stoppt auch die API
+  await store.jsonAendern("portal/einstellungen.json", () => ({}), (e: Record<string, unknown>) => {
+    e.automatik = { ...(e.automatik as object | undefined), notAus: true };
+  });
+  const aus = await knopf(vorgang, { key: "LL-TEST0020~LL-TEST0021", id: "einladen", signatur: "abcdef0123456789" });
+  assert.equal(aus.status, 403);
+  assert.match(await aus.text(), /Not-Aus/);
+  await store.jsonAendern("portal/einstellungen.json", () => ({}), (e: Record<string, unknown>) => {
+    e.automatik = { ...(e.automatik as object | undefined), notAus: false, recht34c: true, vorlagenGeprueft: true };
+  });
+  // Mit den Bestätigungen ist die Rechts-Sperre offen (Signatur stimmt weiterhin nicht: 409 statt 403)
+  assert.equal((await knopf(vorgang, { key: "LL-TEST0020~LL-TEST0021", id: "hinweise", signatur: "abcdef0123456789" })).status, 409);
+});
+
 test("Börsen-Angebote: offline nehmen und öffentliche Angaben anpassen — mit Leck-Prüfung und eigenen Rechten", async () => {
   await anfrage("LL-TEST0006", { intent: "Verpachten", name: "Maxine Börsenfrau", ort: "Lage", email: "boerse@example.org" });
   await store.mutateZustand("test", (z) => {
@@ -457,8 +524,11 @@ test("Notizen: höchstens 10 je Anfrage am Tag, und jede API-Änderung steht im 
 });
 
 test("Zu große POST-Bodies werden abgewiesen, auch ohne Content-Length", async () => {
+  const frisch = await Z.zugangAnlegen("admin@example.com", { name: "Gross Body", rechte: ["board:lesen", "board:notiz"], tage: 30 });
+  assert.equal(frisch.ok, true);
+  if (!frisch.ok) return;
   const gross = JSON.stringify({ aktion: "notiz", anfrage: "LL-TEST0001", text: "x".repeat(30_000) });
-  const res = await boardRoute.POST(new Request("https://lippeforst.de/api/verwaltung/board", { method: "POST", headers: { authorization: `Bearer ${schreiben}` }, body: new Blob([gross]).stream(), duplex: "half" } as RequestInit));
+  const res = await boardRoute.POST(new Request("https://lippeforst.de/api/verwaltung/board", { method: "POST", headers: { authorization: `Bearer ${frisch.schluessel}` }, body: new Blob([gross]).stream(), duplex: "half" } as RequestInit));
   assert.equal(res.status, 413);
 });
 

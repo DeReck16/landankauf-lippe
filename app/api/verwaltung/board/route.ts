@@ -49,6 +49,11 @@ export async function GET(request: Request) {
   const q = new URL(request.url).searchParams;
   const anfrage = q.get("anfrage") ?? undefined;
   if (anfrage && !/^LL-[A-Z0-9]+$/.test(anfrage)) return fehler(400, "Anfrage-ID ungültig.");
+  if (q.get("vorgaenge") !== null) {
+    if (!pruefung.zugang.rechte.includes("board:vorgang")) return fehler(403, "Recht fehlt: board:vorgang");
+    const { vorgaengeLesen } = await import("@/lib/api/vorgaenge");
+    return NextResponse.json({ ok: true, ...(await vorgaengeLesen()) }, { headers: KEIN_CACHE });
+  }
   const details = pruefung.zugang.rechte.includes("board:details");
   const daten = await boardLesen({
     status: q.get("status") === "alle" ? "alle" : "offen",

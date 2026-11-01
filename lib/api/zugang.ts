@@ -21,6 +21,7 @@ export const RECHTE = {
   "board:abschliessen": "Anfrage auf Erledigt oder Archiv setzen (nur ohne Angebot in der Börse)",
   "board:paare": "Paare vormerken oder verwerfen (keine Mail, keine Freigabe)",
   "board:boerse": "Angebote in der Flächenbörse anonym online stellen (nur mit Einwilligung des Eigentümers, ohne Namen und Adresse im Text), offline nehmen und ihre öffentlichen Angaben anpassen",
+  "board:vorgang": "Aufgaben, Vorgänge und Matching-Vorschläge des Dashboards lesen (ohne Namen) und die Knöpfe Einladen, Erinnern, Hinweise und Freigeben drücken — mit denselben Sperren wie im Dashboard; Hinweise und Freigabe nur, wenn die Rechts-Bestätigungen der Automatik gesetzt sind, Kauf nie",
 } as const;
 export type Recht = keyof typeof RECHTE;
 
@@ -85,6 +86,7 @@ export type AnlegenErgebnis = { ok: true; id: string; schluessel: string; zugang
 export async function zugangAnlegen(von: string, eingabe: { name: string; rechte: string[]; tage: number }): Promise<AnlegenErgebnis> {
   const name = eingabe.name.trim().replace(/\s+/g, " ");
   if (name.length < 3 || name.length > 60) return { ok: false, fehler: "Der Name braucht 3 bis 60 Zeichen." };
+  if (name.includes("@")) return { ok: false, fehler: "Der Name darf kein @ enthalten (der Verlauf hält Namen mit @ für Adressen der Verwaltung)." };
   const rechte = [...new Set(eingabe.rechte.filter(istRecht))];
   if (rechte.length === 0) return { ok: false, fehler: "Mindestens ein Recht auswählen." };
   const tage = Math.round(eingabe.tage);
