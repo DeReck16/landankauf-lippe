@@ -1,7 +1,10 @@
 import "server-only";
 import { revalidatePath } from "next/cache";
 import { menueErneuern } from "@/lib/admin/menue";
-import { LEAD_STATUS, MATCH_STATUS, formatGroesse, leadView, paarKey, type LeadStatus, type LeadView, type MatchMeta } from "@/lib/admin/model";
+import { LEAD_STATUS, MATCH_STATUS, formatGroesse, leadView, paarKey, type BoerseMeta, type LeadMeta, type LeadStatus, type LeadView, type MatchMeta } from "@/lib/admin/model";
+import { boerseNeuSchreiben } from "@/lib/boerse";
+import { DETAIL_FELDER, boerseLuecken, detailsBereinigen, type BoerseDetails } from "@/lib/boerse-regeln";
+import { FLAECHENTYPEN } from "@/lib/lead-options";
 import { drosseln, jsonAendern, kurzwert, listLeads, mutateZustand, readZustand, verlaufLesen } from "@/lib/admin/store";
 import { alleKunden } from "@/lib/portal/speicher";
 import { stufe } from "@/lib/portal/model";
@@ -167,7 +170,12 @@ export type BoardAktion =
   | { aktion: "notiz"; anfrage: string; text: string }
   | { aktion: "notiz"; paar: string; text: string }
   | { aktion: "status"; anfrage: string; status: LeadStatus }
-  | { aktion: "paar"; angebot: string; gesuch: string; status: "vorgemerkt" | "verworfen" };
+  | { aktion: "paar"; angebot: string; gesuch: string; status: "vorgemerkt" | "verworfen" }
+  | { aktion: "boerse"; anfrage: string; was: "offline" }
+  | { aktion: "boerse"; anfrage: string; was: "aendern"; aenderung: BoerseAenderung };
+
+/** Öffentliche Angaben eines Börsen-Angebots, die per API geändert werden dürfen (alles andere nur in der Verwaltung). */
+export type BoerseAenderung = { typ?: string; groesseHa?: number | null; lage?: string; text?: string; details?: Partial<Record<keyof BoerseDetails, string>> };
 
 export type AktionErgebnis = { ok: true; text: string } | { ok: false; status: 400 | 403 | 404 | 409 | 422 | 429; fehler: string };
 
@@ -199,14 +207,48 @@ export function aktionPruefen(roh: unknown): { ok: true; aktion: BoardAktion } |
     if (b.status !== "vorgemerkt" && b.status !== "verworfen") return nein("Status: vorgemerkt oder verworfen.");
     return { ok: true, aktion: { aktion: "paar", angebot: b.angebot, gesuch: b.gesuch, status: b.status } };
   }
-  return nein("Aktion unbekannt (notiz, status, paar).");
+  if (b.aktion === "boerse") {
+    if (!istText(b.anfrage) || !ID.test(b.anfrage)) return nein("anfrage: LL-… erwartet.");
+    if (b.was === "offline") return { ok: true, aktion: { aktion: "boerse", anfrage: b.anfrage, was: "offline" } };
+    if (b.was !== "aendern") return nein("was: offline oder aendern.");
+    const a: BoerseAenderung = {};
+    if (b.typ !== undefined) {
+      if (!istText(b.typ) || !(FLAECHENTYPEN as readonly string[]).includes(b.typ)) return nein(`typ: ${FLAECHENTYPEN.join(", ")}.`);
+      a.typ = b.typ;
+    }
+    if (b.groesseHa !== undefined) {
+      if (b.groesseHa !== null && !(typeof b.groesseHa === "number" && Number.isFinite(b.groesseHa) && b.groesseHa > 0 && b.groesseHa <= 10_000)) return nein("groesseHa: Zahl größer 0 (Hektar) oder null.");
+      a.groesseHa = b.groesseHa;
+    }
+    for (const [feld, max] of [["lage", 80], ["text", 300]] as const) {
+      if (b[feld] === undefined) continue;
+      const wert = b[feld];
+      if (!istText(wert) || wert.length > max) return nein(`${feld}: Text bis ${max} Zeichen.`);
+      if (/https?:|www\./i.test(wert)) return nein(`${feld}: keine Internetadressen.`);
+      a[feld] = wert.replace(/\s+/g, " ").trim();
+    }
+    if (b.details !== undefined) {
+      if (!b.details || typeof b.details !== "object" || Array.isArray(b.details)) return nein("details: Objekt erwartet.");
+      const d: Partial<Record<keyof BoerseDetails, string>> = {};
+      for (const [k, v] of Object.entries(b.details as Record<string, unknown>)) {
+        const feld = DETAIL_FELDER.find((f) => f.key === k);
+        if (!feld || !istText(v) || v.length > 80 || /https?:|www\./i.test(v)) return nein(`details.${k}: erlaubt sind ${DETAIL_FELDER.map((f) => f.key).join(", ")} mit Text bis 80 Zeichen, ohne Internetadressen.`);
+        d[feld.key] = v;
+      }
+      a.details = d;
+    }
+    if (Object.keys(a).length === 0) return nein("Nichts zu ändern angegeben (typ, groesseHa, lage, text, details).");
+    return { ok: true, aktion: { aktion: "boerse", anfrage: b.anfrage, was: "aendern", aenderung: a } };
+  }
+  return nein("Aktion unbekannt (notiz, status, paar, boerse).");
 }
 
-/** Welches Recht eine geprüfte Aktion braucht. */
-export function rechtFuer(a: BoardAktion): Recht {
-  if (a.aktion === "notiz") return "board:notiz";
-  if (a.aktion === "paar") return "board:paare";
-  return a.status === "erledigt" || a.status === "archiv" ? "board:abschliessen" : "board:status";
+/** Welche Rechte eine geprüfte Aktion erlauben (eines davon genügt). Angebot offline nehmen darf auch, wer abschließen darf. */
+export function rechteFuer(a: BoardAktion): Recht[] {
+  if (a.aktion === "notiz") return ["board:notiz"];
+  if (a.aktion === "paar") return ["board:paare"];
+  if (a.aktion === "boerse") return a.was === "offline" ? ["board:boerse", "board:abschliessen"] : ["board:boerse"];
+  return [geschlossen(a.status) ? "board:abschliessen" : "board:status"];
 }
 
 export async function boardAktion(a: BoardAktion, von: string, zugangId: string): Promise<AktionErgebnis> {
@@ -264,6 +306,8 @@ export async function boardAktion(a: BoardAktion, von: string, zugangId: string)
     return { ok: true, text: st.geaendert ? `Status → ${LEAD_STATUS[neu].label}` : "Status war schon so gesetzt." };
   }
 
+  if (a.aktion === "boerse") return boerseAendern(a, wer);
+
   // Rest: a.aktion === "paar"
   const key = paarKey(a.angebot, a.gesuch);
   if (a.status === "vorgemerkt" && !(await paarMoeglich(key))) {
@@ -315,7 +359,7 @@ const geschlossen = (s: LeadStatus | undefined): boolean => s === "erledigt" || 
  * Eigenes, nie gekürztes Protokoll aller Änderungen per API (eine Datei je Tag). Das Gesamtprotokoll und der Verlauf
  * je Anfrage sind in der Länge begrenzt und könnten durch Masse verdrängt werden — hier bleibt jede Änderung stehen.
  */
-async function apiProtokoll(von: string, aktion: "notiz" | "status" | "paar", ref: string, was: string): Promise<void> {
+async function apiProtokoll(von: string, aktion: "notiz" | "status" | "paar" | "boerse", ref: string, was: string): Promise<void> {
   const am = new Date().toISOString();
   await jsonAendern<{ v: 1; eintraege: { am: string; von: string; aktion: string; ref: string; was: string }[] }>(
     `admin/api-protokoll/${am.slice(0, 10)}.json`,
@@ -324,4 +368,60 @@ async function apiProtokoll(von: string, aktion: "notiz" | "status" | "paar", re
       d.eintraege.push({ am, von, aktion, ref, was: was.slice(0, 200) });
     },
   );
+}
+
+async function boerseAendern(a: Extract<BoardAktion, { aktion: "boerse" }>, wer: string): Promise<AktionErgebnis> {
+  const lead = (await listLeads()).find((l) => l.id === a.anfrage);
+  if (!lead) return { ok: false, status: 404, fehler: "Anfrage nicht gefunden." };
+  const st: { fehler: AktionErgebnis | null; was: string; oeffentlich: boolean } = { fehler: null, was: "", oeffentlich: false };
+  await mutateZustand(wer, (z) => {
+    st.fehler = null;
+    st.was = "";
+    st.oeffentlich = false;
+    const meta: LeadMeta = { ...(z.anfragen[a.anfrage] ?? {}) };
+    if (!meta.boerse) {
+      st.fehler = { ok: false, status: 409, fehler: "Zu dieser Anfrage gibt es kein Börsen-Angebot." };
+      return;
+    }
+    const b: BoerseMeta = { ...meta.boerse };
+    if (a.was === "offline") {
+      if (!b.online) return;
+      b.online = false;
+      st.oeffentlich = true;
+      st.was = `Aus der Flächenbörse genommen (${b.code})`;
+    } else {
+      const neu = a.aenderung;
+      if (neu.typ !== undefined) b.typ = neu.typ;
+      if (neu.groesseHa !== undefined) b.groesseHa = neu.groesseHa;
+      if (neu.lage !== undefined) b.lage = neu.lage;
+      if (neu.text !== undefined) b.text = neu.text;
+      if (neu.details !== undefined) {
+        const gemischt: BoerseDetails = { ...b.details };
+        for (const [k, v] of Object.entries(neu.details) as [keyof BoerseDetails, string][]) gemischt[k] = v;
+        const bereinigt = detailsBereinigen(gemischt);
+        if (bereinigt) b.details = bereinigt;
+        else delete b.details;
+      }
+      // Steht das Angebot online, darf eine Änderung nichts Verräterisches (Name, Flur, Adresse, Nummer) öffentlich machen.
+      if (b.online) {
+        const offen = boerseLuecken(b, leadView(lead, { ...meta, boerse: b }));
+        if (offen.length) {
+          st.fehler = { ok: false, status: 422, fehler: `Nicht gespeichert — das Angebot steht online, und so dürfte es nicht erscheinen: ${offen.join(" · ")}.` };
+          return;
+        }
+      }
+      st.oeffentlich = b.online;
+      st.was = `Angaben für die Flächenbörse geändert (${b.code})`;
+    }
+    b.geaendert = { am: new Date().toISOString(), von: wer };
+    meta.boerse = b;
+    z.anfragen[a.anfrage] = meta;
+    return { was: st.was, ref: a.anfrage };
+  });
+  if (st.fehler) return st.fehler;
+  if (!st.was) return { ok: true, text: "Keine Änderung nötig (Angebot war schon offline)." };
+  if (st.oeffentlich) await boerseNeuSchreiben();
+  await apiProtokoll(wer, "boerse", a.anfrage, st.was);
+  erneuern();
+  return { ok: true, text: st.was };
 }

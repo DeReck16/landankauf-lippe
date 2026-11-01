@@ -54,9 +54,11 @@ function speicherText(): string {
 
 let lesen = "";
 let schreiben = "";
+let abschluss = "";
+let schreiben2 = "";
 
 test("Zugang anlegen: Schlüssel nur einmal, im Speicher nur der Hash", async () => {
-  const r = await Z.zugangAnlegen("admin@example.com", { name: "Tagesbearbeitung", rechte: ["board:lesen", "board:details", "board:notiz", "board:status", "board:paare"], tage: 30 });
+  const r = await Z.zugangAnlegen("admin@example.com", { name: "Tagesbearbeitung", rechte: ["board:lesen", "board:details", "board:notiz", "board:status", "board:paare", "board:boerse"], tage: 30 });
   assert.equal(r.ok, true);
   if (!r.ok) return;
   assert.match(r.schluessel, /^lfk_[a-f0-9]{10}_[A-Za-z0-9_-]{43}$/);
@@ -64,6 +66,10 @@ test("Zugang anlegen: Schlüssel nur einmal, im Speicher nur der Hash", async ()
   const geheimnis = r.schluessel.split("_")[2];
   assert.ok(!speicherText().includes(geheimnis), "Geheimnis darf nirgends im Speicher stehen");
   assert.ok(!JSON.stringify(await Z.zugaengeListe()).includes("hash"), "Liste ohne Hash");
+
+  const zweiter = await Z.zugangAnlegen("admin@example.com", { name: "Tagesbearbeitung 2", rechte: ["board:lesen", "board:details", "board:notiz", "board:status", "board:paare", "board:boerse"], tage: 30 });
+  assert.equal(zweiter.ok, true);
+  if (zweiter.ok) schreiben2 = zweiter.schluessel;
 
   const nur = await Z.zugangAnlegen("admin@example.com", { name: "Nur lesen", rechte: ["board:lesen"], tage: 30 });
   assert.equal(nur.ok, true);
@@ -179,6 +185,7 @@ test("Abschließen: mit Recht möglich, aber nicht bei Angebot online in der Bö
   const z = await Z.zugangAnlegen("admin@example.com", { name: "Abschluss", rechte: ["board:abschliessen", "board:lesen"], tage: 30 });
   assert.equal(z.ok, true);
   if (!z.ok) return;
+  abschluss = z.schluessel;
   await store.mutateZustand("test", (zu) => {
     zu.anfragen["LL-TEST0003"] = { boerse: { code: "LF-0001", typ: "Ackerland", groesseHa: 1, lage: "Lage", text: "", online: true } };
   });
@@ -217,16 +224,8 @@ test("Anmeldeprobe /ich nennt Name und Rechte, nie den Schlüssel", async () => 
   assert.equal((await ichRoute.GET(new Request("https://lippeforst.de/api/verwaltung/ich"))).status, 401);
 });
 
-test("Höchstens 20 aktive Zugänge", async () => {
-  let abgelehnt = false;
-  for (let i = 0; i < 25 && !abgelehnt; i++) {
-    const r = await Z.zugangAnlegen("admin@example.com", { name: `Masse ${i}`, rechte: ["board:lesen"], tage: 5 });
-    if (!r.ok) abgelehnt = /Höchstens/.test(r.fehler);
-  }
-  assert.equal(abgelehnt, true);
-});
-
 test("Eingabe: Nicht-Texte und Fantasie-Status werden abgewiesen, bevor Rechte oder Zustand berührt werden", async () => {
+  schreiben = schreiben2; // der erste Schlüssel hat seine 190 Aufrufe je Stunde fast verbraucht
   const vorher = JSON.stringify((await store.readZustand()).zustand);
   const faelle: unknown[] = [
     { aktion: "status", anfrage: "LL-TEST0001", status: ["erledigt"] },
@@ -276,6 +275,52 @@ test("Notizen und Verlauf: nur mit board:details, Adressen und Nummern geschwär
   assert.ok(!liste.includes("Rückruf"), "in der Liste stehen nie Paar-Notizen");
 });
 
+test("Börsen-Angebote: offline nehmen und öffentliche Angaben anpassen — mit Leck-Prüfung und eigenen Rechten", async () => {
+  await anfrage("LL-TEST0006", { intent: "Verpachten", name: "Maxine Börsenfrau", ort: "Lage", email: "boerse@example.org" });
+  await store.mutateZustand("test", (z) => {
+    z.anfragen["LL-TEST0006"] = {
+      boerse: { code: "LF-7777", typ: "Ackerland", groesseHa: 2, lage: "Lage", text: "Ruhige Fläche am Ortsrand", einwilligung: { am: "2026-10-01", quelle: "telefonisch", von: "test" }, online: true },
+    };
+  });
+  const aendern = (key: string, feld: Record<string, unknown>) => post(key, { aktion: "boerse", anfrage: "LL-TEST0006", was: "aendern", ...feld });
+  const boerseMeta = async () => (await store.readZustand()).zustand.anfragen["LL-TEST0006"].boerse!;
+
+  // Rechte: lesen allein genügt nicht; Abschließen genügt nur fürs Offline-Nehmen
+  assert.equal((await aendern(lesen, { text: "x" })).status, 403);
+  assert.equal((await post(lesen, { aktion: "boerse", anfrage: "LL-TEST0006", was: "offline" })).status, 403);
+  assert.equal((await aendern(abschluss, { text: "x" })).status, 403);
+
+  // Eingabeprüfung vor allem anderen
+  assert.equal((await aendern(schreiben, {})).status, 400, "nichts angegeben");
+  assert.equal((await aendern(schreiben, { text: ["x"] })).status, 400);
+  assert.equal((await aendern(schreiben, { typ: "Mondlandschaft" })).status, 400);
+  assert.equal((await aendern(schreiben, { groesseHa: -3 })).status, 400);
+  assert.equal((await aendern(schreiben, { text: "siehe https://beispiel.example" })).status, 400);
+  assert.equal((await aendern(schreiben, { details: { gibtsnicht: "x" } })).status, 400);
+  assert.equal((await post(schreiben, { aktion: "boerse", anfrage: "LL-TEST0006", was: "veroeffentlichen" })).status, 400, "Veröffentlichen gibt es per API nicht");
+
+  // Ändern: gültig, dann verräterisch (online → 422, Angebot bleibt unverändert)
+  assert.equal((await aendern(schreiben, { text: "Ruhige Wiese am Ortsrand", groesseHa: 2.5, details: { frei: "ab sofort" } })).status, 200);
+  const b = await boerseMeta();
+  assert.deepEqual([b.text, b.groesseHa, b.details?.frei, b.online], ["Ruhige Wiese am Ortsrand", 2.5, "ab sofort", true]);
+  assert.equal((await aendern(schreiben, { text: "Fläche von Maxine, Rufnummer 0171 1234567" })).status, 422);
+  assert.equal((await aendern(schreiben, { lage: "Lage, Flur 5 Flurstück 12" })).status, 422);
+  assert.equal((await boerseMeta()).text, "Ruhige Wiese am Ortsrand");
+
+  // Offline nehmen: mit Börsen-Recht und mit Abschließen-Recht; zweiter Aufruf ist wirkungslos
+  assert.equal((await post(abschluss, { aktion: "boerse", anfrage: "LL-TEST0006", was: "offline" })).status, 200);
+  assert.equal((await boerseMeta()).online, false);
+  assert.equal((await post(schreiben, { aktion: "boerse", anfrage: "LL-TEST0006", was: "offline" })).status, 200);
+  assert.equal((await aendern(schreiben, { text: "Offline geändert" })).status, 200, "offline darf man Angaben anpassen");
+  assert.equal((await boerseMeta()).online, false, "Ändern veröffentlicht nie");
+  assert.equal((await post(schreiben, { aktion: "boerse", anfrage: "LL-GIBTSNICHT", was: "offline" })).status, 404);
+  assert.equal((await post(schreiben, { aktion: "boerse", anfrage: "LL-TEST0001", was: "offline" })).status, 409, "ohne Börsen-Angebot");
+
+  const tag = new Date().toISOString().slice(0, 10);
+  const prot = (await store.jsonLesen<{ eintraege: { aktion: string; ref: string }[] }>(`admin/api-protokoll/${tag}.json`))?.daten.eintraege ?? [];
+  assert.ok(prot.filter((e) => e.aktion === "boerse" && e.ref === "LL-TEST0006").length >= 3);
+});
+
 test("Wieder öffnen: abgeschlossene Anfragen öffnet nur die Verwaltung (sonst käme ein Angebot unbemerkt zurück in die Börse)", async () => {
   // LL-TEST0002 ist durch den Abschluss-Test archiviert
   const res = await post(schreiben, { aktion: "status", anfrage: "LL-TEST0002", status: "neu" });
@@ -312,6 +357,12 @@ test("Notizen: höchstens 10 je Anfrage am Tag, und jede API-Änderung steht im 
   assert.ok(prot.some((e) => e.aktion === "paar"));
 });
 
+test("Zu große POST-Bodies werden abgewiesen, auch ohne Content-Length", async () => {
+  const gross = JSON.stringify({ aktion: "notiz", anfrage: "LL-TEST0001", text: "x".repeat(30_000) });
+  const res = await boardRoute.POST(new Request("https://lippeforst.de/api/verwaltung/board", { method: "POST", headers: { authorization: `Bearer ${schreiben}` }, body: new Blob([gross]).stream(), duplex: "half" } as RequestInit));
+  assert.equal(res.status, 413);
+});
+
 test("Sitzung frisch prüfen: nach „Alle Sitzungen beenden“ nicht mehr gültig", async () => {
   const { createSessionToken } = await import("@/lib/admin/token");
   const { sitzungNochGueltigFrisch } = await import("@/lib/admin/session");
@@ -336,4 +387,13 @@ test("Notschalter: „Alle Sitzungen beenden“ sperrt auch alle API-Zugänge", 
   assert.ok((await Z.zugaengeListe()).every((x) => !x.aktiv));
   const neu = await Z.zugangAnlegen("admin@example.com", { name: "Nach dem Notschalter", rechte: ["board:lesen"], tage: 5 });
   assert.equal(neu.ok, true, "ein neuer Zugang ist danach wieder möglich");
+});
+
+test("Höchstens 20 aktive Zugänge", async () => {
+  let abgelehnt = false;
+  for (let i = 0; i < 25 && !abgelehnt; i++) {
+    const r = await Z.zugangAnlegen("admin@example.com", { name: `Masse ${i}`, rechte: ["board:lesen"], tage: 5 });
+    if (!r.ok) abgelehnt = /Höchstens/.test(r.fehler);
+  }
+  assert.equal(abgelehnt, true);
 });

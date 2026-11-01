@@ -20,6 +20,7 @@ export const RECHTE = {
   "board:status": "Status einer Anfrage auf Neu, In Arbeit oder Beantwortet setzen",
   "board:abschliessen": "Anfrage auf Erledigt oder Archiv setzen (nur ohne Angebot in der Börse)",
   "board:paare": "Paare vormerken oder verwerfen (keine Mail, keine Freigabe)",
+  "board:boerse": "Angebote in der Flächenbörse offline nehmen und ihre öffentlichen Angaben anpassen (Veröffentlichen bleibt in der Verwaltung)",
 } as const;
 export type Recht = keyof typeof RECHTE;
 

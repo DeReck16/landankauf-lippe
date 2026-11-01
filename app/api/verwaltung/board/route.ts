@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { hasBlobToken } from "@/lib/admin/config";
-import { aktionPruefen, boardAktion, boardLesen, rechtFuer } from "@/lib/api/board";
+import { aktionPruefen, boardAktion, boardLesen, rechteFuer } from "@/lib/api/board";
 import { zugangPruefen } from "@/lib/api/zugang";
 
 // Board der Verwaltung per API — nur mit API-Zugang (Bearer lfk_…), Rechte siehe lib/api/zugang.ts.
@@ -9,6 +9,8 @@ import { zugangPruefen } from "@/lib/api/zugang";
 //   POST { aktion:"notiz",  anfrage|paar, text }          → Verlauf-Eintrag
 //   POST { aktion:"status", anfrage, status }             → neu | in_arbeit | beantwortet (| erledigt | archiv)
 //   POST { aktion:"paar",   angebot, gesuch, status }     → vorgemerkt | verworfen
+//   POST { aktion:"boerse", anfrage, was:"offline" }      → Börsen-Angebot offline nehmen
+//   POST { aktion:"boerse", anfrage, was:"aendern", typ?, groesseHa?, lage?, text?, details? } → öffentliche Angaben anpassen
 // Keine Mails, keine Einladungen, keine Freigaben, keine Börse, kein Löschen.
 
 export const runtime = "nodejs";
@@ -16,6 +18,25 @@ export const maxDuration = 60;
 
 const KEIN_CACHE = { "cache-control": "no-store" };
 const BODY_MAX = 20_000;
+
+/** Body höchstens `max` Byte lesen — auch ohne Content-Length (chunked) wird abgebrochen, bevor alles im Speicher liegt. null = zu groß. */
+async function bodyBegrenzt(request: Request, max: number): Promise<string | null> {
+  const leser = request.body?.getReader();
+  if (!leser) return "";
+  const teile: Uint8Array[] = [];
+  let n = 0;
+  for (;;) {
+    const { done, value } = await leser.read();
+    if (done) break;
+    n += value.length;
+    if (n > max) {
+      await leser.cancel();
+      return null;
+    }
+    teile.push(value);
+  }
+  return Buffer.concat(teile).toString("utf8");
+}
 
 function fehler(status: number, text: string) {
   return NextResponse.json({ ok: false, fehler: text }, { status, headers: KEIN_CACHE });
@@ -44,19 +65,18 @@ export async function POST(request: Request) {
   const grund = await zugangPruefen(request);
   if (!grund.ok) return fehler(grund.status, grund.fehler);
   if (!hasBlobToken()) return fehler(503, "Kein Speicher verbunden.");
-  if (Number(request.headers.get("content-length") ?? 0) > BODY_MAX) return fehler(413, "Anfrage zu groß.");
+  const text = await bodyBegrenzt(request, BODY_MAX);
+  if (text === null) return fehler(413, "Anfrage zu groß.");
   let roh: unknown;
   try {
-    const text = await request.text();
-    if (text.length > BODY_MAX) return fehler(413, "Anfrage zu groß.");
     roh = JSON.parse(text);
   } catch {
     return fehler(400, "Kein gültiges JSON.");
   }
   const p = aktionPruefen(roh);
   if (!p.ok) return fehler(400, p.fehler);
-  const recht = rechtFuer(p.aktion);
-  if (!grund.zugang.rechte.includes(recht)) return fehler(403, `Recht fehlt: ${recht}`);
+  const rechte = rechteFuer(p.aktion);
+  if (!rechte.some((r) => grund.zugang.rechte.includes(r))) return fehler(403, `Recht fehlt: ${rechte.join(" oder ")}`);
   const r = await boardAktion(p.aktion, grund.von, grund.zugang.id);
   return r.ok ? NextResponse.json({ ok: true, text: r.text }, { headers: KEIN_CACHE }) : fehler(r.status, r.fehler);
 }
