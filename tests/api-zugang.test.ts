@@ -274,3 +274,14 @@ test("Notizen und Verlauf: nur mit board:details, Adressen und Nummern geschwär
   const liste = await (await boardRoute.GET(mitSchluessel(schreiben))).text();
   assert.ok(!liste.includes("Rückruf"), "in der Liste stehen nie Paar-Notizen");
 });
+
+test("Notschalter: „Alle Sitzungen beenden“ sperrt auch alle API-Zugänge", async () => {
+  assert.equal((await Z.zugangPruefen(mitSchluessel(lesen), "board:lesen")).ok, true, "vorher gültig");
+  const n = await Z.alleZugaengeSperren("admin@example.com");
+  assert.ok(n >= 2, "alle noch gültigen Zugänge");
+  for (const s of [lesen, schreiben]) assert.equal((await Z.zugangPruefen(mitSchluessel(s), "board:lesen")).ok, false);
+  assert.equal(await Z.alleZugaengeSperren("admin@example.com"), 0, "zweiter Aufruf: nichts mehr zu sperren");
+  assert.ok((await Z.zugaengeListe()).every((x) => !x.aktiv));
+  const neu = await Z.zugangAnlegen("admin@example.com", { name: "Nach dem Notschalter", rechte: ["board:lesen"], tage: 5 });
+  assert.equal(neu.ok, true, "ein neuer Zugang ist danach wieder möglich");
+});

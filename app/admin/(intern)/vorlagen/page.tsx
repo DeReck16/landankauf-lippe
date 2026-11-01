@@ -292,10 +292,10 @@ export default async function VorlagenPage(props: PageProps<"/admin/vorlagen">) 
       <section className="lfa-panel" id="sicherheit">
         <h2 className="lfa-h2">Sicherheit</h2>
         <p className="lfa-klein" style={{ marginBottom: "0.6rem" }}>
-          Gerät verloren oder Anmeldelink an eine falsche Adresse gegangen? „Alle Sitzungen beenden“ meldet alle Geräte aller Verwaltungs-Zugänge ab. Dieses Gerät bleibt angemeldet (es bekommt sofort eine neue Sitzung); alle anderen brauchen einen neuen Anmeldelink.
+          Gerät verloren oder Anmeldelink an eine falsche Adresse gegangen? „Alle Sitzungen beenden“ meldet alle Geräte aller Verwaltungs-Zugänge ab. Dieses Gerät bleibt angemeldet (es bekommt sofort eine neue Sitzung); alle anderen brauchen einen neuen Anmeldelink. Auch alle API-Zugänge werden dabei gesperrt (neue legen Sie danach unter API-Zugänge an).
         </p>
         <form action={alleSitzungenBeendenAktion}>
-          <BestaetigenKnopf className="lfa-knopf lfa-knopf-hell lfa-knopf-klein" frage="Wirklich alle anderen Sitzungen der Verwaltung beenden?" tipp="Meldet alle anderen Geräte ab (alle Admins). Es geht keine E-Mail raus.">
+          <BestaetigenKnopf className="lfa-knopf lfa-knopf-hell lfa-knopf-klein" frage="Wirklich alle anderen Sitzungen der Verwaltung beenden?" tipp="Meldet alle anderen Geräte ab (alle Admins) und sperrt alle API-Zugänge. Es geht keine E-Mail raus.">
             Alle Sitzungen beenden
           </BestaetigenKnopf>
         </form>

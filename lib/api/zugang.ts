@@ -131,6 +131,22 @@ export async function zugangSperren(von: string, id: string): Promise<boolean> {
   return gefunden;
 }
 
+/** Notschalter (gehört zu „Alle Sitzungen beenden“): sperrt alle noch gültigen Zugänge, damit ein von einem fremden Gerät angelegter Schlüssel nicht überlebt. */
+export async function alleZugaengeSperren(von: string): Promise<number> {
+  let n = 0;
+  await jsonAendern<Datei>(PFAD, leer, (d) => {
+    const am = new Date().toISOString();
+    for (const z of Object.values(d.zugaenge)) {
+      if (z.gesperrtAm) continue;
+      z.gesperrtAm = am;
+      z.gesperrtVon = von;
+      n++;
+    }
+    if (n === 0) return false;
+  });
+  return n;
+}
+
 export type Pruefung = { ok: true; zugang: ZugangInfo; von: string } | { ok: false; status: 401 | 403 | 429; fehler: string };
 
 function clientKennung(request: Request): string {

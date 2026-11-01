@@ -12,6 +12,7 @@ import { isAdminEmail } from "@/lib/admin/config";
 import { createLoginToken, verifyLoginToken } from "@/lib/admin/token";
 import { endSession, requireAdmin, startSession } from "@/lib/admin/session";
 import { alleSitzungenBeenden } from "@/lib/admin/sitzungen";
+import { alleZugaengeSperren } from "@/lib/api/zugang";
 import { loeschwunschErledigt, loeschwunschVermerken } from "@/lib/admin/loeschwunsch";
 import { vorgangLoeschen } from "@/lib/admin/loeschen";
 import { linkEinloesen, mailDrosseln, mutateZustand, readZustand, listLeads } from "@/lib/admin/store";
@@ -90,11 +91,13 @@ export async function abmelden(): Promise<void> {
 export async function alleSitzungenBeendenAktion(): Promise<void> {
   const { email } = await requireAdmin();
   await alleSitzungenBeenden(email);
+  const gesperrt = await alleZugaengeSperren(email);
   // Eine Sekunde später ausstellen, damit die neue Sitzung sicher nach dem Sperrzeitpunkt liegt.
   await new Promise((r) => setTimeout(r, 1100));
   await startSession(email);
-  await mutateZustand(email, () => ({ was: "Alle Sitzungen der Verwaltung beendet (alle Geräte müssen sich neu anmelden)" }));
-  redirect(`/admin/vorlagen?m=${encodeURIComponent("Alle anderen Sitzungen sind beendet — dieses Gerät ist neu angemeldet.")}&mt=ok#sicherheit`);
+  await mutateZustand(email, () => ({ was: `Alle Sitzungen der Verwaltung beendet (alle Geräte müssen sich neu anmelden)${gesperrt ? `, ${gesperrt} API-Zugänge gesperrt` : ""}` }));
+  const hinweis = gesperrt ? ` ${gesperrt} API-Zugang${gesperrt === 1 ? " ist" : "änge sind"} gesperrt — neue legen Sie unter API-Zugänge an.` : "";
+  redirect(`/admin/vorlagen?m=${encodeURIComponent(`Alle anderen Sitzungen sind beendet — dieses Gerät ist neu angemeldet.${hinweis}`)}&mt=ok#sicherheit`);
 }
 
 // ---------------------------------------------------------------------------
