@@ -15,6 +15,7 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 const KEIN_CACHE = { "cache-control": "no-store" };
+const BODY_MAX = 20_000;
 
 function fehler(status: number, text: string) {
   return NextResponse.json({ ok: false, fehler: text }, { status, headers: KEIN_CACHE });
@@ -43,9 +44,12 @@ export async function POST(request: Request) {
   const grund = await zugangPruefen(request);
   if (!grund.ok) return fehler(grund.status, grund.fehler);
   if (!hasBlobToken()) return fehler(503, "Kein Speicher verbunden.");
+  if (Number(request.headers.get("content-length") ?? 0) > BODY_MAX) return fehler(413, "Anfrage zu groß.");
   let roh: unknown;
   try {
-    roh = await request.json();
+    const text = await request.text();
+    if (text.length > BODY_MAX) return fehler(413, "Anfrage zu groß.");
+    roh = JSON.parse(text);
   } catch {
     return fehler(400, "Kein gültiges JSON.");
   }

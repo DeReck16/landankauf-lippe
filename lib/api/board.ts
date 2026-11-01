@@ -24,11 +24,25 @@ const DATUM = /^\d{1,2}\.\d{1,2}\.\d{2,4}$/;
  * Verwaltung nicht per API. Bewusst nur „bestmöglich“: Namen und Straßen lassen sich in freiem Text nicht sicher
  * erkennen; deshalb gibt es Notizen, Nachricht und Verlauf nur mit dem eigenen Recht board:details.
  */
-export function schwaerzen(text: string): string {
-  return text
-    .slice(0, 20_000)
-    .replace(MAIL, "[E-Mail]")
-    .replace(TELEFON, (m) => (DATUM.test(m.trim()) ? m : "[Telefon]"));
+export function schwaerzen(text: string, eigene?: RegExp | null): string {
+  let t = text.slice(0, 20_000);
+  if (eigene) t = t.replace(eigene, "[entfernt]");
+  return t.replace(MAIL, "[E-Mail]").replace(TELEFON, (m) => (DATUM.test(m.trim()) ? m : "[Telefon]"));
+}
+
+const TITEL = new Set(["herr", "frau", "dr", "prof", "und", "von", "van", "der", "den", "zu"]);
+
+/** Name, Adresse und Nummer dieser einen Anfrage (und die Wörter des Namens), damit sie auch im Freitext nicht auftauchen. */
+function eigeneAngaben(v: Pick<LeadView, "name" | "email" | "phone">): RegExp | null {
+  const teile = new Set<string>();
+  for (const s of [v.name, v.email, v.phone]) if (s.trim().length >= 4 && s !== "—") teile.add(s.trim());
+  for (const w of v.name.split(/[\s,;]+/)) {
+    const wort = w.replace(/[^\p{L}-]/gu, "");
+    if (wort.length >= 3 && !TITEL.has(wort.toLowerCase())) teile.add(wort);
+  }
+  if (teile.size === 0) return null;
+  const muster = [...teile].sort((a, b) => b.length - a.length).map((x) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  return new RegExp(`(?<![\\p{L}\\p{N}])(?:${muster.join("|")})(?![\\p{L}\\p{N}])`, "giu");
 }
 
 export type BoardZeile = {
@@ -102,15 +116,16 @@ export async function boardLesen(opt: { status?: "offen" | "alle"; paare?: "akti
     const v = views.find((x) => x.id === opt.anfrage);
     if (!v) return null;
     const verlauf = opt.details ? await verlaufLesen(v.id, zustand.protokoll) : [];
+    const eig = eigeneAngaben(v);
     return {
       anfrage: {
         ...zeile(v, stufe(akten.get(v.id))),
-        ...(opt.details ? { nachricht: v.message === "—" ? "" : schwaerzen(v.message).slice(0, 2000), notiz: schwaerzen(v.meta.notiz ?? "") || null } : {}),
+        ...(opt.details ? { nachricht: v.message === "—" ? "" : schwaerzen(v.message, eig).slice(0, 2000), notiz: schwaerzen(v.meta.notiz ?? "", eig) || null } : {}),
       },
       paare: Object.entries(zustand.paare)
         .filter(([k]) => k.split("~").includes(v.id))
-        .map(([k, p]) => paarZeile(k, p, Boolean(opt.details))),
-      verlauf: verlauf.slice(0, 40).map((e) => ({ am: e.am, von: e.von.includes("@") ? "Verwaltung" : e.von, was: schwaerzen(e.was) })),
+        .map(([k, p]) => paarZeile(k, p, Boolean(opt.details) && eig)),
+      verlauf: verlauf.slice(0, 40).map((e) => ({ am: e.am, von: e.von.includes("@") ? "Verwaltung" : e.von, was: schwaerzen(e.was, eig) })),
     };
   }
 
@@ -130,7 +145,7 @@ export async function boardLesen(opt: { status?: "offen" | "alle"; paare?: "akti
   };
 }
 
-function paarZeile(key: string, p: MatchMeta, mitNotiz: boolean): PaarZeile {
+function paarZeile(key: string, p: MatchMeta, notizEig: RegExp | null | false): PaarZeile {
   const [angebot, gesuch] = key.split("~");
   return {
     key,
@@ -140,7 +155,7 @@ function paarZeile(key: string, p: MatchMeta, mitNotiz: boolean): PaarZeile {
     zustimmungAnbieter: p.zustimmungAnbieter ?? null,
     zustimmungSuchender: p.zustimmungSuchender ?? null,
     ablehnung: p.ablehnung ? { rolle: p.ablehnung.rolle, am: p.ablehnung.am } : null,
-    notiz: mitNotiz && p.notiz ? schwaerzen(p.notiz) : null,
+    notiz: notizEig !== false && p.notiz ? schwaerzen(p.notiz, notizEig) : null,
     geaendert: p.geaendert?.am ?? null,
   };
 }
@@ -196,6 +211,10 @@ export function rechtFuer(a: BoardAktion): Recht {
 
 export async function boardAktion(a: BoardAktion, von: string, zugangId: string): Promise<AktionErgebnis> {
   const wer = von.slice(0, 80);
+  // Alle Änderungen je Zugang und Tag begrenzen (hält das Protokoll klein; der Zähler speichert höchstens 200 Zeitpunkte).
+  if (!(await drosseln("api-schreiben", kurzwert(zugangId, "schreiben"), [{ sekunden: 86_400, max: 150 }]))) {
+    return { ok: false, status: 429, fehler: "Zu viele Änderungen für heute (höchstens 150 je Zugang und Tag)." };
+  }
   if (a.aktion === "notiz") {
     const ref = "paar" in a ? a.paar : a.anfrage;
     const { zustand } = await readZustand();
@@ -293,13 +312,13 @@ function erneuern(): void {
 const geschlossen = (s: LeadStatus | undefined): boolean => s === "erledigt" || s === "archiv";
 
 /**
- * Eigenes, nie gekürztes Protokoll aller Änderungen per API (eine Datei je Monat). Das Gesamtprotokoll und der Verlauf
+ * Eigenes, nie gekürztes Protokoll aller Änderungen per API (eine Datei je Tag). Das Gesamtprotokoll und der Verlauf
  * je Anfrage sind in der Länge begrenzt und könnten durch Masse verdrängt werden — hier bleibt jede Änderung stehen.
  */
 async function apiProtokoll(von: string, aktion: "notiz" | "status" | "paar", ref: string, was: string): Promise<void> {
   const am = new Date().toISOString();
   await jsonAendern<{ v: 1; eintraege: { am: string; von: string; aktion: string; ref: string; was: string }[] }>(
-    `admin/api-protokoll/${am.slice(0, 7)}.json`,
+    `admin/api-protokoll/${am.slice(0, 10)}.json`,
     () => ({ v: 1, eintraege: [] }),
     (d) => {
       d.eintraege.push({ am, von, aktion, ref, was: was.slice(0, 200) });

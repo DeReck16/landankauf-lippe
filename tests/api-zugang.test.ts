@@ -291,12 +291,22 @@ test("Schwärzen: Punkt als Trenner wird erkannt, Datum bleibt, Ort und Flurstü
   assert.ok(!text.includes("erika@example.org") && !text.includes("1234567"));
 });
 
+test("Detailansicht: Name, Adresse und Nummer dieser Anfrage fehlen auch im Freitext", async () => {
+  await anfrage("LL-TEST0005", { name: "Max Mustermann", email: "max@example.org", phone: "0170 5550000", message: "Ich bin Max Mustermann, erreichbar unter 0170 5550000. Herr Mustermann ruft zurück." });
+  await store.mutateZustand("test", (z) => {
+    z.anfragen["LL-TEST0005"] = { notiz: "Mustermann will Preis 20.000 € wissen" };
+  });
+  const detail = await (await boardRoute.GET(new Request("https://lippeforst.de/api/verwaltung/board?anfrage=LL-TEST0005", { headers: { authorization: `Bearer ${schreiben}` } }))).text();
+  for (const verboten of ["Mustermann", "Max", "0170", "max@example.org"]) assert.ok(!detail.includes(verboten), `${verboten} darf nicht in der Detailansicht stehen`);
+  assert.ok(detail.includes("20.000"), "Beträge bleiben lesbar");
+});
+
 test("Notizen: höchstens 10 je Anfrage am Tag, und jede API-Änderung steht im eigenen, ungekürzten Protokoll", async () => {
   let letzter = 0;
   for (let i = 0; i < 12; i++) letzter = (await post(schreiben, { aktion: "notiz", anfrage: "LL-TEST0003", text: `Notiz ${i}` })).status;
   assert.equal(letzter, 429);
-  const monat = new Date().toISOString().slice(0, 7);
-  const prot = (await store.jsonLesen<{ eintraege: { aktion: string; ref: string; von: string }[] }>(`admin/api-protokoll/${monat}.json`))?.daten.eintraege ?? [];
+  const tag = new Date().toISOString().slice(0, 10);
+  const prot = (await store.jsonLesen<{ eintraege: { aktion: string; ref: string; von: string }[] }>(`admin/api-protokoll/${tag}.json`))?.daten.eintraege ?? [];
   assert.equal(prot.filter((e) => e.aktion === "notiz" && e.ref === "LL-TEST0003").length, 10);
   assert.ok(prot.some((e) => e.aktion === "status" && e.von === "API: Tagesbearbeitung"));
   assert.ok(prot.some((e) => e.aktion === "paar"));

@@ -40,7 +40,8 @@ export async function sitzungNochGueltig(ausgestelltSek: number): Promise<boolea
 export async function sitzungNochGueltigUngepuffert(ausgestelltSek: number): Promise<boolean> {
   try {
     const s = (await jsonLesen<SitzungsSperren>(PFAD))?.daten ?? {};
-    return !s.alleVor || ausgestelltSek >= s.alleVor;
+    // Strikt größer: eine Sitzung aus derselben Sekunde wie der Notschalter gilt hier als beendet.
+    return !s.alleVor || ausgestelltSek > s.alleVor;
   } catch (err) {
     console.error("[sitzungen] Sperrliste nicht lesbar — Vorgang abgelehnt", err);
     return false;
