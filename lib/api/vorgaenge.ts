@@ -160,6 +160,8 @@ export async function vorgaengeLesen(zugangId: string, kaufRecht: boolean) {
       stand: rein(x.plan.stand, ids, an),
       wartetSeit: x.plan.wartetSeit,
       boerse: x.boerse,
+      /** Weg des Angebots: „vermittlung“, „ankauf“ (Selbst kaufen) oder null = offen — entscheidet nur die Verwaltung. */
+      weg: an.leads.get(ids[0])?.meta.weg ?? null,
       aktionen: alleAktionen(x.plan).map((a) => aktionAnsicht(a, artVon(x.art, ids, an), automatik, ids, an, x.key, zugangId, kaufRecht)),
     };
   });
