@@ -280,7 +280,7 @@ test("Notizen und Verlauf: nur mit board:details, Adressen und Nummern geschwär
   assert.ok(!liste.includes("Rückruf"), "in der Liste stehen nie Paar-Notizen");
 });
 
-test("Eigene Notizen eines Zugangs werden nicht anfragespezifisch geschwärzt, fremde schon (kein Rate-Orakel über „[entfernt]“)", async () => {
+test("Eigene Notizen eines Zugangs werden nicht anfragespezifisch geschwärzt, fremde gar nicht gezeigt (kein Rate-Orakel über „[entfernt]“)", async () => {
   await anfrage("LL-TEST0009", { name: "Karl Orakel", email: "orakel@example.org", phone: "0171 5550000" });
   assert.equal((await post(schreiben, { aktion: "notiz", anfrage: "LL-TEST0009", text: "Karl Orakel meldet sich, mail orakel@example.org" })).status, 200);
   assert.equal((await post(schreiben, { aktion: "notiz", anfrage: "LL-TEST0009", text: "Berta Beispiel meldet sich, mail beispiel@example.org" })).status, 200);
@@ -297,8 +297,9 @@ test("Eigene Notizen eines Zugangs werden nicht anfragespezifisch geschwärzt, f
   assert.equal(anderer.ok, true);
   if (!anderer.ok) return;
   const fremd = await detail(anderer.schluessel);
-  assert.ok(!fremd.includes("Karl Orakel") && fremd.includes("[entfernt] meldet sich"));
-  assert.ok(fremd.includes("Berta Beispiel meldet sich"));
+  assert.ok(!fremd.includes("Karl Orakel meldet sich") && !fremd.includes("Berta Beispiel") && !fremd.includes("[entfernt] meldet sich"), "Notizen anderer Zugänge erscheinen weder offen noch geschwärzt");
+  assert.ok(fremd.includes("Notiz eines anderen API-Zugangs"));
+  assert.ok(fremd.includes("[entfernt] rief an"), "Text der Verwaltung bleibt voll geschwärzt");
 });
 
 test("Börsen-Angebote: offline nehmen und öffentliche Angaben anpassen — mit Leck-Prüfung und eigenen Rechten", async () => {

@@ -129,10 +129,14 @@ export async function boardLesen(opt: { status?: "offen" | "alle"; paare?: "akti
       paare: Object.entries(zustand.paare)
         .filter(([k]) => k.split("~").includes(v.id))
         .map(([k, p]) => paarZeile(k, p, Boolean(opt.details) && eig)),
-      // Den eigenen Text sieht ein Zugang nur allgemein geschwärzt: Würde er anfragespezifisch geschwärzt, verriete „[entfernt]“
-      // einem Schlüssel mit Schreib- und Leserecht, ob ein geratener Name zur Anfrage gehört. Alles andere (auch Text anderer
-      // Zugänge) bleibt voll geschwärzt, damit kein Zugang fremde Namen weiterreicht.
-      verlauf: verlauf.slice(0, 40).map((e) => ({ am: e.am, von: e.von.includes("@") ? "Verwaltung" : e.von, was: schwaerzen(e.was, opt.leser && e.von === opt.leser ? null : eig) })),
+      // Den eigenen Notiztext sieht ein Zugang nur allgemein geschwärzt: Würde er anfragespezifisch geschwärzt, verriete
+      // „[entfernt]“, ob ein geratener Name zur Anfrage gehört. Notizen anderer API-Zugänge zeigt das Board gar nicht (weder
+      // geschwärzt noch offen): Sonst könnte ein zweiter Zugang das Orakel lesen oder fremde Namen weitergeben.
+      verlauf: verlauf.slice(0, 40).map((e) => {
+        const api = e.von.startsWith("API: ");
+        const was = api && e.von !== opt.leser && e.was.startsWith("Notiz:") ? "Notiz eines anderen API-Zugangs (Text nur in der Verwaltung)" : schwaerzen(e.was, api && e.von === opt.leser ? null : eig);
+        return { am: e.am, von: e.von.includes("@") ? "Verwaltung" : e.von, was };
+      }),
     };
   }
 
