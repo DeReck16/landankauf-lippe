@@ -2,7 +2,7 @@ import "server-only";
 import { revalidatePath } from "next/cache";
 import { menueErneuern } from "@/lib/admin/menue";
 import { LEAD_STATUS, MATCH_STATUS, formatGroesse, leadView, paarKey, type LeadStatus, type LeadView, type MatchMeta } from "@/lib/admin/model";
-import { listLeads, mutateZustand, readZustand, verlaufLesen } from "@/lib/admin/store";
+import { drosseln, jsonAendern, kurzwert, listLeads, mutateZustand, readZustand, verlaufLesen } from "@/lib/admin/store";
 import { alleKunden } from "@/lib/portal/speicher";
 import { stufe } from "@/lib/portal/model";
 import { istOffen } from "@/lib/portal/postfach";
@@ -16,11 +16,19 @@ const ID = /^LL-[A-Z0-9]+$/;
 const PAAR = /^LL-[A-Z0-9]+~LL-[A-Z0-9]+$/;
 
 const MAIL = /[^\s@<>()]+@[^\s@<>()]+\.[^\s@<>()]+/g;
-const TELEFON = /(?<![\w.])(?:\+\d{1,3}|0\d)[\d\s/()-]{6,}\d/g;
+const TELEFON = /(?<![\w.])(?:\+\d{1,3}|0\d)[\d\s/().-]{6,}\d/g;
+const DATUM = /^\d{1,2}\.\d{1,2}\.\d{2,4}$/;
 
-/** Freitext (Notizen, Verlauf) enthält gelegentlich Adressen oder Nummern — sie verlassen die Verwaltung nicht per API. */
+/**
+ * Freitext (Notizen, Verlauf, Ort, Flurstück) enthält gelegentlich Adressen oder Nummern — sie verlassen die
+ * Verwaltung nicht per API. Bewusst nur „bestmöglich“: Namen und Straßen lassen sich in freiem Text nicht sicher
+ * erkennen; deshalb gibt es Notizen, Nachricht und Verlauf nur mit dem eigenen Recht board:details.
+ */
 export function schwaerzen(text: string): string {
-  return text.replace(MAIL, "[E-Mail]").replace(TELEFON, "[Telefon]");
+  return text
+    .slice(0, 20_000)
+    .replace(MAIL, "[E-Mail]")
+    .replace(TELEFON, (m) => (DATUM.test(m.trim()) ? m : "[Telefon]"));
 }
 
 export type BoardZeile = {
@@ -57,8 +65,8 @@ function zeile(l: LeadView, kunde: string): BoardZeile {
     art: l.art,
     typ: l.typ,
     groesse: formatGroesse(l.groesseWert),
-    ort: l.ortText,
-    flurstueck: l.flurstueck === "—" ? null : l.flurstueck,
+    ort: schwaerzen(l.ortText),
+    flurstueck: l.flurstueck === "—" ? null : schwaerzen(l.flurstueck),
     status: l.status,
     weg: m.weg ?? null,
     boerse: m.boerse ? { code: m.boerse.code, online: m.boerse.online } : null,
@@ -97,7 +105,7 @@ export async function boardLesen(opt: { status?: "offen" | "alle"; paare?: "akti
     return {
       anfrage: {
         ...zeile(v, stufe(akten.get(v.id))),
-        ...(opt.details ? { nachricht: v.message === "—" ? "" : schwaerzen(v.message.slice(0, 2000)), notiz: schwaerzen(v.meta.notiz ?? "") || null } : {}),
+        ...(opt.details ? { nachricht: v.message === "—" ? "" : schwaerzen(v.message).slice(0, 2000), notiz: schwaerzen(v.meta.notiz ?? "") || null } : {}),
       },
       paare: Object.entries(zustand.paare)
         .filter(([k]) => k.split("~").includes(v.id))
@@ -146,7 +154,7 @@ export type BoardAktion =
   | { aktion: "status"; anfrage: string; status: LeadStatus }
   | { aktion: "paar"; angebot: string; gesuch: string; status: "vorgemerkt" | "verworfen" };
 
-export type AktionErgebnis = { ok: true; text: string } | { ok: false; status: 400 | 403 | 404 | 409 | 422; fehler: string };
+export type AktionErgebnis = { ok: true; text: string } | { ok: false; status: 400 | 403 | 404 | 409 | 422 | 429; fehler: string };
 
 const istText = (x: unknown): x is string => typeof x === "string";
 
@@ -186,14 +194,20 @@ export function rechtFuer(a: BoardAktion): Recht {
   return a.status === "erledigt" || a.status === "archiv" ? "board:abschliessen" : "board:status";
 }
 
-export async function boardAktion(a: BoardAktion, von: string): Promise<AktionErgebnis> {
+export async function boardAktion(a: BoardAktion, von: string, zugangId: string): Promise<AktionErgebnis> {
   const wer = von.slice(0, 80);
   if (a.aktion === "notiz") {
     const ref = "paar" in a ? a.paar : a.anfrage;
     const { zustand } = await readZustand();
     const existiert = "paar" in a ? Boolean(zustand.paare[ref]) || (await paarMoeglich(ref)) : (await listLeads()).some((l) => l.id === ref);
     if (!existiert) return { ok: false, status: 404, fehler: "Nicht gefunden." };
+    // Notizen dürfen das gekappte Protokoll nicht mit Masse verdrängen: je Zugang und je Anfrage nur wenige am Tag.
+    const frei =
+      (await drosseln("api-notiz", kurzwert(zugangId, "notiz"), [{ sekunden: 86_400, max: 40 }])) &&
+      (await drosseln("api-notiz-ref", kurzwert(ref, "notiz"), [{ sekunden: 86_400, max: 10 }]));
+    if (!frei) return { ok: false, status: 429, fehler: "Zu viele Notizen (je Zugang 40, je Anfrage 10 am Tag)." };
     await mutateZustand(wer, () => ({ was: `Notiz: ${a.text}`, ref }));
+    await apiProtokoll(wer, "notiz", ref, a.text);
     return { ok: true, text: "Notiz im Verlauf eingetragen." };
   }
 
@@ -205,11 +219,15 @@ export async function boardAktion(a: BoardAktion, von: string): Promise<AktionEr
     await mutateZustand(wer, (z) => {
       const meta = { ...(z.anfragen[a.anfrage] ?? {}) };
       if ((meta.status ?? "neu") === neu) return;
+      if (geschlossen(meta.status) && !geschlossen(neu)) {
+        st.fehler = { ok: false, status: 409, fehler: "Abgeschlossene Anfragen öffnet nur die Verwaltung wieder (sie kann ein Angebot zurück in die Börse bringen)." };
+        return;
+      }
       if (meta.loeschwunsch && !meta.loeschwunsch.erledigtAm) {
         st.fehler = { ok: false, status: 409, fehler: "Löschwunsch offen — nur in der Verwaltung." };
         return;
       }
-      if ((neu === "erledigt" || neu === "archiv") && (meta.boerse?.online || meta.suche?.online)) {
+      if (geschlossen(neu) && (meta.boerse?.online || meta.suche?.online)) {
         st.fehler = { ok: false, status: 409, fehler: "Angebot oder Suchauftrag ist in der Börse online — in der Verwaltung erledigen (nimmt es von der Website)." };
         return;
       }
@@ -220,7 +238,10 @@ export async function boardAktion(a: BoardAktion, von: string): Promise<AktionEr
       return { was: `Status → ${LEAD_STATUS[neu].label}`, ref: a.anfrage };
     });
     if (st.fehler) return st.fehler;
-    if (st.geaendert) erneuern();
+    if (st.geaendert) {
+      await apiProtokoll(wer, "status", a.anfrage, LEAD_STATUS[neu].label);
+      erneuern();
+    }
     return { ok: true, text: st.geaendert ? `Status → ${LEAD_STATUS[neu].label}` : "Status war schon so gesetzt." };
   }
 
@@ -245,7 +266,10 @@ export async function boardAktion(a: BoardAktion, von: string): Promise<AktionEr
     return { was: a.status === "vorgemerkt" ? "Paar vorgemerkt" : "Paar verworfen", ref: key };
   });
   if (st.fehler) return st.fehler;
-  if (st.geaendert) erneuern();
+  if (st.geaendert) {
+    await apiProtokoll(wer, "paar", key, a.status);
+    erneuern();
+  }
   return { ok: true, text: st.geaendert ? `Paar ${MATCH_STATUS[a.status].label.toLowerCase()}.` : "Keine Änderung nötig." };
 }
 
@@ -264,4 +288,21 @@ async function paarMoeglich(key: string): Promise<boolean> {
 function erneuern(): void {
   revalidatePath("/admin", "layout");
   menueErneuern();
+}
+
+const geschlossen = (s: LeadStatus | undefined): boolean => s === "erledigt" || s === "archiv";
+
+/**
+ * Eigenes, nie gekürztes Protokoll aller Änderungen per API (eine Datei je Monat). Das Gesamtprotokoll und der Verlauf
+ * je Anfrage sind in der Länge begrenzt und könnten durch Masse verdrängt werden — hier bleibt jede Änderung stehen.
+ */
+async function apiProtokoll(von: string, aktion: "notiz" | "status" | "paar", ref: string, was: string): Promise<void> {
+  const am = new Date().toISOString();
+  await jsonAendern<{ v: 1; eintraege: { am: string; von: string; aktion: string; ref: string; was: string }[] }>(
+    `admin/api-protokoll/${am.slice(0, 7)}.json`,
+    () => ({ v: 1, eintraege: [] }),
+    (d) => {
+      d.eintraege.push({ am, von, aktion, ref, was: was.slice(0, 200) });
+    },
+  );
 }

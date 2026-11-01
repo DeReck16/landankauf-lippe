@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireAdmin } from "@/lib/admin/session";
+import { requireAdmin, sitzungNochGueltigFrisch } from "@/lib/admin/session";
 import { mutateZustand } from "@/lib/admin/store";
 import { zugangAnlegen, zugangSperren } from "@/lib/api/zugang";
 
@@ -16,6 +16,11 @@ export async function zugangAnlegenAktion(_prev: ZugangState, formData: FormData
     tage: Number(formData.get("tage") ?? 365),
   });
   if (!r.ok) return { status: "fehler", text: r.fehler };
+  // Läuft gleichzeitig „Alle Sitzungen beenden“, darf der eben angelegte Schlüssel nicht überleben.
+  if (!(await sitzungNochGueltigFrisch())) {
+    await zugangSperren(email, r.id);
+    return { status: "fehler", text: "Die Sitzung wurde gerade beendet — der Zugang wurde nicht angelegt. Bitte neu anmelden." };
+  }
   await mutateZustand(email, () => ({ was: `API-Zugang „${r.zugang.name}“ angelegt (${r.zugang.rechte.join(", ")}), gültig bis ${r.zugang.laeuftAb.slice(0, 10)}` }));
   revalidatePath("/admin/api-zugaenge");
   return { status: "ok", schluessel: r.schluessel, name: r.zugang.name };

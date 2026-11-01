@@ -53,6 +53,6 @@ export async function POST(request: Request) {
   if (!p.ok) return fehler(400, p.fehler);
   const recht = rechtFuer(p.aktion);
   if (!grund.zugang.rechte.includes(recht)) return fehler(403, `Recht fehlt: ${recht}`);
-  const r = await boardAktion(p.aktion, grund.von);
+  const r = await boardAktion(p.aktion, grund.von, grund.zugang.id);
   return r.ok ? NextResponse.json({ ok: true, text: r.text }, { headers: KEIN_CACHE }) : fehler(r.status, r.fehler);
 }

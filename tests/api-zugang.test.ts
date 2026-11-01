@@ -7,6 +7,7 @@ import { testUmgebung } from "./hilfe";
 const DIR = testUmgebung();
 
 const Z = await import("@/lib/api/zugang");
+const B = await import("@/lib/api/board");
 const store = await import("@/lib/admin/store");
 const boardRoute = await import("@/app/api/verwaltung/board/route");
 const ichRoute = await import("@/app/api/verwaltung/ich/route");
@@ -273,6 +274,47 @@ test("Notizen und Verlauf: nur mit board:details, Adressen und Nummern geschwär
 
   const liste = await (await boardRoute.GET(mitSchluessel(schreiben))).text();
   assert.ok(!liste.includes("Rückruf"), "in der Liste stehen nie Paar-Notizen");
+});
+
+test("Wieder öffnen: abgeschlossene Anfragen öffnet nur die Verwaltung (sonst käme ein Angebot unbemerkt zurück in die Börse)", async () => {
+  // LL-TEST0002 ist durch den Abschluss-Test archiviert
+  const res = await post(schreiben, { aktion: "status", anfrage: "LL-TEST0002", status: "neu" });
+  assert.equal(res.status, 409);
+  assert.equal((await store.readZustand()).zustand.anfragen["LL-TEST0002"].status, "archiv");
+});
+
+test("Schwärzen: Punkt als Trenner wird erkannt, Datum bleibt, Ort und Flurstück werden mitgeschwärzt", async () => {
+  assert.equal(B.schwaerzen("Tel 0171.1234567 am 01.11.2026, Mail a@b.de"), "Tel [Telefon] am 01.11.2026, Mail [E-Mail]");
+  await anfrage("LL-TEST0004", { ort: "Lügde, erika@example.org", flurstueck: "Flur 5, Tel 0171 1234567" });
+  const text = await (await boardRoute.GET(mitSchluessel(lesen))).text();
+  assert.ok(text.includes("LL-TEST0004"));
+  assert.ok(!text.includes("erika@example.org") && !text.includes("1234567"));
+});
+
+test("Notizen: höchstens 10 je Anfrage am Tag, und jede API-Änderung steht im eigenen, ungekürzten Protokoll", async () => {
+  let letzter = 0;
+  for (let i = 0; i < 12; i++) letzter = (await post(schreiben, { aktion: "notiz", anfrage: "LL-TEST0003", text: `Notiz ${i}` })).status;
+  assert.equal(letzter, 429);
+  const monat = new Date().toISOString().slice(0, 7);
+  const prot = (await store.jsonLesen<{ eintraege: { aktion: string; ref: string; von: string }[] }>(`admin/api-protokoll/${monat}.json`))?.daten.eintraege ?? [];
+  assert.equal(prot.filter((e) => e.aktion === "notiz" && e.ref === "LL-TEST0003").length, 10);
+  assert.ok(prot.some((e) => e.aktion === "status" && e.von === "API: Tagesbearbeitung"));
+  assert.ok(prot.some((e) => e.aktion === "paar"));
+});
+
+test("Sitzung frisch prüfen: nach „Alle Sitzungen beenden“ nicht mehr gültig", async () => {
+  const { createSessionToken } = await import("@/lib/admin/token");
+  const { sitzungNochGueltigFrisch } = await import("@/lib/admin/session");
+  const { alleSitzungenBeenden } = await import("@/lib/admin/sitzungen");
+  const { SESSION_COOKIE } = await import("@/lib/admin/config");
+  const g = globalThis as unknown as { __testAnfrage: { cookies: Map<string, string>; headers: Map<string, string> } };
+  g.__testAnfrage = { cookies: new Map([[SESSION_COOKIE, createSessionToken("admin@example.com").token]]), headers: new Map() };
+  assert.equal(await sitzungNochGueltigFrisch(), true);
+  await new Promise((r) => setTimeout(r, 1100));
+  await alleSitzungenBeenden("admin@example.com");
+  assert.equal(await sitzungNochGueltigFrisch(), false);
+  g.__testAnfrage.cookies.clear();
+  assert.equal(await sitzungNochGueltigFrisch(), false, "ohne Cookie sowieso nicht");
 });
 
 test("Notschalter: „Alle Sitzungen beenden“ sperrt auch alle API-Zugänge", async () => {

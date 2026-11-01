@@ -39,3 +39,12 @@ export async function startSession(email: string): Promise<void> {
 export async function endSession(): Promise<void> {
   (await cookies()).delete({ name: SESSION_COOKIE, path: "/admin" });
 }
+
+/**
+ * Prüft das Sitzungscookie noch einmal frisch (nicht aus dem Zwischenspeicher dieser Anfrage). Für Vorgänge, die nach
+ * „Alle Sitzungen beenden“ nicht mehr durchgehen dürfen — etwa einen API-Schlüssel, der genau währenddessen angelegt wurde.
+ */
+export async function sitzungNochGueltigFrisch(): Promise<boolean> {
+  const session = verifySessionToken((await cookies()).get(SESSION_COOKIE)?.value);
+  return session !== null && (await sitzungNochGueltig(session.i));
+}
