@@ -34,6 +34,7 @@ export default function HauptNav({ z }: { z: NavZahlen }) {
   const matchingAktiv = pathname.startsWith("/admin/matching");
   const vorgaengeAktiv = pathname.startsWith("/admin/vorgaenge") || pathname.startsWith("/admin/vorgang/");
   const vorlagenAktiv = pathname.startsWith("/admin/vorlagen");
+  const apiAktiv = pathname.startsWith("/admin/api-zugaenge");
   return (
     <nav className="lfa-hauptnav" aria-label="Verwaltung">
       <Link
@@ -90,6 +91,13 @@ export default function HauptNav({ z }: { z: NavZahlen }) {
             !
           </span>
         )}
+      </Link>
+      <Link
+        href="/admin/api-zugaenge"
+        aria-current={apiAktiv ? "page" : undefined}
+        title="API-Zugänge: eigene Schlüssel für Skripte und Claude anlegen, Rechte und Ablauf festlegen, sofort sperren"
+      >
+        API
       </Link>
     </nav>
   );
