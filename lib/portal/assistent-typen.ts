@@ -13,6 +13,7 @@ export type AssistentAktionId =
   | "freigeben"
   | "freigabe-mitteilen"
   | "freigabe-zurueckziehen"
+  | "abschluss-nachfragen"
   | "pacht-vorbereiten"
   | "pacht-unterschrift"
   | "pacht-erinnern"
@@ -44,6 +45,7 @@ export const ASSISTENT_AKTIONEN: readonly AssistentAktionId[] = [
   "freigeben",
   "freigabe-mitteilen",
   "freigabe-zurueckziehen",
+  "abschluss-nachfragen",
   "pacht-vorbereiten",
   "pacht-unterschrift",
   "pacht-erinnern",

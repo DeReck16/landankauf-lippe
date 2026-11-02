@@ -12,6 +12,7 @@ import { antwortEntwurf } from "./antwort";
 import { automatikProtokoll, type AutomatikEintrag } from "./automatik";
 import { automatikVon, REGELN } from "./automatik-regeln";
 import { postausgangStand } from "./postausgang";
+import { RADAR_RANG, radarFuer, type Radar } from "./radar";
 import { assistentPlan, type AssistentChip, type AssistentPlan } from "./assistent";
 import * as M from "./model";
 import { nachfassKandidaten, nachfassTage } from "./nachfassen";
@@ -49,6 +50,8 @@ export type DashVorgang = {
   boerse: string | null;
   /** Zuletzt etwas passiert (zum Sortieren). */
   zuletzt: string;
+  /** Freigegeben, aber noch ohne Abschluss: wie wahrscheinlich es zum Deal kam (lib/portal/radar.ts). */
+  radar: Radar | null;
 };
 
 export type DashVorschlag = { key: string; angebot: LeadView; gesuch: LeadView; score: number | null; distanzKm: number | null; gruende: string[]; hinweise: string[]; neu: boolean; boerse: string | null };
@@ -158,6 +161,8 @@ export type Dashboard = {
   boerse: DashBoerse[];
   jetzt: DashVorgang[];
   warten: DashVorgang[];
+  /** Freigegebene Vorgänge ohne Abschluss — „ggf. zum Deal gekommen“ zuerst (lib/portal/radar.ts). */
+  radar: DashVorgang[];
   abgeschlossen: DashVorgang[];
   vorschlaege: DashVorschlag[];
   anfragen: DashAnfrage[];
@@ -299,6 +304,16 @@ function ereignisseFuer(v: M.VorgangRecord | null, a: M.KundeRecord | null, s: M
  * vorgegeben (dort sind keine Anfrage-Header verfügbar). Beim Anzeigen wird nichts geschrieben:
  * Kataster und Anbieter-Abgleich laufen beim Eingang bzw. im täglichen Lauf.
  */
+/** Was beim Angebot nach der Freigabe nach einem Abschluss aussieht: aus der Börse genommen oder auf „Erledigt“ gesetzt. */
+function angebotSignal(l: LeadView): { am: string; text: string } | null {
+  const off = l.meta.boerse?.offline;
+  // Widerruf, Kündigung, Sperre, Löschwunsch und Direktankauf nehmen Angebote ebenfalls offline — das ist kein Hinweis auf einen Deal.
+  if (off && !/widerruf|kündig|sperr|lösch|direktankauf/i.test(off.grund)) return { am: off.am, text: `Fläche aus der Börse genommen (${off.grund})` };
+  const am = l.meta.geaendert?.am;
+  if (am && (l.status === "erledigt" || l.status === "archiv")) return { am, text: "Anfrage des Angebots auf erledigt gesetzt" };
+  return null;
+}
+
 export const ladeDashboard = cache(async (email: string, basisVorgabe?: string): Promise<Dashboard> => {
   const [{ leads, zustand }, portal, neu, basis, post, protokoll] = await Promise.all([
     ladeVerwaltung(),
@@ -357,6 +372,12 @@ export const ladeDashboard = cache(async (email: string, basisVorgabe?: string):
       neu: neuIds.size,
       boerse: gesuch.boerse && gesuch.boerse !== "—" ? gesuch.boerse : null,
       zuletzt: [vorgang?.ereignisse[0]?.am, anbieter?.ereignisse[0]?.am, suchender?.ereignisse[0]?.am, meta.geaendert?.am].filter(Boolean).sort().at(-1) ?? "",
+      radar: radarFuer(vorgang, {
+        jetzt,
+        adressen: [anbieter?.email || T.wert(angebot.email), suchender?.email || T.wert(gesuch.email)],
+        angebotSignal: angebotSignal(angebot),
+        abgelehnt: Boolean(meta.ablehnung),
+      }),
     };
     if (plan.amZug === "admin") jetztDran.push(x);
     else if (plan.amZug === "kunde") warten.push(x);
@@ -374,6 +395,10 @@ export const ladeDashboard = cache(async (email: string, basisVorgabe?: string):
   // Beim Warten zuerst, was am längsten wartet.
   warten.sort((a, b) => (a.plan.wartetSeit ?? "9").localeCompare(b.plan.wartetSeit ?? "9"));
   abgeschlossen.sort(neueste);
+  // Radar: zuerst, wo es nach einem Deal aussieht, dann die ältesten Freigaben ohne Rückmeldung.
+  const radar = [...jetztDran, ...warten]
+    .filter((x) => x.radar)
+    .sort((a, b) => RADAR_RANG[a.radar!.stufe] - RADAR_RANG[b.radar!.stufe] || a.radar!.seit.localeCompare(b.radar!.seit));
 
   const { kandidaten } = findeKandidaten(leads, zustand);
   const vorschlaege: DashVorschlag[] = kandidaten
@@ -626,6 +651,7 @@ export const ladeDashboard = cache(async (email: string, basisVorgabe?: string):
     boerse,
     jetzt: jetztDran,
     warten,
+    radar,
     abgeschlossen,
     vorschlaege,
     anfragen,

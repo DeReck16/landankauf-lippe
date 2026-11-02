@@ -17,6 +17,7 @@ import type {
 } from "./assistent-typen";
 import { vereinbarungFuer } from "./anbieter-gruppe";
 import { entwuerfeKunde, entwuerfePaar, vorgemerkteFlaechen, type Entwurf, type MailZweck } from "./entwuerfe";
+import { STAND_TAKT_TEXT } from "./radar";
 import * as M from "./model";
 import { SPERRE_FREIGABE, vertragGueltig, vorgangSchritte } from "./schritte";
 import * as T from "./texte";
@@ -174,6 +175,7 @@ function paarEntwuerfe(b: Bau, vorgang: M.VorgangRecord | null = b.ctx.vorgang):
     einstellungen: u.einstellungen,
     basis: u.basis,
     bewertungsUrl: u.bewertungsUrl,
+    jetzt: b.jetzt,
   });
 }
 
@@ -940,7 +942,41 @@ function schrittVertrag(b: Bau): Teil {
     hinweise.push({ text: `Die Freigabe-Mitteilung an ${offen.map((e) => M.ROLLE_ARTIKEL[e.rolle!].akk).join(" und ")} ist noch nicht gesendet — im Vorgang unter „Einzelne E-Mails“.` });
   }
   const teil = ctx.art === "pacht" ? schrittPacht(b, v, hinweise) : schrittKauf(b, v, hinweise);
-  return { ...teil, chips: [...chips, ...(teil.chips ?? [])] };
+  return { ...teil, neben: [...(teil.neben ?? []), nachfrageAktion(b, v)], chips: [...chips, ...(teil.chips ?? [])] };
+}
+
+/**
+ * Stand-Nachfrage nach der Freigabe (lib/portal/radar.ts, Dennis 02.11.2026): fragt beide Seiten, ob es zu einem Vertrag kam.
+ * „Dran“, sobald bei einer Seite die nächste Nachfrage fällig ist (7 Tage nach der Freigabe, 14 Tage danach, dann alle 60 Tage);
+ * sonst ein ruhiges Angebot unter „Weitere Aktionen“. Die Rückmeldung kommt über den Kundenbereich oder per Antwort-Mail.
+ */
+function nachfrageAktion(b: Bau, v: M.VorgangRecord): Aktion | null {
+  if (!M.aktiveFreigabe(v) || v.abschluss || v.beendet) return null;
+  if (b.seiten.some((s) => s.k?.widerruf)) return null;
+  // Hat eine Seite „kein Interesse“ gemeldet, fragen wir nicht weiter nach (so steht es in der Mail; Codex-Befund 02.11.2026).
+  if (b.ctx.meta?.ablehnung) return null;
+  const alle = paarEntwuerfe(b).filter((e) => e.zweck === "stand" && e.rolle && e.an && !e.gesperrt);
+  if (alle.length === 0) return null;
+  const faellig = alle.filter((e) => e.faellig);
+  const gewaehlt = faellig.length ? faellig : alle;
+  const beide = gewaehlt.length === 2;
+  const erste = seite(b, gewaehlt[0].rolle!);
+  return {
+    id: "abschluss-nachfragen",
+    platz: "weitere",
+    knopf: beide ? "Stand nachfragen (beide)" : `Stand nachfragen (${erste.akk})`,
+    tipp: faellig.length
+      ? "Die Nachfrage ist fällig: fragt nach, ob es nach der Freigabe zu einem Vertrag gekommen ist (vorher wird nachgefragt)"
+      : "Noch nicht fällig — fragt trotzdem schon jetzt nach, ob es zu einem Vertrag gekommen ist (vorher wird nachgefragt)",
+    frage: beide ? "Beide jetzt nach dem Stand fragen?" : `${erste.akk} jetzt nach dem Stand fragen?`,
+    passiert: [
+      "Kurze Mail mit der Frage, ob es nach der Freigabe zu einem Vertrag gekommen ist — mit Direktlink in den Kundenbereich („Vertragsschluss melden“ bzw. „Rückfrage senden“).",
+      "Antworten holen den Vorgang in „Jetzt dran“. Ab der zweiten Nachfrage steht der Hinweis auf die Mitteilungspflicht aus der Vereinbarung (14 Tage) in der Mail.",
+      `Takt: ${STAND_TAKT_TEXT}.`,
+    ],
+    mails: gewaehlt.map((e) => mailAus(e, seite(b, e.rolle!))),
+    dran: faellig.length > 0,
+  };
 }
 
 function schrittPacht(b: Bau, v: M.VorgangRecord, hinweise: AssistentHinweis[]): Teil {

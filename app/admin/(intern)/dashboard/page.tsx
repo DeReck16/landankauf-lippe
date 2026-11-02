@@ -452,8 +452,54 @@ function VorschlagZeile({ v }: { v: DashVorschlag }) {
   );
 }
 
+/**
+ * Radar nach der Freigabe (lib/portal/radar.ts): Vorgänge, die freigegeben sind, aber noch keinen Abschluss haben —
+ * oben die, bei denen es ggf. zum Deal kam (Vertragsschluss gemeldet, Fläche aus der Börse genommen), dann die ohne
+ * Rückmeldung. Dennis 02.11.2026: „deutlich markieren, wo es ggf. zum Deal kam, sodass wir das wirklich auf dem Radar haben“.
+ */
+function RadarAbschnitt({ liste, bezug }: { liste: DashVorgang[]; bezug: string }) {
+  if (liste.length === 0) return null;
+  const heiss = liste.filter((x) => x.radar!.stufe === "gemeldet" || x.radar!.stufe === "hinweis").length;
+  return (
+    <section className="lfa-dash-abschnitt" id="radar">
+      <h2 className="lfa-h2" title="Freigegebene Vorgänge ohne Abschluss. Oben stehen die, bei denen es nach einem Deal aussieht (Vertragsschluss gemeldet, Fläche aus der Börse genommen); die Stand-Nachfrage fragt beide Seiten nach 7 Tagen, 14 Tage danach und dann alle 60 Tage">
+        {heiss > 0 && <span className="lfa-puls" />}Auf dem Radar: mögliche Abschlüsse ({liste.length})
+        <span className="lfa-klein" style={{ fontWeight: 400 }}>{heiss ? ` · ${heiss} mit Hinweis auf einen Deal` : " · noch kein Hinweis auf einen Abschluss"}</span>
+      </h2>
+      <ul className="lfa-aufgaben">
+        {liste.map((x) => {
+          const r = x.radar!;
+          const nach = x.plan.neben.find((a) => a.id === "abschluss-nachfragen" && !a.gesperrt);
+          const art = r.stufe === "gemeldet" ? "rot" : r.stufe === "hinweis" ? "warn" : "grau";
+          return (
+            <li key={x.key} className="lfa-aufgabe" id={`radar-${x.key}`}>
+              <div className="lfa-aufgabe-zeile">
+                <span className="lfa-aufgabe-zeichen" aria-hidden>{r.stufe === "gemeldet" || r.stufe === "hinweis" ? "!" : "•"}</span>
+                <div className="lfa-aufgabe-text">
+                  <div>
+                    <Link href={`/admin/vorgang/${x.key}`} className="lfa-link-name" title="Vorgang öffnen">
+                      {x.anbieter} ↔ {x.suchender}
+                    </Link>{" "}
+                    <span className="lfa-klein">· {x.art === "kauf" ? "Kauf" : "Pacht"} · {seitText(r.seit, bezug)}</span>
+                  </div>
+                  <div className="lfa-klein lfa-aufgabe-grund">
+                    <Chips chips={[{ text: r.text, art, tipp: r.tipp }]} />
+                    {r.nachfragen ? ` ${r.nachfragen}× nachgefragt` : " noch nicht nachgefragt"}
+                    {r.faellig ? " · Nachfrage fällig" : r.naechste ? ` · nächste Nachfrage ab ${tagDe(r.naechste)}` : ""}
+                  </div>
+                </div>
+                <div className="lfa-aufgabe-knopf">{nach && <AssistentKnopf plan={x.plan} a={nach} />}</div>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
 /** Zweite Kachelreihe: Stand aller Kunden, Paare und der Flächenbörse auf einen Blick. */
-function UebersichtKacheln({ u, vorschlaege, nachfassen }: { u: DashUebersicht; vorschlaege: number; nachfassen: { anzahl: number; neu: boolean; tage: number } }) {
+function UebersichtKacheln({ u, vorschlaege, nachfassen, radar }: { u: DashUebersicht; vorschlaege: number; nachfassen: { anzahl: number; neu: boolean; tage: number }; radar: { anzahl: number; heiss: number } }) {
   const n = (x: number, eins: string, mehr: string) => `${x} ${x === 1 ? eins : mehr}`;
   const kacheln = [
     { href: "#warten", wert: u.eingeladen, name: "Einladungen raus", sub: `${n(u.eingeladen, "Kunde", "Kunden")} noch ohne Unterschrift${u.eingeladenGeoeffnet ? ` · ${u.eingeladenGeoeffnet} Link geöffnet` : ""}`, tipp: "Kunden mit Einladung, die ihren Vertrag mit Lippe Forst noch nicht unterschrieben haben" },
@@ -461,6 +507,7 @@ function UebersichtKacheln({ u, vorschlaege, nachfassen }: { u: DashUebersicht; 
     { href: "#jetzt", wert: u.matchingOffen, name: "Matchings offen", sub: `Paare vor der Freigabe${vorschlaege ? ` · dazu ${n(vorschlaege, "neuer Vorschlag", "neue Vorschläge")}` : ""}`, tipp: "Vorgemerkte bzw. angefragte Paare, deren Kontakt noch nicht freigegeben ist" },
     { href: "#warten", wert: u.zustimmungOffen, name: "Zustimmung offen", sub: "anonym angefragt, Zustimmung fehlt", tipp: "Beide wurden anonym angefragt, mindestens eine Zustimmung zum Kontakt fehlt noch" },
     { href: "#warten", wert: u.freigegeben, name: "Kontakt freigegeben", sub: u.vertraegeOffen ? `${n(u.vertraegeOffen, "Vertrag", "Verträge")} zur Unterschrift` : "Vertrag noch offen", tipp: "Kontakt ist hergestellt (Nachweis) — Pacht- oder Kaufvertrag steht noch aus" },
+    { href: "#radar", wert: radar.anzahl, name: "Auf dem Radar", sub: radar.heiss ? `${radar.heiss} mit Hinweis auf einen Deal` : "freigegeben, Abschluss offen", tipp: "Freigegebene Vorgänge ohne Abschluss — mit Hinweis auf einen Deal (Vertragsschluss gemeldet, Fläche aus der Börse genommen) oder ohne Rückmeldung; die Stand-Nachfrage fragt beide Seiten regelmäßig", puls: radar.heiss > 0 },
     { href: "#abgeschlossen", wert: u.abschluesse, name: "Abschlüsse", sub: "Vertrag geschlossen", tipp: "Vorgänge mit geschlossenem Pacht- oder Kaufvertrag" },
     { href: "#boerse", wert: u.boerseBereit + u.boerseAngabenFehlen + u.boerseOhneEinwilligung, name: "Flächen nicht veröffentlicht", sub: `${u.boerseBereit} bereit · ${u.boerseAngabenFehlen ? `${u.boerseAngabenFehlen} Angaben fehlen · ` : ""}${u.boerseOhneEinwilligung} ohne Einwilligung`, tipp: "Angebote (Kauf und Pacht), die (noch) nicht in der Flächenbörse stehen — „bereit“ heißt: Einwilligung liegt vor, ein Klick genügt", puls: u.boerseBereit > 0 },
     { href: "#boerse", wert: u.boerseOnline, name: "Flächen online", sub: "anonym in der Flächenbörse", tipp: "Angebote (Kauf und Pacht), die anonym auf lippeforst.de stehen" },
@@ -652,6 +699,8 @@ export default async function DashboardPage(props: PageProps<"/admin/dashboard">
         )}
       </section>
 
+      <RadarAbschnitt liste={d.radar} bezug={d.am} />
+
       <details className="lfa-weitere lfa-dash-abschnitt" id="warten" open={d.warten.some((x) => x.key === fokus) || undefined}>
         <summary title="Hier sind Kunden, Notar, Behörde oder die Zahlung am Zug — Knopf nur, wenn eine Erinnerung fällig ist">
           {d.warten.some((x) => x.neu > 0) && <span className="lfa-puls" />}Warten auf Kunden ({d.warten.length})
@@ -752,7 +801,7 @@ export default async function DashboardPage(props: PageProps<"/admin/dashboard">
           Kennzahlen: {d.uebersicht.eingeladen} eingeladen · {d.uebersicht.unterschrieben} unterschrieben · {d.uebersicht.zustimmungOffen} Zustimmung offen · {d.uebersicht.freigegeben} freigegeben · Provision offen {M.euro(d.provisionOffen)}
         </summary>
         <div className="lfa-weitere-inhalt">
-          <UebersichtKacheln u={d.uebersicht} vorschlaege={d.vorschlaege.length} nachfassen={{ anzahl: d.nachfassen.length, neu: d.nachfassen.some((c) => c.neu), tage: d.nachfassTage }} />
+          <UebersichtKacheln u={d.uebersicht} vorschlaege={d.vorschlaege.length} nachfassen={{ anzahl: d.nachfassen.length, neu: d.nachfassen.some((c) => c.neu), tage: d.nachfassTage }} radar={{ anzahl: d.radar.length, heiss: d.radar.filter((x) => x.radar!.stufe === "gemeldet" || x.radar!.stufe === "hinweis").length }} />
           <p className="lfa-klein" style={{ marginTop: "0.5rem" }}>
             Provision offen (netto): {M.euro(d.provisionOffen)}
             {d.provisionAufschiebend ? ` · dazu ${M.euro(d.provisionAufschiebend)} aufschiebend (Genehmigung ausstehend)` : ""}

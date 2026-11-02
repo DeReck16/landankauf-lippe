@@ -146,6 +146,7 @@ export async function assistentAktion(fd: FormData): Promise<AssistentState> {
       }
       case "hinweise":
       case "freigabe-mitteilen":
+      case "abschluss-nachfragen":
       case "pacht-erinnern":
       case "kauf-erinnern":
       case "anzeige-erinnern":

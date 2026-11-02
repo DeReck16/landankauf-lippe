@@ -353,7 +353,8 @@ test("Klick-Assistent per API: Rechte, Eingabe, Kauf bleibt draußen, Rechts-Sch
   assert.equal(kauf.status, 403);
   assert.match(await kauf.text(), /Kauf/);
 
-  // Kauf geht nur mit ausdrücklichem kauf:true und nur für Einladen und Hinweise (die Automatik nimmt Kauf aus, bis der GwG-Ablauf steht)
+  // Kauf geht nur mit ausdrücklichem kauf:true und nur für Einladen, Hinweise, Freigabe samt Mitteilung und die Stand-Nachfrage
+  // (Dennis 02.11.2026: „in Zukunft gibst du auch frei und informierst beide, sofern die Voraussetzungen vorliegen; § 34c und AML im Backoffice“)
   const kaufZugang = await Z.zugangAnlegen("admin@example.com", { name: "Vorgang Kauf Test", rechte: ["board:lesen", "board:vorgang", "board:vorgang-kauf"], tage: 30 });
   assert.equal(kaufZugang.ok, true);
   if (!kaufZugang.ok) return;
@@ -365,10 +366,17 @@ test("Klick-Assistent per API: Rechte, Eingabe, Kauf bleibt draußen, Rechts-Sch
   assert.equal((await kk("einladen", { kauf: "ja" })).status, 400, "kauf muss ein echter Wahrheitswert sein");
   assert.equal((await kk("einladen", { kauf: false })).status, 403);
   assert.equal((await kk("einladen", { kauf: true })).status, 409, "mit kauf:true erreicht Einladen die Signaturprüfung");
-  for (const id of ["erinnern", "freigeben", "freigabe-mitteilen", "pacht-erinnern"]) {
+  for (const id of ["erinnern", "pacht-erinnern"]) {
     const nein = await kk(id, { kauf: true });
     assert.equal(nein.status, 403, `${id} bleibt bei Kauf in der Verwaltung`);
     assert.match(await nein.text(), /Bei Kauf nur/);
+  }
+  // Freigabe, Mitteilung und Stand-Nachfrage sind bei Kauf nicht mehr pauschal gesperrt, sondern fallen unter dieselben Regeln wie bei Pacht:
+  // Rechts-Bestätigungen (ohne sie „Gesperrt“) bzw. Weg „Vermitteln“ (ohne ihn gesperrt).
+  for (const id of ["freigeben", "freigabe-mitteilen", "abschluss-nachfragen"]) {
+    const nein = await kk(id, { kauf: true });
+    assert.equal(nein.status, 403, `${id} ist bei Kauf gesperrt, solange Rechts-Bestätigungen bzw. der Weg „Vermitteln“ fehlen`);
+    assert.doesNotMatch(await nein.text(), /Bei Kauf nur/, `${id} ist bei Kauf kein Sonderfall mehr`);
   }
   const kaufHinweis = await kk("hinweise", { kauf: true });
   assert.equal(kaufHinweis.status, 403, "Hinweise bei Kauf: erst die Rechts-Bestätigungen");

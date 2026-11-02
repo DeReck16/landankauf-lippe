@@ -8,6 +8,7 @@ import { vereinbarungFuer } from "./anbieter-gruppe";
 import { pachtFuerLead, wertFuerLead } from "./wert";
 import type { NachfassTyp } from "./anfrage-typen";
 import * as M from "./model";
+import { STAND_TAKT_TEXT, standPlan } from "./radar";
 import { SPERRE_UNTERSCHRIFT, beideUnterschrieben } from "./schritte";
 import * as T from "./texte";
 import { antwortToken } from "./token";
@@ -24,6 +25,7 @@ export type MailZweck =
   | "erinnerung"
   | "hinweis"
   | "freigabe"
+  | "stand"
   | "pachtvertrag"
   | "kaufabsicht"
   | "anzeige"
@@ -35,7 +37,7 @@ export type MailZweck =
   | "boerse"
   | "frei";
 
-export const MAIL_ZWECKE: MailZweck[] = ["rueckfrage", "einladung", "erinnerung", "hinweis", "freigabe", "pachtvertrag", "kaufabsicht", "anzeige", "bewertung", "nachfassen", "antwort", "ergaenzen", "ankauf", "boerse", "frei"];
+export const MAIL_ZWECKE: MailZweck[] = ["rueckfrage", "einladung", "erinnerung", "hinweis", "freigabe", "stand", "pachtvertrag", "kaufabsicht", "anzeige", "bewertung", "nachfassen", "antwort", "ergaenzen", "ankauf", "boerse", "frei"];
 
 export type Entwurf = {
   id: string;
@@ -410,6 +412,8 @@ export function entwuerfePaar(opts: {
   einstellungen: M.Einstellungen;
   basis: string;
   bewertungsUrl: string | null;
+  /** Für die Fälligkeit der Stand-Nachfrage (Standard: jetzt). */
+  jetzt?: Date;
 }): Entwurf[] {
   const { key, angebot, gesuch, anbieter, suchender, vorgang, zustand, basis } = opts;
   const status = opts.meta?.status ?? "vorschlag";
@@ -521,6 +525,45 @@ export function entwuerfePaar(opts: {
         // Nur Mitteilungen seit der aktuellen Freigabe zählen (nach „Freigabe zurückziehen“ beginnt eine neue Runde).
         gesendetAm: zuletzt(vorgang?.mails, "freigabe", seite.an, vorgang?.freigabe?.am),
         faellig: !zuletzt(vorgang?.mails, "freigabe", seite.an, vorgang?.freigabe?.am),
+      });
+
+      // Stand-Nachfrage nach der Freigabe (lib/portal/radar.ts): nach 7 Tagen, 14 Tage danach, dann alle 60 Tage.
+      // Die Rückmeldung läuft über den Kundenbereich (Vertragsschluss melden / Rückfrage senden) oder per Antwort-Mail
+      // (Postfach-Abgleich) — jede Antwort holt den Vorgang in „Jetzt dran“.
+      const stand = standPlan(vorgang, seite.an, opts.jetzt ?? new Date());
+      const vertragWort = art === "kauf" ? "Kaufvertrag" : "Pachtvertrag";
+      liste.push({
+        id: `stand-${seite.rolle}:${key}`,
+        zweck: "stand",
+        rolle: seite.rolle,
+        kundeId: seite.l.id,
+        paarKey: key,
+        titel: `Stand-Nachfrage an ${name(seite.k, seite.l)}${stand.runde ? ` (${stand.runde + 1}. Nachfrage)` : ""}`,
+        an: seite.an,
+        betreff: `${stand.runde > 0 ? "Erinnerung: " : ""}Kurze Nachfrage zur Fläche (${eckdaten}) — Lippe Forst`,
+        text: [
+          anrede(name(seite.k, seite.l)),
+          "",
+          `am ${T.datumDe(vorgang?.freigabe?.am)} haben wir Ihnen die Kontaktdaten zur Fläche (${eckdaten}) freigegeben. Wir möchten kurz nachfragen, wie es seitdem aussieht:`,
+          "",
+          "• Haben Sie schon miteinander gesprochen oder die Fläche besichtigt?",
+          `• Ist es bereits zu einem ${vertragWort} gekommen — oder hat sich die Sache für Sie erledigt?`,
+          "",
+          `Eine kurze Rückmeldung genügt: im Kundenbereich („Vertragsschluss melden“ bzw. „Rückfrage senden“) oder einfach als Antwort auf diese E-Mail. Direkt zum Kundenbereich (der Link ist 14 Tage gültig und funktioniert einmal; danach melden Sie sich einfach mit Ihrer E-Mail-Adresse an):`,
+          zugang,
+          ...(stand.runde > 0
+            ? ["", `Zur Erinnerung: Kommt ein ${vertragWort} über diese Fläche zustande, teilen Sie uns das nach unserer Vereinbarung binnen 14 Tagen in Textform mit (Datum, Vertragspartner, Fläche, Laufzeit und Pachtzins bzw. Kaufpreis).`]
+            : []),
+          "",
+          "Sind die Gespräche noch im Gange, genügt eine Zeile — wir fragen dann später noch einmal nach. Hat sich die Sache erledigt, sagen Sie uns das bitte ebenfalls kurz, dann fragen wir nicht weiter nach.",
+          "",
+          GRUSS,
+        ].join("\n"),
+        tipp: `Fragt nach, ob es nach der Freigabe zu einem Vertrag gekommen ist (Takt: ${STAND_TAKT_TEXT}). Ab der zweiten Nachfrage mit Hinweis auf die Mitteilungspflicht aus der Vereinbarung.`,
+        wirkung: "Wird im Verlauf des Vorgangs gespeichert; bestimmt den Takt der nächsten Nachfrage.",
+        gesendetAm: stand.zuletzt ?? undefined,
+        faellig: stand.faellig,
+        gesperrt: vorgang?.abschluss ? "Der Vertrag ist schon geschlossen — keine Nachfrage nötig." : stand.vorbei ? "Die Schutzfrist nach der Freigabe ist abgelaufen — keine Nachfragen mehr." : undefined,
       });
     }
   }
@@ -661,7 +704,7 @@ export function entwuerfePaar(opts: {
   // Freigabe-, Vertrags- oder Eckdaten-Mitteilungen mehr heraus.
   if ((anbieter?.widerruf || suchender?.widerruf) && !vorgang?.abschluss) {
     for (const e of liste) {
-      if (e.zweck === "freigabe" || e.zweck === "pachtvertrag" || e.zweck === "kaufabsicht") {
+      if (e.zweck === "freigabe" || e.zweck === "stand" || e.zweck === "pachtvertrag" || e.zweck === "kaufabsicht") {
         e.gesperrt = "Eine Seite hat ihren Vertrag mit Lippe Forst widerrufen — diese Mitteilung nicht mehr senden.";
         e.faellig = false;
       }

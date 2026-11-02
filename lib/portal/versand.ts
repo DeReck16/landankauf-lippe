@@ -25,7 +25,7 @@ import * as V from "./vorgang";
 const OHNE_KUNDENAKTE: readonly string[] = ["nachfassen", "antwort"];
 
 /** Zwecke mit persönlichem Link — Empfänger ist fest die hinterlegte Adresse. */
-export const MIT_PERSOENLICHEM_LINK: readonly string[] = ["einladung", "erinnerung", "hinweis", "freigabe", "pachtvertrag", "kaufabsicht", "nachfassen", "antwort", "ergaenzen", "ankauf", "boerse"];
+export const MIT_PERSOENLICHEM_LINK: readonly string[] = ["einladung", "erinnerung", "hinweis", "freigabe", "stand", "pachtvertrag", "kaufabsicht", "nachfassen", "antwort", "ergaenzen", "ankauf", "boerse"];
 
 export type VersandAuftrag = {
   zweck: string;
@@ -126,7 +126,7 @@ export async function verwaltungsMailSenden(von: string, auftrag: VersandAuftrag
   if (zweck === "bewertung" && (!kunde || !M.bewertungsmailErlaubt(kunde))) {
     return nein("Keine Einwilligung in Bewertungs-E-Mails (oder Widerspruch) — nicht gesendet.");
   }
-  if (key && (zweck === "freigabe" || zweck === "pachtvertrag" || zweck === "kaufabsicht")) {
+  if (key && (zweck === "freigabe" || zweck === "stand" || zweck === "pachtvertrag" || zweck === "kaufabsicht")) {
     const [aId, gId] = key.split("~");
     const [ka, kg, vg] = await Promise.all([ladeKunde(aId), ladeKunde(gId), ladeVorgang(key)]);
     if ((ka?.widerruf || kg?.widerruf) && !vg?.abschluss) {

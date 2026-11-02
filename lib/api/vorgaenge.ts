@@ -11,6 +11,7 @@ import { linkErstellen, mailsSenden, type AusfuehrZeile } from "@/lib/portal/aus
 import { automatikVon, type AutomatikEinstellungen } from "@/lib/portal/automatik-regeln";
 import { ladeDashboard } from "@/lib/portal/dashboard";
 import * as M from "@/lib/portal/model";
+import { STAND_TAKT_TEXT } from "@/lib/portal/radar";
 import { basisUrl } from "@/lib/portal/sitzung";
 import { alleKunden, istPaarKey, ladeEinstellungen } from "@/lib/portal/speicher";
 import * as V from "@/lib/portal/vorgang";
@@ -25,16 +26,23 @@ import { eigeneAngaben, schwaerzen, type AktionErgebnis } from "./board";
 // Kauf bleibt in der Verwaltung. Nie per API: Zustimmungen/Einwilligungen erfassen, Verträge, Provision, Löschen, Einstellungen.
 
 /** Knöpfe, die die API drücken darf. */
-export const API_KNOEPFE = ["einladen", "erinnern", "hinweise", "freigeben", "freigabe-mitteilen", "pacht-erinnern"] as const;
+export const API_KNOEPFE = ["einladen", "erinnern", "hinweise", "freigeben", "freigabe-mitteilen", "abschluss-nachfragen", "pacht-erinnern"] as const;
 export type ApiKnopf = (typeof API_KNOEPFE)[number];
 
-/** Bei Kauf nur diese beiden, und nur mit ausdrücklichem `kauf: true` im Aufruf (Dennis, 01.11.2026: „Dashboard 5 du machen“). Die Routine setzt es nie. */
-export const KAUF_KNOEPFE: readonly ApiKnopf[] = ["einladen", "hinweise"];
+/**
+ * Bei Kauf diese Knöpfe, und nur mit ausdrücklichem `kauf: true` im Aufruf und dem Recht board:vorgang-kauf.
+ * 01.11.2026 („Dashboard 5 du machen“): einladen, hinweise. 02.11.2026 (Dennis: „in Zukunft gibst du auch frei und informierst beide,
+ * sofern die Voraussetzungen vorliegen; § 34c und AML machen wir im Backoffice“): freigeben, freigabe-mitteilen, abschluss-nachfragen.
+ * Ob alle Eigentümer zugestimmt haben, kennt das System nicht — das belegt die Routine vor der Freigabe (Skill).
+ */
+export const KAUF_KNOEPFE: readonly ApiKnopf[] = ["einladen", "hinweise", "freigeben", "freigabe-mitteilen", "abschluss-nachfragen"];
 
 export type VorgangArt = "pacht" | "kauf" | "unklar";
 
 /** Diese Knöpfe lösen den „Nachweis“ aus (Hinweis auf eine Fläche bzw. Freigabe der Kontakte): nur mit den Rechts-Bestätigungen. */
 const RECHTSSCHALTER: readonly ApiKnopf[] = ["hinweise", "freigeben", "freigabe-mitteilen"];
+/** Mails an den Anbieter gehen nur bei Weg „Vermitteln“ raus: Hinweise, Freigabe und die Stand-Nachfrage nach der Freigabe. */
+const NUR_VERMITTLUNG: readonly ApiKnopf[] = [...RECHTSSCHALTER, "abschluss-nachfragen"];
 
 /** Mehr Knopf-Aktionen je Zugang und Tag gibt es nicht (jede kann Mails an Kunden auslösen). */
 export const KNOEPFE_PRO_TAG = 20;
@@ -49,14 +57,14 @@ export function knopfGrund(id: string, art: VorgangArt, vermittlung: boolean, au
   if (automatik.notAus) return "Not-Aus der Automatik ist an — nur die Verwaltung.";
   if (art === "unklar") return "Die Art (Pacht oder Kauf) ist nicht eindeutig — nur die Verwaltung.";
   if (art === "kauf") {
-    if (!KAUF_KNOEPFE.includes(id as ApiKnopf)) return `Bei Kauf nur ${KAUF_KNOEPFE.join(" und ")} (die Automatik nimmt Kauf aus, bis der GwG-Ablauf steht) — der Rest bleibt in der Verwaltung.`;
+    if (!KAUF_KNOEPFE.includes(id as ApiKnopf)) return `Bei Kauf nur ${KAUF_KNOEPFE.join(", ")} — der Rest bleibt in der Verwaltung.`;
     if (!kauf) return "Kauf läuft per API nur mit dem Recht board:vorgang-kauf und ausdrücklichem kauf:true (nur auf Anweisung von Dennis, nie in der Routine).";
   }
   if (RECHTSSCHALTER.includes(id) && !(automatik.recht34c && automatik.vorlagenGeprueft)) {
     return "Gesperrt, bis in den Einstellungen „§ 34c-Erlaubnis liegt vor“ und „Vorlagen anwaltlich geprüft“ bestätigt sind (dieselbe Sperre wie bei der Automatik).";
   }
   // Ob TR selbst kauft („Selbst kaufen“) oder Lippe Forst vermittelt, entscheidet die Verwaltung — die Automatik wartet darauf ebenso.
-  if (RECHTSSCHALTER.includes(id) && !vermittlung) return "Der Weg des Angebots ist nicht „Vermitteln“ (offen oder Direktankauf) — das entscheidet die Verwaltung.";
+  if (NUR_VERMITTLUNG.includes(id as ApiKnopf) && !vermittlung) return "Der Weg des Angebots ist nicht „Vermitteln“ (offen oder Direktankauf) — das entscheidet die Verwaltung.";
   return null;
 }
 
@@ -163,6 +171,8 @@ export async function vorgaengeLesen(zugangId: string, kaufRecht: boolean) {
       boerse: x.boerse,
       /** Weg des Angebots: „vermittlung“, „ankauf“ (Selbst kaufen) oder null = offen — entscheidet nur die Verwaltung. */
       weg: an.leads.get(ids[0])?.meta.weg ?? null,
+      /** Freigegeben, aber ohne Abschluss: Stufe und Takt der Stand-Nachfrage (lib/portal/radar.ts) — nur Kennzahlen, kein Freitext. */
+      radar: x.radar ? { stufe: x.radar.stufe, tage: x.radar.tage, nachfragen: x.radar.nachfragen, faellig: x.radar.faellig, naechste: x.radar.naechste } : null,
       aktionen: alleAktionen(x.plan).map((a) => aktionAnsicht(a, artVon(x.art, ids, an), automatik, ids, an, x.key, zugangId, kaufRecht)),
     };
   });
@@ -228,6 +238,8 @@ export async function knopfAusfuehren(e: KnopfEingabe, von: string, zugangId: st
   const a = finde(frisch);
   if (!stimmt(a, artVon(frisch.art, ids, await ansichten()))) return veraltet;
   if (a.gesperrt) return { ok: false, status: 409, fehler: `Nicht möglich: ${rein(a.gesperrt, ids, an)}` };
+  // Die Stand-Nachfrage geht per API nur, wenn sie nach dem Takt fällig ist (7 Tage nach der Freigabe, 14 Tage danach, dann alle 60 Tage).
+  if (a.id === "abschluss-nachfragen" && !a.dran) return { ok: false, status: 409, fehler: `Die Stand-Nachfrage ist noch nicht fällig (Takt: ${STAND_TAKT_TEXT}).` };
 
   // Mails an den Anbieter nur, wenn der Weg „Vermitteln“ gewählt ist (wie bei der Automatik, r3Paare); sonst bleibt nur, was den Suchenden betrifft.
   const mails = a.mails.filter((m) => !(m.rolle === "anbieter" && frisch.angebot.meta.weg !== "vermittlung"));
@@ -257,6 +269,7 @@ export async function knopfAusfuehren(e: KnopfEingabe, von: string, zugangId: st
       break;
     case "hinweise":
     case "freigabe-mitteilen":
+    case "abschluss-nachfragen":
       await mailsSenden(von, e.key, u, a.mails, zeilen);
       break;
     case "freigeben": {
