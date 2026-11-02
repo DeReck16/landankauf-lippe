@@ -67,7 +67,8 @@ test("Stand-Nachfrage: je Seite eine Mail mit Bezug zur Fläche, Direktlink und 
   assert.match(such.text, /https:\/\/lippeforst\.de\/kunde\/anmelden\/bestaetigen\?z=/);
   assert.doesNotMatch(such.text, /Zur Erinnerung/, "die erste Nachfrage erinnert noch nicht an die Mitteilungspflicht");
   assert.doesNotMatch(such.text, /34c|Telefon|\+49|0\d{3,}/, "keine § 34c-Aussage, keine Telefonnummer");
-  assert.match(such.text, /Lippe Forst · lippeforst\.de/);
+  assert.match(such.text, /Mit freundlichen Grüßen\nFrank Utecht\n--\nLippe Forst · lippeforst\.de/, "unterzeichnet im Namen von Frank Utecht (Dennis 02.11.2026)");
+  assert.match(such.text, /Geschäftsführer: Dennis Reckling, Martin Thomann/, "die Geschäftsführerzeile bleibt");
 });
 
 test("Stand-Nachfrage: ab der zweiten Runde mit Hinweis auf die Mitteilungspflicht (14 Tage); Pacht sagt Pachtvertrag", () => {

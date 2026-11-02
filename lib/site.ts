@@ -9,6 +9,8 @@ export const site = {
   contact: {
     company: "TR Vertriebs GmbH",
     contactPerson: "Dennis Reckling",
+    /** Name unter allen E-Mails von Lippe Forst (Dennis 02.11.2026: „das schreiben immer im Namen von Frank Utecht“) — nur der Name, ohne Titel. */
+    mailAbsender: "Frank Utecht",
     street: "Bahnhofstraße 70b",
     zip: "32805",
     city: "Horn-Bad Meinberg",
