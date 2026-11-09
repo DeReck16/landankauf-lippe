@@ -20,6 +20,102 @@ export type Article = {
 
 export const ARTICLES: Article[] = [
   {
+    slug: "wbr-nrw-holzpreistabelle-2026-waldwert-lippe",
+    title:
+      "Was ein Baum im Kreis Lippe amtlich wert ist: Die neue NRW-Preistabelle 2026 reicht von 37 bis 761 Euro je Festmeter — und wofür Waldbesitzer die Richtwerte wirklich brauchen",
+    description:
+      "Wald und Holz NRW hat die amtliche Holzpreistabelle seiner Waldbewertungsrichtlinie (WBR-NRW, Anlage 5) für 2026 veröffentlicht: Durchschnittswerte aus den Forstwirtschaftsjahren 2023 bis 2025 für zwölf Baumarten, gestaffelt nach Güte- und Stärkeklasse. Die Spanne reicht von 37 bis 761 Euro pro Festmeter, ohne Mehrwertsteuer. Was die amtlichen Richtwerte von aktuellen Marktpreisen unterscheidet und wofür Waldbesitzer im Kreis Lippe die Tabelle wirklich brauchen.",
+    category: "Praxis",
+    publishedAt: "2026-11-09",
+    readingMinutes: 7,
+    keywords: [
+      "WBR-NRW Holzpreistabelle 2026",
+      "Waldbewertungsrichtlinie NRW",
+      "amtliche Holzpreise NRW",
+      "Baumwert Kreis Lippe",
+      "Fichte Eiche Preis Festmeter",
+      "Waldgenossenschaft Flächenbewertung NRW",
+    ],
+    heroImage: "/blog-wbr-nrw-holzwert-2026.jpg",
+    faq: [
+      {
+        q: "Was ist die WBR-NRW und wer veröffentlicht die Preistabelle?",
+        a: "Die WBR-NRW (Waldbewertungsrichtlinie Nordrhein-Westfalen) ist das Regelwerk des Landesbetriebs Wald und Holz NRW zur Bewertung von Waldbeständen. Anlage 5 enthält die „Durchschnittlichen Holzpreise in €/m³(f)“ für zwölf Baumarten, gestaffelt nach Güte- und Stärkeklasse. Die aktuelle Fassung trägt den Stand 2026 und bildet den Mittelwert der Forstwirtschaftsjahre 2023 bis 2025 ab, alle Angaben ohne Mehrwertsteuer.",
+      },
+      {
+        q: "Bekomme ich diese Preise, wenn ich jetzt mein Holz verkaufe?",
+        a: "Nicht unbedingt. Die Tabelle zeigt einen Dreijahresdurchschnitt, keinen tagesaktuellen Marktpreis. Bei Fichte etwa liegt der WBR-Wert für Güteklasse B, Stärkeklasse 2b bei 114,81 €/m³ — Branchendienste meldeten für dasselbe Leitsortiment Anfang 2026 dagegen rund 129 bis 132 €/Festmeter, weil die aktuelle Angebotsknappheit den Markt stärker treibt als der Dreijahresschnitt. Für eine Verkaufsentscheidung zählt der tagesaktuelle Preis, nicht die amtliche Durchschnittstabelle.",
+      },
+      {
+        q: "Wie lese ich Güteklasse (SK/SL A bis D) und Stärkeklasse (1a bis 6)?",
+        a: "Die Güteklasse beschreibt die Qualität des Stammes: A steht für astfreies, fehlerarmes Wertholz, D für einfaches Holz mit stärkeren Qualitätsmängeln. Die Stärkeklasse richtet sich nach dem Durchmesser: 1a ist dünnes Holz aus frühen Durchforstungen, 6 sehr starkes Stammholz. Beide Merkmale zusammen ergeben den Preis — ein dicker, astfreier Eichenstamm (Güteklasse A, Stärkeklasse 6) bringt in der Tabelle 761,14 €/m³, dünnes Fichten-Industrieholz dagegen nur rund 37 €/m³.",
+      },
+      {
+        q: "Wofür brauche ich die Tabelle als Waldbesitzer im Kreis Lippe konkret?",
+        a: "Vorgeschrieben ist sie unter anderem bei der Neugründung einer Waldgenossenschaft nach § 39 Gemeinschaftswaldgesetz NRW (GWG NRW): Dort müssen eingebrachte Flächen flurstücksscharf nach der Formel Blume auf Grundlage der WBR-NRW bewertet werden. Darüber hinaus dient eine amtliche Holzpreistabelle in vergleichbaren Bundesländern üblicherweise auch als Orientierung bei Schadens- und Entschädigungsfällen. Ob das im Einzelfall genauso für NRW gilt, klären Wald und Holz NRW oder ein vereidigter Forstsachverständiger verbindlich.",
+      },
+      {
+        q: "Was mache ich, wenn ich wissen will, was mein Wald im Kreis Lippe konkret wert ist?",
+        a: "Für eine erste, kostenlose Einschätzung reichen Baumart, Alter, Erschließung und aktuelles Marktpreisniveau — das übernehmen wir unverbindlich im Rahmen einer Wertindikation. Für eine rechtlich belastbare, gutachterliche Bewertung, etwa für einen Rechtsstreit oder eine Versicherung, ist ein vereidigter Forstsachverständiger oder direkt Wald und Holz NRW der richtige Ansprechpartner.",
+      },
+    ],
+    content: `
+<p class="lead">Eine Eiche im Kreis Lippe kann amtlich zwischen 61 und 761 Euro pro Festmeter wert sein — je nachdem, wie dick und wie astfrei sie ist. Der Landesbetrieb Wald und Holz NRW hat die Preistabelle seiner Waldbewertungsrichtlinie (WBR-NRW) für 2026 aktualisiert: zwölf Baumarten, vier Güteklassen, sechs Stärkeklassen, Durchschnittswerte aus den Forstwirtschaftsjahren 2023 bis 2025. Was auf den ersten Blick nach trockener Verwaltungsstatistik aussieht, ist für Waldbesitzer in Lippe in mehreren Situationen bares Geld wert — und unterscheidet sich teils deutlich von den Rekordpreisen, die gerade in den Marktberichten stehen.</p>
+
+<figure>
+<img src="/blog-wbr-nrw-holzwert-2026.jpg" alt="Gestapelte, entrindete Rundholzstämme verschiedener Durchmesser am Rand eines nebligen Mischwaldwegs im Herbst, Eichen, Buchen und Fichten im Hintergrund" width="1600" height="1075" style="width:100%;height:auto;border-radius:14px" loading="lazy" />
+<figcaption>Wie viel so ein Stapel amtlich wert ist, hängt von Baumart, Dicke und Güte ab — die neue WBR-NRW-Tabelle liefert dafür die offiziellen Referenzwerte für 2026.</figcaption>
+</figure>
+
+<h2>Was ist die WBR-NRW-Preistabelle — und warum jetzt?</h2>
+<p>Die „Durchschnittlichen Holzpreise in €/m³(f)“ sind Anlage 5 der Waldbewertungsrichtlinie Nordrhein-Westfalen (WBR-NRW), die der Landesbetrieb Wald und Holz NRW über sein Fachportal veröffentlicht. Die aktuelle Fassung trägt den Stand 2026 und bildet den Mittelwert der drei Forstwirtschaftsjahre 2023 bis 2025 ab — alle Angaben ohne Mehrwertsteuer, je Festmeter (m³(f)). Nach eigenem Hinweis des Landesbetriebs werden die Preise „ab 2026 im Anhalt an die WaldR 2026“ berechnet. Die Tabelle ist damit die aktuell gültige amtliche Referenz für den Wert eines Baumbestands in NRW — und damit auch im Kreis Lippe.</p>
+
+<h2>Die Zahlen: zwölf Baumarten zwischen 37 und 761 Euro</h2>
+<p>Die Tabelle gliedert jede Baumart nach vier Güteklassen (SK/SL A bis D, A = beste Qualität) und sechs Stärkeklassen (1a = dünn bis 6 = sehr stark). Zur Einordnung zeigt die folgende Übersicht den Preis in der mittleren Güteklasse B bei Stärkeklasse 2b — einem für die Praxis typischen, mittelstarken Stamm:</p>
+
+<div style="overflow-x:auto">
+<table style="width:100%;border-collapse:collapse;font-size:0.95rem">
+<thead><tr>
+<th style="text-align:left;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">Baumart</th>
+<th style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">Güteklasse B, Stärkeklasse 2b</th>
+</tr></thead>
+<tbody>
+<tr><td style="padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)"><strong>Roteiche</strong></td><td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">154,32 €</td></tr>
+<tr><td style="padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">Douglasie</td><td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">125,48 €</td></tr>
+<tr><td style="padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">Fichte</td><td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">114,81 €</td></tr>
+<tr><td style="padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)"><strong>Eiche</strong></td><td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">104,21 €</td></tr>
+<tr><td style="padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">Hainbuche</td><td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">96,99 €</td></tr>
+<tr><td style="padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">Lärche</td><td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">96,95 €</td></tr>
+<tr><td style="padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">Esche</td><td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">96,93 €</td></tr>
+<tr><td style="padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">Ahorn</td><td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">96,22 €</td></tr>
+<tr><td style="padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">Birke</td><td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">84,62 €</td></tr>
+<tr><td style="padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">Buche</td><td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">81,50 €</td></tr>
+<tr><td style="padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">Kiefer</td><td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">80,54 €</td></tr>
+<tr><td style="padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">Erle</td><td style="text-align:right;padding:0.45rem 0.6rem;border-bottom:1px solid var(--color-line)">75,94 €</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Am oberen Ende der gesamten Tabelle steht Eiche in Spitzengüte (SK/SL A, Stärkeklasse 6: sehr starkes, astfreies Stammholz) mit 761,14 €/m³ — mehr als das Zwanzigfache des günstigsten erfassten Sortiments, kurzem Fichten-Industrieholz mit 37,42 €/m³. Dazwischen liegt die eigentliche Praxis der meisten Lipper Privatwälder: Durchforstungsholz, mittelstarke Stämme, Mischsortimente aus Laub- und Nadelholz.</p>
+
+<h2>So lesen Sie die Tabelle</h2>
+<p>Zwei Kürzel entscheiden über den Preis: Die <strong>Güteklasse</strong> (SK/SL A bis D) beschreibt die Qualität des Stammes — A steht für astfreies, fehlerarmes Wertholz, D für einfaches Holz mit stärkeren Mängeln wie Krümmung oder Ästen. Die <strong>Stärkeklasse</strong> (1a bis 6) richtet sich nach dem Durchmesser: 1a ist dünnes Holz aus frühen Durchforstungen, 6 sehr starkes, altes Stammholz. Am unteren Rand jeder Baumart stehen zusätzlich zwei Industrieholz-Sortimente (IL = lang, IK = kurz) — das sind krumme, kleine oder beschädigte Stämme, die nur noch für Papier, Spanplatten oder energetische Nutzung taugen und entsprechend am wenigsten bringen.</p>
+
+<h2>Amtlicher Richtwert ist kein tagesaktueller Verkaufspreis</h2>
+<p>Ein Blick auf die Fichte zeigt, wie groß der Abstand zwischen Durchschnittswert und Tagesmarkt werden kann: In der WBR-NRW-Tabelle liegt Fichte, Güteklasse B, Stärkeklasse 2b, bei 114,81 €/m³. Branchendienste meldeten für das vergleichbare Leitsortiment Fichte B 2b+ dagegen Anfang 2026 rund 129 bis 132 €/Festmeter netto — ein Plus von 25 bis 30 Euro gegenüber dem Vorjahr und spürbar über dem Dreijahresmittel der amtlichen Tabelle. Der Grund: Die WBR-Werte bilden den Durchschnitt aus drei Jahren ab, der auch schwächere Marktphasen einschließt, während der aktuelle Markt tagesaktuell auf die Angebotsknappheit bei Sägerundholz reagiert. Wo die Fichte aktuell tatsächlich steht und ob sich Warten lohnt, ordnen wir in <a href="/blog/holzpreise-2026-rekord-fichte-lippe-einschlagen-oder-warten">Holzpreise 2026: Rekordniveau bei Fichte</a> ein. Für eine Verkaufsentscheidung zählt immer der aktuelle Marktpreis, nicht die amtliche Durchschnittstabelle. Dasselbe Prinzip kennen Eigentümer von Acker- und Grünland bereits vom Bodenrichtwert: Amtlicher Durchschnittswert und erzielbarer Marktpreis sind zwei unterschiedliche Zahlen, wie wir in <a href="/blog/bodenrichtwert-vs-marktpreis-lippe">Bodenrichtwert vs. Marktpreis</a> erklären.</p>
+
+<h2>Wofür Waldbesitzer in Lippe die Tabelle wirklich brauchen</h2>
+<p>Trotzdem ist die Tabelle kein Papier für die Schublade. Der Landesbetrieb selbst schreibt sie in einem konkreten Verfahren vor: Bei der Neugründung einer Waldgenossenschaft nach § 39 Gemeinschaftswaldgesetz NRW (GWG NRW) müssen die eingebrachten Flächen flurstücksscharf bewertet werden — nach der sogenannten Formel Blume und „auf Grundlage der WBR-NRW in der jeweils gültigen Fassung“, wie es eine eigene Verfahrensvorlage von Wald und Holz NRW für Gemeinschaftswald-Verfahren festhält. Wer im Kreis Lippe Teil einer bestehenden oder neu entstehenden Waldgenossenschaft ist oder wird, trifft auf genau diese Zahlen.</p>
+<p>Darüber hinaus dient eine amtliche Holzpreistabelle wie die WBR-NRW in vergleichbaren Bundesländern üblicherweise auch als Orientierungsgrundlage in weiteren Fällen: bei der Schadensregulierung nach unbefugtem Einschlag oder Unfallschäden im Bestand, bei Entschädigungen im Zuge von Flurbereinigung oder Leitungsbau, und als Ausgangspunkt für Gutachten freiberuflicher Forstsachverständiger. Ob und in welchem Umfang das für NRW im Einzelfall genauso gilt, sollte direkt bei Wald und Holz NRW oder einem vereidigten Sachverständigen erfragt werden — eine pauschale Aussage für jeden Streitfall lässt sich aus der Tabelle allein nicht ableiten.</p>
+<p>Für den Alltag der meisten Lipper Waldbesitzer bleibt die Tabelle vor allem eins: eine nützliche zweite Meinung. Wer ein Angebot für sein Durchforstungsholz oder einen Kalamitätsbestand bekommt, kann die genannten Sortimente grob gegen die amtlichen Durchschnittswerte halten — wohlwissend, dass der tatsächlich erzielbare Preis je nach Erschließung, Rückekosten und aktueller Marktlage nach oben wie unten abweichen kann. Was Käferholz unter diesem Gesichtspunkt noch wert ist, behandeln wir in <a href="/blog/kaeferholz-sturmwurf-lippe-privatwald">Käferholz und Sturmwurf im Lipper Privatwald</a>.</p>
+
+<h2>Was wir konkret tun</h2>
+<p>Lippe Forst kauft und vermittelt Waldflächen im Kreis Lippe und Umland — und ordnet vorab ehrlich ein, was ein Bestand tatsächlich wert ist: die amtliche Referenztabelle als Orientierung, der aktuelle Marktpreis für die konkrete Verkaufsentscheidung, und Lage, Erschließung sowie Zustand Ihrer Fläche für die belastbare Zahl. Eine erste Wertindikation ist kostenlos und unverbindlich: <a href="/flaeche-bewerten">Fläche kostenlos bewerten lassen</a>, <a href="/wald-verkaufen">Wald verkaufen im Kreis Lippe</a> oder direkt über das <a href="/kontakt">Kontaktformular</a>.</p>
+
+<p class="text-sm text-stone-500"><em>Stand: 9. November 2026. Quellen: Wald und Holz NRW, Fachportal, Anlage 5 der Waldbewertungsrichtlinie NRW (WBR-NRW) „Durchschnittliche Holzpreise in €/m³(f)“, Stand 2026 (FWJ 2023–2025, abgerufen 9. November 2026); Wald und Holz NRW, Verfahrensvorlage für Gemeinschaftswald-Verfahren nach dem Gemeinschaftswaldgesetz NRW (GWG NRW), Stand 22. August 2024; Marktpreisangaben Fichte B 2b+ laut Branchenberichterstattung, Stand Anfang 2026. Die genannten Werte sind Durchschnitts- beziehungsweise Richtwerte ohne Mehrwertsteuer und ersetzen keine gutachterliche Einzelbewertung oder Rechtsberatung im Einzelfall.</em></p>
+`,
+  },
+  {
     slug: "weihnachtsbaum-2026-preise-flaechennutzung-lippe",
     title:
       "Weihnachtsbäume 2026 bis zu 33 Euro pro Meter: Die Branche meldet steigende Preise und mehr Pacht-Anfragen auf Schadflächen — was das für Flächeneigentümer in Lippe bedeutet",
