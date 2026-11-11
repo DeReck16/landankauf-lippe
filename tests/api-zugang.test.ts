@@ -413,6 +413,150 @@ test("Klick-Assistent per API: Rechte, Eingabe, Kauf bleibt draußen, Rechts-Sch
   assert.equal((await knopf(vorgang, { key: "LL-TEST0020~LL-TEST0021", id: "hinweise", signatur: "abcdef0123456789" })).status, 409, "mit Weg Vermitteln: nur noch die Signatur trennt");
 });
 
+test("Abhaken per API (11.11.2026): Rückfrage erledigt, „kein Interesse“ zur Kenntnis, bei Kauf nur mit kauf:true — die Meldung eines Vertragsschlusses nie", async () => {
+  const V = await import("@/lib/portal/vorgang");
+  const S = await import("@/lib/portal/speicher");
+  const r = await Z.zugangAnlegen("admin@example.com", { name: "Abhaken Test", rechte: ["board:lesen", "board:vorgang", "board:paare"], tage: 30 });
+  const rk = await Z.zugangAnlegen("admin@example.com", { name: "Abhaken Kauf Test", rechte: ["board:lesen", "board:vorgang", "board:vorgang-kauf"], tage: 30 });
+  assert.ok(r.ok && rk.ok);
+  if (!r.ok || !rk.ok) return;
+  const ohneRecht = (await Z.zugangAnlegen("admin@example.com", { name: "Abhaken Nur Lesen", rechte: ["board:lesen"], tage: 30 }));
+  assert.ok(ohneRecht.ok);
+  if (!ohneRecht.ok) return;
+  const knopf = (s: string, body: Record<string, unknown>) => post(s, { aktion: "knopf", ...body });
+  const vorgaenge = async (s: string) => (await boardRoute.GET(new Request("https://lippeforst.de/api/verwaltung/board?vorgaenge=1", { headers: { authorization: `Bearer ${s}` } }))).json();
+  type Akt = { id: string; ziel: string | null; signatur: string; api: boolean; apiGrund: string | null };
+  const aktionen = async (s: string, key: string, id: string): Promise<Akt[]> => {
+    const d = await vorgaenge(s);
+    return (d.vorgaenge.find((v: { key: string }) => v.key === key)?.aktionen ?? []).filter((a: Akt) => a.id === id);
+  };
+
+  // Pacht-Paar mit einer Rückfrage und der Meldung eines Vertragsschlusses
+  await anfrage("LL-TEST0030", { intent: "Verpachten", name: "Anna Abhakfrau", email: "anna@example.org", phone: "0171 3030303", ort: "Lage" });
+  await anfrage("LL-TEST0031", { intent: "Fläche gesucht (Pacht)", name: "Bernd Abhakmann", email: "bernd@example.org", phone: "0170 3131313", ort: "Lage" });
+  assert.equal((await post(r.schluessel, { aktion: "paar", angebot: "LL-TEST0030", gesuch: "LL-TEST0031", status: "vorgemerkt" })).status, 200);
+  const pacht = "LL-TEST0030~LL-TEST0031";
+  await V.kundenMeldung(pacht, "pacht", "suchender", "rueckfrage", "Gibt es Neuigkeiten zur Fläche?");
+  await V.kundenMeldung(pacht, "pacht", "anbieter", "abschluss", "Art: Pachtvertrag\nDatum: 01.11.2026\nFläche: 2 ha\nJahrespacht bzw. Kaufpreis: 600 €\nLaufzeit: 12 Jahre");
+
+  // Beide „Erledigt“-Knöpfe sind sichtbar, aber nur der der Rückfrage ist per API erlaubt
+  const erledigt = await aktionen(r.schluessel, pacht, "meldung-erledigt");
+  assert.equal(erledigt.length, 2, "Rückfrage und Vertragsschluss haben je einen Erledigt-Knopf");
+  const frei = erledigt.filter((a) => a.api);
+  const gesperrt = erledigt.filter((a) => !a.api);
+  assert.equal(frei.length, 1);
+  assert.equal(gesperrt.length, 1);
+  assert.match(gesperrt[0].apiGrund ?? "", /Vertragsschluss/);
+
+  // Vertragsschluss: auch mit gültiger Signatur und mit erfundener Signatur 403, nichts wird abgehakt
+  for (const signatur of [gesperrt[0].signatur, "abcdef0123456789"]) {
+    const nein = await knopf(r.schluessel, { key: pacht, id: "meldung-erledigt", ziel: gesperrt[0].ziel, signatur });
+    assert.equal(nein.status, 403);
+    assert.match(await nein.text(), /Vertragsschluss/);
+  }
+  assert.equal((await S.ladeVorgang(pacht))?.meldungen.filter((m) => m.erledigt).length ?? 0, 0, "nichts abgehakt");
+
+  // Ohne das Recht board:vorgang gar nicht
+  assert.equal((await knopf(ohneRecht.schluessel, { key: pacht, id: "meldung-erledigt", ziel: frei[0].ziel, signatur: frei[0].signatur })).status, 403);
+
+  // Rückfrage: ein Klick, steht mit „API: Name“ im Verlauf des Vorgangs; derselbe Knopf danach nicht mehr
+  const ok = await knopf(r.schluessel, { key: pacht, id: "meldung-erledigt", ziel: frei[0].ziel, signatur: frei[0].signatur });
+  assert.equal(ok.status, 200);
+  const v = await S.ladeVorgang(pacht);
+  const bearbeitet = v?.meldungen.filter((m) => m.erledigt) ?? [];
+  assert.equal(bearbeitet.length, 1);
+  assert.equal(bearbeitet[0].art, "rueckfrage");
+  assert.match(bearbeitet[0].erledigt?.von ?? "", /^API: Abhaken Test/);
+  assert.equal((await knopf(r.schluessel, { key: pacht, id: "meldung-erledigt", ziel: frei[0].ziel, signatur: frei[0].signatur })).status, 409);
+
+  // „Kein Interesse“: zur Kenntnis nehmen, das Paar ruht
+  await V.ablehnen(pacht, "pacht", "suchender", "Passt nicht");
+  const abl = await aktionen(r.schluessel, pacht, "ablehnung-erledigt");
+  assert.equal(abl.length, 1);
+  assert.equal(abl[0].api, true);
+  assert.equal((await knopf(r.schluessel, { key: pacht, id: "ablehnung-erledigt", ziel: abl[0].ziel, signatur: "abcdef0123456789" })).status, 409, "ohne gesehenen Stand nichts");
+  assert.equal((await knopf(r.schluessel, { key: pacht, id: "ablehnung-erledigt", ziel: abl[0].ziel, signatur: abl[0].signatur })).status, 200);
+  const abgehakt = (await S.ladeVorgang(pacht))?.ablehnungErledigt;
+  assert.ok(abgehakt, "Absage zur Kenntnis genommen");
+  // Ein älterer Aufruf (Wettlauf) öffnet eine neuere, schon abgehakte Absage nicht wieder
+  const N = await import("@/lib/portal/nacharbeit");
+  assert.equal(await N.ablehnungErledigen(pacht, "pacht", "test", "2020-01-01T00:00:00.000Z", "suchender"), false);
+  assert.equal((await S.ladeVorgang(pacht))?.ablehnungErledigt?.fuer, abgehakt?.fuer, "Vermerk unverändert");
+  assert.equal((await aktionen(r.schluessel, pacht, "ablehnung-erledigt")).length, 0, "der Knopf ist weg");
+  // Das Paar beenden bleibt der Verwaltung
+  assert.equal((await knopf(r.schluessel, { key: pacht, id: "paar-beenden", signatur: "abcdef0123456789" })).status, 403);
+
+  // Kauf: dieselben Knöpfe nur mit eigenem Recht UND kauf:true (LL-TEST0001 Verkaufen ↔ LL-TEST0002 Kauf-Gesuch)
+  const kauf = "LL-TEST0001~LL-TEST0002";
+  await V.kundenMeldung(kauf, "kauf", "suchender", "rueckfrage", "Kein Kauf zustande gekommen, Grundstück passte nicht.");
+  const kaufErledigt = (await aktionen(rk.schluessel, kauf, "meldung-erledigt")).filter((a) => a.api);
+  assert.equal(kaufErledigt.length, 1, "mit board:vorgang-kauf ist der Knopf bei Kauf freigegeben");
+  const k = kaufErledigt[0];
+  assert.equal((await aktionen(r.schluessel, kauf, "meldung-erledigt")).filter((a) => a.api).length, 0, "ohne board:vorgang-kauf bei Kauf nicht");
+  const ohneFlag = await knopf(rk.schluessel, { key: kauf, id: "meldung-erledigt", ziel: k.ziel, signatur: k.signatur });
+  assert.equal(ohneFlag.status, 403);
+  assert.match(await ohneFlag.text(), /kauf:true/);
+  assert.equal((await knopf(rk.schluessel, { key: kauf, id: "meldung-erledigt", ziel: k.ziel, signatur: k.signatur, kauf: true })).status, 200);
+  assert.equal((await S.ladeVorgang(kauf))?.meldungen.filter((m) => m.erledigt).length, 1);
+});
+
+test("Postfach-Aufgabe per API abhaken: nur mit Anfrage-Nummer und Mail-Schlüssel, ohne Namen und Mailtext, ohne etwas einzuordnen", async () => {
+  const P = await import("@/lib/portal/postfach");
+  const r = await Z.zugangAnlegen("admin@example.com", { name: "Postfach Test", rechte: ["board:lesen", "board:vorgang"], tage: 30 });
+  const lesenNur = await Z.zugangAnlegen("admin@example.com", { name: "Postfach Nur Lesen", rechte: ["board:lesen", "board:notiz"], tage: 30 });
+  assert.ok(r.ok && lesenNur.ok);
+  if (!r.ok || !lesenNur.ok) return;
+  await anfrage("LL-TEST0032", { intent: "Verkaufen", name: "Clara Postfachfrau", email: "clara@example.org", phone: "0171 3232323", ort: "Detmold" });
+  const mailId = "<abc123.test@mail.example.org>";
+  await store.mutateZustand("test", (z) => {
+    z.anfragen["LL-TEST0032"] = {
+      ...(z.anfragen["LL-TEST0032"] ?? {}),
+      postfach: [{ id: mailId, am: "2026-11-10T08:00:00.000Z", von: "clara@example.org", betreff: "Geheimbetreff Waldweg 7", text: "Vielen Dank, Clara Postfachfrau, Tel 0171 3232323", zuordnung: "absender", vorschlag: null, grund: "Dank", erfasstAm: "2026-11-10T08:05:00.000Z" }],
+    };
+  });
+  const schluessel = P.mailKey(mailId);
+
+  // Lesen: die Aufgabe nennt Anfrage und Mail-Schlüssel, aber weder Titel noch Text
+  const res = await boardRoute.GET(new Request("https://lippeforst.de/api/verwaltung/board?vorgaenge=1", { headers: { authorization: `Bearer ${r.schluessel}` } }));
+  const text = await res.text();
+  const aufgabe = JSON.parse(text).aufgaben.find((a: { typ: string; anfrage?: string }) => a.typ === "postfach" && a.anfrage === "LL-TEST0032");
+  assert.ok(aufgabe, "Postfach-Aufgabe ist in der Liste");
+  assert.equal(aufgabe.titel, "Text nur in der Verwaltung");
+  assert.equal(aufgabe.mail, schluessel);
+  for (const verboten of ["Geheimbetreff", "Waldweg", "Postfachfrau", "clara@example.org", "3232323", mailId]) assert.ok(!text.includes(verboten), `${verboten} darf nicht in der Antwort stehen`);
+
+  const kenntnis = (s: string, extra: Record<string, unknown> = {}) => post(s, { aktion: "postfach", anfrage: "LL-TEST0032", mail: schluessel, was: "kenntnis", ...extra });
+  // Eingabe und Rechte
+  assert.equal((await kenntnis(r.schluessel, { mail: mailId })).status, 400, "die rohe Message-ID wird nicht angenommen");
+  assert.equal((await kenntnis(r.schluessel, { mail: "XYZ" })).status, 400);
+  assert.equal((await kenntnis(r.schluessel, { was: "uebernehmen" })).status, 400, "Einordnen gibt es hier nicht");
+  assert.equal((await kenntnis(r.schluessel, { anfrage: "kein-id" })).status, 400);
+  assert.equal((await kenntnis(lesenNur.schluessel)).status, 403, "ohne board:vorgang nicht");
+  assert.equal((await kenntnis(r.schluessel, { mail: "0123456789abcdef" })).status, 404, "unbekannte Mail");
+  assert.equal((await kenntnis(r.schluessel, { anfrage: "LL-TESTGIBTSNICHT" })).status, 404, "unbekannte Anfrage");
+
+  // Abhaken: steht mit „API: Name“ da, nichts wird eingeordnet, der Status der Anfrage bleibt
+  const vorher = (await store.readZustand()).zustand.anfragen["LL-TEST0032"];
+  const ok = await kenntnis(r.schluessel);
+  assert.equal(ok.status, 200);
+  const okText = await ok.text();
+  for (const verboten of ["Postfachfrau", "Geheimbetreff", "clara@example.org"]) assert.ok(!okText.includes(verboten), `${verboten} darf nicht in der Antwort stehen`);
+  const nachher = (await store.readZustand()).zustand.anfragen["LL-TEST0032"];
+  const mail = nachher.postfach?.[0];
+  assert.equal(mail?.erledigt?.wie, "kenntnis");
+  assert.match(mail?.erledigt?.von ?? "", /^API: Postfach Test/);
+  assert.equal(nachher.rueckmeldung, undefined, "keine Rückmeldung eingeordnet");
+  assert.equal(nachher.status, vorher.status, "Status unverändert");
+
+  // Zweites Mal: 409, ohne den Namen zu nennen
+  const nochmal = await kenntnis(r.schluessel);
+  assert.equal(nochmal.status, 409);
+  assert.ok(!(await nochmal.text()).includes("Postfachfrau"));
+  // Die Aufgabe ist aus der Liste verschwunden
+  const danach = JSON.parse(await (await boardRoute.GET(new Request("https://lippeforst.de/api/verwaltung/board?vorgaenge=1", { headers: { authorization: `Bearer ${r.schluessel}` } }))).text());
+  assert.ok(!danach.aufgaben.some((a: { typ: string; anfrage?: string }) => a.typ === "postfach" && a.anfrage === "LL-TEST0032"));
+});
+
 test("Rechte ändern (nur Verwaltung): derselbe Schlüssel, neue Rechte gelten sofort; per API gibt es das nie", async () => {
   const r = await Z.zugangAnlegen("admin@example.com", { name: "Rechte Wechsel", rechte: ["board:lesen"], tage: 30 });
   assert.equal(r.ok, true);

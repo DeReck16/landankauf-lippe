@@ -182,6 +182,7 @@ export type BoardAktion =
   | { aktion: "boerse"; anfrage: string; was: "offline" }
   | { aktion: "boerse"; anfrage: string; was: "veroeffentlichen" }
   | { aktion: "boerse"; anfrage: string; was: "aendern"; aenderung: BoerseAenderung }
+  | { aktion: "postfach"; anfrage: string; mail: string; was: "kenntnis" }
   | { aktion: "knopf"; key: string; id: string; ziel: string; signatur: string; kauf: boolean }
   | { aktion: "weg"; anfrage: string; weg: "vermittlung" };
 
@@ -257,16 +258,24 @@ export function aktionPruefen(roh: unknown): { ok: true; aktion: BoardAktion } |
     if (b.weg !== "vermittlung") return nein("weg: nur „vermittlung“ per API — „Selbst kaufen“ (Börse, Preis) entscheidet nur die Verwaltung.");
     return { ok: true, aktion: { aktion: "weg", anfrage: b.anfrage, weg: "vermittlung" } };
   }
+  if (b.aktion === "postfach") {
+    if (!istText(b.anfrage) || !ID.test(b.anfrage)) return nein("anfrage: LL-… erwartet.");
+    // Der Schlüssel steht in GET ?vorgaenge=1 bei der Postfach-Aufgabe (`mail`): 16 Hex-Zeichen, nie die rohe Message-ID.
+    if (!istText(b.mail) || !/^[a-f0-9]{16}$/.test(b.mail)) return nein("mail: Schlüssel (16 Hex-Zeichen) aus der Postfach-Aufgabe in GET ?vorgaenge=1 erwartet.");
+    if (b.was !== "kenntnis") return nein("was: nur „kenntnis“ per API — Einordnen/Übernehmen läuft über /api/verwaltung/postfach oder die Verwaltung.");
+    return { ok: true, aktion: { aktion: "postfach", anfrage: b.anfrage, mail: b.mail, was: "kenntnis" } };
+  }
   if (b.aktion === "knopf") {
     if (!istText(b.key) || !PAAR.test(b.key)) return nein("key: LL-…~LL-… erwartet.");
     if (!istText(b.id) || !/^[a-z-]{3,30}$/.test(b.id)) return nein("id: Name des Knopfs (einladen, erinnern, hinweise, freigeben, …).");
     const ziel = b.ziel === undefined ? "" : b.ziel;
-    if (!istText(ziel) || !/^[a-z0-9-]{0,40}$/.test(ziel)) return nein("ziel: kurzer Name oder leer.");
+    // Das Ziel ist eine Kennung aus GET ?vorgaenge=1: Rolle („anbieter“), Meldungs-ID („MLD-…“) oder Zeitstempel („2026-11-11T08:00:00.000Z“).
+    if (!istText(ziel) || !/^[A-Za-z0-9:._-]{0,40}$/.test(ziel)) return nein("ziel: Kennung aus GET ?vorgaenge=1 (Buchstaben, Ziffern, : . _ -) oder leer.");
     if (!istText(b.signatur) || !/^[A-Za-z0-9_-]{8,64}$/.test(b.signatur)) return nein("signatur: aus der Antwort von GET ?vorgaenge=1 übernehmen.");
     if (b.kauf !== undefined && typeof b.kauf !== "boolean") return nein("kauf: true oder false.");
     return { ok: true, aktion: { aktion: "knopf", key: b.key, id: b.id, ziel, signatur: b.signatur, kauf: b.kauf === true } };
   }
-  return nein("Aktion unbekannt (notiz, status, paar, boerse, knopf, weg).");
+  return nein("Aktion unbekannt (notiz, status, paar, boerse, knopf, weg, postfach).");
 }
 
 /** Welche Rechte eine geprüfte Aktion erlauben (eines davon genügt). Angebot offline nehmen darf auch, wer abschließen darf. */
@@ -274,7 +283,7 @@ export function rechteFuer(a: BoardAktion): Recht[] {
   if (a.aktion === "notiz") return ["board:notiz"];
   if (a.aktion === "paar") return ["board:paare"];
   if (a.aktion === "boerse") return a.was === "offline" ? ["board:boerse", "board:abschliessen"] : ["board:boerse"];
-  if (a.aktion === "knopf" || a.aktion === "weg") return ["board:vorgang"];
+  if (a.aktion === "knopf" || a.aktion === "weg" || a.aktion === "postfach") return ["board:vorgang"];
   return [geschlossen(a.status) ? "board:abschliessen" : "board:status"];
 }
 
@@ -342,6 +351,16 @@ export async function boardAktion(a: BoardAktion, von: string, zugangId: string)
     }
     return r.ergebnis;
   }
+  if (a.aktion === "postfach") {
+    // Nur abhaken: Die Mail bleibt mit ihrem Text in der Anfrage stehen, nichts wird eingeordnet, keine Mail geht raus. Weder Name noch
+    // Betreff kommen in die Antwort (der Fehlertext des Verwaltungsweges nennt den Namen — hier feste Texte nach `grund`).
+    const { postfachZurKenntnis } = await import("@/lib/portal/postfach");
+    const r = await postfachZurKenntnis(a.anfrage, a.mail, wer);
+    if (!r.ok) return r.grund === "unbekannt" ? { ok: false, status: 404, fehler: "E-Mail nicht gefunden — Aufgaben neu lesen." } : { ok: false, status: 409, fehler: "Die E-Mail ist schon bearbeitet." };
+    await apiProtokoll(wer, "postfach", a.anfrage, "E-Mail zur Kenntnis genommen");
+    erneuern();
+    return { ok: true, text: "E-Mail zur Kenntnis genommen (ohne Einordnung)." };
+  }
   if (a.aktion === "knopf") {
     // Eigenes Modul (Klick-Assistent); erst bei Bedarf geladen, weil es dieses hier für die Schwärzung braucht.
     const { knopfAusfuehren } = await import("./vorgaenge");
@@ -405,7 +424,7 @@ const geschlossen = (s: LeadStatus | undefined): boolean => s === "erledigt" || 
  * Eigenes, nie gekürztes Protokoll aller Änderungen per API (eine Datei je Tag). Das Gesamtprotokoll und der Verlauf
  * je Anfrage sind in der Länge begrenzt und könnten durch Masse verdrängt werden — hier bleibt jede Änderung stehen.
  */
-async function apiProtokoll(von: string, aktion: "notiz" | "status" | "paar" | "boerse" | "knopf" | "weg", ref: string, was: string): Promise<void> {
+async function apiProtokoll(von: string, aktion: "notiz" | "status" | "paar" | "boerse" | "knopf" | "weg" | "postfach", ref: string, was: string): Promise<void> {
   const am = new Date().toISOString();
   await jsonAendern<{ v: 1; eintraege: { am: string; von: string; aktion: string; ref: string; was: string }[] }>(
     `admin/api-protokoll/${am.slice(0, 10)}.json`,

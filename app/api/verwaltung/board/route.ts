@@ -9,6 +9,7 @@ import { zugangPruefen } from "@/lib/api/zugang";
 //   POST { aktion:"notiz",  anfrage|paar, text }          → Verlauf-Eintrag
 //   POST { aktion:"status", anfrage, status }             → neu | in_arbeit | beantwortet (| erledigt | archiv)
 //   POST { aktion:"paar",   angebot, gesuch, status }     → vorgemerkt | verworfen
+//   POST { aktion:"postfach", anfrage, mail, was:"kenntnis" } → E-Mail aus dem Postfach abhaken (Recht board:vorgang; Mail-Schlüssel steht bei der Postfach-Aufgabe in GET ?vorgaenge=1)
 //   POST { aktion:"boerse", anfrage, was:"offline" }      → Börsen-Angebot offline nehmen
 //   POST { aktion:"boerse", anfrage, was:"aendern", typ?, groesseHa?, lage?, text?, details? } → öffentliche Angaben anpassen
 // Keine Mails, keine Einladungen, keine Freigaben, keine Börse, kein Löschen.

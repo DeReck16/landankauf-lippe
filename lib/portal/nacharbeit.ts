@@ -32,12 +32,20 @@ export async function meldungErledigen(key: string, id: string, von: string, wie
   return ok;
 }
 
-export async function ablehnungErledigen(key: string, art: M.Art, von: string, fuer: string, rolle: M.Rolle): Promise<void> {
+/**
+ * „Kein Interesse“ zur Kenntnis nehmen. Der Vermerk wandert nur nach vorn: Ein Aufruf mit einem älteren Zeitstempel (`fuer`) als dem
+ * schon abgehakten überschreibt nichts — sonst käme eine neuere, bereits abgehakte Absage als offene Aufgabe zurück (Wettlauf zweier Aufrufe).
+ * Gibt zurück, ob etwas geschrieben wurde.
+ */
+export async function ablehnungErledigen(key: string, art: M.Art, von: string, fuer: string, rolle: M.Rolle): Promise<boolean> {
+  let geschrieben = false;
   await aendereVorgang(key, art, (x) => {
-    if (x.ablehnungErledigt?.fuer === fuer) return false;
+    if (x.ablehnungErledigt && x.ablehnungErledigt.fuer >= fuer) return false;
     x.ablehnungErledigt = { am: jetzt(), von, fuer };
     M.ereignis(x, von, "ablehnung-erledigt", `„Kein Interesse“ ${M.ROLLE_ARTIKEL[rolle].gen} zur Kenntnis genommen — das Paar ruht (keine Erinnerungen)`);
+    geschrieben = true;
   });
+  return geschrieben;
 }
 
 /** Provision als abgerechnet vermerken — mit Rechnungsdatum und Zahlungsziel (Fälligkeit der Zahlung). */

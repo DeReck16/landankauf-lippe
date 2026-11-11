@@ -5,12 +5,13 @@ import { leadView, type LeadMeta, type LeadView } from "@/lib/admin/model";
 import { drosseln, kurzwert, listLeads, mutateZustand, readZustand } from "@/lib/admin/store";
 import { anbieterAbgleichFuer } from "@/lib/portal/anbieter-gruppe";
 import { alleAktionen, assistentPlan } from "@/lib/portal/assistent";
-import type { AssistentAktion } from "@/lib/portal/assistent-typen";
+import type { AssistentAktion, AssistentPlan } from "@/lib/portal/assistent-typen";
 import { aufgabenAus, type AufgabeQuelle } from "@/lib/portal/aufgaben";
 import { linkErstellen, mailsSenden, type AusfuehrZeile } from "@/lib/portal/ausfuehren";
 import { automatikVon, type AutomatikEinstellungen } from "@/lib/portal/automatik-regeln";
 import { ladeDashboard } from "@/lib/portal/dashboard";
 import * as M from "@/lib/portal/model";
+import * as N from "@/lib/portal/nacharbeit";
 import { STAND_TAKT_TEXT } from "@/lib/portal/radar";
 import { basisUrl } from "@/lib/portal/sitzung";
 import { alleKunden, istPaarKey, ladeEinstellungen } from "@/lib/portal/speicher";
@@ -24,9 +25,13 @@ import { eigeneAngaben, schwaerzen, type AktionErgebnis } from "./board";
 // Es gelten dieselben Sperren wie im Dashboard (`gesperrt`, Signatur des gesehenen Stands) und zusätzlich die Schalter der Automatik:
 // Not-Aus stoppt alles, Hinweise und Freigabe brauchen die Bestätigungen „§ 34c-Erlaubnis“ und „Vorlagen anwaltlich geprüft“,
 // Kauf bleibt in der Verwaltung. Nie per API: Zustimmungen/Einwilligungen erfassen, Verträge, Provision, Löschen, Einstellungen.
+// Seit 11.11.2026 (Dennis „Ja, freischalten“) zusätzlich zwei reine Abhak-Knöpfe ohne Mail: „Erledigt“ bei einer Rückfrage aus dem
+// Kundenbereich (`meldung-erledigt`) und „Zur Kenntnis — Paar ruhen lassen“ bei einem „kein Interesse“ (`ablehnung-erledigt`).
+// Die Meldung eines Vertragsschlusses schließt per API nie jemand: Dort hängt eine mögliche Provision dran (Abschluss erfassen oder
+// bewusst ohne Erfassung schließen), das bleibt in der Verwaltung.
 
 /** Knöpfe, die die API drücken darf. */
-export const API_KNOEPFE = ["einladen", "erinnern", "hinweise", "freigeben", "freigabe-mitteilen", "abschluss-nachfragen", "pacht-erinnern"] as const;
+export const API_KNOEPFE = ["einladen", "erinnern", "hinweise", "freigeben", "freigabe-mitteilen", "abschluss-nachfragen", "pacht-erinnern", "meldung-erledigt", "ablehnung-erledigt"] as const;
 export type ApiKnopf = (typeof API_KNOEPFE)[number];
 
 /**
@@ -35,7 +40,7 @@ export type ApiKnopf = (typeof API_KNOEPFE)[number];
  * sofern die Voraussetzungen vorliegen; § 34c und AML machen wir im Backoffice“): freigeben, freigabe-mitteilen, abschluss-nachfragen.
  * Ob alle Eigentümer zugestimmt haben, kennt das System nicht — das belegt die Routine vor der Freigabe (Skill).
  */
-export const KAUF_KNOEPFE: readonly ApiKnopf[] = ["einladen", "hinweise", "freigeben", "freigabe-mitteilen", "abschluss-nachfragen"];
+export const KAUF_KNOEPFE: readonly ApiKnopf[] = ["einladen", "hinweise", "freigeben", "freigabe-mitteilen", "abschluss-nachfragen", "meldung-erledigt", "ablehnung-erledigt"];
 
 export type VorgangArt = "pacht" | "kauf" | "unklar";
 
@@ -66,6 +71,18 @@ export function knopfGrund(id: string, art: VorgangArt, vermittlung: boolean, au
   // Ob TR selbst kauft („Selbst kaufen“) oder Lippe Forst vermittelt, entscheidet die Verwaltung — die Automatik wartet darauf ebenso.
   if (NUR_VERMITTLUNG.includes(id as ApiKnopf) && !vermittlung) return "Der Weg des Angebots ist nicht „Vermitteln“ (offen oder Direktankauf) — das entscheidet die Verwaltung.";
   return null;
+}
+
+const MELDUNG_NUR_VERWALTUNG = "Die Meldung eines Vertragsschlusses schließt nur die Verwaltung (Vertrag erfassen oder bewusst ohne Erfassung schließen — daran hängt eine mögliche Provision).";
+
+/**
+ * „Erledigt“ per API nur bei einer Rückfrage (die Antwort an den Kunden läuft über Outlook, das Abhaken ist Buchführung). Alles andere,
+ * auch eine Meldung, die sich im Plan nicht finden lässt, bleibt gesperrt (fail-closed). Gibt den Grund zurück oder null.
+ */
+export function meldungGrund(a: Pick<AssistentAktion, "id" | "ziel">, plan: AssistentPlan): string | null {
+  if (a.id !== "meldung-erledigt") return null;
+  const m = plan.meldungen.find((x) => x.aktionen.some((y) => y.id === a.id && (y.ziel ?? "") === (a.ziel ?? "")));
+  return m?.art === "rueckfrage" ? null : MELDUNG_NUR_VERWALTUNG;
 }
 
 /** Anfragen und Kundenakten: beide nennen Namen, Adressen und Nummern der Beteiligten. */
@@ -137,8 +154,8 @@ export function apiSignatur(zugangId: string, key: string, id: string, ziel: str
 
 const istVermittlung = (ids: string[], an: Ansichten): boolean => an.leads.get(ids[0])?.meta.weg === "vermittlung";
 
-function aktionAnsicht(a: AssistentAktion, art: VorgangArt, automatik: AutomatikEinstellungen, ids: string[], an: Ansichten, key: string, zugangId: string, kaufRecht: boolean) {
-  const grund = knopfGrund(a.id, art, istVermittlung(ids, an), automatik, kaufRecht);
+function aktionAnsicht(a: AssistentAktion, plan: AssistentPlan, art: VorgangArt, automatik: AutomatikEinstellungen, ids: string[], an: Ansichten, key: string, zugangId: string, kaufRecht: boolean) {
+  const grund = knopfGrund(a.id, art, istVermittlung(ids, an), automatik, kaufRecht) ?? meldungGrund(a, plan);
   return {
     id: a.id,
     ziel: a.ziel ?? null,
@@ -173,7 +190,7 @@ export async function vorgaengeLesen(zugangId: string, kaufRecht: boolean) {
       weg: an.leads.get(ids[0])?.meta.weg ?? null,
       /** Freigegeben, aber ohne Abschluss: Stufe und Takt der Stand-Nachfrage (lib/portal/radar.ts) — nur Kennzahlen, kein Freitext. */
       radar: x.radar ? { stufe: x.radar.stufe, tage: x.radar.tage, nachfragen: x.radar.nachfragen, faellig: x.radar.faellig, naechste: x.radar.naechste } : null,
-      aktionen: alleAktionen(x.plan).map((a) => aktionAnsicht(a, artVon(x.art, ids, an), automatik, ids, an, x.key, zugangId, kaufRecht)),
+      aktionen: alleAktionen(x.plan).map((a) => aktionAnsicht(a, x.plan, artVon(x.art, ids, an), automatik, ids, an, x.key, zugangId, kaufRecht)),
     };
   });
   const aufgaben = aufgabenAus(dash).map((a) => {
@@ -189,6 +206,9 @@ export async function vorgaengeLesen(zugangId: string, kaufRecht: boolean) {
       seit: a.seit,
       ueberfaellig: a.ueberfaellig,
       neu: a.neu,
+      // Postfach-Aufgabe: nur Anfrage-Nummer und Mail-Schlüssel (Hash, ohne Betreff und Adressen) — genug, um sie per
+      // `{aktion:"postfach", was:"kenntnis", anfrage, mail}` abzuhaken, nachdem die Mail selbst (Outlook) gelesen wurde.
+      ...(a.quelle.typ === "postfach" ? { anfrage: a.quelle.p.id, mail: a.quelle.p.key } : {}),
     };
   });
   const vorschlaege = dash.vorschlaege.map((v) => {
@@ -231,7 +251,11 @@ export async function knopfAusfuehren(e: KnopfEingabe, von: string, zugangId: st
   const stimmt = (x: AssistentAktion | undefined, art: VorgangArt): x is AssistentAktion => Boolean(x) && apiSignatur(zugangId, e.key, x!.id, x!.ziel ?? "", art, x!.signatur) === e.signatur;
   // Erst prüfen, dann schreiben: Mit veralteter Signatur ändert nichts etwas (auch nicht der Abgleich unten).
   const art = artVon(ctx.art, ids, an);
-  if (!stimmt(finde(ctx), art)) return veraltet;
+  const erste = finde(ctx);
+  // „Erledigt“ bei der Meldung eines Vertragsschlusses gibt es per API nie (auch nicht mit gültiger Signatur) — vor der Signaturprüfung, damit die Antwort ehrlich bleibt.
+  const sperre = erste ? meldungGrund(erste, assistentPlan(ctx, u)) : null;
+  if (sperre) return { ok: false, status: 403, fehler: sperre };
+  if (!stimmt(erste, art)) return veraltet;
   // Anbieter mit mehreren Flächen: abgleichen, damit keine zweite Einladung entsteht (wie im Dashboard); ändert das den Stand, gilt die Signatur nicht mehr.
   await anbieterAbgleichFuer(e.key.split("~")[0], von);
   const frisch = (await V.ladeVorgangKontext(e.key)) ?? ctx;
@@ -272,6 +296,17 @@ export async function knopfAusfuehren(e: KnopfEingabe, von: string, zugangId: st
     case "abschluss-nachfragen":
       await mailsSenden(von, e.key, u, a.mails, zeilen);
       break;
+    case "meldung-erledigt":
+      // Nur Buchführung: die Rückfrage gilt als bearbeitet und bleibt im Verlauf des Vorgangs (keine Mail, kein Statuswechsel).
+      if (!a.ziel || !(await N.meldungErledigen(e.key, a.ziel, von))) return { ok: false, status: 409, fehler: "Meldung nicht gefunden oder schon erledigt." };
+      zeilen.push({ art: "ok", text: "Rückfrage als erledigt markiert" });
+      break;
+    case "ablehnung-erledigt": {
+      const abl = frisch.meta?.ablehnung;
+      if (!abl || !(await N.ablehnungErledigen(e.key, frisch.art, von, abl.am, abl.rolle))) return veraltet;
+      zeilen.push({ art: "ok", text: "Zur Kenntnis genommen — das Paar ruht (keine Erinnerungen an die Gegenseite)" });
+      break;
+    }
     case "freigeben": {
       const r = await V.freigeben(e.key, von);
       if (!r.ok) return { ok: false, status: 409, fehler: `Freigabe nicht möglich: ${rein(r.fehler ?? "unbekannt", ids, an)}` };

@@ -294,11 +294,15 @@ export async function postfachUebernehmen(anfrageId: string, schluessel: string,
 }
 
 /** Mail nur zur Kenntnis nehmen (z. B. Dank, Rückfrage schon selbst beantwortet) — nichts wird eingeordnet. */
-export async function postfachZurKenntnis(anfrageId: string, schluessel: string, von: string): Promise<{ ok: true; name: string } | { ok: false; fehler: string }> {
+export async function postfachZurKenntnis(
+  anfrageId: string,
+  schluessel: string,
+  von: string,
+): Promise<{ ok: true; name: string } | { ok: false; fehler: string; /** Für Aufrufer ohne Namen (API): fester Grund statt des Fehlertexts, der den Namen nennt. */ grund: "unbekannt" | "erledigt" }> {
   const f = await mailFinden(anfrageId, schluessel);
-  if (!f) return { ok: false, fehler: "E-Mail nicht gefunden — die Ansicht ist veraltet." };
+  if (!f) return { ok: false, fehler: "E-Mail nicht gefunden — die Ansicht ist veraltet.", grund: "unbekannt" };
   const name = T.wert(f.lead.name) || f.lead.id;
-  if (f.mail.erledigt) return { ok: false, fehler: `Die E-Mail von ${name} ist schon bearbeitet.` };
+  if (f.mail.erledigt) return { ok: false, fehler: `Die E-Mail von ${name} ist schon bearbeitet.`, grund: "erledigt" };
   await erledigen(anfrageId, f.mail.id, { am: new Date().toISOString(), von, wie: "kenntnis" }, `E-Mail vom ${T.datumDe(f.mail.am)} zur Kenntnis genommen (ohne Einordnung)`);
   revalidatePath("/admin", "layout");
   return { ok: true, name };
