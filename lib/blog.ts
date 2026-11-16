@@ -20,6 +20,93 @@ export type Article = {
 
 export const ARTICLES: Article[] = [
   {
+    slug: "grundstuecksmarktbericht-nrw-2026-waldpreise-sieben-prozent-lippe",
+    title:
+      "Wald in NRW wird amtlich 7 % teurer: Was der neue Grundstücksmarktbericht 2026 für Waldbesitzer im Kreis Lippe bedeutet",
+    description:
+      "Der Grundstücksmarktbericht NRW 2026 des Oberen Gutachterausschusses zeigt es schwarz auf weiß: Forstwirtschaftliche Grundstücke wurden in den NRW-Kreisen 2025 im Schnitt 7 % teurer, Agrarland 8 %. Gleichzeitig halbierte sich bundesweit das Schadholzaufkommen fast. Was beide Zahlen für Waldbesitzer im Kreis Lippe bedeuten — und was der eigene Gutachterausschuss für Lippe meldet.",
+    category: "Markt",
+    publishedAt: "2026-11-16",
+    readingMinutes: 7,
+    keywords: [
+      "Grundstücksmarktbericht NRW 2026",
+      "Waldpreise NRW 2025 Anstieg",
+      "Waldflächen Kreis Lippe Preis",
+      "Forstwirtschaftliche Grundstücke Preisentwicklung",
+      "Holzeinschlag 2025 Schadholz Statistik",
+      "Wald verkaufen Kreis Lippe",
+    ],
+    heroImage: "/blog-waldflaechen-nrw-2026.jpg",
+    faq: [
+      {
+        q: "Was zeigt der neue Grundstücksmarktbericht NRW 2026 für Waldflächen genau?",
+        a: "Der Obere Gutachterausschuss für Grundstückswerte im Land NRW hat am 17. September 2026 den Grundstücksmarktbericht NRW 2026 veröffentlicht (Berichtsjahr 2025). Danach sind forstwirtschaftliche Grundstücke in den NRW-Kreisen 2025 im Durchschnitt um rund 7 % teurer geworden, landwirtschaftliche Grundstücke um rund 8 %. Insgesamt wechselten in NRW 124.201 Grundstücke den Eigentümer (+10 % gegenüber dem Vorjahr) bei einem Geldumsatz von 46,01 Milliarden Euro (+13 %). Absolute Euro-Beträge je Hektar nennt die Pressemitteilung für Wald nicht — nur die prozentuale Veränderung.",
+      },
+      {
+        q: "Warum werden Waldflächen in NRW gerade jetzt teurer?",
+        a: "Ein wichtiger Treiber ist die amtliche Statistik zum Holzeinschlag 2025, die das Statistische Bundesamt am 15. April 2026 veröffentlicht hat: Der Schadholzanteil ist bundesweit auf 12,7 Millionen Festmeter gefallen — ein Rückgang um 53,7 % gegenüber 2024 und nur noch 22,1 % des Gesamteinschlags (2020 waren es 74,8 %). Weniger Kalamitätsholz bedeutet ein knapperes Angebot an gesundem, stehendem Holz — und das macht intakte Waldbestände wertvoller. Gleichzeitig zeigt der Landeswaldbericht NRW (vorgestellt am 26. März 2026 von Ministerin Silke Gorißen), dass zwischen 2018 und 2025 rund 140.000 Hektar Fichtenbestände abgestorben sind und Mitte 2024 erst 46 % der Schadflächen wieder mit Jungwuchs bestockt waren — gesunder Wald bleibt also knapp.",
+      },
+      {
+        q: "Gilt der Preisanstieg von 7 % auch konkret für den Kreis Lippe?",
+        a: "Der Grundstücksmarktbericht NRW 2026 nennt nur einen landesweiten Durchschnitt über alle Kreise, keine Lippe-spezifische Zahl. Der Gutachterausschuss für Grundstückswerte im Kreis Lippe und in der Stadt Detmold meldet für 2025 einen eigenen Wald-Mittelwert von rund 1,53 €/m² (15.300 €/ha) bei 28 Kauffällen auf 45 Hektar — mehr dazu in unserem Beitrag zum Lipper Bodenmarkt. Ob diese Zahl im Jahresvergleich um genau 7 % gestiegen ist, lässt sich aus den veröffentlichten Werten nicht exakt ableiten, da der Vorjahreswert für Lippe separat nicht in gleicher Form vorliegt. Die Tendenz — steigende Nachfrage nach Waldflächen — deckt sich aber mit dem Landestrend.",
+      },
+      {
+        q: "Lohnt sich jetzt eher ein Verkauf oder sollte ich abwarten?",
+        a: "Pauschal lässt sich das nicht beantworten. Steigende Durchschnittspreise sind ein Signal für eine aktuell gute Nachfrage, sagen aber nichts über den Wert einer einzelnen Fläche mit ihrer individuellen Baumartenzusammensetzung, ihrem Alter und ihrer Erschließung. Wer über einen Verkauf nachdenkt, profitiert von einer aktuellen Wertindikation statt einer pauschalen Hochrechnung aus dem Landesdurchschnitt.",
+      },
+      {
+        q: "Wo finde ich amtliche Vergleichszahlen für meine eigene Gemeinde im Kreis Lippe?",
+        a: "Amtliche Bodenrichtwerte je Gemeinde im Kreis Lippe stehen kostenlos über BORIS.NRW und sind in unserem Ratgeber Bodenrichtwerte Kreis Lippe aufbereitet. Für eine Einschätzung, die zusätzlich Baumart, Alter und Erschließung Ihrer konkreten Fläche berücksichtigt, reicht eine kostenlose, unverbindliche Wertindikation bei uns.",
+      },
+    ],
+    content: `
+<p class="lead">7 % teurer in nur einem Jahr: So viel mehr haben Käufer 2025 im Schnitt für forstwirtschaftliche Grundstücke in den Kreisen von Nordrhein-Westfalen bezahlt — das zeigt der neue Grundstücksmarktbericht NRW 2026, veröffentlicht am 17. September 2026 vom Oberen Gutachterausschuss für Grundstückswerte. Zeitgleich meldet das Statistische Bundesamt, dass der bundesweite Schadholzanteil auf den niedrigsten Stand seit Jahren gefallen ist. Zwei amtliche Zahlen, ein Bild: Gesunder Wald wird knapper — und spürbar wertvoller. Was das für Waldbesitzer im Kreis Lippe konkret bedeutet.</p>
+
+<figure>
+<img src="/blog-waldflaechen-nrw-2026.jpg" alt="Nebliger Mischwald aus Buche und Fichte an einem Hang im Lipper Bergland im Spätherbst, goldbraunes Buchenlaub, ein schmaler Waldweg führt in die Tiefe" width="1600" height="1075" style="width:100%;height:auto;border-radius:14px" loading="lazy" />
+<figcaption>Mischwald aus Buche und Fichte im Spätherbst — genau solche intakten Bestände wurden laut dem neuen Grundstücksmarktbericht 2026 in den NRW-Kreisen 2025 im Schnitt 7 % teurer.</figcaption>
+</figure>
+
+<h2>Die neuen Zahlen: 7 % mehr für Wald, 8 % mehr für Agrarland</h2>
+<p>Der Grundstücksmarktbericht NRW 2026 fasst das gesamte Immobilien-Geschehen des Landes für das Berichtsjahr 2025 zusammen — Bauland, Wohnungen, Gewerbe und eben auch land- und forstwirtschaftliche Flächen. Herausgeber ist der Obere Gutachterausschuss für Grundstückswerte im Land Nordrhein-Westfalen mit Sitz in Köln, die Datengrundlage liefern die örtlichen Gutachterausschüsse aller Kreise und kreisfreien Städte, abrufbar über das Landesportal BORIS.NRW. Die Kernzahlen für 2025 im Überblick:</p>
+<ul>
+<li><strong>Kauffälle insgesamt:</strong> 124.201 — rund 11.000 bzw. 10 % mehr als im Vorjahr.</li>
+<li><strong>Geldumsatz insgesamt:</strong> 46,01 Milliarden Euro — ein Plus von rund 5,29 Milliarden Euro bzw. 13 %.</li>
+<li><strong>Flächenumsatz:</strong> 163,09 Quadratkilometer wechselten den Eigentümer.</li>
+<li><strong>Forstwirtschaftliche Grundstücke:</strong> Preise in den Kreisen im Schnitt <strong>+7 %</strong>.</li>
+<li><strong>Landwirtschaftliche Grundstücke:</strong> Preise in den Kreisen im Schnitt <strong>+8 %</strong>.</li>
+</ul>
+<p>Absolute Euro-Beträge je Hektar für Wald nennt die Pressemitteilung nicht — nur die prozentuale Bewegung gegenüber 2024. Zum Vergleich: Bei den unbebauten Baugrundstücken für den individuellen Wohnungsbau bleibt der Stadt-Land-Unterschied gewaltig. Düsseldorf steht mit rund 1.100 €/m² an der Spitze, während ländliche Gebiete wie Teile von Ostwestfalen-Lippe, dem Sauer- und Siegerland oder der Eifel teils unter 50 €/m² liegen. Beim Agrarland dagegen zieht ausgerechnet der ländliche Raum an — ein Signal, dass Flächen fernab der Ballungsräume wieder stärker gefragt sind.</p>
+
+<h2>Warum gerade jetzt: Weniger Schadholz, knapperer gesunder Bestand</h2>
+<p>Ein wichtiger Teil der Erklärung liegt in einer zweiten amtlichen Statistik: der Holzeinschlagsmeldung 2025, die das Statistische Bundesamt am 15. April 2026 veröffentlicht hat. Danach ist der bundesweite Schadholzeinschlag — also Holz aus Sturm-, Dürre- und vor allem Borkenkäferschäden — auf 12,7 Millionen Festmeter gefallen, ein Rückgang um 53,7 % gegenüber 2024 (27,3 Mio. m³). Der Anteil des Schadholzes am Gesamteinschlag liegt damit nur noch bei 22,1 % — im Rekordjahr 2020 waren es noch 74,8 %. Insektenbefall allein ging um 53,1 % auf 7,9 Mio. m³ zurück.</p>
+<p>Das klingt zunächst nach Entwarnung — bedeutet für den Markt aber vor allem eins: Es kommt deutlich weniger Zwangsanfall aus Kalamitäten auf den Markt, mit dem Preise gedrückt werden könnten. Gleichzeitig bleibt gesunder, stehender Wald nach den Dürrejahren knapp. Der Landeswaldbericht NRW, den Landwirtschaftsministerin Silke Gorißen am 26. März 2026 vorgestellt hat, beziffert den Schaden der Jahre 2018 bis 2025 auf rund 140.000 Hektar abgestorbener Fichtenbestände — und nur rund ein Drittel der untersuchten Bäume gilt aktuell als gesund, ohne nennenswerte Kronenverlichtung. Bis Mitte 2024 war erst auf 46 % der Schadflächen neuer Jungwuchs herangewachsen. Mit rund 600.000 Hektar (63 % der NRW-Waldfläche) und über 150.000 Eigentümern liegt der mit Abstand größte Teil davon in privater Hand — auch im Kreis Lippe. Das Land fördert die Wiederbewaldung 2026 mit über 15 Millionen Euro, seit 2019 sind mehr als 181 Millionen Euro an Waldbesitzer zur Schadensbewältigung geflossen. Was genau dabei amtlich als Baumwert gilt, haben wir in unserem Beitrag zur <a href="/blog/wbr-nrw-holzpreistabelle-2026-waldwert-lippe">neuen WBR-NRW-Holzpreistabelle 2026</a> eingeordnet.</p>
+
+<h2>Was der Gutachterausschuss konkret für den Kreis Lippe meldet</h2>
+<p>Der landesweite Durchschnitt sagt über eine einzelne Fläche in Lippe wenig aus — deshalb lohnt der Blick auf die eigenen Zahlen des Gutachterausschusses für Grundstückswerte im Kreis Lippe und in der Stadt Detmold. Für das Jahr 2025 meldet er:</p>
+<ul>
+<li><strong>Wald</strong> (inkl. Aufwuchs): 28 Kauffälle auf 45 Hektar, im Mittel rund 1,53 €/m² (15.300 €/ha).</li>
+<li><strong>Grünland:</strong> 24 Kauffälle auf 33,84 Hektar, im Mittel rund 2,16 €/m² (21.600 €/ha) — gestiegen gegenüber 2024.</li>
+<li><strong>Ackerland:</strong> rechnerisch rund 3,80 €/m² (38.000 €/ha), vom Gutachterausschuss trotz niedrigerem Jahresdurchschnitt als preisstabil bewertet.</li>
+<li><strong>Handelsvolumen gesamt:</strong> Die Zahl der land- und forstwirtschaftlichen Kauffälle im Kreis Lippe stieg 2025 um weitere 24 %.</li>
+</ul>
+<p>Ob der Lipper Wald-Mittelwert von 2024 auf 2025 exakt um die landesweiten 7 % gestiegen ist, lässt sich aus den veröffentlichten Werten nicht eins zu eins nachrechnen — dafür müsste der genaue Vorjahreswert in gleicher Abgrenzung vorliegen. Die Richtung aber passt zusammen: mehr Kauffälle, mehr Nachfrage, ein Markt, der sich spürbar belebt. Mehr zu den Lipper Kaufwerten über alle drei Flächenarten und warum NRW bundesweit beim Agrarland vorn liegt, obwohl der Regierungsbezirk Detmold deutlich darunter bleibt, in unserem Beitrag <a href="/blog/gruenland-ackerland-bodenpreise-2025-lippe">Grünland wird 15 % teurer, Ackerland günstiger</a> sowie im Rückblick <a href="/blog/bodenmarkt-lippe-nrw-2025-kaufwerte-gefallen">Bodenmarkt NRW und Lippe: Kaufwerte gefallen — Waldverkäufe fast verdoppelt</a>.</p>
+
+<h2>Was das für Waldbesitzer in Lippe praktisch bedeutet</h2>
+<ul>
+<li><strong>Steigende Durchschnittspreise sind ein Marktsignal, kein Hektarpreis für Ihre Fläche.</strong> Baumartenmischung, Alter, Erschließung und die Frage, ob eine Fläche von Kalamitäten betroffen war, bestimmen den tatsächlichen Wert — nicht der Landesdurchschnitt.</li>
+<li><strong>Wer schon länger über einen Verkauf nachdenkt</strong>, trifft aktuell auf einen Markt mit mehr Nachfrage und mehr Kauffällen als in den Vorjahren — sowohl landesweit als auch im Kreis Lippe.</li>
+<li><strong>Wer gerade eine Kalamitätsfläche wiederbewaldet</strong>, profitiert von den laufenden Förderprogrammen des Landes; Details dazu und zur Frage Halten, Fördern oder Verkaufen ordnen wir in <a href="/blog/privatwald-lippe-halten-foerdern-verkaufen">Privatwald in Lippe: Halten, fördern oder verkaufen</a> ein.</li>
+<li><strong>Amtliche Bodenrichtwerte je Gemeinde</strong> für eine erste Orientierung finden Sie im Ratgeber <a href="/ratgeber/bodenrichtwerte-lippe">Bodenrichtwerte Kreis Lippe</a>, eine Einordnung des gesamten NRW-Waldmarkts im Ratgeber <a href="/ratgeber/wald-preis-nrw">Was kostet Wald in NRW?</a>.</li>
+</ul>
+
+<h2>Was wir konkret tun</h2>
+<p>Lippe Forst kauft und vermittelt Waldflächen im Kreis Lippe und Umland — mit einer kostenlosen, unverbindlichen Wertindikation, die amtliche Zahlen wie die des Gutachterausschusses und aktuelle Marktbewegungen für Ihre konkrete Lage einordnet, statt pauschal vom Landesdurchschnitt hochzurechnen. Ob geerbt, lange gehalten oder Kalamitätsfläche: <a href="/wald-verkaufen">Wald verkaufen im Kreis Lippe</a>, <a href="/acker-oder-wald-geerbt">Acker oder Wald geerbt</a> oder direkt <a href="/flaeche-bewerten">kostenlos bewerten lassen</a> bzw. über das <a href="/kontakt">Kontaktformular</a>.</p>
+
+<p class="text-sm text-stone-500"><em>Stand: 16. November 2026. Quellen: Grundstücksmarktbericht NRW 2026 des Oberen Gutachterausschusses für Grundstückswerte im Land Nordrhein-Westfalen (Pressemitteilung der Landesregierung NRW vom 17. September 2026, Berichtsjahr 2025, Daten über BORIS.NRW); Statistisches Bundesamt (Destatis), Holzeinschlagsmeldung 2025 (Pressemitteilung PD26_134 vom 15. April 2026); Landeswaldbericht Nordrhein-Westfalen, vorgestellt am 26. März 2026 vom Ministerium für Landwirtschaft und Verbraucherschutz NRW; Grundstücksmarktbericht des Gutachterausschusses für Grundstückswerte im Kreis Lippe und in der Stadt Detmold, Berichtsjahr 2025. Dieser Beitrag ersetzt keine individuelle Wertermittlung für Ihre Fläche.</em></p>
+`,
+  },
+  {
     slug: "wbr-nrw-holzpreistabelle-2026-waldwert-lippe",
     title:
       "Was ein Baum im Kreis Lippe amtlich wert ist: Die neue NRW-Preistabelle 2026 reicht von 37 bis 761 Euro je Festmeter — und wofür Waldbesitzer die Richtwerte wirklich brauchen",
