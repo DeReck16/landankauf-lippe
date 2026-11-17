@@ -11,10 +11,14 @@ const { seiteSchalten, boerseNeuSchreiben, boerseOfflineNehmen, BOERSE_PFAD } = 
 
 type Lead = import("@/lib/admin/model").LeadRecord;
 
+// Eingang relativ zu heute: Der Bestätigungslink gilt 30 Tage ab Eingang (BESTAETIGUNG_FRIST_TAGE),
+// ein festes Datum ließe die Tests einen Monat später ohne Codeänderung fehlschlagen.
+const VOR_ZWEI_TAGEN = new Date(Date.now() - 2 * 86_400_000).toISOString();
+
 async function anfrage(id: string, felder: Partial<Lead>): Promise<void> {
   const lead: Lead = {
     id,
-    receivedAt: "2026-10-10T09:00:00.000Z",
+    receivedAt: VOR_ZWEI_TAGEN,
     intent: "Verpachten",
     flaechentyp: "Ackerland",
     groesse: "6 ha",
