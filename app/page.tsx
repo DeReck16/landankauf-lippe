@@ -52,13 +52,14 @@ const faq: { q: string; a: string; aJsx?: ReactNode }[] = [
   },
   {
     q: "Kaufen Sie auch Wohnimmobilien — etwa das Wohnhaus zur Hofstelle?",
-    a: "Ja, über unsere Schwestergesellschaft: Wohnimmobilien (Haus, Wohnung, Mehrfamilienhaus) kauft im Kreis Lippe die TR Immobilien GmbH direkt an — Kaufangebot in 24 Stunden, keine Provision, auch vermietet oder renovierungsbedürftig. So bleibt bei Hofstellen oder geerbten Objekten mit Wohnhaus alles in einer Hand. Alle Infos unter www.tr-immobilien.com.",
+    a: "Ja, über unsere Schwestergesellschaft: Wohnimmobilien (Haus, Wohnung, Mehrfamilienhaus) kauft im Kreis Lippe die TR Immobilien GmbH direkt an — keine Provision, auch vermietet oder renovierungsbedürftig. Eine erste Preiseinschätzung gibt es meist innerhalb von 24 Stunden, das Kaufangebot nach der Besichtigung. So bleibt bei Hofstellen oder geerbten Objekten mit Wohnhaus alles in einer Hand. Alle Infos unter www.tr-immobilien.com.",
     aJsx: (
       <>
         Ja, über unsere Schwestergesellschaft: Wohnimmobilien (Haus, Wohnung, Mehrfamilienhaus) kauft
-        im Kreis Lippe die TR Immobilien GmbH direkt an — Kaufangebot in 24 Stunden, keine Provision,
-        auch vermietet oder renovierungsbedürftig. So bleibt bei Hofstellen oder geerbten Objekten mit
-        Wohnhaus alles in einer Hand. Alle Infos unter{" "}
+        im Kreis Lippe die TR Immobilien GmbH direkt an — keine Provision, auch vermietet oder
+        renovierungsbedürftig. Eine erste Preiseinschätzung gibt es meist innerhalb von 24 Stunden, das
+        Kaufangebot nach der Besichtigung. So bleibt bei Hofstellen oder geerbten Objekten mit Wohnhaus
+        alles in einer Hand. Alle Infos unter{" "}
         <a href="https://www.tr-immobilien.com" rel="noopener" className="underline">
           www.tr-immobilien.com
         </a>
