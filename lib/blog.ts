@@ -20,6 +20,110 @@ export type Article = {
 
 export const ARTICLES: Article[] = [
   {
+    slug: "borkenkaefer-winter-2026-massnahmen-fichte-lippe",
+    title:
+      "Borkenkäfer 2025: Ruhigste Käfersaison seit der Kalamität — warum Fichtenbesitzer in Lippe trotzdem bis März raus müssen, und zwar ohne Chemie",
+    description:
+      "Ein neuer Fachbeitrag der Nordwestdeutschen Forstlichen Versuchsanstalt bestätigt: Der Borkenkäferbefall ging 2025 im Nordwesten erneut zurück. Für NRW meldet der Waldzustandsbericht bei der Fichte nur noch 18,1 % mittlere Kronenverlichtung. Trotzdem schreibt Wald und Holz NRW für den Zeitraum September bis März konkrete Kontroll- und Räummaßnahmen vor — und das einzige zugelassene Spritzmittel ist zum Jahresende 2025 ausgelaufen. Was das für Fichtenbesitzer im Kreis Lippe jetzt praktisch bedeutet.",
+    category: "Wald",
+    publishedAt: "2026-11-23",
+    readingMinutes: 8,
+    keywords: [
+      "Borkenkäfer Maßnahmen Winter 2026",
+      "Karate Forst flüssig Zulassung ausgelaufen",
+      "Fichte Borkenkäfer Kontrolle Lippe",
+      "Waldschutzsituation 2025 Nordwestdeutschland",
+      "Sanitärhieb Fichte entrinden bis März",
+      "Borkenkäfer Holz abfahren Frist",
+    ],
+    heroImage: "/blog-borkenkaefer-winter-2026.jpg",
+    faq: [
+      {
+        q: "Ist die Borkenkäferkalamität in NRW damit endgültig vorbei?",
+        a: "Vorsichtig positiv, aber keine Entwarnung. Der Waldzustandsbericht NRW 2025 (vorgestellt am 20. November 2025) stuft die seit 2018 laufende Borkenkäferkalamität als beendet ein: Die Fichte zeigt mit 18,1 % mittlerer Kronenverlichtung den besten Wert aller Baumarten, 55 % der Bäume haben gar keine Verlichtung mehr. Die satellitengestützt erfasste Nadelholz-Schadfläche wuchs 2025 nur noch um 1.557 Hektar – deutlich weniger als in den Vorjahren. Tim Scherer von Wald und Holz NRW warnt aber ausdrücklich, dass ein einzelnes sehr trockenes Jahr die Lage wieder verschärfen kann. Details zum Gesamtbericht und zur Lage der Eiche stehen in unserem Beitrag zum Waldzustandsbericht NRW 2025.",
+      },
+      {
+        q: "Woran erkenne ich, ob eine Fichte aktuell befallen ist?",
+        a: "Wald und Holz NRW nennt vier Symptome: Einbohrlöcher (im Winter typischerweise ohne das sonst sichtbare braune Bohrmehl, teils mit Harzaustritt), ein grüner Nadelteppich am Boden unter dem Baum, ein sichtbarer Rindenspiegel sowie eine schüttere Krone, die noch zu großen Teilen grün sein kann — befallene Fichten sehen also nicht zwangsläufig schon braun oder abgestorben aus. Hat die Rinde bereits großflächig abgeblättert, ist der Baum dagegen nicht mehr forstschutzrelevant und kann stehen bleiben.",
+      },
+      {
+        q: "Was mache ich mit befallenem Holz, wenn ich es nicht rechtzeitig aus dem Wald bekomme?",
+        a: "Maßgeblich ist der 1. März als Stichtag vor dem erwarteten Schwärmflug. Ist die Abfuhr von Stammholz, Abschnitten und Industrieholz bis dahin nicht gesichert, muss Stammholz und sollten Abschnitte entrindet werden (maschinell an der Waldstraße, händisch im Bestand oder alternativ gefräst/geschlitzt). Entrindetes Holz darf anschließend im Wald liegen bleiben, weil es nicht mehr forstschutzrelevant ist. Ist Entrinden nicht möglich, bleiben Häckseln mit thermischer Verwertung, das Lagern abseits von Fichtenbeständen (mindestens 500 Meter) oder — bei Verbleib auf der Fläche — das luftdichte Abdecken der Poltern mit schwarzer Folie.",
+      },
+      {
+        q: "Gibt es noch ein zugelassenes Spritzmittel gegen den Borkenkäfer?",
+        a: "Praktisch nicht mehr. Karate Forst flüssig war nach mehreren Verlängerungen das letzte in Deutschland für den Forst zugelassene Mittel gegen rindenbrütende Borkenkäfer — die Zulassung endete zum 31. Dezember 2025. Eine gesetzliche Aufbrauchfrist für vorhandene Lagerbestände kann zwar noch einige Zeit nachwirken, doch schon der eigene Leitfaden von Wald und Holz NRW (Stand Februar 2026) führt das Mittel nur noch als „Ultima Ratio“ mit abgelaufener Zulassung und Sachkundenachweis-Pflicht. Für private Waldbesitzer heißt das: Mechanische Maßnahmen — rechtzeitiges Fällen, Abfahren und Entrinden — sind faktisch die einzige verbleibende Option.",
+      },
+      {
+        q: "Kontrolliert Wald und Holz NRW meinen Privatwald automatisch auf Borkenkäferbefall?",
+        a: "Nein. Der offizielle Leitfaden stellt klar: Die Überwachung der Bestände sowie das Auffinden und Markieren befallener Fichten liegen in der Regel in der Verantwortung der Waldbesitzenden selbst. Försterinnen und Förster von Wald und Holz NRW unterstützen im Rahmen von Beratung, Anleitung und vertraglich vereinbarten Tätigkeiten — die eigentliche Kontrolle der Fläche müssen private Eigentümer aber selbst organisieren, etwa über regelmäßige Begehungen oder einen beauftragten Lohnunternehmer.",
+      },
+    ],
+    content: `
+<p class="lead">Die Zahlen für 2025 klingen erst einmal beruhigend: Sowohl der aktuelle Waldzustandsbericht NRW als auch ein neuer Fachbeitrag der Nordwestdeutschen Forstlichen Versuchsanstalt (NW-FVA) über die nordwestdeutschen Nachbarländer zeigen einen weiter rückläufigen Borkenkäferbefall. Trotzdem schreibt der Landesbetrieb Wald und Holz NRW für genau diese Wochen — Spätherbst bis Winter — konkrete Kontroll- und Räumpflichten für Fichtenbesitzer vor. Und ausgerechnet jetzt ist das letzte zugelassene chemische Mittel gegen den Käfer ausgelaufen. Was das praktisch bedeutet, wenn Sie im Kreis Lippe Fichtenbestand besitzen.</p>
+
+<figure>
+<img src="/blog-borkenkaefer-winter-2026.jpg" alt="Entrindete Fichtenstämme, ordentlich gestapelt am Rand eines nebligen Nadelwaldwegs im Spätherbst" width="1600" height="1075" style="width:100%;height:auto;border-radius:14px" loading="lazy" />
+<figcaption>Entrindetes Fichten-Stammholz am Waldweg: Genau das verlangt der Leitfaden von Wald und Holz NRW, wenn die Abfuhr vor dem 1. März nicht gesichert ist.</figcaption>
+</figure>
+
+<h2>Das Wichtigste in Kürze</h2>
+<ul>
+<li><strong>Trend:</strong> Borkenkäferbefall ging 2025 sowohl laut NRW-Waldzustandsbericht als auch laut NW-FVA-Fachbeitrag für die Nachbarländer erneut zurück.</li>
+<li><strong>Aber:</strong> Wald und Holz NRW schreibt für September bis März aktive Kontroll- und Räummaßnahmen vor — Ziel ist, überwinternde Käfer vor dem Ausflug im Frühjahr abzuschöpfen.</li>
+<li><strong>Stichtag:</strong> der 1. März. Ist die Abfuhr von befallenem Holz bis dahin nicht gesichert, muss entrindet, gehäckselt oder abgedeckt werden.</li>
+<li><strong>Chemie faktisch am Ende:</strong> Karate Forst flüssig, das letzte zugelassene Mittel, verlor seine Zulassung zum 31. Dezember 2025.</li>
+<li><strong>Verantwortung:</strong> Überwachung, Auffinden und Markieren befallener Fichten liegt laut Wald und Holz NRW bei den Waldbesitzenden selbst, nicht automatisch beim Förster.</li>
+</ul>
+
+<h2>Die gute Nachricht zuerst — mit einer wichtigen Einschränkung</h2>
+<p>Für Nordrhein-Westfalen hatten wir die zentralen Zahlen bereits in unserem Beitrag zum <a href="/blog/waldzustandsbericht-nrw-2025-eiche-lippe-wiederbewaldung">Waldzustandsbericht NRW 2025</a> eingeordnet: Bei der Fichte sank die mittlere Kronenverlichtung auf 18,1 % — den besten Wert aller erfassten Baumarten —, 55 % der Bäume zeigten gar keine Verlichtung mehr, und die seit 2018 laufende Borkenkäferkalamität gilt laut Ministerium als beendet. Die per Satellit erfasste Nadelholz-Schadfläche wuchs 2025 nur noch um 1.557 Hektar, deutlich weniger als in den Vorjahren.</p>
+<p>Einen zweiten, unabhängigen Beleg liefert jetzt ein Fachbeitrag der Nordwestdeutschen Forstlichen Versuchsanstalt (NW-FVA) mit dem Titel „Waldschutzsituation 2025 in Nordwestdeutschland“. Wichtig für die Einordnung: Die NW-FVA ist die gemeinsame Forschungsanstalt von Niedersachsen, Hessen, Sachsen-Anhalt und Schleswig-Holstein — NRW gehört nicht zu ihrem Zuständigkeitsgebiet, die Zahlen lassen sich also nicht eins zu eins auf Lippe übertragen. Als Trend für die direkte Nachbarschaft sind sie trotzdem aufschlussreich: Der gemeldete Befall durch rindenbrütende Borkenkäfer fiel 2025 in allen vier Ländern nochmals geringer aus als 2024 — und das trotz eines ausgeprägt warmen, trockenen Jahres, das deutschlandweit zu den zehn wärmsten seit 1881 zählte. Zwischen dem 1. April 2025 und dem 16. Februar 2026 meldeten die Forstbetriebe im NW-FVA-Gebiet rund 9.802 Schadfälle mit zusammen 80.890 Kubikmetern Schadholz durch rindenbrütende Käfer. Die Autoren um Dr. Martin Rohde ziehen ein vorsichtig optimistisches Fazit: „Insgesamt blieben die Borkenkäferschäden nach Einschätzung der Forstbetriebe auch in stärker betroffenen Bereichen auf einem gut handhabbaren Niveau.“</p>
+
+<h2>Warum Sie trotzdem jetzt, im Spätherbst, in den Fichtenbestand müssen</h2>
+<p>Genau hier liegt der Punkt, den ruhige Jahresbilanzen leicht überdecken: Ein guter Jahresdurchschnitt verhindert nicht, dass einzelne Fichten gerade jetzt befallen sind und den Winter über Käfer beherbergen, die im Frühjahr ausfliegen. Der Landesbetrieb Wald und Holz NRW hat deshalb einen eigenen Leitfaden „Maßnahmen zur Borkenkäferbekämpfung im Herbst und Winter (September bis März)“ veröffentlicht (Stand Februar 2026). Das erklärte Ziel: ein maximal mögliches Abschöpfen der in den Fichten überwinternden Borkenkäfer, bevor sie im Frühjahr ausfliegen und neue Bäume befallen. Die jetzige, vergleichsweise ruhige Lage ist damit kein Grund zum Abwarten, sondern der richtige Zeitpunkt, um mit wenig Befallsdruck in den Bestand zu gehen und dem nächsten Frühjahr einen Schritt voraus zu sein.</p>
+
+<h2>So erkennen Sie befallene Fichten</h2>
+<p>Der Leitfaden nennt vier Symptome, auf die Sie bei der Bestandskontrolle achten sollten:</p>
+<ul>
+<li><strong>Einbohrlöcher</strong> — im Winter meist ohne das sonst typische braune Bohrmehl, teils mit Harzaustritt.</li>
+<li><strong>Grüner Nadelteppich am Boden</strong> unter dem Baum.</li>
+<li><strong>Sichtbarer Rindenspiegel</strong> an Stamm oder abgefallenen Rindenstücken.</li>
+<li><strong>Schüttere Krone</strong>, die auch bei Befall noch zu großen Teilen grün sein kann — ein frisch befallener Baum sieht also nicht automatisch schon abgestorben aus.</li>
+</ul>
+<p>Fichten mit bereits großflächig abgefallener Rinde sind dagegen nicht mehr forstschutzrelevant und können im Bestand stehen bleiben.</p>
+
+<h2>Der Ablauf: Fällen, Abfahren — notfalls Entrinden</h2>
+<p>Befallene Bäume sollten vorzugsweise mit dem Harvester eingeschlagen werden. Danach entscheidet ein einziges Datum über den weiteren Weg: der 1. März, kurz vor dem temperaturbedingten Beginn des Schwärmflugs.</p>
+<ul>
+<li><strong>Abfuhr bis zum 1. März gesichert:</strong> Holzverkauf vorab organisieren und Stammholz, Abschnitte sowie Industrieholz möglichst unmittelbar zum Käufer abfahren lassen.</li>
+<li><strong>Abfuhr bis zum 1. März nicht gesichert:</strong> Stammholz und Abschnitte müssen entrindet werden — maschinell an der Waldstraße, händisch im Bestand oder an der Waldstraße, alternativ durch Fräsen oder Schlitzen mit Mehrschritt-Anbaugerät. Entrindetes Holz ist danach nicht mehr forstschutzrelevant und darf im Wald liegen bleiben; abgeschälte Rinde wird zu Haufen aufgesetzt und mit schwarzer Folie abgedeckt oder — nicht bei Trockenheit und nur mit Genehmigung — verbrannt.</li>
+<li><strong>Wenn Entrinden nicht möglich ist</strong> (etwa bei Industrieholz): Häckseln mit thermischer Verwertung, Lagerung abseits bestehender Fichtenbestände (mindestens 500 Meter, bei hohem Befallsdruck mehr) oder bei Verbleib auf der Fläche ein luftdichtes Abdecken der Polter mit schwarzer Folie, etwa in Vorbereitung einer möglichen Behandlung im März oder April.</li>
+</ul>
+<p>Auch für Resthölzer — rotfaule Erdstammstücke, Kronenrestholz, sogenanntes X-Holz — gibt der Leitfaden einen Weg vor: Häckseln mit thermischer Verwertung, Mulchen ausschließlich auf den Rückegassen, oder, nur bei ausreichender Bodenfeuchte und mit Genehmigung, ein kontrolliertes Verbrennen vorkonzentrierter Haufen auf der Fläche.</p>
+
+<h2>Keine Chemie mehr: Warum „Ultima Ratio" jetzt wirklich die letzte Option ist</h2>
+<p>Noch im Leitfaden selbst taucht als allerletzte Eskalationsstufe eine Behandlung mit Pflanzenschutzmitteln im Frühjahr auf, mit Sachkundenachweis-Pflicht — genannt wird „Karate Forst flüssig“. Nur: Genau dieses Mittel war nach mehreren behördlichen Verlängerungen das letzte in Deutschland für den Forstbereich zugelassene Insektizid gegen rindenbrütende Borkenkäfer, und seine Zulassung endete zum 31. Dezember 2025. Eine gesetzliche Aufbrauchfrist von in der Regel 18 Monaten kann zwar noch eine Zeit lang das Verbrauchen vorhandener Lagerbestände erlauben, einen Nachfolger für neue Beschaffung gibt es für Borkenkäfer bislang nicht — ein im Oktober 2025 neu zugelassenes Mittel (Lanzarta) richtet sich gegen den Großen Braunen Rüsselkäfer, nicht gegen Borkenkäfer. Für die Praxis heißt das: Wo Wald und Holz NRW noch vor Kurzem zwischen mechanischen Maßnahmen und einer chemischen „Ultima Ratio“ unterschied, bleiben Fichtenbesitzern faktisch nur die mechanischen Wege — rechtzeitiges Fällen, Abfahren und, wo nötig, Entrinden.</p>
+
+<h2>Die Verantwortung liegt bei Ihnen — nicht automatisch beim Förster</h2>
+<p>Ein Satz aus dem Leitfaden verdient besondere Aufmerksamkeit, weil er bei vielen privaten Waldbesitzern anders ankommt, als er gemeint ist: „Die Überwachung der Bestände, das Auffinden und Markieren befallener Fichten liegt in der Regel in der Verantwortung der Waldbesitzenden!“ Försterinnen und Förster von Wald und Holz NRW unterstützen im Rahmen von Beratung, Anleitung und vertraglich vereinbarten Tätigkeiten — die eigentliche, regelmäßige Begehung und Kontrolle der eigenen Fläche müssen Eigentümer aber selbst organisieren oder in Auftrag geben. Wer größere oder unübersichtliche Flächen besitzt, sollte das jetzt vor Winterbeginn klären, statt sich erst im Frühjahr zu wundern, warum ein Befall unbemerkt blieb.</p>
+
+<h2>Was das für Waldbesitzer im Kreis Lippe jetzt heißt</h2>
+<ul>
+<li><strong>Bestand jetzt begehen, nicht erst im Frühjahr.</strong> Prüfen Sie Fichtenbestände gezielt auf Einbohrlöcher, Nadelteppich, Rindenspiegel und schüttere Kronen — auch wenn die Lage insgesamt entspannt ist.</li>
+<li><strong>Abfuhr organisieren, bevor der 1. März näherrückt.</strong> Wer befallenes Holz findet, sollte den Verkauf und die Abfuhr frühzeitig klären — sonst wird Entrinden oder Häckseln notwendig. Für Einschlag und Rückung ohne eigene Technik vermittelt unsere <a href="/services/lohnunternehmer">Lohnunternehmer-Vermittlung</a> passende Partner im Kreis Lippe.</li>
+<li><strong>Keine Zeit mit Spritzmitteln verlieren.</strong> Da die Zulassung für Karate Forst flüssig ausgelaufen ist, zählt in der Praxis vor allem Tempo bei den mechanischen Maßnahmen.</li>
+<li><strong>Alte Kalamitätsflächen und Förderung mitdenken.</strong> Wer noch unaufgeräumte Käferholz- oder Sturmwurfflächen aus den Vorjahren hat, findet Praxistipps in unserem Beitrag <a href="/blog/kaeferholz-sturmwurf-lippe-privatwald">Käferholz und Sturmwurf: Was Lipper Privatwaldbesitzer tun konnten — und können</a>; für die Wiederbewaldung mit Mischwald lohnt der Blick in die <a href="/blog/biotopbaeume-privatwald-nrw-2026-foerderung-pro-baum">Biotopbaum-Förderung</a>.</li>
+<li><strong>Die eigene Fläche realistisch einordnen.</strong> Gerade bei älteren, reinen Fichtenbeständen mit wiederkehrendem Befallsrisiko lohnt der Vergleich der drei Wege Halten, Fördern oder Verkaufen — eingeordnet in <a href="/blog/privatwald-lippe-halten-foerdern-verkaufen">Privatwald in Lippe: Halten, fördern oder verkaufen</a>.</li>
+</ul>
+
+<h2>Was wir konkret tun</h2>
+<p>Lippe Forst kauft und vermittelt Waldflächen im Kreis Lippe und Umland — auch Fichtenbestände mit Käferholz-Vorgeschichte oder unklarem Zustand. Wir ordnen ehrlich ein, ob sich eine Fläche eher für die Weiterbewirtschaftung mit Wiederbewaldung, für die Vermittlung eines Lohnunternehmers zur Aufarbeitung oder für einen Verkauf eignet. Eine erste Einschätzung ist kostenlos und unverbindlich: <a href="/wald-verkaufen">Wald verkaufen im Kreis Lippe</a>, <a href="/flaeche-bewerten">kostenlos bewerten lassen</a> oder direkt über das <a href="/kontakt">Kontaktformular</a>.</p>
+
+<p class="text-sm text-stone-500"><em>Stand: 23. November 2026. Quellen: Landesbetrieb Wald und Holz NRW, Zentrum für Wald- und Holzwirtschaft, Team Wald- und Klimaschutz, Merkblatt „Maßnahmen zur Borkenkäferbekämpfung im Herbst und Winter (September bis März)“ (Stand Februar 2026); Nordwestdeutsche Forstliche Versuchsanstalt (NW-FVA), Abteilung Waldschutz, M. Rohde, G. Langer, R. Hurling, P. Plašil, J. Bußkamp, S. Bien, R. Fritz: „Waldschutzsituation 2025 in Nordwestdeutschland“, Fachzeitschriften-Beitrag Ausgabe 9/2026 (Datenstand Waldschutz-Meldeportal 01.04.2025–16.02.2026); Ministerium für Landwirtschaft und Verbraucherschutz NRW, Waldzustandsbericht 2025 (vorgestellt 20. November 2025); Berichterstattung zur auslaufenden Zulassung von Karate Forst flüssig (Zulassungsende 31. Dezember 2025) auf Basis von NW-FVA-Waldschutzinfos und Wald-und-Holz-NRW-Infomeldungen 2025/2026. Dieser Beitrag ersetzt keine individuelle fachliche Beratung zu Ihrem Bestand.</em></p>
+`,
+  },
+  {
     slug: "grundstuecksmarktbericht-nrw-2026-waldpreise-sieben-prozent-lippe",
     title:
       "Wald in NRW wird amtlich 7 % teurer: Was der neue Grundstücksmarktbericht 2026 für Waldbesitzer im Kreis Lippe bedeutet",
